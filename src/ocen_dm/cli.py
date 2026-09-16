@@ -218,6 +218,18 @@ def cmd_inspect_omegacat(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_plot_data(args: argparse.Namespace) -> int:
+    """Write overview PNGs of every ingested dataset into plots/."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    from .plotting.data_overview import plot_all
+
+    for path in plot_all(only=args.only or None):
+        print(f"  wrote {path.relative_to(project_root())}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Build the ``ocen`` argument parser."""
     parser = argparse.ArgumentParser(
@@ -240,6 +252,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     inv = subparsers.add_parser("inventory", help="print the dataset inventory")
     inv.set_defaults(func=cmd_inventory)
+
+    plot = subparsers.add_parser("plot-data", help="write overview PNGs of the ingested data")
+    plot.add_argument("--only", action="append", help="function name, e.g. plot_sky_overview")
+    plot.set_defaults(func=cmd_plot_data)
 
     insp = subparsers.add_parser("inspect-omegacat", help="dump oMEGACat raw file structure")
     insp.add_argument("--columns", action="store_true", help="also list columns")
