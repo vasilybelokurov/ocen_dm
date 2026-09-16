@@ -600,3 +600,53 @@ to 1.18 outward, the FLAMES fields strung along the NE–SW tail axis.
 
 Usage limit reached; resets **19 Sep 2026, 09:10**. The Milestone 2 critical review is
 pending until then.
+
+---
+
+## 2026-09-16 (late, cont.) — the velocity figures that were missing
+
+The user asked where the v_los and 3D-velocity plots were; there were none. `v_los` had
+appeared only in the Kuzma 2026 v–[Fe/H] plane, and the 1.48M-star oMEGACat
+`catalog_and_selections.fits` — 24,928 stars with high-quality **proper motions and v_los** —
+had been downloaded but never plotted. Two figures added.
+
+### `kuzma2026_vlos_along_tails.png`
+
+v_los against signed angular distance along the tails, sign from the target-name field code
+(I/M/O × L/T; leading drawn positive), members highlighted, per-field member means labelled.
+Inner fields: **IT (trailing) 236.8 ± 0.8 km/s (n=75)** versus **IL (leading) 233.0 ± 0.8
+km/s (n=77)** — a 3.8 ± 1.1 km/s offset between the two sides at ~0.7° from the centre. The
+middle and outer fields hold only 0–2 members each, so the tails' velocity structure is
+measured essentially at the inner fields alone. Recorded as data, not interpreted.
+
+### `omegacat_vi_3d_velocities.png`
+
+Four panels from the high-quality PM+LOS sample: the LOS velocity field (a clean rotation
+dipole, ±5 km/s); rotation curves in the plane of the sky (from PM) and along the line of
+sight (paper); the three velocity components of the same stars; and σ_PM converted at 5.43
+kpc against σ_LOS.
+
+Facts read off it:
+
+- **σ_R = 16.8, σ_T = 15.4, σ_LOS = 16.9 km/s** for the same 24,928 stars — the three
+  components agree once the PMs are converted at the paper's kinematic distance, and the
+  σ_PM(r) and σ_LOS(r) profiles track each other over two decades in radius. That agreement is
+  the kinematic distance; the plot shows it directly.
+- σ_T < σ_R in the plane of the sky: mild radial anisotropy, matching σ_R/σ_T rising outward in
+  the profile figure.
+
+### The θ₀ convention, settled empirically
+
+The tabulated θ₀ (paper: "position angle of the rotation axis", 104.3 ± 1.4° for r > 30″) did
+not match the map, whose zero-velocity line runs nearly N–S. Rather than guess, I fitted
+`v = v0 + A sin(φ − φ0)` to the 24,928 stars with φ the PA from North through East, r > 30″:
+**v0 = 232.8 km/s, A = 5.7 km/s, φ0 = 12.9°**. The paper's value equals φ0 + 90° (102.9° vs
+104.3°, within the errors): the tabulated angle marks the direction of *maximum* rotation
+velocity in the North-through-East convention, i.e. it is the rotation-axis angle in a frame
+whose origin differs by 90°. Recorded in the role description in `omegacat.py` and drawn on
+the map. The paper's PMs are stated to be measured relative to the bulk motion; the
+plane-of-sky ⟨v_tan⟩(r) panel shows empirically whether differential rotation survives that.
+
+Two figures were wrong on first render and fixed: field labels colliding with a title, and a
+per-cell PM rotation *map* that was noise-dominated (~2 km/s per-cell error against a
+few-km/s signal) — replaced by a binned rotation *curve* with errors.

@@ -15,16 +15,21 @@ import numpy as np
 from astropy.table import Table
 from matplotlib import pyplot as plt
 
-from ..paths import processed_dir, project_root
+from ..paths import processed_dir, project_root, raw_dir
 from . import style
 
 __all__ = ["plot_all", "PLOTS"]
 
 #: NGC 5139 centre, SIMBAD (J2000): 13h26m47.28s -47d28m46.1s
 OCEN_RA, OCEN_DEC = 201.697, -47.4795
-#: oMEGACat VI kinematic distance, used only to label a secondary axis in pc
+#: oMEGACat VI kinematic distance, used to label a secondary axis in pc and to
+#: convert proper motions to km/s for display: v = 4.74047 * mu * D
 OCEN_DISTANCE_KPC = 5.43
 ARCSEC_TO_PC = OCEN_DISTANCE_KPC * 1e3 / 206265.0
+MASYR_TO_KMS = 4.74047 * OCEN_DISTANCE_KPC
+#: systemic heliocentric velocity, taken as the median of the high-quality
+#: oMEGACat sample (232.6 km/s), used only to centre displays
+OCEN_VSYS = 232.6
 MEMBER_THRESHOLD = 0.5
 
 
@@ -335,14 +340,196 @@ def plot_omegacat_rotation_axis() -> Path:
     return _save(fig, "omegacat_vi_rotation_axis")
 
 
+# --------------------------------------------------- velocities along the tails ---
+def plot_kuzma2026_vlos_along_tails() -> Path:
+    """Line-of-sight velocity against signed distance along the tidal tails.
+
+    Sign comes from the target names: fields I/M/O (inner, middle, outer) and
+    L/T (leading, trailing). Leading is drawn positive.
+    """
+    spec = _load("kuzma2026_spectroscopy", "tails")
+    ra, dec = np.asarray(spec["ra"]), np.asarray(spec["dec"])
+    v, ev = np.asarray(spec["vlos"]), np.asarray(spec["vlos_error"])
+    member = np.asarray(spec["member_flag"]).astype(str) == "True"
+    ids = np.asarray(spec["star_id"]).astype(str)
+    field = np.array([i[:2] for i in ids])              # OT, MT, IT, IL, ML, OL
+    leading = np.array([f[1] == "L" for f in field])
+    dx, dy = _tangent(ra, dec)
+    sep = np.hypot(dx, dy) * np.where(leading, 1.0, -1.0)
+
+    fig, ax = plt.subplots(figsize=(11, 5.5))
+    ax.axhline(OCEN_VSYS, color=style.INK_SECONDARY, lw=0.8, ls="--")
+    ax.text(3.35, OCEN_VSYS + 6, f"systemic {OCEN_VSYS} km/s", color=style.INK_SECONDARY,
+            fontsize=9, ha="right")
+    ax.errorbar(sep[~member], v[~member], yerr=ev[~member], fmt="o", ms=3, mfc=style.COLOR_FIELD,
+                mec="none", ecolor=style.COLOR_FIELD, elinewidth=style.ERR_PT, alpha=0.7,
+                label=f"non-members (n={(~member).sum()})")
+    ax.errorbar(sep[member], v[member], yerr=ev[member], fmt="o", ms=4.5, mfc=style.COLOR_KUZMA2026,
+                mec="none", ecolor=style.COLOR_KUZMA2026, elinewidth=style.ERR_PT,
+                label=f"members (n={member.sum()})")
+    # per-field mean of the members, with the error of the mean, labelled directly
+    for name in ("OT", "MT", "IT", "IL", "ML", "OL"):
+        pick = member & (field == name)
+        if pick.sum() < 2:
+            ax.text(np.mean(sep[field == name]), 290, f"{name}\n({pick.sum()} member)",
+                    ha="center", va="top", color=style.INK_SECONDARY, fontsize=8.5)
+            continue
+        m, e = np.mean(v[pick]), np.std(v[pick]) / np.sqrt(pick.sum())
+        x = np.mean(sep[pick])
+        ax.errorbar(x, m, yerr=e, fmt="s", ms=8, mfc=style.SURFACE, mec=style.INK, mew=1.2,
+                    ecolor=style.INK, elinewidth=1.4, capsize=4, zorder=5)
+        ax.text(x, 290, f"{name}\n{m:.1f} ± {e:.1f}\n(n={pick.sum()})", ha="center", va="top",
+                color=style.INK, fontsize=8.5)
+    ax.set_ylim(-160, 300)
+    ax.set_title("Kuzma et al. 2026: line-of-sight velocities along the tidal tails", pad=14)
+    ax.set_xlim(-3.5, 3.5)
+    ax.set_xlabel("signed angular distance from the centre  [deg]   (trailing ← 0 → leading)")
+    ax.set_ylabel("heliocentric velocity  [km / s]")
+    ax.legend(loc="lower left")
+    return _save(fig, "kuzma2026_vlos_along_tails")
+
+
+# ------------------------------------------------------ oMEGACat 3D velocities ----
+def _omegacat_hq_3d() -> dict[str, np.ndarray]:
+    """High-quality stars with both proper motions and v_los, in tangent-plane arcsec."""
+    cat = Table.read(raw_dir() / "omegacat_vi_kinematics" / "catalog_and_selections.fits")
+    hq = np.asarray(cat["selection_hq_pm_and_los"]) == 1
+    ra, dec = np.asarray(cat["RA"])[hq], np.asarray(cat["DEC"])[hq]
+    dx, dy = _tangent(ra, dec)
+    x, y = dx * 3600.0, dy * 3600.0
+    pmra = np.asarray(cat["pmra_corrected"])[hq]
+    pmde = np.asarray(cat["pmdec_corrected"])[hq]
+    r = np.hypot(x, y)
+    ux, uy = x / r, y / r
+    return {
+        "x": x, "y": y, "r": r,
+        "v_los": np.asarray(cat["vlos"])[hq],
+        "v_rad": (pmra * ux + pmde * uy) * MASYR_TO_KMS,      # plane-of-sky radial
+        "v_tan": (-pmra * uy + pmde * ux) * MASYR_TO_KMS,     # plane-of-sky tangential
+        "v_ra": pmra * MASYR_TO_KMS, "v_de": pmde * MASYR_TO_KMS,
+    }
+
+
+def _fit_kinematic_axis(x, y, v, r_min=30.0):
+    """Fit ``v = v0 + A sin(phi - phi0)`` with ``phi`` the position angle from North
+    through East, using stars outside ``r_min`` arcsec. Returns ``(v0, A, phi0)`` in
+    km/s, km/s and degrees; ``phi0`` is the zero-velocity (rotation-axis) direction."""
+    r = np.hypot(x, y)
+    keep = r > r_min
+    phi = np.arctan2(x[keep], y[keep])            # PA: 0 at North (+y), +90 at East (+x)
+    design = np.column_stack([np.ones(keep.sum()), np.sin(phi), np.cos(phi)])
+    coef, *_ = np.linalg.lstsq(design, v[keep], rcond=None)
+    v0, a, b = coef                               # v = v0 + a sin(phi) + b cos(phi)
+    amp = np.hypot(a, b)
+    phi0 = np.degrees(np.arctan2(-b, a)) % 180.0  # sin(phi - phi0) expansion
+    return float(v0), float(amp), float(phi0)
+
+
+def plot_omegacat_3d_velocities() -> Path:
+    """The 3D velocity data of the core: LOS rotation map with the fitted kinematic
+    axis, rotation curves from PM and LOS, the three velocity components, and the
+    PM-versus-LOS dispersion comparison that sets the kinematic distance."""
+    d = _omegacat_hq_3d()
+    n = len(d["x"])
+    dv = d["v_los"] - OCEN_VSYS
+    v0, amp, phi0 = _fit_kinematic_axis(d["x"], d["y"], d["v_los"])
+
+    fig, axes = plt.subplots(2, 2, figsize=(12.5, 11))
+    (ax_los, ax_rot), (ax_hist, ax_disp) = axes
+    extent = (-400, 400, -300, 300)
+
+    hb = ax_los.hexbin(d["x"], d["y"], C=dv, vmin=-8, vmax=8, gridsize=28, extent=extent,
+                       cmap=style.DIVERGING, reduce_C_function=np.mean, mincnt=8,
+                       linewidths=0.2, edgecolors=style.SURFACE)
+    cb = fig.colorbar(hb, ax=ax_los, pad=0.02)
+    cb.set_label(f"⟨v_LOS⟩ − {OCEN_VSYS} km/s  [km / s]", color=style.INK_SECONDARY)
+    cb.outline.set_visible(False)
+    # the fitted zero-velocity line, i.e. the projected rotation axis
+    t = np.linspace(-320, 320, 2)
+    ax_los.plot(t * np.sin(np.radians(phi0)), t * np.cos(np.radians(phi0)), color=style.INK,
+                lw=1.2, ls="--")
+    ax_los.text(-390, -280, f"fitted rotation axis: PA = {phi0:.0f}° (N through E), r > 30″\n"
+                f"amplitude {amp:.1f} km/s   |   paper θ₀ = 104.3 ± 1.4°",
+                fontsize=8.5, color=style.INK, ha="right", va="bottom",
+                bbox=dict(fc=style.SURFACE, ec="none", alpha=0.85))
+    ax_los.set_title(f"Line-of-sight velocity field (mean per cell, n = {n:,} stars)")
+    ax_los.set_xlabel("ΔRA cos(Dec)  [arcsec]  (east to the left)")
+    ax_los.set_ylabel("ΔDec  [arcsec]")
+    ax_los.set_xlim(400, -400)
+    ax_los.set_ylim(-300, 300)
+    ax_los.set_aspect("equal")
+    ax_los.grid(False)
+
+    # rotation curves: plane-of-sky from PM (these PMs are relative to the bulk
+    # motion, so any signal here is differential rotation) and LOS from the paper
+    edges = np.geomspace(5.0, 330.0, 14)
+    mids, mean_t, err_t = [], [], []
+    for lo, hi in zip(edges[:-1], edges[1:]):
+        pick = (d["r"] >= lo) & (d["r"] < hi)
+        if pick.sum() < 30:
+            continue
+        mids.append(np.median(d["r"][pick]))
+        mean_t.append(np.mean(d["v_tan"][pick]))
+        err_t.append(np.std(d["v_tan"][pick]) / np.sqrt(pick.sum()))
+    ax_rot.errorbar(mids, mean_t, yerr=err_t, fmt="o-", ms=style.MARKER_PT, color=style.SERIES[1],
+                    ecolor=style.SERIES[1], elinewidth=style.ERR_PT, capsize=2,
+                    label="⟨v_tan⟩ from proper motions (this sample, plane of sky)")
+    rot = _load("omegacat_vi_los_rotation", "kinematics")
+    ax_rot.errorbar(rot["r_median"], rot["v_rot"], yerr=_asym(rot, "v_rot"), fmt="o-",
+                    ms=style.MARKER_PT, color=style.SERIES[0], ecolor=style.SERIES[0],
+                    elinewidth=style.ERR_PT, capsize=2, label="v_rot from line-of-sight velocities (paper)")
+    ax_rot.axhline(0, color=style.INK_SECONDARY, lw=0.8, ls="--")
+    ax_rot.set_xscale("log")
+    ax_rot.set_xlabel("r  [arcsec]")
+    ax_rot.set_ylabel("rotation velocity  [km / s]")
+    ax_rot.set_title("Rotation: plane of sky versus line of sight")
+    ax_rot.legend(loc="upper left", fontsize=8.5)
+    _add_pc_axis(ax_rot)
+
+    bins = np.linspace(-80, 80, 81)
+    for values, color, label in (
+        (d["v_rad"], style.SERIES[1], f"v_R (PM, plane-of-sky radial)   σ = {np.std(d['v_rad']):.1f}"),
+        (d["v_tan"], style.SERIES[2], f"v_T (PM, plane-of-sky tangential)   σ = {np.std(d['v_tan']):.1f}"),
+        (dv, style.SERIES[0], f"v_LOS − systemic   σ = {np.std(dv):.1f}"),
+    ):
+        ax_hist.hist(values, bins=bins, histtype="step", lw=1.6, color=color, label=label)
+    ax_hist.set_xlabel(f"velocity  [km / s]   (proper motions converted at D = {OCEN_DISTANCE_KPC} kpc)")
+    ax_hist.set_ylabel("stars per 2 km/s")
+    ax_hist.set_title("The three velocity components of the same stars")
+    ax_hist.legend(loc="upper left", fontsize=8.5)
+
+    com = _load("omegacat_vi_pm_combined", "kinematics")
+    los = _load("omegacat_vi_los_dispersion", "kinematics")
+    spm = np.asarray(com["sigma_pmc"]) * MASYR_TO_KMS
+    epm = _asym(com, "sigma_pmc") * MASYR_TO_KMS
+    ax_disp.errorbar(com["r_median"], spm, yerr=epm, fmt="o-", ms=style.MARKER_PT,
+                     color=style.SERIES[1], ecolor=style.SERIES[1], elinewidth=style.ERR_PT,
+                     capsize=2, label=f"σ_PM,combined × 4.74 D  (D = {OCEN_DISTANCE_KPC} kpc)")
+    ax_disp.errorbar(los["r_median"], los["sigma_los"], yerr=_asym(los, "sigma_los"), fmt="o-",
+                     ms=style.MARKER_PT, color=style.SERIES[0], ecolor=style.SERIES[0],
+                     elinewidth=style.ERR_PT, capsize=2, label="σ_LOS")
+    ax_disp.set_xscale("log")
+    ax_disp.set_xlabel("r  [arcsec]")
+    ax_disp.set_ylabel("velocity dispersion  [km / s]")
+    ax_disp.set_title("PM and LOS dispersions agree when D is right: the kinematic distance")
+    ax_disp.legend(loc="lower left")
+    _add_pc_axis(ax_disp)
+
+    fig.suptitle("oMEGACat VI: three-dimensional kinematics of the core "
+                 "(HST proper motions + MUSE line-of-sight velocities)", y=0.995)
+    fig.tight_layout()
+    return _save(fig, "omegacat_vi_3d_velocities")
+
 PLOTS = (
     plot_sky_overview,
     plot_kuzma2025_proper_motions,
     plot_kuzma2025_cmd_and_metallicity,
     plot_kuzma2026_spectroscopy,
+    plot_kuzma2026_vlos_along_tails,
     plot_fimbulthul,
     plot_omegacat_profiles,
     plot_omegacat_rotation_axis,
+    plot_omegacat_3d_velocities,
 )
 
 
