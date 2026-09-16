@@ -109,7 +109,7 @@ class TruncatedGNFW(MassComponent):
     def total_mass(self) -> float:
         if not self.truncated:
             return float("inf")  # gNFW mass diverges logarithmically or worse
-        return float(MassComponent.enclosed_mass(self, np.array([np.inf]))[0])
+        return self.tables.total_mass
 
 
 @dataclass(frozen=True)
@@ -182,4 +182,4 @@ class Burkert(MassComponent):
     def total_mass(self) -> float:
         if not self.truncated:
             return float("inf")  # Burkert mass diverges logarithmically
-        return float(MassComponent.enclosed_mass(self, np.array([np.inf]))[0])
+        return self.tables.total_mass

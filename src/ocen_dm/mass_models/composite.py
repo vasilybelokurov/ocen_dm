@@ -256,7 +256,7 @@ class CompositeMassModel(MassComponent):
             mass_error = 0.0
         else:
             analytic = self.enclosed_mass(radii)
-            numeric = MassComponent.enclosed_mass(self, radii)
+            numeric = self.quad_enclosed_mass(radii)
             mass_error = float(
                 np.max(np.abs(analytic - numeric) / np.maximum(np.abs(analytic), 1e-30))
             )

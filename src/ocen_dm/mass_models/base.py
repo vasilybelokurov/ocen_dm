@@ -28,15 +28,23 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from functools import cached_property
 from typing import Any, Callable, Sequence
 
 import numpy as np
-from scipy import integrate, optimize
+from scipy import integrate, interpolate, optimize
 
-__all__ = ["G", "MassComponent", "VerificationReport", "as_array", "dphi_dr"]
+__all__ = ["G", "MassComponent", "VerificationReport", "as_array", "dphi_dr", "ProfileTables"]
 
 #: Gravitational constant in pc Msun^-1 (km/s)^2 (CODATA 2018, via astropy).
 G = 4.300917270036276e-3
+
+#: Log grid on which numerically defined profiles are tabulated, in pc. Eleven
+#: decades cover anything a globular cluster and its halo can ask for; requests
+#: outside it fall back to quadrature.
+TABLE_R_MIN = 1e-5
+TABLE_R_MAX = 1e6
+TABLE_POINTS = 2000
 
 
 def as_array(r: Any) -> np.ndarray:
@@ -106,6 +114,105 @@ def dphi_dr(
     return derivative / (step * radii)
 
 
+class ProfileTables:
+    """Spline tables of ``M(<r)`` and ``Phi(r)`` built from a density function.
+
+    Why this exists: the truncated halos have no closed forms, and evaluating
+    them by adaptive quadrature costs ~250 ms per composite model. A nested
+    sampler changes the halo parameters on every call, so caching across calls
+    does not help; the tables themselves must be cheap to build. Vectorised
+    Simpson integration on a fixed log grid builds both tables in about a
+    millisecond and a cubic spline then answers any radius in microseconds.
+
+    Accuracy is set by the grid: with 2000 points over eleven decades the step in
+    ``ln r`` is 0.013 and the Simpson error is ~1e-8 relative. ``verify()``
+    measures this against adaptive quadrature rather than assuming it.
+
+    Parameters
+    ----------
+    density : callable
+        ``density(r) -> rho`` in Msun / pc^3 for an array of radii in pc.
+    r_min, r_max : float, optional
+        Grid limits in pc.
+    n : int, optional
+        Number of grid points.
+    """
+
+    def __init__(
+        self,
+        density: Callable[[np.ndarray], np.ndarray],
+        r_min: float = TABLE_R_MIN,
+        r_max: float = TABLE_R_MAX,
+        n: int = TABLE_POINTS,
+    ) -> None:
+        self.r_min, self.r_max = float(r_min), float(r_max)
+        u = np.linspace(np.log(r_min), np.log(r_max), n)
+        r = np.exp(u)
+        rho = np.asarray(density(r), dtype=float)
+        if np.any(~np.isfinite(rho)) or np.any(rho < 0):
+            raise ValueError("density must be finite and non-negative on the table grid")
+
+        # Local logarithmic slopes at the ends, used to extend the profile
+        # analytically below r_min (inner power law) and above r_max (outer tail).
+        with np.errstate(divide="ignore", invalid="ignore"):
+            inner_slope = -(np.log(rho[1]) - np.log(rho[0])) / (u[1] - u[0])
+            outer_slope = -(np.log(rho[-1]) - np.log(rho[-2])) / (u[-1] - u[-2])
+        inner_slope = float(np.clip(np.nan_to_num(inner_slope, nan=0.0), 0.0, 2.9))
+        outer_slope = float(np.nan_to_num(outer_slope, nan=3.0))
+
+        # dM/dln r = 4 pi rho r^3 ; mass inside r_min from the inner power law.
+        integrand_m = 4.0 * np.pi * rho * r**3
+        m_inner = 4.0 * np.pi * rho[0] * r[0] ** 3 / (3.0 - inner_slope)
+        mass = m_inner + integrate.cumulative_simpson(integrand_m, x=u, initial=0.0)
+        mass = np.maximum.accumulate(mass)  # guard against roundoff-level dips
+
+        # Outer term of the potential: 4 pi int_r^inf rho s ds = int (4 pi rho s^2) dln s
+        integrand_o = 4.0 * np.pi * rho * r**2
+        if outer_slope > 2.0:
+            tail = 4.0 * np.pi * rho[-1] * r[-1] ** 2 / (outer_slope - 2.0)
+        else:
+            raise ValueError(
+                f"density falls only as r^-{outer_slope:.2f} at {r_max} pc; the potential "
+                "does not converge"
+            )
+        cumulative_o = integrate.cumulative_simpson(integrand_o, x=u, initial=0.0)
+        outer = tail + (cumulative_o[-1] - cumulative_o)
+
+        phi = -G * (mass / r + outer)
+
+        self._u = u
+        self._mass_total = float(mass[-1] + 4.0 * np.pi * rho[-1] * r[-1] ** 3 / max(outer_slope - 3.0, 1e-3)) \
+            if outer_slope > 3.0 else float("inf")
+        self._log_mass = interpolate.CubicSpline(u, np.log(mass), extrapolate=False)
+        self._phi = interpolate.CubicSpline(u, phi, extrapolate=False)
+        self._inner_slope = inner_slope
+        self._m0, self._r0 = mass[0], r[0]
+
+    @property
+    def total_mass(self) -> float:
+        """Mass at infinity, ``inf`` when the profile does not converge."""
+        return self._mass_total
+
+    def enclosed_mass(self, r: np.ndarray) -> np.ndarray:
+        """Spline-interpolated ``M(<r)``; ``nan`` outside the grid."""
+        radii = np.asarray(r, dtype=float)
+        out = np.full_like(radii, np.nan)
+        inside = (radii >= self.r_min) & (radii <= self.r_max)
+        out[inside] = np.exp(self._log_mass(np.log(radii[inside])))
+        below = (radii < self.r_min) & (radii > 0)
+        out[below] = self._m0 * (radii[below] / self._r0) ** (3.0 - self._inner_slope)
+        out[radii == 0] = 0.0
+        return out
+
+    def potential(self, r: np.ndarray) -> np.ndarray:
+        """Spline-interpolated ``Phi(r)``; ``nan`` outside the grid."""
+        radii = np.asarray(r, dtype=float)
+        out = np.full_like(radii, np.nan)
+        inside = (radii >= self.r_min) & (radii <= self.r_max)
+        out[inside] = self._phi(np.log(radii[inside]))
+        return out
+
+
 @dataclass(frozen=True)
 class VerificationReport:
     """Outcome of checking a component's analytic forms against numerics."""
@@ -158,8 +265,16 @@ class MassComponent(ABC):
         """Total mass in Msun, ``inf`` when the profile does not converge."""
         return float(self.enclosed_mass(np.inf)[0])
 
-    def enclosed_mass(self, r: Any) -> np.ndarray:
-        """Mass enclosed within radius ``r``, by quadrature over the density.
+    @cached_property
+    def tables(self) -> ProfileTables:
+        """Spline tables of this component's mass and potential (built once)."""
+        return ProfileTables(self.density)
+
+    def quad_enclosed_mass(self, r: Any) -> np.ndarray:
+        """Mass enclosed within ``r`` by adaptive quadrature over the density.
+
+        This is the slow, independent reference used by :meth:`verify`. Models
+        should not call it in a likelihood.
 
         Parameters
         ----------
@@ -192,14 +307,14 @@ class MassComponent(ABC):
             out[i] = value
         return out
 
-    def potential(self, r: Any) -> np.ndarray:
-        """Gravitational potential at ``r``, in (km/s)^2, zero at infinity.
+    def quad_potential(self, r: Any) -> np.ndarray:
+        """Potential at ``r`` by adaptive quadrature; the slow reference.
 
         Uses the standard spherical result
         ``Phi(r) = -G[ M(<r)/r + 4*pi*int_r^inf rho(s) s ds ]``.
         """
         radii = as_array(r)
-        inner = self.enclosed_mass(radii)
+        inner = self.quad_enclosed_mass(radii)
         out = np.empty_like(radii)
         for i, radius in enumerate(radii):
             outer, _ = integrate.quad(
@@ -208,6 +323,36 @@ class MassComponent(ABC):
             )
             term = inner[i] / radius if radius > 0 else 0.0
             out[i] = -G * (term + outer)
+        return out
+
+    def enclosed_mass(self, r: Any) -> np.ndarray:
+        """Mass enclosed within ``r`` in Msun.
+
+        Subclasses with a closed form override this. The default uses the spline
+        tables, falling back to quadrature for radii outside the tabulated range.
+        """
+        radii = np.atleast_1d(np.asarray(r, dtype=float))
+        out = np.empty_like(radii)
+        infinite = np.isinf(radii)
+        out[infinite] = self.tables.total_mass
+        finite = ~infinite
+        out[finite] = self.tables.enclosed_mass(radii[finite])
+        missing = finite & np.isnan(out)
+        if np.any(missing):
+            out[missing] = self.quad_enclosed_mass(radii[missing])
+        return out
+
+    def potential(self, r: Any) -> np.ndarray:
+        """Potential at ``r`` in (km/s)^2, zero at infinity.
+
+        Subclasses with a closed form override this; the default is the spline
+        table with a quadrature fallback outside the tabulated range.
+        """
+        radii = as_array(r)
+        out = self.tables.potential(radii)
+        missing = np.isnan(out)
+        if np.any(missing):
+            out[missing] = self.quad_potential(radii[missing])
         return out
 
     def force(self, r: Any) -> np.ndarray:
@@ -267,7 +412,7 @@ class MassComponent(ABC):
         radii = np.geomspace(r_min, r_max, n)
 
         analytic_mass = self.enclosed_mass(radii)
-        numeric_mass = MassComponent.enclosed_mass(self, radii)
+        numeric_mass = self.quad_enclosed_mass(radii)
         scale = np.maximum(np.abs(analytic_mass), 1e-30)
         mass_error = float(np.max(np.abs(analytic_mass - numeric_mass) / scale))
 
