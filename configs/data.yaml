@@ -1,0 +1,38 @@
+# Which local file holds which analysis product.
+#
+# Filled in on 2026-09-16 from the REAL downloaded files, inspected with
+# `ocen inspect-omegacat --columns`. Zenodo record 10.5281/zenodo.14978551.
+#
+# The three PM profiles come from ONE file and therefore share bins and stars:
+# they are not independent likelihood factors. The same holds for the two LOS
+# profiles. Recorded here because the kinematic likelihood must respect it.
+
+omegacat_vi:
+  products:
+    pm_radial:      {file: proper_motion_dispersion_log_bins.fits, hdu: 1}
+    pm_tangential:  {file: proper_motion_dispersion_log_bins.fits, hdu: 1}
+    pm_combined:    {file: proper_motion_dispersion_log_bins.fits, hdu: 1}
+    los_dispersion: {file: los_profile.fits, hdu: 1}
+    los_rotation:   {file: los_profile.fits, hdu: 1}
+
+  # Alternative binnings of the SAME stars, available but not used in v1:
+  #   proper_motion_dispersion_lin_bins.fits
+  #   proper_motion_dispersion_equaln_bins.fits
+  #   proper_motion_dispersion_voronoi_bins.fits
+  #   los_dispersion_and_rotation_voronoi_bins.fits
+  # Fitting more than one binning of the same data would double-count it.
+
+kuzma2025_pristine:
+  file: wCen_table.fits
+  hdu: 1
+
+kuzma2026_spectroscopy:
+  file_glob: kuzma2026_members.*
+  # Delivered 2026-09-16 as whitespace-separated ASCII whose column-name line is
+  # the LAST comment line, so the header position must be stated explicitly.
+  format: ascii.commented_header
+  reader_kwargs:
+    header_start: -1
+
+fimbulthul_ibata2019:
+  file_glob: fimbulthul_supp_table1.*

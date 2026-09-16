@@ -1,0 +1,189 @@
+# Provenance record for all external datasets used by the oCen_dm project.
+#
+# RULES (see OCEN_DM_TAILS_PROJECT.md section 17):
+#   * Nothing in this file may be invented. Every URL/DOI/checksum is either
+#     (a) taken from the project specification, (b) verified live, or
+#     (c) explicitly marked `verified: false` with a `verify_note`.
+#   * `published_md5` is the checksum quoted by the data provider. It is the
+#     value `ocen fetch-data` checks the download against.
+#   * `observed_sha256` is filled in automatically by `ocen fetch-data` into
+#     provenance/checksums.txt -- never edited by hand.
+#
+# Verification log:
+#   2026-09-16  arXiv abstract pages 2502.01135, 2605.23474, 2503.04903,
+#               2404.03722, 2307.03035 fetched: HTTP 200, titles match.
+#   2026-09-16  DOIs 10.1038/s41550-019-0751-x, 10.1093/mnras/stag1147,
+#               10.3847/1538-4357/adbe67, 10.1093/mnras/stad1952 resolved via
+#               Crossref; 10.5281/zenodo.{14791430,14978551,11104046} resolved
+#               via DataCite. All titles match the specification.
+#   2026-09-16  zenodo.org returned HTTP 504 (gateway timeout) for both the API
+#               and the file endpoints; no Zenodo file could be downloaded or
+#               its live checksum confirmed. Retry `ocen fetch-data`.
+
+schema_version: 1
+
+datasets:
+
+  kuzma2025_pristine:
+    title: "A Pristine View of Galactic Globular Clusters and their Peripheries: Omega Centauri"
+    authors: "Kuzma & Ishigaki (2025)"
+    role: "Primary wide-field tidal-tail / periphery catalogue (Gaia + Pristine)."
+    paper:
+      arxiv: "https://arxiv.org/abs/2502.01135"
+      journal: "https://academic.oup.com/mnras/article/537/3/2752/8002861"
+      verified: true
+      verify_note: "arXiv abstract page HTTP 200 on 2026-09-16; title matches."
+    data:
+      kind: zenodo
+      doi: "10.5281/zenodo.14791430"
+      record_url: "https://zenodo.org/records/14791430"
+      verified: true
+      verify_note: "DOI resolves via DataCite on 2026-09-16; file listing NOT
+        confirmed because the Zenodo API returned 504."
+    files:
+      - name: "wCen_table.fits"
+        url: "https://zenodo.org/records/14791430/files/wCen_table.fits?download=1"
+        expected_bytes: 26500000        # ~26.5 MB, quoted in the specification (approximate)
+        expected_bytes_tolerance: 0.1   # fractional; the quoted size is rounded
+        published_md5: "3dcd58e69767901fbbdf69385a14c768"
+        checksum_source: "OCEN_DM_TAILS_PROJECT.md section 2.1A (provider-published MD5)"
+        required: true
+
+  kuzma2026_spectroscopy:
+    title: "Disruption of a Giant: Spectroscopic Identification of Members in the Periphery and Tidal Tails of Omega Centauri"
+    authors: "Kuzma et al. (2026)"
+    role: "Targeted spectroscopy of the periphery/tails: v_los and metallicity,
+      to be used conditional on target positions only."
+    paper:
+      arxiv: "https://arxiv.org/abs/2605.23474"
+      doi: "10.1093/mnras/stag1147"
+      journal: "https://academic.oup.com/mnras/article/550/2/stag1147/8709286"
+      verified: true
+      verify_note: "arXiv HTTP 200 and Crossref DOI both resolve on 2026-09-16."
+    data:
+      kind: manual
+      note: "Star list is journal online supplementary material; publisher pages
+        are not machine-fetchable without a session (academic.oup.com returns
+        HTTP 403 to automated requests, checked 2026-09-16). ADS lists only one
+        data product for this paper (ESO:1) and no CDS link; there is no VizieR
+        catalogue; the arXiv source package contains only five sample rows."
+      eso_programme_id: "108.22MM.001"
+      eso_pi: "Kuzma"
+      delivery: "Supplied directly by the user on 2026-09-16 as the extended
+        version of Table 3: 592 rows, 157 flagged members, header block naming
+        the columns and their units. Not downloaded by this pipeline, so there
+        is no publisher checksum to verify it against; the observed sha256 is
+        recorded in provenance/manifest.json."
+      bibcode: "2026MNRAS.550g1147K"
+    files:
+      - name: "kuzma2026_members.*"
+        url: "https://academic.oup.com/mnras/article/550/2/stag1147/8709286"
+        published_md5: null
+        checksum_source: null
+        required: true
+
+  fimbulthul_ibata2019:
+    title: "Identification of the long stellar stream of the prototypical massive globular cluster Omega Centauri"
+    authors: "Ibata et al. (2019)"
+    role: "Long-baseline stream-track constraint. STREAMFINDER selection: track
+      only, no absolute density likelihood in v1."
+    paper:
+      doi: "10.1038/s41550-019-0751-x"
+      journal: "https://www.nature.com/articles/s41550-019-0751-x"
+      verified: true
+      verify_note: "Crossref DOI resolves on 2026-09-16; title matches."
+    data:
+      kind: vizier
+      note: "CDS/VizieR hosts the candidate list as J/other/NatAs/3.667/tables1,
+        'Candidate members of the Fimbulthul stellar stream'. Retrieved
+        programmatically on 2026-09-16 (309 rows), which removes the need for a
+        manual download of Nature Supplementary Table 1. This is a CDS-curated
+        REPRESENTATION of the published table, not the publisher's own file: CDS
+        renames columns, adds a SimbadName cross-identification and a recno, so
+        its checksum cannot be tied back to the publisher."
+      vizier_catalogue: "J/other/NatAs/3.667/tables1"
+      representation: "cds_curated_reproduction"
+      publisher_checksum_match: null    # no publisher checksum exists to compare against
+      retrieved_utc: "2026-09-16T17:2X"  # exact time recorded in provenance/manifest.json
+    files:
+      - name: "fimbulthul_supp_table1.vot"
+        url: "https://vizier.cds.unistra.fr/viz-bin/votable?-source=J/other/NatAs/3.667/tables1&-out.all&-out.max=unlimited"
+        published_md5: null
+        checksum_source: null
+        observed_sha256: "9d06aca47fc71f66d8c6f9835234a5dde2523abde2b2117b5cbb171a9bbc705f"
+        observed_sha256_note: "computed locally on 2026-09-16 from the VizieR
+          export; establishes reproducibility of THIS copy only, not equivalence
+          to the Nature supplementary file"
+        expected_bytes: 71578
+        expected_bytes_tolerance: 0.05
+        byte_reproducibility: "none -- the VizieR VOTable header embeds the
+          export timestamp, so a re-export has a different md5/sha256 and a
+          slightly different size. Compare row count and column values, not
+          bytes, when re-fetching."
+        required: true
+
+  omegacat_vi_kinematics:
+    title: "oMEGACat VI: overall kinematics of Omega Centauri in 3D"
+    authors: "oMEGACat collaboration (2025)"
+    role: "Binned PM and LOS dispersion/rotation profiles -- the v1 internal
+      kinematic likelihood data."
+    paper:
+      arxiv: "https://arxiv.org/abs/2503.04903"
+      doi: "10.3847/1538-4357/adbe67"
+      verified: true
+      verify_note: "arXiv HTTP 200 and Crossref DOI both resolve on 2026-09-16."
+    data:
+      kind: zenodo
+      doi: "10.5281/zenodo.14978551"
+      record_url: "https://zenodo.org/records/14978551"
+      verified: true
+      verify_note: "DOI resolves via DataCite on 2026-09-16; file listing NOT
+        confirmed because the Zenodo API returned 504."
+    files: []    # populated by `ocen fetch-data --discover` from the Zenodo API;
+                 # deliberately empty rather than guessed.
+
+  omegacat_ii_astrometry:
+    title: "oMEGACat II: photometry and proper motions for 1.4 million stars in Omega Centauri"
+    authors: "oMEGACat collaboration (2024)"
+    role: "Individual-star HST astrometry. NOT used until the binned-profile
+      pipeline is validated (spec section 2.2B)."
+    paper:
+      arxiv: "https://arxiv.org/abs/2404.03722"
+      verified: true
+      verify_note: "arXiv abstract page HTTP 200 on 2026-09-16."
+    data:
+      kind: zenodo
+      doi: "10.5281/zenodo.11104046"
+      record_url: "https://zenodo.org/records/11104046"
+      verified: true
+      verify_note: "DOI resolves via DataCite on 2026-09-16."
+    optional: true
+    files: []
+
+  kuzma2021_edr3_tails:
+    title: "Detecting globular cluster tidal extensions with Bayesian inference I: Omega Centauri with Gaia EDR3"
+    authors: "Kuzma et al. (2021)"
+    role: "Methodology / morphology cross-check. No local data product in v1."
+    paper:
+      journal: "https://academic.oup.com/mnras/article/507/1/1127/6347368"
+      verified: false
+      verify_note: "Publisher URL taken from the specification; not fetched
+        (OUP blocks automated requests)."
+    data:
+      kind: none
+    optional: true
+    files: []
+
+  youakim2023_debris:
+    title: "Tidal debris from Omega Centauri discovered with unsupervised machine learning"
+    authors: "Youakim, Lind & Kushniruk (2023)"
+    role: "Validation target for Experiment T0 (no-DM particle-spray stream)."
+    paper:
+      arxiv: "https://arxiv.org/abs/2307.03035"
+      doi: "10.1093/mnras/stad1952"
+      verified: true
+      verify_note: "arXiv HTTP 200 and Crossref DOI both resolve on 2026-09-16."
+    data:
+      kind: none
+    optional: true
+    files: []

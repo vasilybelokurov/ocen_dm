@@ -1,0 +1,106 @@
+# Explicit role -> source-column maps, keyed by schema name.
+#
+#   ra: RA_ICRS                       # source column only (it carries its unit)
+#   r:  {column: R, unit: arcmin}     # source column plus its INPUT unit
+#
+# The second form is required when the source column carries no unit. Values are
+# then CONVERTED to the schema unit; loading fails rather than assuming a unit.
+# Misspelled role names are rejected, and two roles may not share one column.
+
+# Kuzma & Ishigaki 2025 (Zenodo 14791430, wCen_table.fits, 157481 rows).
+# The FITS carries NO units, so each input unit is declared here. Justification,
+# checked against the file on 2026-09-16: RA 194-209 and Dec -52 to -42 are
+# degrees around omega Cen (201.7, -47.5); proper motions span +-60 with errors
+# 0.01-0.1, the Gaia mas/yr convention; G_0 6.5-16 are magnitudes; FeH_CaHKsyn
+# -4 to 0 is dex; P_mem lies in [0,1].
+kuzma2025_periphery:
+  source_id: source_id
+  ra:  {column: RA,  unit: deg}
+  dec: {column: Dec, unit: deg}
+  pmra:        {column: pmRA,   unit: mas / yr}
+  pmdec:       {column: pmDE,   unit: mas / yr}
+  pmra_error:  {column: e_pmRA, unit: mas / yr}
+  pmdec_error: {column: e_pmDE, unit: mas / yr}
+  g0_mag:    {column: G_0,    unit: mag}
+  bp0_mag:   {column: BP_0,   unit: mag}
+  rp0_mag:   {column: RP_0,   unit: mag}
+  cahk0_mag: {column: CaHK_0, unit: mag}
+  feh:    FeH_CaHKsyn
+  feh_lo: FeH_CaHKsyn_16th
+  feh_hi: FeH_CaHKsyn_84th
+  membership_prob: P_mem
+  # pmX/pmY (tail-aligned frame) are carried through as src_pmX, src_pmY.
+# Kuzma et al. 2026, extended Table 3 (592 rows, 157 members). Units are taken
+# from the file's own header block, which documents: RA/Dec in degrees, G in mag,
+# V_h and its error in km/s, [Fe/H] and its error in dex.
+kuzma2026_spectroscopy:
+  star_id:   Star_ID
+  source_id: DR3_Source_ID
+  ra:  {column: ra,  unit: deg}
+  dec: {column: dec, unit: deg}
+  g_mag:      {column: G,       unit: mag}
+  vlos:       {column: V_h,     unit: km / s}
+  vlos_error: {column: V_h_err, unit: km / s}
+  feh:        FeH
+  feh_error:  FeH_err
+  membership_prob: P_mem
+  member_flag:     Member
+
+# Fimbulthul resolves automatically against the real VizieR column names
+# (J/other/NatAs/3.667/tables1, inspected 2026-09-16).
+fimbulthul_members: {}
+
+# oMEGACat VI: column names below were read from the downloaded FITS files on
+# 2026-09-16, not guessed. All carry units in the file, so no unit is declared
+# here. Errors are asymmetric: e_lower_* / e_upper_*.
+
+omegacat_vi_pm_radial:
+  r_lower: r_lower
+  r_median: r_median
+  r_upper: r_upper
+  n_stars: nstars
+  sigma_pmr: sigma_pm_rad
+  sigma_pmr_err_lo: e_lower_sigma_pm_rad
+  sigma_pmr_err_hi: e_upper_sigma_pm_rad
+
+omegacat_vi_pm_tangential:
+  r_lower: r_lower
+  r_median: r_median
+  r_upper: r_upper
+  n_stars: nstars
+  sigma_pmt: sigma_pm_tan
+  sigma_pmt_err_lo: e_lower_sigma_pm_tan
+  sigma_pmt_err_hi: e_upper_sigma_pm_tan
+
+omegacat_vi_pm_combined:
+  r_lower: r_lower
+  r_median: r_median
+  r_upper: r_upper
+  n_stars: nstars
+  sigma_pmc: sigma_pm_c
+  sigma_pmc_err_lo: e_lower_sigma_pm_c
+  sigma_pmc_err_hi: e_upper_sigma_pm_c
+
+omegacat_vi_los_dispersion:
+  r_lower: r_lower
+  r_median: r_median
+  r_upper: r_upper
+  n_stars: nstars
+  sigma_los: sigma_los
+  sigma_los_err_lo: e_lower_sigma_los
+  sigma_los_err_hi: e_upper_sigma_los
+
+# 'vlos' in los_profile.fits is the ROTATION AMPLITUDE per bin (0.76-10.34 km/s),
+# not the ~232 km/s systemic velocity; checked against the file on 2026-09-16.
+# theta_0 is the position angle of the rotation axis (paper Table 3).
+omegacat_vi_los_rotation:
+  r_lower: r_lower
+  r_median: r_median
+  r_upper: r_upper
+  n_stars: nstars
+  v_rot: vlos
+  v_rot_err_lo: e_lower_vlos
+  v_rot_err_hi: e_upper_vlos
+  theta_0: theta_0
+  theta_0_err_lo: e_lower_theta_0
+  theta_0_err_hi: e_upper_theta_0

@@ -1,0 +1,14 @@
+# Raw downloads are never committed; they are reproduced by `ocen fetch-data`.
+data/raw/
+data/interim/
+data/processed/
+results/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+.DS_Store
+.ask-codex-packet.md
+*.tmp*
+.*.part
