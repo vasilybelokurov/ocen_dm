@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ocen-dm"
+version = "0.1.0"
+description = "Omega Centauri dark-matter / tidal-tail inference pipeline"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "scipy",
+    "astropy",
+    "pandas",
+    "pyarrow",
+    "h5py",
+    "matplotlib",
+    "pyyaml",
+    "requests",
+]
+
+[project.optional-dependencies]
+dynamics = ["agama", "galpy", "gala"]
+inference = ["ultranest", "dynesty", "corner"]
+dev = ["pytest", "ruff"]
+
+[project.scripts]
+ocen = "ocen_dm.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
