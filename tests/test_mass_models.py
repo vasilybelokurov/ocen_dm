@@ -371,3 +371,80 @@ def test_nfw_matches_agama():
     assert np.allclose(ours.density(r), theirs.density(xyz), rtol=1e-5)
     assert np.allclose(ours.enclosed_mass(r), theirs.enclosedMass(r), rtol=1e-5)
     assert np.allclose(ours.potential(r), theirs.potential(xyz), rtol=1e-6)
+
+
+# ------------------------------------------------------------ fast path ------
+class TestProfileTables:
+    """The spline tables must match quadrature and be cheap enough for inference."""
+
+    def test_tables_match_quadrature_for_every_numeric_profile(self):
+        for component in (
+            TruncatedGNFW.nfw(0.05, 50.0, r_t=300.0),
+            TruncatedGNFW.cored(0.05, 50.0, r_t=300.0),
+            TruncatedGNFW(0.05, 50.0, gamma=0.5, r_t=300.0),
+            TruncatedGNFW(0.05, 50.0, gamma=1.5, r_t=1000.0),
+            Burkert(0.1, 30.0, r_t=300.0),
+            Burkert(0.1, 30.0),
+        ):
+            r = np.geomspace(1e-3, 1e4, 30)
+            fast = component.enclosed_mass(r)
+            slow = component.quad_enclosed_mass(r)
+            assert np.allclose(fast, slow, rtol=1e-6), component
+            assert np.allclose(component.potential(r), component.quad_potential(r), rtol=1e-6)
+
+    def test_tables_are_built_once_per_instance(self):
+        component = TruncatedGNFW.nfw(0.05, 50.0, r_t=300.0)
+        assert component.tables is component.tables
+
+    def test_fresh_parameters_get_fresh_tables(self):
+        a = TruncatedGNFW.nfw(0.05, 50.0, r_t=300.0)
+        b = TruncatedGNFW.nfw(0.06, 50.0, r_t=300.0)
+        assert a.enclosed_mass(100.0)[0] < b.enclosed_mass(100.0)[0]
+
+    def test_total_mass_of_a_truncated_halo_is_finite_and_consistent(self):
+        component = TruncatedGNFW.nfw(0.05, 50.0, r_t=300.0)
+        total = component.total_mass
+        assert np.isfinite(total)
+        assert component.enclosed_mass(1e5)[0] == pytest.approx(total, rel=1e-4)
+        assert component.enclosed_mass(np.inf)[0] == total
+
+    def test_radii_below_the_grid_follow_the_inner_power_law(self):
+        core = TruncatedGNFW.cored(0.05, 50.0, r_t=300.0)   # rho -> const, M ~ r^3
+        m = core.enclosed_mass([1e-7, 2e-7])
+        assert m[1] / m[0] == pytest.approx(8.0, rel=1e-3)
+
+    def test_radii_above_the_grid_fall_back_to_quadrature(self):
+        component = Burkert(0.1, 30.0, r_t=300.0)
+        r = np.array([5e6])
+        assert np.isfinite(component.enclosed_mass(r)[0])
+        assert component.enclosed_mass(r)[0] == pytest.approx(component.quad_enclosed_mass(r)[0], rel=1e-6)
+
+    def test_a_non_convergent_potential_is_refused(self):
+        from ocen_dm.mass_models.base import ProfileTables
+
+        with pytest.raises(ValueError, match="does not converge"):
+            ProfileTables(lambda r: 1.0 / (1.0 + r))      # rho ~ r^-1 at large r
+
+    def test_composite_evaluation_is_fast_enough_for_nested_sampling(self):
+        """Fresh DM parameters every call, as a sampler would do: under 5 ms each."""
+        import time
+
+        r = np.geomspace(0.1, 300.0, 40)
+        start = time.perf_counter()
+        n = 10
+        for i in range(n):
+            model = CompositeMassModel([
+                MGE([2.2e6, 1.3e6], [3.0, 12.0]),
+                RemnantPlummer(1.5e5, 2.0),
+                TruncatedGNFW.nfw(0.02 * (1 + 1e-3 * i), 60.0, r_t=300.0),
+            ])
+            model.enclosed_mass(r)
+            model.potential(r)
+        per_call = (time.perf_counter() - start) / n
+        assert per_call < 5e-3, f"{per_call * 1e3:.1f} ms per evaluation"
+
+    def test_analytic_components_bypass_the_tables(self):
+        """Plummer and untruncated NFW have closed forms and must not pay for a table."""
+        assert "tables" not in Plummer(1e6, 5.0).__dict__
+        Plummer(1e6, 5.0).enclosed_mass(RADII)
+        assert "tables" not in Plummer(1e6, 5.0).__dict__
