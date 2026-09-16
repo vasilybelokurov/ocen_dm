@@ -29,6 +29,12 @@ _SEQ = ["#cde2fb", "#b7d3f6", "#9ec5f4", "#86b6ef", "#6da7ec", "#5598e7",
         "#3987e5", "#2a78d6", "#256abf", "#1c5cab", "#184f95", "#104281", "#0d366b"]
 SEQUENTIAL = mcolors.LinearSegmentedColormap.from_list("ocen_blue", _SEQ)
 
+#: diverging: blue <-> red through a neutral grey midpoint, for signed velocities
+DIVERGING = mcolors.LinearSegmentedColormap.from_list(
+    "ocen_div", ["#0d366b", "#2a78d6", "#86b6ef", "#f0efec", "#f0a3a2", "#e34948", "#8f1d1c"])
+#: series-4 slot used only where a fourth line is unavoidable
+SERIES_EXTRA = "#eda100"
+
 MARKER_PT = 5.0        # >= 8 px at 150 dpi
 LINE_PT = 1.5          # ~2 px
 ERR_PT = 1.0

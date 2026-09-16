@@ -135,7 +135,12 @@ PROFILE_SCHEMAS: dict[str, TableSchema] = {
     "los_rotation": _profile_schema(
         "omegacat_vi_los_rotation",
         _asymmetric("v_rot", "km / s", "line-of-sight rotation amplitude")
-        + _asymmetric("theta_0", "deg", "position angle of the rotation axis"),
+        + _asymmetric("theta_0", "deg",
+                      "rotation-axis angle as tabulated (paper: 104.3+-1.4 deg for r>30 arcsec). "
+                      "NOTE: a direct fit to the 24928 hq stars puts the zero-velocity line at "
+                      "PA 12.9 deg (North through East) and the maximum-velocity direction at "
+                      "~103 deg, so the tabulated angle is offset by 90 deg from the "
+                      "North-through-East rotation-axis PA; checked 2026-09-16"),
         "LOS rotation profile with rotation-axis angle (oMEGACat VI, Table 3).",
     ),
 }
