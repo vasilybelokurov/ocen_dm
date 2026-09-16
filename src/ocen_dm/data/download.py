@@ -352,6 +352,27 @@ def fetch_dataset(
             return results
 
     for record in files:
+        if record.local_path:
+            # Canonical-store file: never downloaded, never copied. Verify it
+            # where it is so the manifest carries its identity.
+            if not record.path.is_file():
+                results.append(
+                    DownloadResult(record, "failed",
+                                   f"not found at its canonical location {record.path}")
+                )
+                continue
+            verification = verify_file(record)
+            results.append(
+                DownloadResult(
+                    record,
+                    "cached" if verification["ok"] else "failed",
+                    f"canonical store: {record.path}" if verification["ok"]
+                    else f"{record.path} failed verification: {verification}",
+                    verification,
+                )
+            )
+            continue
+
         if record.is_glob:
             present = sorted(dataset.raw_dir.glob(record.name)) if dataset.raw_dir.is_dir() else []
             if len(present) > 1:
@@ -487,7 +508,10 @@ def fetch_all(
             continue
 
         log(f"[{dataset.key}] {dataset.title}")
-        dataset.raw_dir.mkdir(parents=True, exist_ok=True)
+        # Only datasets that actually land files in data/raw get a directory
+        # there; a canonical-store dataset must leave no trace in the repo.
+        if any(not f.local_path for f in dataset.files) or dataset.kind == "zenodo":
+            dataset.raw_dir.mkdir(parents=True, exist_ok=True)
         results.extend(
             fetch_dataset(
                 dataset,

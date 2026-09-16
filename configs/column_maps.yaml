@@ -104,3 +104,45 @@ omegacat_vi_los_rotation:
   theta_0: theta_0
   theta_0_err_lo: e_lower_theta_0
   theta_0_err_hi: e_upper_theta_0
+
+# Vasiliev & Baumgardt 2021 members: units from the zip's !readme.txt (the FITS
+# compilation carries none). Checked 2026-09-16.
+vasiliev2021_ocen_members:
+  source_id: SOURCE_ID
+  ra:  {column: RA,  unit: deg}
+  dec: {column: DEC, unit: deg}
+  x:   {column: X,   unit: deg}
+  y:   {column: Y,   unit: deg}
+  parallax:       {column: PLX,    unit: mas}
+  pmra:           {column: PMRA,   unit: mas / yr}
+  pmdec:          {column: PMDEC,  unit: mas / yr}
+  parallax_error: {column: PLXE,   unit: mas}
+  pmra_error:     {column: PMRAE,  unit: mas / yr}
+  pmdec_error:    {column: PMDECE, unit: mas / yr}
+  pmra_pmdec_corr: PMCORR
+  g_mag:  {column: G_MAG, unit: mag}
+  bp_rp:  {column: BP_RP, unit: mag}
+  source_density: {column: SIGMA, unit: 1 / arcmin2}
+  quality_flag: GFLAG
+  membership_prob: PROB
+
+# Baumgardt database compilation: units are the database's conventions (kpc, mas/yr,
+# km/s, Msun, pc) -- the file records none. UNVERIFIED against upstream.
+baumgardt_ocen_parameters:
+  name: NAME
+  ra:  {column: RA,  unit: deg}
+  dec: {column: DEC, unit: deg}
+  pmra:  {column: PMRA,  unit: mas / yr}
+  pmdec: {column: PMDEC, unit: mas / yr}
+  pmra_error:  {column: PMRA_ERR,  unit: mas / yr}
+  pmdec_error: {column: PMDEC_ERR, unit: mas / yr}
+  distance:       {column: DIST,     unit: kpc}
+  distance_error: {column: DIST_ERR, unit: kpc}
+  rv:       {column: RV,     unit: km / s}
+  rv_error: {column: RV_ERR, unit: km / s}
+  mass: {column: MASS, unit: Msun}
+  r_h:  {column: RH,   unit: pc}
+  r_c:  {column: RC,   unit: pc}
+  r_peri: {column: RPERI, unit: kpc}
+  r_apo:  {column: RAPO,  unit: kpc}
+  feh: FEH
