@@ -720,3 +720,13 @@ database's conventions in `configs/column_maps.yaml`.
   the most consequential thing learned today about the modelling.
 
 Tests: **188 passed**.
+
+### WSDB timing, settled (WP4 feasibility)
+
+The 162 s `local_join` earlier today was a transient stall, not the cost of the query: on
+re-measurement the same 157,481-id join to `gaia_dr3.gaia_source` took **3.5 s** (1,000 ids
+0.4 s; 10,000 ids 1.1 s), and an upload-free `unnest(%s::bigint[]) LEFT JOIN` form 2.2 s.
+A 1° cone count on Gaia DR3 (401,654 stars) takes 1.2 s. One run also produced a `COPY`
+timeout at 10k rows that vanished on retry. Conclusion for WP4 and for the `wsdb` skill,
+which now carries a measured-performance table and the covariance-join recipe: one call,
+seconds, no chunking; minutes or a `COPY` error mean "retry", not "split the input".
