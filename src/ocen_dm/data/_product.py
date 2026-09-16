@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Callable, Mapping
+
+import numpy as np
 
 from .base import (
     check_against_manifest,
@@ -29,6 +31,7 @@ def build_product(
     extra_meta: Mapping[str, Any] | None = None,
     keep_extra_columns: bool = True,
     read_kwargs: Mapping[str, Any] | None = None,
+    row_filter: Callable[[Any], Any] | None = None,
 ) -> dict[str, Any]:
     """Standardize, validate and write one product, in that order.
 
@@ -57,6 +60,10 @@ def build_product(
     read_kwargs : mapping, optional
         Reader settings (e.g. ``format``, ``header_start``) recorded in the
         product lineage, so the exact read is reproducible.
+    row_filter : callable, optional
+        ``row_filter(table) -> boolean mask`` applied before standardisation, for
+        multi-object files from which one object is wanted. The number of rows
+        kept and dropped is recorded in the lineage.
 
     Returns
     -------
@@ -75,6 +82,11 @@ def build_product(
     read_kwargs = dict(read_kwargs or {})
     lineage["read_kwargs"] = read_kwargs
     table = read_table(path, hdu=hdu, **read_kwargs)
+    if row_filter is not None:
+        mask = np.asarray(row_filter(table), dtype=bool)
+        lineage["rows_in_file"] = int(len(table))
+        lineage["rows_selected"] = int(mask.sum())
+        table = table[mask]
     out = standardize(table, schema, keep_extra_columns=keep_extra_columns)
     out.meta["ocen_dataset"] = dataset
     out.meta["ocen_likelihood_rule"] = likelihood_rule

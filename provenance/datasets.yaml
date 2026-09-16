@@ -122,6 +122,87 @@ datasets:
           bytes, when re-fetching."
         required: true
 
+  vasiliev2021_gc_members:
+    title: "Catalogue of stars in Milky Way globular clusters from Gaia EDR3"
+    authors: "Vasiliev & Baumgardt (2021)"
+    role: "Homogeneous Gaia EDR3 membership catalogue for omega Cen: 228055 stars
+      to G = 21 within 0.67 deg (~63 pc at 5.43 kpc), 156530 with P > 0.9, with
+      per-star PM covariance -- the deep, wide sample the outer internal
+      kinematics and the star-count light profile need."
+    paper:
+      arxiv: "https://arxiv.org/abs/2102.09568"
+      doi: "10.1093/mnras/stab1475"
+      journal: "MNRAS 505, 5978 (2021)"
+      verified: true
+      verify_note: "arXiv abstract page HTTP 200 on 2026-09-16; title and DOI read
+        from the page."
+    data:
+      kind: local
+      doi: "10.5281/zenodo.4891252"
+      record_url: "https://zenodo.org/records/4891252"
+      verified: true
+      verify_note: "Zenodo API record read 2026-09-16: one file clusters.zip,
+        118940646 bytes, md5 3a07093be9a1fcbfb0e3c545ca175c99. The user's copy of
+        that zip matches the published md5. The working file is the user's FITS
+        compilation of the zip's 170 per-cluster tables in the canonical
+        catalogue store; its omega Cen block was checked against the zip's
+        catalogues/NGC_5139_oCen.txt on 2026-09-16: identical source_id set
+        (228055), PMs equal to 1.1e-5 mas/yr (float32 storage), membership
+        probabilities to 3e-8."
+      readme: "Columns per the zip's !readme.txt: source_id; ra, dec [deg]; x, y
+        cluster-centred [deg]; parallax with Lindegren zero-point correction [mas];
+        pmra, pmdec [mas/yr]; parallax error [mas]; PM errors [mas/yr]; PM error
+        correlation; G; BP-RP; source density [stars/arcmin^2]; quality bitfield
+        (bit0: 1 = 5-parameter solution; bit1: 2 = passed all quality filters);
+        membership probability."
+    files:
+      - name: "gc_members_gaia_vasiliev.fits"
+        path: "~/data/catalogues/gc_members_gaia_vasiliev.fits"
+        url: null
+        published_md5: null
+        checksum_source: null
+        observed_sha256: "a75b33ca164aad9f7e071ae2ba6b5b46f69bc1e79a98e95ba14aea541f3d512e"
+        expected_bytes: 222621120
+        expected_bytes_tolerance: 0.0
+        required: true
+      - name: "vasiliev_baumgardt_2021_clusters.zip"
+        path: "~/Work/Code/apogee_halo_rotation/data/external/vasiliev_baumgardt_2021_clusters.zip"
+        url: "https://zenodo.org/api/records/4891252/files/clusters.zip/content"
+        published_md5: "3a07093be9a1fcbfb0e3c545ca175c99"
+        checksum_source: "Zenodo API record 4891252, files[].checksum, read 2026-09-16"
+        expected_bytes: 118940646
+        expected_bytes_tolerance: 0.0
+        required: false
+        note: "The Zenodo original, kept for the profiles/NGC_5139_oCen.txt table
+          (PM dispersion and rotation percentiles vs radius) that the FITS
+          compilation does not carry."
+
+  baumgardt_gc_catalogue:
+    title: "Fundamental parameters of Galactic globular clusters (Baumgardt & Hilker database)"
+    authors: "Baumgardt, Hilker, Sollima, Vasiliev et al."
+    role: "Systemic phase space and structural parameters for omega Cen: PM
+      (-3.236, -6.731) +- 0.011 mas/yr, D = 5.43 +- 0.05 kpc, RV = 232.78 +- 0.21
+      km/s, M = 3.94e6 Msun, r_h = 7.56 pc, plus orbital parameters."
+    paper:
+      journal: "https://people.smp.uq.edu.au/HolgerBaumgardt/globular/"
+      verified: false
+      verify_note: "The user's FITS compilation (mtime 2025-05-16) of the online
+        database; the database version it was built from is not recorded in the
+        file, so values should be re-checked against the live database before
+        publication. UNVERIFIED against upstream."
+    data:
+      kind: local
+    files:
+      - name: "gc_catalog_updated.fits"
+        path: "~/data/catalogues/gc_catalog_updated.fits"
+        url: null
+        published_md5: null
+        checksum_source: null
+        observed_sha256: "348887c07a9a5ada333c2c157da380e029b1b905e065fd7f9a027e8c976fdebc"
+        expected_bytes: 57600
+        expected_bytes_tolerance: 0.0
+        required: true
+
   omegacat_vi_kinematics:
     title: "oMEGACat VI: overall kinematics of Omega Centauri in 3D"
     authors: "oMEGACat collaboration (2025)"

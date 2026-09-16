@@ -650,3 +650,73 @@ plane-of-sky ⟨v_tan⟩(r) panel shows empirically whether differential rotatio
 Two figures were wrong on first render and fixed: field labels colliding with a title, and a
 per-cell PM rotation *map* that was noise-dominated (~2 km/s per-cell error against a
 few-km/s signal) — replaced by a binned rotation *curve* with errors.
+
+---
+
+## 2026-09-16 (night) — the canonical catalogue store; Vasiliev & Baumgardt 2021 ingested
+
+### Correction of approach
+
+I had started copying a 119 MB Zenodo zip from another project into `data/raw/`. The user
+stopped that twice: external catalogues live in **`~/data/catalogues/`**, the canonical
+store, and are referenced there, not duplicated. Saved as a memory. The pipeline gained a
+retrieval kind **`local`**: a file at its canonical path, verified in place (sha256, size,
+published checksum where one exists), recorded in the manifest, never copied — and
+`fetch-data` no longer creates an empty `data/raw/<dataset>/` for such datasets (a defect a
+test caught).
+
+### What was found there
+
+- **`gc_members_gaia_vasiliev.fits`** — the user's FITS compilation of Vasiliev & Baumgardt
+  (2021, Zenodo 10.5281/zenodo.4891252) for 170 clusters. Its ω Cen block was checked against
+  the zip's `catalogues/NGC_5139_oCen.txt`: **identical `source_id` set (228,055)**, PMs equal
+  to 1.1e-5 mas/yr (float32 storage), membership probabilities to 3e-8. The zip itself
+  (`apogee_halo_rotation/data/external/`) matches the published MD5 `3a07093b…`.
+- **`gc_catalog_updated.fits`** — Baumgardt & Hilker database compilation (mtime 2025-05-16;
+  database version not recorded → flagged UNVERIFIED against upstream). ω Cen: μ = (−3.236,
+  −6.731) ± 0.011 mas/yr, D = 5.43 ± 0.05 kpc, RV = 232.78 ± 0.21 km/s, M = 3.94e6 Msun,
+  r_h = 7.56 pc.
+
+Paper reference verified live: arXiv 2102.09568 → "Gaia EDR3 view on Galactic globular
+clusters", DOI 10.1093/mnras/stab1475, MNRAS 505, 5978.
+
+### Products (3 new, 12 total)
+
+| Product | Rows | Note |
+|---|---|---|
+| `vasiliev2021_ocen_members` | 228,055 | to G = 21, 0.67° ≈ 63 pc; 156,530 at P > 0.9; per-star PM covariance |
+| `vasiliev2021_ocen_pm_profiles` | 101 radii | authors' σ_PM and v_rot percentiles; **file has 12 columns, readme documents 11** — the 12th carried as `undocumented_col12`, not interpreted |
+| `baumgardt_ocen_parameters` | 1 | systemic phase space; UNVERIFIED flag propagated into the likelihood rule |
+
+`build_product` gained `row_filter` (rows in file / rows selected recorded in the lineage).
+Units for both FITS files, which carry none, are declared from the zip readme and the
+database's conventions in `configs/column_maps.yaml`.
+
+### Checks against what we already had
+
+- Systemic PM: catalogue (−3.236, −6.731) vs our Kuzma 2025 member centroid (−3.259, −6.726):
+  offsets **23 and 5 µas/yr**. RV 232.78 vs our 234.8 (Kuzma 2026 members) and 232.6
+  (oMEGACat median). D 5.43 in both catalogue and oMEGACat — the "distance tension" I flagged
+  in the plan does not exist in these files.
+- Reach: HST PM profile 0.05–8.2 pc; **EDR3 profile 0.6–63 pc** — into the spec's 50–200 pc
+  window but not through it. Beyond 40′ only the Kuzma 2025 giants (2737) remain, plus the
+  Baumgardt 2019 DR2 profile still to fetch.
+- **EDR3 σ_PM sits systematically below HST σ_PM where both exist**, converging outward:
+
+  | r | HST (oMEGACat) | EDR3 (VB21) |
+  |---|---|---|
+  | 60″ | 18.9 km/s | 14.1 (+2.0/−1.3) |
+  | 120″ | 17.2 | 13.8 (+1.6/−1.1) |
+  | 200″ | 15.5 | 13.5 (+1.1/−0.8) |
+  | 300″ | 13.4 | 12.9 (+0.6/−0.5) |
+
+  Recorded as a fact; two candidate explanations, **neither established**: (i) the EDR3
+  profile inside ~1′ is affected by crowding-driven systematics in a way its error scaling
+  does not fully capture; (ii) **energy equipartition** — inside the core Gaia sees only
+  bright (massive) giants, which move more slowly than the fainter stars HST measures.
+  oMEGACat VI measured equipartition directly, and its `energy_equipartition_*.fits` products
+  are on disk. Either way the two datasets **cannot be combined naively**: the Milestone 3
+  likelihood must either model σ(m) or restrict both to a common magnitude range. This is
+  the most consequential thing learned today about the modelling.
+
+Tests: **188 passed**.

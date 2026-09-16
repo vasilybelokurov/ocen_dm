@@ -40,6 +40,24 @@ lever arm on the internal side.
 | WSDB `gaia_dr3.gaia_source` carries `pmra_pmdec_corr`, `ruwe`, `parallax`; a Kuzma 2025 `source_id` resolves | **Verified** 2026-09-16 |
 | Kuzma 2025 footprint is a ~5.1° circle with a G₀ < 16 limit | to be reconstructed from the catalogue, not assumed |
 
+## Status update, same day
+
+Two of the gaps closed from the user's canonical catalogue store `~/data/catalogues/`
+(retrieval kind `local`, verified in place, never copied):
+
+- **WP3 done** via `gc_catalog_updated.fits` (Baumgardt database compilation, UNVERIFIED against
+  upstream): systemic PM, D, RV, mass, r_h. The distance tension assumed above is absent —
+  both sources give 5.43 kpc.
+- **WP5 largely done** via `gc_members_gaia_vasiliev.fits` (Vasiliev & Baumgardt 2021): 228,055
+  stars to G = 21 within 63 pc with PM covariance, plus the authors' σ_PM and v_rot profiles.
+  Still to fetch: the Baumgardt 2019 DR2 profile for radii beyond 40′.
+- **New constraint on WP2/Milestone 3:** EDR3 σ_PM is 20–25% below HST σ_PM at 1–3′,
+  converging by 5′. Candidate causes are crowding systematics or energy equipartition
+  (bright giants vs faint stars). The kinematic likelihood must model σ(m) or use a common
+  magnitude range; the two profiles must not be stacked.
+- **WP4 verified feasible:** one `sqlutilpy.local_join` returns all 157,481 Kuzma 2025
+  source_ids in 162 s with 100% match; median |pmra_pmdec_corr| = 0.11.
+
 ## Work packages
 
 ### WP1 — Registry, fetch, loaders for five VizieR catalogues (~1 h)
