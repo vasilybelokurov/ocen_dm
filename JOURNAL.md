@@ -880,3 +880,96 @@ radial anisotropy may only develop outward (β∞ > 0), consistent with Watkins+
 isotropic cores and Watkins+ 2013's global β = 0.10. Encoded as a test so it is not lost.
 
 Tests: `tests/test_jeans.py`, 17 tests (two external, skipped where JamPy/AGAMA absent).
+
+## 2026-09-17 — Milestone 3, part 2: the likelihood, first fits, and what the data said back
+
+### `kinematics/likelihood.py`, `kinematics/fit.py`, `plotting/fits.py`
+
+The likelihood connects the solver to the ingested profiles under three rules enforced
+in code: (1) a published dispersion is a statistic of the stars between `r_lower` and
+`r_upper`, so the model enters as the tracer-weighted bin mean of σ²
+(`∫Σσ²R dR / ∫ΣR dR`, 6-node Gauss–Legendre per bin; profiles published without edges are
+point-evaluated and say so); (2) asymmetric errors are a split normal; (3) the oMEGACat
+combined-PM profile shares its stars with the radial/tangential ones and is refused
+alongside either (`KinematicData` raises). Datasets: `hst_pm_radial`, `hst_pm_tangential`
+(40 bins each), `muse_los_dispersion` (29), `gaia_dr2_pm` (Baumgardt+ 2019, 9 points, no
+edges), `gaia_edr3_pm` (Vasiliev & Baumgardt 2021, fine grid from overlapping samples —
+**thinned to 8 log-spaced points beyond 300″** because adjacent points are not independent;
+using all 88 would give one dataset 8× the weight of HST). Both Gaia profiles are
+*assumed* to be 1-D PM dispersions — flagged in the product notes, to verify against the
+papers before publication.
+
+Speed: sharing the projection nodes between Σ and the three second moments
+(`SphericalJeans.projected_moments`) and batching every profile's radii into one solver
+call took the K1 likelihood from 33 to **4.1 ms** (results identical to 1e-12).
+
+`fit.py`: unit-cube priors (`uniform`, `loguniform`, `normal`, `truncnormal`), families
+**K1** (stars = Trager MGE × M★, remnant Plummer (M_rem, a_rem), point mass M• with a
+log-uniform prior down to 100 M☉ ≡ zero, β₀ ∈ [−1, 0] (An & Evans), β∞, r_β, nuisances)
+and **K2** = K1 + truncated gNFW (γ = 0 or 1) parametrised by **M_DM(<100 pc)** and r_s so
+the prior is flat in the quantity the data constrain (ρ_s derived; exact by construction,
+tested). `FitProblem` wraps a family and data for ultranest/dynesty; `maximum_likelihood`
+is a multi-start Nelder–Mead for smoke tests; `run_nested` writes posterior, summary,
+per-sample `radial_profile()` on a 0.1–500 pc grid and a `run.yaml` with git commit and
+input sha256s. Tests: `test_likelihood.py` (13), `test_fit.py` (8) — including a synthetic
+injection recovered by the optimiser (total dynamical mass to 5 %, Gaia scale to 0.05).
+Suite: **243 passing**.
+
+### First real fit, and three defects it exposed
+
+The first K1 maximum-likelihood fit (fixed D = 5.43) gave χ² = 879 for 126 points and a
+model nobody would believe: M• = 3.4e4 M☉ making a cusp that overshoots the innermost HST
+bin by 4.6σ, a dip at 8″ absent from the data, MUSE 2–3σ below the model everywhere
+outside 30″. Each had a cause:
+
+1. **Cold spike in the light model.** Unconstrained NNLS put 0.24 % of the light in two
+   Gaussians of σ = 5–6″ — *inside* the innermost Trager datum (10.5″). A compact tracer
+   component sitting in a harmonic core is dynamically cold: without a BH the model
+   dispersion at 1–8″ collapsed to 0.41–0.53 mas/yr (data 0.84), and the optimiser bought
+   it back with 3e4 M☉ of point mass. Fix: `MGE_SIGMA_RANGE_ARCSEC = (10.5, 3000)` — the
+   smallest Gaussian is the innermost datum; rms unchanged (0.186 mag), R_h unchanged
+   (280″). lnL improved by 26 from this alone. Limitation noted: inside 10″ the tracer is
+   a flat core by construction; the HST star counts in the oMEGACat catalogue reach ~1″
+   and should replace Trager there (follow-up).
+2. **Second moments vs dispersions.** oMEGACat's `sigma_los` is fitted jointly with a
+   rotation curve (`vlos`, `theta_0` per annulus), i.e. it is a dispersion about the
+   rotating mean; the spherical Jeans model predicts the full second moment. Added
+   `BinnedProfile.streaming2 = ⟨v̄²⟩ = v_rot²/2` (annulus average of v_rot sin φ), read
+   from our `los_rotation` product on the same bins; the model compares
+   `√(σ²_model − ⟨v̄²⟩)`. Size: 12 % of σ² at 6–16″ (v_rot ≈ 10 km/s), 10–12 % at
+   190–260″, <5 % between. **PMs: the catalogue PMs are "locally corrected", and the mean
+   tangential PM per annulus is 0 ± 0.005 mas/yr at every radius** — the local correction
+   removed the rotation, so the PM streaming term cannot be measured from these data.
+   Expected size ~2 % in σ_T at 100–300″ (v_rot,PM ≈ 3–4 km/s); an external rotation
+   curve is needed. Open item.
+3. **MUSE and HST do not measure the same stars.** MUSE targets giants (median F625W 17.4,
+   90th percentile 17.9); the HST PM sample is 3 mag fainter (median 20.7). Restricting the
+   PM sample to the MUSE magnitude range gives σ_PM lower by 4.4 %, 2.7 %, 2.6 % at
+   20–60″, 60–120″, 120–250″ (raw error-subtracted std; N = 2839/7207/15118 bright stars):
+   energy equipartition. This is the LOS/PM offset the first fit tried to absorb with
+   D = 5.17 kpc (2.6σ below both literature distances). Added `s_MUSE ∈ [0.85, 1.15]` as a
+   nuisance relative to HST; **distance is now a parameter with the literature prior
+   N(5.43, 0.05)** in every family (the spec fixed D in K1, but D is degenerate with the
+   LOS/PM ratio that the two samples disagree on, so fixing it would bake the equipartition
+   offset into the mass).
+
+Second K1 ML fit (11 parameters): D = 5.41, s_MUSE = 0.955, s_DR2 = 0.88, s_EDR3 = 1.05,
+M★ = 3.0e6, M_rem = 1.5e5, M• = 4.2e4, β₀ = −0.14, β∞ = 0.43, r_β = 3.9 pc; χ² still 879
+with Nelder–Mead — the 11-D search is unreliable, so a differential-evolution run for K1,
+K2-cored and K2-NFW is going in the background before anything is concluded.
+
+### The residual pattern, recorded before the sampler runs
+
+With the corrected model the inner profiles are reproduced to the 2σ level except a
+shallow dip at 8–15″ (model 0.73, data 0.78–0.80 mas/yr). **Outside ~150″ all four
+instruments say the same thing: the no-DM model falls off too fast.** σ_T and σ_LOS lie
+3–4σ above the model at 200–300″ while σ_R lies 3σ below it (the fit is pushing β∞ up
+to lower σ_T and σ_LOS, and overshoots σ_R); Gaia DR2 sits 3–4σ above at 700–2000″ and
+Gaia EDR3 (1 % errors) 8–12σ above at 1300–2500″. Whether that is mass beyond the light
+(the K2 question), a tracer profile that is too steep beyond 500″ (Trager's outer points
+vs the star counts — the light profile was validated only to 66 pc = 2500″), or a
+mass-segregation/M/L gradient, is exactly what the evidence comparison and the
+injection tests must decide. No conclusion is drawn here.
+
+Figures: `plots/fit_K1_ml_profiles.png` (current model), `plots/fit_K1_ml_smin10_profiles.png`
+(intermediate). Results: `results/fits/*.npy` (ML vectors), `results/fits/K1_de.log`.
