@@ -192,6 +192,27 @@ _HAS_DATA = (processed_dir() / "kinematics" / "omegacat_vi_pm_radial.ecsv").exis
 
 
 @pytest.mark.skipif(not _HAS_DATA, reason="processed kinematics not present")
+def test_streaming_terms_on_real_data():
+    from ocen_dm.kinematics.likelihood import pm_rotation_curve
+    data = KinematicData.load(["hst_pm_radial", "hst_pm_tangential", "muse_los_dispersion", "gaia_dr2_pm", "gaia_edr3_pm"],
+                              gaia_edr3_pm={"r_min_arcsec": 300.0})
+    by = {p.name: p for p in data.profiles}
+    assert by["hst_pm_radial"].streaming2 is None and by["gaia_dr2_pm"].streaming2 is None
+    assert by["hst_pm_tangential"].streaming2 is not None and by["muse_los_dispersion"].streaming2 is not None
+    assert by["gaia_edr3_pm"].streaming2 is not None
+    # the rotation curve: zero at the centre, ~0.25 mas/yr near 430", small by 2000"
+    assert pm_rotation_curve(0.0) == pytest.approx(0.0, abs=1e-6)
+    assert 0.2 < pm_rotation_curve(430.0) < 0.3
+    assert pm_rotation_curve(2000.0) < 0.05
+    # tangential term is the square of the curve at the bin median radius
+    p = by["hst_pm_tangential"]
+    np.testing.assert_allclose(p.streaming2, pm_rotation_curve(p.r) ** 2)
+    # at ~300" the term is a > 5 per cent correction to sigma_T^2, so it is not cosmetic
+    i = np.argmin(np.abs(p.r - 300.0))
+    assert p.streaming2[i] / p.value[i] ** 2 > 0.05
+
+
+@pytest.mark.skipif(not _HAS_DATA, reason="processed kinematics not present")
 def test_real_datasets_load_and_gaia_is_thinned():
     data = KinematicData.load(["hst_pm_radial", "hst_pm_tangential", "muse_los_dispersion", "gaia_dr2_pm", "gaia_edr3_pm"],
                               gaia_edr3_pm={"r_min_arcsec": 300.0})

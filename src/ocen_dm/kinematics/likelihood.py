@@ -111,6 +111,20 @@ class BinnedProfile:
 
 
 # ----------------------------------------------------------------- loading ---
+def pm_rotation_curve(r_arcsec: np.ndarray) -> np.ndarray:
+    """Mean tangential proper motion of the rotating cluster at projected radius ``r``.
+
+    Interpolated (linearly, in mas/yr) from the Vasiliev & Baumgardt (2021) EDR3
+    profile of "the rotational PM component" (their readme), i.e. the azimuthally
+    averaged mean tangential PM per annulus: 0 at the centre, peaking at
+    0.25 mas/yr near 430 arcsec, 0.02 mas/yr by 2000 arcsec. Used as ``<mu_T>``;
+    the streaming term ``<mu_T^2>`` >= ``<mu_T>^2`` is therefore a lower bound
+    when the rotation axis is not in the plane of the sky.
+    """
+    t = Table.read(processed_dir() / "kinematics" / "vasiliev2021_ocen_pm_profiles.ecsv")
+    return np.interp(np.asarray(r_arcsec, float), np.asarray(t["r"], float), np.asarray(t["vrot_pm"], float))
+
+
 def _asym(t: Table, base: str) -> tuple[np.ndarray, np.ndarray]:
     return np.asarray(t[f"{base}_err_lo"], float), np.asarray(t[f"{base}_err_hi"], float)
 
@@ -130,10 +144,15 @@ def _omegacat(name: str, value: str, kind: str, shares: tuple[str, ...]) -> Binn
             raise ValueError("los_rotation and los_dispersion products are not on the same bins")
         streaming2 = 0.5 * np.asarray(rot["v_rot"], float) ** 2
         note += "; dispersion about the fitted rotation curve, <vbar^2> = v_rot^2/2 added to the model"
-    elif kind != "los":
-        note += ("; PMs are 'locally corrected' (local mean removed), so the PM rotation term "
-                 "is NOT available from this catalogue (measured mean mu_T = 0 +- 0.005 mas/yr per "
-                 "annulus, 2026-09-17); expected size ~2 per cent in sigma_T at 100-300 arcsec")
+    elif kind == "pmt":
+        # The catalogue PMs are 'locally corrected' (local mean removed; measured mean
+        # mu_T = 0 +- 0.005 mas/yr per annulus, 2026-09-17), so sigma_pmt is a dispersion
+        # about the rotating mean. The rotation itself comes from the Vasiliev &
+        # Baumgardt (2021) EDR3 rotation curve, evaluated at the bin median radius.
+        streaming2 = pm_rotation_curve(np.asarray(t["r_median"], float)) ** 2
+        note += "; <mu_T>^2 from the Vasiliev & Baumgardt 2021 PM rotation curve added to the model"
+    elif kind == "pmr":
+        note += "; radial PM carries no rotation term (rotation is tangential)"
     return BinnedProfile(
         name=f"hst_{name}" if kind != "los" else "muse_los_dispersion", kind=kind,
         r=np.asarray(t["r_median"], float), r_lower=np.asarray(t["r_lower"], float),
@@ -150,8 +169,11 @@ def _baumgardt2019() -> BinnedProfile:
         value=np.asarray(t["sigma_pm"], float), err_lo=np.asarray(t["sigma_pm_err_lo"], float),
         err_hi=np.asarray(t["sigma_pm_err_hi"], float), instrument="GaiaDR2",
         shares_stars_with=("gaia_edr3_pm",),
-        note="mean radius only, no bin edges; ASSUMED to be the 1-D PM dispersion -- verify "
-             "against Baumgardt+ 2019 section 3 before publication",
+        note="mean radius only, no bin edges; ASSUMED to be the 1-D PM dispersion (fitted scale "
+             "~0.9-1.0, not 1.4, supports this); whether it was fitted about a rotating mean is "
+             "unknown from the local files -- NO rotation term applied; if the published values "
+             "include rotation this is correct, otherwise the model is biased high by up to "
+             "vrot^2/2 (~10 per cent of sigma^2 at 700 arcsec)",
     )
 
 
@@ -172,14 +194,17 @@ def _vasiliev2021(r_min_arcsec: float = 0.0, n_max: int | None = 8) -> BinnedPro
         targets = np.geomspace(r[keep][0], r[keep][-1], n_max)
         keep = np.unique(keep[np.abs(np.log(r[keep])[:, None] - np.log(targets)[None, :]).argmin(axis=0)])
     thinned = n_max is not None
+    vrot = np.asarray(t["vrot_pm"], float)[keep]
     return BinnedProfile(
         name="gaia_edr3_pm", kind="pmc", r=r[keep], r_lower=None, r_upper=None,
         value=s50[keep], err_lo=lo[keep], err_hi=hi[keep], instrument="GaiaEDR3",
         shares_stars_with=("gaia_dr2_pm",),
         note=("thinned to %d log-spaced points because " % len(keep) if thinned else "ALL points kept although ")
              + "adjacent grid points come from overlapping samples and are not independent; "
-             "percentile errors; ASSUMED 1-D PM dispersion -- verify against Vasiliev & "
-             "Baumgardt 2021 before publication",
+             "percentile errors; dispersion fitted jointly with rotation (readme: 'PM dispersion' "
+             "and 'PM rotation' profiles), so <mu_T>^2/2 is added to the 1-D model; ASSUMED 1-D "
+             "PM dispersion -- the fitted scale s_GaiaEDR3 ~ 1.05 (not 1.4) supports this",
+        streaming2=0.5 * vrot ** 2,
     )
 
 
