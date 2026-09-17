@@ -1394,3 +1394,16 @@ R_gc now 6.37 kpc) and a flat 220 km/s rotation curve, r_J = 160 pc today (59 pc
 pericentre) for the K1-like model; the K2-cored posterior halo would push its own r_J to
 420 pc. The diff is saved in the session scratchpad (`jacobi_truncation_proposal.diff`),
 tests included; it changes the K2 family and therefore waits for a decision.
+
+### Like-for-like preset 2: oMEGACat VI kinematic distance
+
+`ocen fit --preset omegacat6` (HST + MUSE only, composite tracer, **flat** D prior
+4.5–6.5 kpc, s_MUSE free; 9 parameters; 1.10M calls / 119 min): **D = 5.71 [5.26, 6.07] kpc
+vs 5.494 ± 0.061 published (+0.5σ)**; χ²/dof = 1.2, a good fit. The interval is wide
+because the LOS/PM dispersion ratio fixes only the product of the distance and the
+MUSE/HST equipartition scale: s_MUSE came out 0.93 [0.88, 1.02], fully degenerate with D
+(the K1 fits with the N(5.43, 0.05) prior had s_MUSE = 0.984 ± 0.010). Consistent with
+their value; not an independent precision measurement without an external constraint on
+the equipartition offset (their analysis treats the samples differently). Remaining
+parameters as in K1 (M• = 4.5e4 [3.4, 5.5]). Output `results/fits/preset_omegacat6/`.
+Waiting for the last run (injection) before any comparison or decision.
