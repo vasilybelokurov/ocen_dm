@@ -1100,3 +1100,23 @@ mixture random directions) reached **Lmax = −152 (logZ −163) in 1305 iterati
 cost**. `ocen fit --step-sampler` added (recorded in `run.yaml`); the four runs (K1-Trager,
 K1/K2-cored/K2-NFW composite) were restarted with it. The two Trager-tracer K2 runs were
 dropped — the Trager tracer is kept only as the K1 systematics variant.
+
+## 2026-09-18 — First posterior: K1 with the Trager tracer (systematics variant)
+
+Finished after 1.55M likelihood calls / 124 min (slice sampler, 400 live points, dlogz 0.5).
+**ln Z = 86.76 ± 0.29; max ln L = 126.8; χ² at the best sample 446 / 126 points.** Medians
+[16–84 %]: M★ = 2.52e6 [2.33, 2.72], M_rem = 6.5e5 [4.9, 8.3] at a_rem = 5.15 pc [4.78,
+5.42], **M• = 4.16e4 [3.90, 4.42]**, β₀ = −0.033 [−0.056, −0.014], β∞ = 0.255 [0.245,
+0.266], r_β = 4.0 pc, s_MUSE = 0.982, s_DR2 = 0.953, s_EDR3 = 1.072, D = 5.436 [5.389,
+5.483] kpc.
+
+Reading: with the light-weighted (Trager) tracer the no-DM model needs a 4e4 M☉ point mass
+*and* a 6.5e5 M☉ extended remnant sphere (26 % of the stellar mass, a_rem ≈ 5 pc ≈ 0.7 R_h,
+i.e. not segregated at all), and still leaves χ²/N = 3.5. The ±6 % width on M• is the width
+of a misspecified model's posterior, not a measurement: the value is set by the depth of
+the artificial 10–20″ dip (the giant-boosted core), exactly the failure mode diagnosed
+yesterday. This run is retained as the "tracer = V-band light" systematics variant, not
+as a result. Figures: `plots/fit_K1_noDM_posterior_profiles.png`,
+`plots/fit_posterior_profiles.png` (to be overwritten by the multi-run comparison).
+Composite-tracer runs at the time of writing: K1 remainder 70 % (Lmax 204), K2-cored
+remainder 99.9 % (Lmax 224.6), K2-NFW remainder 99.9 % (Lmax 210).
