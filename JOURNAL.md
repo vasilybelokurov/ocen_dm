@@ -1305,3 +1305,19 @@ real-data K2 preference is not to be believed at that level. K2-cored and K2-NFW
 data are in the bulk of their posteriors (ln Z 171 and 163 and rising against K1's 134.9),
 K2-cored-noEDR3 has started. Report: `results/fits/comparison.md`; figures
 `plots/fit_posterior_profiles.png`, `plots/fit_K1_noDM_composite_posterior_profiles.png`.
+
+### Like-for-like preset 1: Watkins et al. 2013 assumptions on the oMEGACat PMs
+
+`ocen fit --preset watkins2013` (HST PMs only, D = 4.59 kpc, constant β with prior up to
++0.5, constant M/L, no remnants, no BH, Trager tracer; 2 parameters; 153k calls, 11 min):
+**M/L_V = 2.539 [2.536, 2.542] vs 2.71 ± 0.05 published; β = 0.203 [0.201, 0.205] vs
+0.10 ± 0.02.** But χ² = 1638 for 80 points: a two-parameter constant-anisotropy model
+cannot describe the 2023 HST profiles (1 % errors, 40 bins per component), so the
+posterior widths and the "σ pulls" the report printed (−3.4σ, +5.1σ) mean nothing — the
+report now says so whenever χ²/dof > 2. What the comparison does establish: under their
+assumptions our pipeline lands within 6 % of their M/L_V (2.54 vs 2.71; part of that is
+D-dependence, M/L ∝ D at fixed σ_PM in mas/yr, and their tracer/geometry — axisymmetric
+with inclination 50° and rotation — is not ours), and finds mildly radial anisotropy as
+they did, twice as strong (a spherical β with rotation removed is not their global
+axisymmetric β). No pipeline defect indicated; no precision claim possible with this
+preset. Output `results/fits/preset_watkins2013/`.

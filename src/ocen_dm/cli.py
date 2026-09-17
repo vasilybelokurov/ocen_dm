@@ -288,7 +288,9 @@ def cmd_fit(args: argparse.Namespace) -> int:
         from .kinematics.presets import derived_quantities
         post = Table.read(out / "posterior.ecsv")
         rows = [derived_quantities(preset, {n: float(r[n]) for n in family.names}, family) for r in post]
-        print("\nlike-for-like comparison:")
+        red = summary["chi2_ml_total"] / max(summary["n_points"] - len(family.names), 1)
+        print(f"\nlike-for-like comparison (chi2/dof of the preset model on our data = {red:.1f}"
+              + ("; the pulls below use only the published error and are NOT meaningful for a model this poor)" if red > 2 else ")"))
         for key, (val, err, note) in preset.published.items():
             ours = np.array([r[key] for r in rows if key in r])
             if len(ours) == 0:
