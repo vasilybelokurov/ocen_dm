@@ -1246,3 +1246,28 @@ parameter vector — χ² per dataset 78.6/77.7/46.5/14.4/228.5 (ours) vs 80.5/7
 228.3 (JamPy); ln L 127.26 vs 126.50. An independent implementation reproduces the
 likelihood on the real profiles to within one unit of ln L; the report now includes this
 table for every finished run.
+
+## 2026-09-18 — First fixed-solver posterior: K1 composite without Gaia EDR3
+
+1.18M calls / 97 min. **ln Z = 210.30 ± 0.42; χ² at the best sample 137 / 118 points**
+(HST R 38/40, T 47/40, MUSE 39/29, Gaia DR2 14/9). Medians [16–84 %]: M★ = 2.81e6 [2.62,
+2.98], M_rem = 4.0e5 [2.8, 5.4] at a_rem = 4.3 pc [3.7, 4.8], **M• = 3.8e4 [3.4, 4.2]**,
+β₀ = −0.035 [−0.065, −0.012], β∞ = 0.240 [0.230, 0.252], r_β = 3.6 pc, s_MUSE = 0.983,
+s_DR2 = 0.950, **D = 5.435 [5.389, 5.481] kpc** (s_EDR3 unconstrained, as it must be).
+
+Reading, carefully: **without the Vasiliev EDR3 profile, the no-dark-matter model is an
+acceptable description of everything else** — HST PMs to 300″, MUSE LOS, and the Gaia DR2
+profile to 1800″ (46 pc) — with χ²/N = 1.16 and no residual pattern of note. What it still
+wants is a central mass of ~4e4 M☉ in a point (M• 3.4–4.2e4 at 68 %) on top of a 4e5 M☉
+remnant sphere; the composite tracer did not remove that requirement, so yesterday's
+attribution of the point mass to the light-weighted tracer was only part of the story.
+The literature disagreement (van der Marel & Anderson 2010 ≲ 1.2e4; Häberle+ 2024
+≥ 8.2e3) stands and is now the first item for the like-for-like presets and the engine
+cross-checks. Distance: 5.435 kpc with the N(5.43, 0.05) prior — consistent with both
+literature values, not independent of the prior.
+
+Consequence for the DM question: whatever preference for K2 the full-data runs show will
+rest on the EDR3 profile (8 thinned points, 1 % model-percentile errors, 300–2400″). A
+**K2-cored run without EDR3** was launched to test exactly that. Figures:
+`plots/fit_K1_noDM_composite_noEDR3_posterior_profiles.png`; JamPy cross-check of the best
+sample in `results/fits/comparison.md`.
