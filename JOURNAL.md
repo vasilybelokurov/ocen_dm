@@ -1344,3 +1344,33 @@ EDR3** are running precisely to test this and finish within the hour; (iv) the M
 degeneracy needs an external prior (a stellar M/L from the CMD, a remnant fraction from
 N-body) before any component can be quoted on its own. Figures:
 `plots/fit_K2_nfw_composite_posterior_profiles.png`, `plots/fit_posterior_profiles.png`.
+
+## 2026-09-18 — K2-cored (composite, full data) — and what the halo it wants looks like
+
+2.33M calls / 238 min. **ln Z = 185.92 ± 0.51**: +51.0 over K1 (134.91), +9.3 over K2-NFW
+(176.65). χ² 237 / 126 (HST R 34/40, T 52/40, MUSE 38/29, DR2 11/9, **EDR3 102/8**).
+Posterior: **M_DM(<100 pc) = 3.7e6 [3.3, 4.1] M☉**, r_s = 730 pc [490, 910], M★ = 2.09e6
+[1.72, 2.54], M_rem = 9.8e5 [5.9, 13.0] at 5.4 pc, M• = 4.1e4 [3.7, 4.5], β and nuisances as
+in K1, s_EDR3 = 1.044, D = 5.429. Dark fraction 0.3 % at 10 pc, 3 % at 28 pc, 21 % at 57 pc,
+56 % at 100 pc.
+
+The shape of this "halo" is the point. With r_s = 730 pc and γ = 0 it is a **uniform
+background of ρ ≈ 3.7e6 / (4π/3 · 100³) ≈ 0.9 M☉ pc⁻³** across the entire cluster — two
+orders of magnitude above any plausible dark-matter density at ω Cen's position (the local
+Galactic halo is ~0.01 M☉ pc⁻³), and, continued to its own scale radius (our fixed
+truncation is r_t = 1000 pc), it would hold ~10⁹ M☉. No bound remnant halo can extend beyond
+the Jacobi radius (~100–200 pc for a 3–4e6 M☉ cluster at 6.5 kpc from the Galactic centre).
+So the sampler is not measuring dark matter here: it is using the only component free to
+add mass at large radius without changing the inner profile — a near-harmonic potential — to
+lift the model dispersion in the 300–2400″ range where the EDR3 profile refuses to fall.
+The cored family beats NFW because a flat core does this with less damage to the inner
+profile. Both still fail EDR3 by 100+ χ² for 8 points.
+
+Two things follow. (a) A physical prior is missing in K2: the truncation must be tied to the
+Jacobi radius (`CompositeMassModel.jacobi_radius` exists; the spec asks for it) and the halo
+mass must be bounded by what the cluster can hold — otherwise "K2" is a fit to systematics.
+(b) The EDR3 profile's outer plateau (0.23–0.28 mas/yr at 1300–2400″ against models at
+0.17–0.24) is either real (extra-tidal heating, potential escapers, an unbound envelope —
+all of which spherical Jeans of a bound tracer cannot describe) or a contamination/systematic
+floor in the Gaia dispersion. Either way it is not a bound halo signal. The controls now
+finishing (K2 without EDR3, K2 on a K1 mock) will quantify how much of the Δ ln Z is EDR3.
