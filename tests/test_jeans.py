@@ -189,3 +189,30 @@ def test_an_evans_no_positive_df_for_radial_anisotropy_in_a_core():
     stars = Plummer(3.0e6, 6.0)
     rho, _, _ = _agama_moments(pot, dens, 0.3, np.array([0.3]))
     assert rho[0] / stars.density(0.3)[0] > 1.5
+
+
+def test_sigma_r_does_not_collapse_far_out_in_a_gaussian_tracer():
+    """Regression: the outer Jeans integral must be accumulated from the outside so
+    that nu sigma_r^2 stays accurate where nu has fallen 10+ decades (found 2026-09-18:
+    sigma_r dropped from 3.4 to 0 km/s between 65 and 70 pc in the omega Cen MGE)."""
+    from ocen_dm.mass_models import MGE, CompositeMassModel
+    tracer = MGE(masses=[0.7e6, 0.3e6], sigmas=[3.0, 20.0])
+    j = SphericalJeans(CompositeMassModel([tracer]), tracer, Anisotropy(0.0, 0.3, 5.0))
+    r = np.geomspace(1.0, 0.9 * j.r_cut, 60)
+    sr = j.sigma_r(r)
+    assert np.all(np.isfinite(sr)) and np.all(sr > 0.0)
+    # far out the tracer sits in a ~Keplerian potential: sigma_r ~ r^-1/2 times slowly
+    # varying factors; it must decline smoothly, never by more than a factor 2 per step
+    ratios = sr[1:] / sr[:-1]
+    assert np.all(ratios > 0.5) and np.all(ratios < 1.5)
+
+
+def test_plummer_sigma_r_far_out_matches_closed_form():
+    from ocen_dm.mass_models import Plummer, CompositeMassModel
+    from ocen_dm.mass_models.base import G
+    M, a = 1e6, 2.0
+    p = Plummer(M, a)
+    j = SphericalJeans(CompositeMassModel([p]), p)
+    for r in (20.0, 60.0, 150.0):                # nu/nu0 down to ~1e-9
+        exact = np.sqrt(G * M / (6.0 * np.sqrt(r**2 + a**2)))
+        assert j.sigma_r(r)[0] == pytest.approx(exact, rel=2e-3), r

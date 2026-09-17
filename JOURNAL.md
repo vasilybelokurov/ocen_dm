@@ -1152,3 +1152,33 @@ K1-composite best sample with the real bins and errors) and a **K1 variant witho
 Gaia EDR3 profile** (its 8 points with 1 % model-percentile errors carry 84 of the 287 χ²).
 K2-cored and K2-NFW composite runs at 35–38 % remainder (ln Z 184.9 and 171.8 and rising —
 already above K1's 160.2; not final).
+
+### Solver defect found from the posterior figure — composite runs invalidated and restarted
+
+The posterior data-vs-model figure for K1-composite showed the model curve spiking to
+0.44 and then 0 mas/yr just beyond the last Gaia point (2400–2600″). Probing the solution:
+ν σ_r² fell from 0.17 at 65 pc to 6e-12 at 70 pc while ν itself was only 4e-6 of its
+central value and r_cut was 208 pc. Cause: the outer Jeans integral was formed as
+`cumulative[-1] − cumulative`; with an integrand spanning 20 decades the remainder is
+below the 1e-16 floor of the total long before the tracer edge, so σ_r collapsed to zero
+around 3 σ_MGE — inside the last EDR3 datum for some parameter values. Fix: accumulate the
+integral from the outside inward (`cumulative_simpson` on the reversed grid), which needs
+no subtraction. Regression tests: Plummer σ_r at 20–150 a (ν/ν₀ down to 1e-9) to 2e-3 of
+the closed form, and a two-Gaussian MGE whose σ_r must decline smoothly to 0.9 r_cut.
+All 18 Jeans tests pass.
+
+Consequence, measured on the saved best samples: **K1-composite ln L 207.4 → 138.7** — the
+sampler had found and exploited the artefact (the spurious upturn put the model at 0.239
+mas/yr on the 2400″ EDR3 point whose datum is 0.228 ± 0.003; the correct model gives
+0.171, a 19σ shortfall). K1-Trager: 127.26 → 127.26, unaffected at its maximum. So the
+K1-composite posterior, its Δ ln Z = +73 over Trager, the comparison figures and the
+injection/no-EDR3 runs launched from its best sample are **void**; they are quarantined in
+`results/fits/_invalid_prefix_solver/` and the four composite runs restarted with the
+fixed solver (K1, K2-cored, K2-NFW, K1-noEDR3). The Trager K1 run is retained; its
+posterior will be regenerated too once the machine is free, since other samples than the
+maximum could have touched the artefact.
+
+Lesson recorded: the evidence comparison was about to be made on a solver that passed
+its unit tests (closed forms at ≤ 10 a, JamPy and AGAMA at ≤ 30 pc) but had never been
+exercised where ν σ_r² is 12 decades below its peak. The figure caught it; the test suite
+now does.
