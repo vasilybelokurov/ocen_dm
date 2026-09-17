@@ -991,3 +991,34 @@ on mock data with a 1200-call budget: `tests/test_cli_fit.py` (5.7 s). Launched 
 background: **K1** (11 parameters) and **K2-cored** (13), 400 live points, dlogz 0.5, seed
 42; K2-NFW and the injection runs (`--mock-from results/fits/K1_noDM/ml_x.npy` fitted with
 K2: the no-DM false-positive test of spec §13 item 8) follow once K1 finishes.
+
+### The rotation term, properly: ω Cen's PM rotation is not small
+
+Looking for the definition of the Gaia dispersion profiles in the Vasiliev & Baumgardt
+(2021) readme turned up what the PM streaming term needed: their `profiles/` hold "the
+rotational PM component" alongside the dispersion (percentiles vs radius; our processed
+product already carried it as `vrot_pm`). The mean tangential PM is **0 at the centre,
+0.12 mas/yr at 144″, 0.21 at 288″, peaks at 0.25 mas/yr near 430–580″ and is down to
+0.02 mas/yr by 2000″** — i.e. ⟨μ̄_T⟩²/σ² = 5 % at 144″, 18 % at 288″, 29–30 % at
+430–580″, 25 % at 720″, 10 % at 1150″. Every published dispersion we fit is measured
+about the rotating mean (HST: locally corrected PMs; Vasiliev: joint rotation+dispersion
+fit; MUSE: rotation curve per annulus), so the σ² + v̄² correction is a first-order effect
+in the very region where the K1 model was "falling off too fast".
+
+Implemented (`likelihood.py`): `pm_rotation_curve(R)` interpolates the Vasiliev curve;
+`hst_pm_tangential` gets `streaming2 = ⟨μ̄_T⟩²` at the bin median radius, `gaia_edr3_pm`
+(1-D combined) gets `⟨μ̄_T⟩²/2`, `hst_pm_radial` none (rotation is tangential), MUSE keeps
+v_rot²/2. **Baumgardt+ 2019 (Gaia DR2) is left uncorrected** because whether its
+dispersions were fitted about a rotating mean cannot be settled from the local files; if
+they were, the model is biased high there by up to v_rot²/2 ≈ 10 % of σ² at 700″ — flagged
+in the product note. Using ⟨μ̄_T⟩² for ⟨μ̄_T²⟩ is a lower bound when the rotation axis is
+inclined. On the 1-D question: the fitted Gaia scales are 0.94 (DR2) and 1.04 (EDR3), not
+≈1.4, so both profiles are 1-D dispersions as assumed.
+
+Effect on the K1 maximum likelihood (Nelder–Mead, 10 starts): **lnL −88 → +82.5**, total
+χ² 879 → 536 for 126 points: MUSE 137 → 51/29, Gaia DR2 82 → 12/9, HST tangential
+179 → 103/40; HST radial 148/40 and Gaia EDR3 222/8 remain poor. Parameters moved to
+M★ = 3.35e6, M_rem = 4.5e4 at a_rem = 0.8 pc, M• = 4.0e4, β₀ = −0.14, β∞ = 0.27,
+r_β = 3.4 pc, s_MUSE = 0.98, D = 5.44 kpc. The stale nested runs (no PM term) were killed
+and their outputs deleted; K1, K2-cored and K2-NFW relaunched with the corrected
+likelihood (400 live points, dlogz 0.5, seed 42). Figure: `plots/fit_K1_ml_profiles.png`.

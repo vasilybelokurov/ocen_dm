@@ -78,3 +78,43 @@ def plot_profile_fit(problem: FitProblem, x: np.ndarray, path: Path, title: str 
     path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
     return path
+
+
+def plot_posterior_profiles(run_dirs: dict[str, Path], path: Path, title: str = "") -> Path:
+    """Enclosed-mass, dark fraction and circular-speed bands from ``profiles.npz`` files.
+
+    Parameters
+    ----------
+    run_dirs : dict
+        ``label -> results/fits/<label>`` for each run to overlay (K1, K2 ...).
+    """
+    apply_style()
+    fig, axes = plt.subplots(1, 3, figsize=(13, 4.2))
+    for i, (label, d) in enumerate(run_dirs.items()):
+        prof = np.load(Path(d) / "profiles.npz")
+        r = prof["r"]; color = SERIES[i % len(SERIES)]
+        for ax, key, ylabel, log in ((axes[0], "M_total", r"$M(<r)$ [M$_\odot$]", True),
+                                     (axes[1], "f_dm", r"$f_{\rm DM}(<r)$", False),
+                                     (axes[2], "v_circ", r"$v_{\rm circ}$ [km/s]", False)):
+            lo, mid, hi = np.percentile(prof[key], [16, 50, 84], axis=0)
+            ax.fill_between(r, lo, hi, color=color, alpha=0.25, lw=0)
+            ax.plot(r, mid, color=color, lw=2, label=label)
+            ax.set_xscale("log"); ax.set_xlabel("r [pc]"); ax.set_ylabel(ylabel)
+            if log:
+                ax.set_yscale("log")
+        if "M_dm" in prof.files:
+            lo, mid, hi = np.percentile(prof["M_dm"], [16, 50, 84], axis=0)
+            axes[0].fill_between(r, np.maximum(lo, 1), hi, color=color, alpha=0.12, lw=0, hatch="//")
+            axes[0].plot(r, np.maximum(mid, 1), color=color, lw=1.2, ls="--", label=f"{label}: DM only")
+    axes[0].set_ylim(1e3, None); axes[0].legend(fontsize=8)
+    for R_hst, R_gaia in ((9.0, 53.0),):                      # data extents in pc at 5.43 kpc
+        for ax in axes:
+            ax.axvline(R_hst, color=FIELD_GREY, lw=1, ls=":"); ax.axvline(R_gaia, color=FIELD_GREY, lw=1, ls=":")
+    axes[1].text(9.2, 0.95, "HST/MUSE edge", fontsize=8, color=FIELD_GREY, transform=axes[1].get_xaxis_transform())
+    axes[1].text(55, 0.95, "Gaia edge", fontsize=8, color=FIELD_GREY, transform=axes[1].get_xaxis_transform())
+    if title:
+        fig.suptitle(title)
+    fig.tight_layout()
+    path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
+    return path
