@@ -1240,3 +1240,9 @@ preset tests the modelling under their assumptions, not a re-reduction. An attri
 caught while checking `docs/LITERATURE_BASELINES.md`: the 1.2e4 IMBH limit is van der Marel
 & Anderson 2010, not Baumgardt+ 2019 (whose result is "no IMBH, 4.6 % in stellar BHs");
 preset renamed. The presets will run once the five posterior jobs release the CPUs.
+
+**Engine cross-check on real data (K1-Trager best sample):** our solver vs JamPy, same
+parameter vector — χ² per dataset 78.6/77.7/46.5/14.4/228.5 (ours) vs 80.5/76.9/46.6/14.4/
+228.3 (JamPy); ln L 127.26 vs 126.50. An independent implementation reproduces the
+likelihood on the real profiles to within one unit of ln L; the report now includes this
+table for every finished run.
