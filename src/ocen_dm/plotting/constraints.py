@@ -53,12 +53,29 @@ def _composite_tracer(distance_kpc: float = 5.43):
 
 
 def our_mixture_profile(edges: np.ndarray = OUTER_EDGES, distance_kpc: float = 5.43,
-                        g_max: float = np.inf, field_sigma_min: float = 1.5) -> Table:
-    """Contamination-modelled PM dispersion: free cluster + two-Gaussian field mixture per
-    annulus over ALL quality stars (no membership probability used), exact systemic field,
-    depth term included. Columns as :func:`our_outer_profile` plus ``f_field``."""
-    from ..kinematics.outer_profile import mixture_dispersion_free
+                        g_max: float = np.inf, field_sigma_min: float = 1.5,
+                        field: str = "2d", bw_method: float = 0.05) -> Table:
+    """Contamination-modelled PM dispersion over ALL quality stars (no membership cut).
+
+    ``field='2d'`` (default) scores every star against the **two-dimensional** empirical
+    proper-motion density of an independent Gaia DR3 annulus outside the cluster, with the
+    cluster a two-dimensional Gaussian whose axes follow each star's radial direction;
+    ``field='template'`` uses the same field sample projected onto the radial/tangential
+    directions (one dimension at a time), and ``field='free'`` fits a two-Gaussian field to
+    the same stars. The last two are kept for comparison: projecting the field mixes its
+    two unequal widths around an annulus and the two-Gaussian form cannot reproduce its
+    heavy tails, so both misfit the observed distribution (JOURNAL 2026-09-18).
+    """
+    from ..kinematics.outer_profile import dispersion_2d, dispersion_with_field_template, mixture_dispersion_free
     from ..kinematics.perspective import depth_dispersion
+    kdes = dens2d = None
+    if field == "2d":
+        from ..selection.field_template import field_density_2d
+        dens2d = field_density_2d()
+    elif field == "template":
+        from ..selection.field_template import field_kde, load_field_template
+        tpl = load_field_template()
+        kdes = {c: field_kde(c, tpl, bw_method=bw_method) for c in ("r", "t")}
     s = load_members(exact=True, distance_kpc=distance_kpc)
     q = s.select(((s.quality_flag & QUALITY_BIT) > 0) & (s.g_mag <= g_max))
     tracer = _composite_tracer(distance_kpc)
@@ -70,8 +87,18 @@ def our_mixture_profile(edges: np.ndarray = OUTER_EDGES, distance_kpc: float = 5
             continue
         sd = depth_dispersion(tracer, q.r_arcsec[m] * distance_kpc * 1e3 / 206264.806, float(np.hypot(*q.mu_sys)), distance_kpc)
         dphi = q.phi[m] - phi_sys
-        rr = mixture_dispersion_free(q.mu_r[m], q.err_r[m], sd**2 * np.cos(dphi) ** 2, field_sigma_min=field_sigma_min)
-        tt = mixture_dispersion_free(q.mu_t[m], q.err_t[m], sd**2 * np.sin(dphi) ** 2, field_sigma_min=field_sigma_min)
+        if dens2d is not None:
+            o = dispersion_2d(q, m, dens2d, depth_var=sd**2)
+            rows.append((lo, float(np.median(q.r_arcsec[m])), hi, int(m.sum()), o["sigma_r"], o["sigma_r_err"], o["mean_r"],
+                         o["sigma_t"], o["sigma_t_err"], o["mean_t"], o["sigma"], o["sigma_err"], o["f"],
+                         float(np.median(q.g_mag[m]))))
+            continue
+        if kdes is None:
+            rr = mixture_dispersion_free(q.mu_r[m], q.err_r[m], sd**2 * np.cos(dphi) ** 2, field_sigma_min=field_sigma_min)
+            tt = mixture_dispersion_free(q.mu_t[m], q.err_t[m], sd**2 * np.sin(dphi) ** 2, field_sigma_min=field_sigma_min)
+        else:
+            rr = dispersion_with_field_template(q.mu_r[m], q.err_r[m], kdes["r"], sd**2 * np.cos(dphi) ** 2)
+            tt = dispersion_with_field_template(q.mu_t[m], q.err_t[m], kdes["t"], sd**2 * np.sin(dphi) ** 2)
         rows.append((lo, float(np.median(q.r_arcsec[m])), hi, int(m.sum()), rr["sigma"], rr["sigma_err"], rr["mean"],
                      tt["sigma"], tt["sigma_err"], tt["mean"], np.sqrt(0.5 * (rr["sigma"] ** 2 + tt["sigma"] ** 2)),
                      0.5 * np.hypot(rr["sigma_err"], tt["sigma_err"]), 0.5 * (rr["f"] + tt["f"]),
@@ -294,74 +321,114 @@ def plot_outer_tracer_audit(path: Path | str = "plots/outer_tracer_audit.png", r
     return path
 
 
+def _model_histogram(sub, fit, dens2d, bins, depth_var, n_over: int = 12, seed: int = 0):
+    """Expected counts per bin of the projected radial PM under the fitted 2-D model.
+
+    The cluster part is integrated analytically per star; the field part is drawn from the
+    empirical two-dimensional template and projected onto each star's own radial direction,
+    which is what makes the projected field non-Gaussian.
+    """
+    from scipy.stats import norm
+
+    from ..selection.field_template import load_field_template
+
+    rng = np.random.default_rng(seed)
+    n = len(sub.mu_r); f = fit["f"]
+    var = fit["sigma_r"] ** 2 + np.asarray(depth_var, float) + sub.err_r**2
+    cdf = norm.cdf((bins[None, :] - fit["mean_r"]) / np.sqrt(var)[:, None])
+    clu = (1 - f) * np.diff(cdf, axis=1).sum(axis=0)
+    t = load_field_template(); keep = np.asarray(t["r_arcsec"], float) >= 3600.0
+    fa, fd = np.asarray(t["mu_a"], float)[keep], np.asarray(t["mu_d"], float)[keep]
+    n_f = int(round(f * n)) * n_over
+    j = rng.choice(len(fa), size=n_f, replace=True); k = rng.choice(n, size=n_f, replace=True)
+    proj = fa[j] * np.sin(sub.phi[k]) + fd[j] * np.cos(sub.phi[k]) + rng.normal(0, sub.err_r[k])
+    fld = np.histogram(proj, bins)[0] / n_over
+    return clu, fld
+
+
 def plot_contamination_model(path: Path | str = "plots/contamination_model.png",
                              annuli: tuple[tuple[float, float], ...] = ((700.0, 1000.0), (1400.0, 1800.0), (1800.0, 2400.0)),
                              distance_kpc: float = 5.43) -> Path:
-    """How the field is modelled: per-annulus PM histograms of all quality stars with the fitted
-    cluster + field mixture, a zoom on the cluster peak, and the summary vs radius."""
-    from ..kinematics.outer_profile import dispersion_ml, mixture_dispersion_free
+    """How the field is modelled and how well it fits.
+
+    Top row: the observed radial-PM histogram of all quality stars in each annulus with the
+    fitted cluster and field components of the **two-dimensional** model; middle row: the
+    zoom on the cluster peak; bottom row: residuals. Right column: the two-dimensional field
+    density itself, the effect on the dispersion profile, and the resulting anisotropy.
+    """
+    from ..kinematics.outer_profile import dispersion_2d
     from ..kinematics.perspective import depth_dispersion
+    from ..selection.field_template import field_density_2d, load_field_template
     style.apply()
     s = load_members(exact=True, distance_kpc=distance_kpc)
     q = s.select((s.quality_flag & QUALITY_BIT) > 0)
     tracer = _composite_tracer(distance_kpc)
-    phi_sys = np.arctan2(*q.mu_sys)
+    dens2d = field_density_2d()
     n_ann = len(annuli)
-    fig, axes = plt.subplots(2, n_ann + 1, figsize=(4.2 * (n_ann + 1), 7.4))
-    grid_wide = np.linspace(-15, 15, 601); grid_zoom = np.linspace(-1.5, 1.5, 601)
-
-    def gauss(x, m, sd):
-        return np.exp(-0.5 * ((x - m) / sd) ** 2) / (sd * np.sqrt(2 * np.pi))
+    fig = plt.figure(figsize=(4.6 * (n_ann + 1), 10.4))
+    gs = fig.add_gridspec(3, n_ann + 1, height_ratios=[2.2, 2.2, 1.0], hspace=0.45, wspace=0.34)
+    axes = np.array([[fig.add_subplot(gs[i, j]) for j in range(n_ann + 1)] for i in range(3)])
 
     for j, (lo, hi) in enumerate(annuli):
         m = (q.r_arcsec >= lo) & (q.r_arcsec < hi)
-        v, e = q.mu_r[m], q.err_r[m]
-        sd = depth_dispersion(tracer, q.r_arcsec[m] * distance_kpc * 1e3 / 206264.806, float(np.hypot(*q.mu_sys)), distance_kpc)
-        fit = mixture_dispersion_free(v, e, sd**2 * np.cos(q.phi[m] - phi_sys) ** 2)
-        w, fm, fs = fit["field"]; f = fit["f"]; n = m.sum()
-        e2 = float(np.mean(e**2))
-        for ax, grid, title in ((axes[0, j], grid_wide, f"{lo:.0f}-{hi:.0f} arcsec: all {n:,} quality stars"),
-                                (axes[1, j], grid_zoom, "zoom on the cluster peak")):
-            bins = np.linspace(grid[0], grid[-1], 121 if grid is grid_wide else 61)
-            ax.hist(v, bins=bins, color=style.COLOR_FIELD, alpha=0.7, label="data (radial PM)")
-            dx = bins[1] - bins[0]
-            clu = n * (1 - f) * gauss(grid, fit["mean"], np.sqrt(fit["sigma"] ** 2 + e2)) * dx
-            fld = n * f * (w * gauss(grid, fm[0], fs[0]) + (1 - w) * gauss(grid, fm[1], fs[1])) * dx
-            ax.plot(grid, clu, color=style.SERIES[0], lw=2, label=r"cluster: $\sigma$ = %.3f, N = %.0f" % (fit["sigma"], n * (1 - f)))
-            ax.plot(grid, fld, color=style.SERIES[1], lw=2, label="field: f = %.2f, $\sigma$ = %.1f, %.1f" % (f, fs[0], fs[1]))
-            ax.plot(grid, clu + fld, color=style.INK, lw=1.2, ls="--", label="total")
-            ax.set_xlabel(r"$\mu_R - \mu_{R,\rm sys}$  [mas/yr]"); ax.set_title(title, fontsize=9.5)
-            if grid is grid_wide:
-                ax.set_yscale("log"); ax.set_ylim(0.5, 3 * max(np.histogram(v, bins=bins)[0].max(), 1))
+        sub = q.select(m)
+        sd = depth_dispersion(tracer, sub.r_arcsec * distance_kpc * 1e3 / 206264.806, float(np.hypot(*q.mu_sys)), distance_kpc)
+        fit = dispersion_2d(q, m, dens2d, depth_var=sd**2)
+        n = int(m.sum())
+        for row, (lim, nb, title) in enumerate((((-15, 15), 121, f"{lo:.0f}-{hi:.0f} arcsec: all {n:,} quality stars"),
+                                                ((-1.5, 1.5), 61, "zoom on the cluster peak"))):
+            ax = axes[row, j]
+            bins = np.linspace(lim[0], lim[1], nb); mid = 0.5 * (bins[1:] + bins[:-1])
+            data, _ = np.histogram(sub.mu_r, bins)
+            clu, fld = _model_histogram(sub, fit, dens2d, bins, sd**2)
+            ax.bar(mid, data, width=bins[1] - bins[0], color=style.COLOR_FIELD, alpha=0.7, label="data (radial PM)")
+            ax.step(bins, np.append(clu, clu[-1]), where="post", color=style.SERIES[0], lw=1.8,
+                    label=r"cluster: $\sigma_R$ = %.3f, N = %.0f" % (fit["sigma_r"], fit["n_cluster"]))
+            ax.step(bins, np.append(fld, fld[-1]), where="post", color=style.SERIES[1], lw=1.8,
+                    label="field: f = %.2f (2-D template, projected)" % fit["f"])
+            ax.step(bins, np.append(clu + fld, (clu + fld)[-1]), where="post", color=style.INK, lw=1.2, ls="--", label="total")
+            ax.set_title(title, fontsize=9.5); ax.set_ylabel("stars per bin"); ax.legend(fontsize=6.8)
+            if row == 0:
+                ax.set_yscale("log"); ax.set_ylim(0.5, 3 * max(data.max(), 1))
             else:
-                # what a P-cut sample would contain: field stars under the cluster peak.
-                # The curves are counts per histogram bin, so integrate with the grid step / bin width.
-                inwin = np.abs(grid) < 3 * np.sqrt(fit["sigma"] ** 2 + e2)
-                gstep = grid[1] - grid[0]
-                n_under = fld[inwin].sum() * gstep / dx
-                ax.fill_between(grid[inwin], 0, fld[inwin], color=style.SERIES[1], alpha=0.35, lw=0,
-                                label="field under the peak (±3σ): %.0f stars = %.1f %% of the peak" % (n_under, 100 * n_under / max(clu[inwin].sum() * gstep / dx, 1)))
-            ax.legend(fontsize=7)
-        axes[0, j].set_ylabel("stars per bin"); axes[1, j].set_ylabel("stars per bin")
+                res = (data - clu - fld) / np.sqrt(np.maximum(clu + fld, 1))
+                axr = axes[2, j]
+                axr.bar(mid, res, width=bins[1] - bins[0], color=style.INK_SECONDARY)
+                axr.axhline(0, color=style.INK, lw=0.8); axr.set_ylim(-4.5, 4.5)
+                axr.set_xlabel(r"$\mu_R - \mu_{R,\rm sys}$  [mas/yr]"); axr.set_ylabel(r"(data$-$model)/$\sqrt{\rm model}$")
+                axr.text(0.02, 0.82, r"$\chi^2$/bin = %.2f" % (np.sum(res**2) / len(res)), transform=axr.transAxes, fontsize=8.5)
 
-    # summary vs radius
-    mix = our_mixture_profile(OUTER_EDGES); pcut = our_outer_profile(OUTER_EDGES)
+    # the field template itself
+    t = load_field_template(); keep = np.asarray(t["r_arcsec"], float) >= 3600.0
     ax = axes[0, n_ann]
+    h = ax.hexbin(np.asarray(t["mu_a"])[keep], np.asarray(t["mu_d"])[keep], gridsize=60, extent=(-15, 15, -15, 15),
+                  bins="log", cmap=style.SEQUENTIAL, mincnt=1)
+    ax.plot(0, 0, "x", color=style.SERIES[1], ms=9, mew=2)
+    ax.text(0.5, -2.2, "cluster sits here", color=style.SERIES[1], fontsize=7.5)
+    ax.set_xlabel(r"$\mu_{\alpha*}$ residual [mas/yr]"); ax.set_ylabel(r"$\mu_\delta$ residual [mas/yr]")
+    ax.set_title("the 2-D field template (%s stars, > 1 deg)" % f"{int(keep.sum()):,}", fontsize=9.5)
+    fig.colorbar(h, ax=ax, label="field stars per cell", fraction=0.046, pad=0.03)
+
+    mix = our_mixture_profile(OUTER_EDGES); pcut = our_outer_profile(OUTER_EDGES)
+    ax = axes[1, n_ann]
     ax.errorbar(pcut["r_median"], pcut["sigma_pm"], yerr=pcut["sigma_pmr_err"], fmt="o", color="#b5175f", ms=4, lw=0,
-                ecolor="#b5175f", elinewidth=1, label="P > 0.9 members (no contamination model)")
+                ecolor="#b5175f", elinewidth=1, label="P > 0.9 members (no field model)")
     ax.errorbar(mix["r_median"], mix["sigma_pm"], yerr=mix["sigma_pm_err"], fmt="D", color=style.INK, ms=4, lw=0,
-                ecolor=style.INK, elinewidth=1, label="cluster + field mixture, all stars")
+                ecolor=style.INK, elinewidth=1, label="2-D field model, all stars")
     ax.set_xscale("log"); ax.set_yscale("log"); ax.set_xlabel("R  [arcsec]"); ax.set_ylabel("1-D PM dispersion  [mas/yr]")
     ax.legend(fontsize=7.5); ax.set_title("Effect on the dispersion profile", fontsize=9.5); add_pc_axis(ax, distance_kpc)
-    ax = axes[1, n_ann]
-    ax.plot(mix["r_median"], mix["f_field"], "o-", color=style.SERIES[1], lw=1.6, label="field fraction of all quality stars (mixture)")
-    ax.plot(mix["r_median"], 100 * (np.asarray(pcut["sigma_pm"]) / np.asarray(mix["sigma_pm"]) - 1) / 100, "s--",
-            color="#b5175f", lw=1.2, label=r"($\sigma_{P>0.9}/\sigma_{\rm mixture} - 1$)")
-    ax.axhline(0, color=style.INK_SECONDARY, lw=0.8)
-    ax.set_xscale("log"); ax.set_xlabel("R  [arcsec]"); ax.set_ylabel("fraction"); ax.legend(fontsize=7.5)
-    ax.set_title("Field fraction and the bias of the P cut", fontsize=9.5); add_pc_axis(ax, distance_kpc)
-    fig.suptitle("Field contamination of the Gaia EDR3 members: the mixture model", y=1.0)
-    fig.tight_layout()
+    ax = axes[2, n_ann]
+    ratio = np.asarray(mix["sigma_pmt"]) / np.asarray(mix["sigma_pmr"])
+    rerr = ratio * np.hypot(np.asarray(mix["sigma_pmt_err"]) / np.asarray(mix["sigma_pmt"]),
+                            np.asarray(mix["sigma_pmr_err"]) / np.asarray(mix["sigma_pmr"]))
+    ax.errorbar(mix["r_median"], ratio, yerr=rerr, fmt="o-", color=style.SERIES[2], ms=4, lw=1.4, ecolor=style.SERIES[2])
+    ax.axhline(1.0, color=style.INK_SECONDARY, lw=0.8, ls="--")
+    ax.set_xscale("log"); ax.set_xlabel("R  [arcsec]"); ax.set_ylabel(r"$\sigma_T / \sigma_R$")
+    ax.text(0.03, 0.08, "radial", transform=ax.transAxes, fontsize=8, color=style.INK_SECONDARY)
+    ax.text(0.03, 0.85, "tangential", transform=ax.transAxes, fontsize=8, color=style.INK_SECONDARY)
+    ax.set_title("Anisotropy from the same fit", fontsize=9.5)
+
+    fig.suptitle("Field contamination of the Gaia EDR3 outskirts: the two-dimensional model", y=0.995)
     path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
     return path
