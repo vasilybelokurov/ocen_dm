@@ -973,3 +973,21 @@ injection tests must decide. No conclusion is drawn here.
 
 Figures: `plots/fit_K1_ml_profiles.png` (current model), `plots/fit_K1_ml_smin10_profiles.png`
 (intermediate). Results: `results/fits/*.npy` (ML vectors), `results/fits/K1_de.log`.
+
+### Outer tracer checked against star counts; runs launched
+
+Could the outer residuals be a tracer profile that is too steep? The Vasiliev & Baumgardt
+EDR3 members (P > 0.9, G < 19, 70k stars) anchored to the MGE over 8–30′ track it to
+**±0.1 mag from 12′ to 36′ (700–2200″)** — the radii where both Gaia dispersion profiles
+lie above the K1 model. Inside 10′ Gaia counts fall below the MGE (crowding
+incompleteness, known); the member catalogue ends at ~40′. So the light model is not what
+makes the no-DM model fall too fast out there. (`fit_mge_projected(..., sigma_range_arcsec
+= (10.5, 3000))`; check script inline, numbers above.)
+
+`ocen fit --family {K1,K2-cored,K2-nfw} [--mock-from x.npy] [--n-live 400 --dlogz 0.5]`
+writes `results/fits/<label>/{posterior.ecsv, summary.json, profiles.npz, run.yaml,
+ml_x.npy}` (`results/` is git-ignored; numbers go in this journal). End-to-end smoke test
+on mock data with a 1200-call budget: `tests/test_cli_fit.py` (5.7 s). Launched in the
+background: **K1** (11 parameters) and **K2-cored** (13), 400 live points, dlogz 0.5, seed
+42; K2-NFW and the injection runs (`--mock-from results/fits/K1_noDM/ml_x.npy` fitted with
+K2: the no-DM false-positive test of spec §13 item 8) follow once K1 finishes.
