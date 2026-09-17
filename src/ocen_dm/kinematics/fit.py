@@ -130,7 +130,10 @@ class NoDarkMatterModel:
 
     def __init__(self, mge_fit: MGEFit | None = None, instruments: Sequence[str] = NUISANCE_INSTRUMENTS,
                  distance_prior: Prior | None = "default", fix_distance: bool = False,
-                 tracer: str = "trager") -> None:
+                 tracer: str = "trager", backend: str = "jeans") -> None:
+        if backend not in ("jeans", "jam", "agama"):
+            raise ValueError("backend must be 'jeans', 'jam' or 'agama'")
+        self.backend = backend
         self.tracer = tracer
         if mge_fit is None:
             profile = load_tracer_profile(tracer)
@@ -141,6 +144,8 @@ class NoDarkMatterModel:
         self.mge_fit = mge_fit
         if tracer != "trager" and not hasattr(self, "gamma"):
             self.label = f"{self.label}_{tracer}"
+        if backend != "jeans" and not hasattr(self, "gamma"):
+            self.label = f"{self.label}_{backend}"
         self.nuisance_instruments = tuple(instruments)
         if fix_distance:
             distance_prior = None                      # fixed at OCEN_DISTANCE_KPC (tests, comparisons)
@@ -151,15 +156,21 @@ class NoDarkMatterModel:
         self.names = tuple(p.name for p in self.parameters)
 
     def _physical_parameters(self) -> list[Parameter]:
-        return [
+        params = [
             Parameter("M_star", Prior("loguniform", 1e6, 1e7), "Msun", r"M_\star"),
             Parameter("M_rem", Prior("loguniform", 1e4, 3e6), "Msun", r"M_{\rm rem}"),
             Parameter("a_rem", Prior("loguniform", 0.3, 20.0), "pc", r"a_{\rm rem}"),
             Parameter("M_bh", Prior("loguniform", 1e2, 3e5), "Msun", r"M_\bullet"),
-            Parameter("beta_0", Prior("uniform", -1.0, 0.0), "", r"\beta_0"),         # An & Evans: cored tracer => beta_0 <= 0
-            Parameter("beta_inf", Prior("uniform", -1.0, 1.0), "", r"\beta_\infty"),
-            Parameter("r_beta", Prior("loguniform", 0.5, 100.0), "pc", r"r_\beta"),
         ]
+        if getattr(self, "backend", "jeans") == "agama":
+            # Cuddeford-Osipkov-Merritt family of the positive DF: beta -> 1 beyond r_a
+            params += [Parameter("beta_0", Prior("uniform", -1.0, 0.0), "", r"\beta_0"),
+                       Parameter("r_a", Prior("loguniform", 1.0, 1000.0), "pc", r"r_a")]
+        else:
+            params += [Parameter("beta_0", Prior("uniform", -1.0, 0.0), "", r"\beta_0"),         # An & Evans: cored tracer => beta_0 <= 0
+                       Parameter("beta_inf", Prior("uniform", -1.0, 1.0), "", r"\beta_\infty"),
+                       Parameter("r_beta", Prior("loguniform", 0.5, 100.0), "pc", r"r_\beta")]
+        return params
 
     def _parameters(self) -> tuple[Parameter, ...]:
         params = self._physical_parameters()
@@ -180,14 +191,27 @@ class NoDarkMatterModel:
     def extra_components(self, theta: dict[str, float], distance_kpc: float) -> list:
         return []
 
-    def build(self, theta: dict[str, float]) -> tuple[SphericalJeans, float, dict[str, float]]:
-        """Return ``(jeans, distance_kpc, instrument_scales)`` for one parameter vector."""
+    def build(self, theta: dict[str, float]) -> tuple[Any, float, dict[str, float]]:
+        """Return ``(model, distance_kpc, instrument_scales)`` for one parameter vector.
+
+        ``model`` is a :class:`SphericalJeans` (backend ``'jeans'``), a
+        :class:`~ocen_dm.kinematics.backends.JamBackend` (``'jam'``) or an
+        :class:`~ocen_dm.kinematics.backends.AgamaDFBackend` (``'agama'``); all
+        expose ``projected_moments`` and ``mass``.
+        """
         D = self.distance(theta)
         stars = build_stellar_mge(self.mge_fit, D, total_mass=theta["M_star"])
         comps = [stars, RemnantPlummer(theta["M_rem"], theta["a_rem"]), PointMass(theta["M_bh"])]
         comps += self.extra_components(theta, D)
+        mass = CompositeMassModel(comps)
+        if self.backend == "agama":
+            from .backends import AgamaDFBackend
+            return AgamaDFBackend(mass, stars, beta0=theta["beta_0"], r_a=theta["r_a"], distance_kpc=D), D, self.scales(theta)
         anis = Anisotropy(theta["beta_0"], theta["beta_inf"], theta["r_beta"])
-        return SphericalJeans(CompositeMassModel(comps), stars, anis), D, self.scales(theta)
+        if self.backend == "jam":
+            from .backends import JamBackend
+            return JamBackend(mass, stars, anis, D), D, self.scales(theta)
+        return SphericalJeans(mass, stars, anis), D, self.scales(theta)
 
     def transform(self, u: np.ndarray) -> np.ndarray:
         u = np.asarray(u, float)
@@ -216,6 +240,8 @@ class DarkMatterModel(NoDarkMatterModel):
         self.label = "K2_cored" if gamma == 0 else ("K2_nfw" if gamma == 1 else f"K2_gnfw{gamma:g}")
         if self.tracer != "trager":
             self.label += f"_{self.tracer}"
+        if self.backend != "jeans":
+            self.label += f"_{self.backend}"
 
     def _physical_parameters(self) -> list[Parameter]:
         return super()._physical_parameters() + [
@@ -265,8 +291,8 @@ class FitProblem:
         return self.likelihood.chi2_terms(jeans, D, scales)
 
     def radial_profile(self, x: np.ndarray, grid: np.ndarray = PROFILE_GRID_PC) -> dict[str, np.ndarray]:
-        jeans, _, _ = self.family.build(self.family.to_dict(x))
-        return jeans.mass.radial_profile(grid)
+        model, _, _ = self.family.build(self.family.to_dict(x))
+        return model.mass.radial_profile(grid)
 
     def mock_data(self, x: np.ndarray, rng: np.random.Generator) -> KinematicData:
         """Data with the real bins and errors but values drawn from model ``x`` (injection tests)."""
