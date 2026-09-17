@@ -11,7 +11,7 @@ import numpy as np
 
 from ..kinematics.fit import FitProblem
 from ..kinematics.likelihood import ARCSEC_PER_RAD
-from .style import apply as apply_style, SERIES, COLOR_FIELD as FIELD_GREY
+from .style import apply as apply_style, SERIES, COLOR_FIELD as FIELD_GREY, INK_SECONDARY
 
 _LABEL = {"los": r"$\sigma_{\rm LOS}$ [km/s]", "pmr": r"$\sigma_{\mu,R}$ [mas/yr]",
           "pmt": r"$\sigma_{\mu,T}$ [mas/yr]", "pmc": r"$\sigma_{\mu}$ [mas/yr]"}
@@ -80,38 +80,68 @@ def plot_profile_fit(problem: FitProblem, x: np.ndarray, path: Path, title: str 
     return path
 
 
-def plot_posterior_profiles(run_dirs: dict[str, Path], path: Path, title: str = "") -> Path:
+def plot_posterior_profiles(run_dirs: dict[str, Path], path: Path, title: str = "",
+                            f_dm_floor: float = 1e-5) -> Path:
     """Enclosed-mass, dark fraction and circular-speed bands from ``profiles.npz`` files.
 
     Parameters
     ----------
     run_dirs : dict
         ``label -> results/fits/<label>`` for each run to overlay (K1, K2 ...).
+    f_dm_floor : float
+        Bottom of the logarithmic dark-fraction axis. A no-DM (K1) run has
+        ``f_DM = 0`` identically, which no logarithmic axis can show: those runs
+        are named in the panel instead of being drawn at an arbitrary floor.
     """
     apply_style()
     fig, axes = plt.subplots(1, 3, figsize=(13, 4.2))
+    zero_f_dm: list[str] = []
+    # colour follows the model family, never the run order: a variant fitted to a
+    # subset of the data keeps its family's colour and is drawn dash-dotted, so the
+    # same colour never means two different models.
+    families: list[str] = []
+    for label in run_dirs:
+        fam = label.replace("_noEDR3", "").replace("_mockK1", "")
+        if fam not in families:
+            families.append(fam)
     for i, (label, d) in enumerate(run_dirs.items()):
         prof = np.load(Path(d) / "profiles.npz")
-        r = prof["r"]; color = SERIES[i % len(SERIES)]
+        fam = label.replace("_noEDR3", "").replace("_mockK1", "")
+        r = prof["r"]; color = SERIES[families.index(fam) % len(SERIES)]
+        style_kw = {"ls": "-." if "noEDR3" in label else "-"}
         for ax, key, ylabel, log in ((axes[0], "M_total", r"$M(<r)$ [M$_\odot$]", True),
-                                     (axes[1], "f_dm", r"$f_{\rm DM}(<r)$", False),
+                                     (axes[1], "f_dm", r"$f_{\rm DM}(<r)$", True),
                                      (axes[2], "v_circ", r"$v_{\rm circ}$ [km/s]", False)):
             lo, mid, hi = np.percentile(prof[key], [16, 50, 84], axis=0)
-            ax.fill_between(r, lo, hi, color=color, alpha=0.25, lw=0)
-            ax.plot(r, mid, color=color, lw=2, label=label)
+            if key == "f_dm":
+                if not np.any(hi > 0):                     # K1: no dark component at all
+                    zero_f_dm.append(label)
+                    ax.set_xscale("log"); ax.set_xlabel("r [pc]"); ax.set_ylabel(ylabel)
+                    ax.set_yscale("log")
+                    continue
+                lo, mid, hi = (np.maximum(v, f_dm_floor) for v in (lo, mid, hi))
+            ax.fill_between(r, lo, hi, color=color, alpha=0.2, lw=0)
+            ax.plot(r, mid, color=color, lw=2, label=label, **style_kw)
             ax.set_xscale("log"); ax.set_xlabel("r [pc]"); ax.set_ylabel(ylabel)
             if log:
                 ax.set_yscale("log")
         if "M_dm" in prof.files:
             lo, mid, hi = np.percentile(prof["M_dm"], [16, 50, 84], axis=0)
-            axes[0].fill_between(r, np.maximum(lo, 1), hi, color=color, alpha=0.12, lw=0, hatch="//")
-            axes[0].plot(r, np.maximum(mid, 1), color=color, lw=1.2, ls="--", label=f"{label}: DM only")
+            if np.any(hi > 0):
+                axes[0].fill_between(r, np.maximum(lo, 1), hi, color=color, alpha=0.12, lw=0, hatch="//")
+                axes[0].plot(r, np.maximum(mid, 1), color=color, lw=1.0, ls=":", label=f"{label}: DM only")
     axes[0].set_ylim(1e3, None); axes[0].legend(fontsize=8)
+    axes[1].set_ylim(f_dm_floor, 1.5)
+    if zero_f_dm:
+        axes[1].text(0.03, 0.03, "$f_{\\rm DM} \\equiv 0$ (not shown on a log axis):\n" + "\n".join(zero_f_dm),
+                     transform=axes[1].transAxes, fontsize=7.5, color=INK_SECONDARY, va="bottom")
     for R_hst, R_gaia in ((9.0, 53.0),):                      # data extents in pc at 5.43 kpc
         for ax in axes:
             ax.axvline(R_hst, color=FIELD_GREY, lw=1, ls=":"); ax.axvline(R_gaia, color=FIELD_GREY, lw=1, ls=":")
-    axes[1].text(9.2, 0.95, "HST/MUSE edge", fontsize=8, color=FIELD_GREY, transform=axes[1].get_xaxis_transform())
-    axes[1].text(55, 0.95, "Gaia edge", fontsize=8, color=FIELD_GREY, transform=axes[1].get_xaxis_transform())
+            ax.text(R_hst * 0.92, 0.98, "HST/MUSE edge", fontsize=7, color=FIELD_GREY,
+                    transform=ax.get_xaxis_transform(), rotation=90, va="top", ha="right")
+            ax.text(R_gaia * 0.92, 0.98, "Gaia edge", fontsize=7, color=FIELD_GREY,
+                    transform=ax.get_xaxis_transform(), rotation=90, va="top", ha="right")
     if title:
         fig.suptitle(title)
     fig.tight_layout()

@@ -1459,3 +1459,13 @@ What the set says, without a decision attached:
 
 Decisions on the model (K2 truncation/prior; how to treat the EDR3 profile) are the
 user's and are pending; the Jacobi-truncation proposal diff remains parked.
+
+**Figure update.** The dark-fraction panel of `plots/fit_posterior_profiles_main.png` is now
+logarithmic (`plot_posterior_profiles(..., f_dm_floor=1e-5)`); the K1 runs have f_DM ≡ 0 and
+are named in the panel rather than drawn at an arbitrary floor. Colour now follows the model
+family and the no-EDR3 variants are dash-dotted, so the same colour never means two models.
+The log axis shows what the linear one hid: **the two halo shapes differ by two orders of
+magnitude in the core** — at 0.3–1 pc the NFW run carries f_DM = 7e-4–5e-3 against the cored
+run's 4e-6–9e-5, and the NFW curve is already flat by 3 pc. Both reach ~0.45–0.56 at 100 pc.
+So the cusp/core choice is decided inside 1 pc, where HST gives the tightest data and where
+the ~4e4 M☉ point mass sits — a degeneracy to keep in view when the M• question is taken up.
