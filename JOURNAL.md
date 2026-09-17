@@ -823,3 +823,13 @@ that radius it is solid.
 
 State: 15 products, **206 tests**, 11 figures. Remaining from the plan: WP6 (Kuzma 2025
 selection footprint). Milestone 3 can start.
+
+### Correction: the distance I attributed to oMEGACat VI
+
+I had been calling 5.43 kpc "the oMEGACat kinematic distance" (plots, journal 2026-09-16, plan)
+and concluded there was no distance tension. Wrong: reading the oMEGACat VI source, its
+kinematic distance is **5494 ± 61 pc** (section 4.4). The 5.43 ± 0.05 kpc is the Baumgardt &
+Vasiliev (2021) catalogue value (`baumgardt_ocen_parameters.distance`). The two differ by
+0.8σ — mild, and a 1.2% effect on pc scales and on the PM→km/s conversion, so no result above
+changes materially; but the record was wrong and is now corrected in the plotting constants,
+the plan and here. D stays a parameter in Milestone 3 with both values as priors/checks.

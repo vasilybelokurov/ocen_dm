@@ -36,7 +36,7 @@ lever arm on the internal side.
 | Noyola & Gebhardt 2006 `photdata`/`smdata`: HST core SB, calibrated to V | filter/zero-point **UNVERIFIED**; read the ReadMe |
 | Only the *shape* of the light profile enters the MGE — the stellar M/L is a free nuisance parameter (spec section 3.1) — so the SB zero-point and the extinction correction cancel | Verified by construction; removes the largest risk in WP2 |
 | Vasiliev & Baumgardt 2021 `tablea1.corr` is the pmRA–pmDE correlation of the *systemic* PM | consistent with the column set; confirm from the ReadMe |
-| Distance: oMEGACat VI kinematic 5.43 kpc vs Baumgardt & Vasiliev catalogues (`Rsun`, `Dist`) | a real tension to record; **keep D as a parameter**, not a constant |
+| Distance: oMEGACat VI kinematic **5.494 ± 0.061 kpc** vs Baumgardt & Vasiliev 2021 **5.43 ± 0.05** (the catalogue's `DIST`) | 0.8σ apart; keep D as a parameter with both as cross-checks. *Corrected 2026-09-17: earlier text wrongly called 5.43 the oMEGACat value.* |
 | WSDB `gaia_dr3.gaia_source` carries `pmra_pmdec_corr`, `ruwe`, `parallax`; a Kuzma 2025 `source_id` resolves | **Verified** 2026-09-16 |
 | Kuzma 2025 footprint is a ~5.1° circle with a G₀ < 16 limit | to be reconstructed from the catalogue, not assumed |
 
