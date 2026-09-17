@@ -1182,3 +1182,41 @@ Lesson recorded: the evidence comparison was about to be made on a solver that p
 its unit tests (closed forms at ≤ 10 a, JamPy and AGAMA at ≤ 30 pc) but had never been
 exercised where ν σ_r² is 12 decades below its peak. The figure caught it; the test suite
 now does.
+
+## 2026-09-18 — Toolbox: JamPy and AGAMA-DF engines behind the same likelihood
+
+Decision (user, this morning): the modelling must keep several dynamical methods side by
+side and be tested like-for-like against published ω Cen results before any conclusion.
+Implemented `kinematics/backends.py`; every engine exposes `projected_moments(R)` and plugs
+into `ProfileLikelihood` unchanged, selectable with `NoDarkMatterModel(backend=...)`,
+`DarkMatterModel(backend=...)` and `ocen fit --backend {jeans,jam,agama}`.
+
+* **JamBackend** — JamPy 9.0.2 `jam_sph_proj` (imported, never vendored). Non-Gaussian
+  mass components (remnant Plummer, gNFW/Burkert haloes) are projected numerically
+  (`project_density`, exact on a Plummer to 1e-6) and fitted with a projected NNLS MGE
+  (`mge_from_component`; enclosed mass to 0.3 % from 0.1 to 1000 pc). Agreement with our
+  solver on stars + BH + remnants + cored halo, β(r) = −0.2 → 0.4: **8×10⁻⁴** on all three
+  projections. Cost 0.6 s per model (3 tensors) — a cross-check engine, not a sampler engine.
+* **AgamaDFBackend** — AGAMA 1.0.152 QuasiSpherical (Cuddeford–Osipkov–Merritt) DF for the
+  tracer density in the total potential (Multipole from our density; agrees with our M(<r)
+  and v_circ to 1e-4), projected moments from `GalaxyModel.moments` on 2-D points. Constant
+  β: **1.4×10⁻³** agreement with the Jeans solver. Its anisotropy family differs (β → 1
+  beyond r_a), so the K1/K2 families get parameters (β₀, r_a) in place of (β₀, β∞, r_β)
+  when this engine is chosen. 0.2 s per model.
+* **`density_check`** — the DF engine's realised/input tracer density. Where a positive DF
+  exists it is 1 (constant β ≤ 0: within 2 %); for Osipkov–Merritt with r_a = 5 pc in the
+  Gaussian tracer it departs by 3–35 % between 0.3 and 20 pc — the Jeans equation still
+  returns a solution there but no positive DF reproduces the tracer (An & Evans 2006). This
+  is precisely why the 2–6 % Jeans-vs-DF difference appeared in that case: physics, not a
+  bug, and now a test and a diagnostic.
+
+Two bugs caught on the way: the numerical projection carried a spurious factor R (MGE of
+the Plummer was nonsense, 2 % of the mass inside 1 pc) and AGAMA's `moments` returns
+⟨v²⟩, not Σ⟨v²⟩. `report.engine_crosscheck(label)` evaluates a run's best sample under the
+Jeans and JamPy engines and tabulates χ² per dataset. Tests: `tests/test_backends.py` (5)
+plus two in `test_fit.py`; suite green.
+
+Next in this thread: the like-for-like literature presets (Watkins+ 2013, oMEGACat VI,
+Baumgardt & Hilker 2018, Baumgardt+ 2019) as `ocen fit --preset ...` with the published
+numbers printed beside ours in the comparison report; an AGAMA-DF K1 fit as the
+positive-DF counterpart of the Jeans K1.

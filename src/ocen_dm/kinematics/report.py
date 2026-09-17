@@ -11,7 +11,7 @@ from astropy.table import Table
 
 from ..paths import results_dir
 
-__all__ = ["load_run", "comparison_table", "posterior_upper_limit", "write_report"]
+__all__ = ["load_run", "comparison_table", "posterior_upper_limit", "write_report", "engine_crosscheck"]
 
 _LOG_PARAMS = ("M_star", "M_rem", "a_rem", "M_bh", "r_beta", "M_dm_100", "r_s")
 
@@ -100,3 +100,35 @@ def write_report(labels: Iterable[str], path: Path | None = None, plots_dir: Pat
         md.append(f"Figure: `{out.name}`")
     path.write_text("\n".join(md))
     return path
+
+
+def _family_for(summary: dict, backend: str = "jeans"):
+    from .fit import DarkMatterModel, NoDarkMatterModel
+    fam_label = summary["family"]
+    tracer = "composite" if "_composite" in fam_label else "trager"
+    if fam_label.startswith("K1"):
+        return NoDarkMatterModel(tracer=tracer, backend=backend)
+    return DarkMatterModel(gamma=0.0 if "cored" in fam_label else 1.0, tracer=tracer, backend=backend)
+
+
+def engine_crosscheck(label: str, backends: Iterable[str] = ("jeans", "jam")) -> str:
+    """Evaluate a run's best sample with other engines: chi2 per dataset and total ln L.
+
+    Only engines sharing the parametrisation can be compared on the same vector
+    (``jeans`` and ``jam``); the AGAMA DF family has its own anisotropy parameters
+    and is compared through its own fit instead.
+    """
+    from .fit import FitProblem
+    from .likelihood import KinematicData
+
+    run = load_run(label)
+    s = run["summary"]
+    data = KinematicData.load(list(s["datasets"]), gaia_edr3_pm={"r_min_arcsec": 300.0})
+    lines = ["| engine | " + " | ".join(f"χ² {d}" for d in s["datasets"]) + " | ln L |", "|---|" + "---|" * (len(s["datasets"]) + 1)]
+    for b in backends:
+        fam = _family_for(s, b)
+        x = np.array([s["parameters"][n]["ml"] for n in fam.names])
+        P = FitProblem(fam, data)
+        chi = P.chi2(x)
+        lines.append(f"| {b} | " + " | ".join(f"{chi[d][0]:.1f}" for d in s["datasets"]) + f" | {P.loglike_vector(x):.2f} |")
+    return "\n".join(lines)

@@ -151,3 +151,24 @@ def test_maximum_likelihood_recovers_injected_stellar_mass_and_scale():
     m_true = theta_true["M_star"] + theta_true["M_rem"]
     assert (th["M_star"] + th["M_rem"] + th["M_bh"]) == pytest.approx(m_true, rel=0.05)
     assert th["s_GaiaEDR3"] == pytest.approx(1.15, abs=0.05)
+
+
+def test_backend_option_changes_parametrisation_and_label():
+    fam = NoDarkMatterModel(mge_fit=_MGE, backend="agama", fix_distance=True, instruments=())
+    assert fam.names == ("M_star", "M_rem", "a_rem", "M_bh", "beta_0", "r_a") and fam.label.endswith("_agama")
+    jam = NoDarkMatterModel(mge_fit=_MGE, backend="jam", fix_distance=True, instruments=())
+    assert jam.names == NoDarkMatterModel(mge_fit=_MGE, fix_distance=True, instruments=()).names
+    with pytest.raises(ValueError):
+        NoDarkMatterModel(mge_fit=_MGE, backend="galpy")
+
+
+def test_jam_and_jeans_backends_agree_on_a_k1_vector():
+    pytest.importorskip("jampy")
+    fam_j = NoDarkMatterModel(mge_fit=_MGE, fix_distance=True, instruments=())
+    fam_m = NoDarkMatterModel(mge_fit=_MGE, fix_distance=True, instruments=(), backend="jam")
+    x = fam_j.transform(np.full(len(fam_j.names), 0.5))
+    R = np.geomspace(0.5, 20.0, 6)
+    a = fam_j.build(fam_j.to_dict(x))[0].dispersions_kms(R)
+    b = fam_m.build(fam_m.to_dict(x))[0].dispersions_kms(R)
+    for k in ("los", "pmr", "pmt"):
+        np.testing.assert_allclose(b[k], a[k], rtol=3e-3)
