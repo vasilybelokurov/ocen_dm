@@ -312,6 +312,15 @@ def cmd_fit(args: argparse.Namespace) -> int:
 DEFAULT_DATASETS = "hst_pm_radial,hst_pm_tangential,muse_los_dispersion,gaia_dr2_pm,gaia_edr3_pm"
 
 
+def cmd_plot_constraints(args: argparse.Namespace) -> int:
+    """Write the constraint-map and outer-tracer-audit figures."""
+    from .plotting.constraints import plot_constraint_map, plot_outer_tracer_audit
+
+    for path in (plot_constraint_map(k1=args.k1, k2=args.k2), plot_outer_tracer_audit()):
+        print(f"  wrote {path}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Build the ``ocen`` argument parser."""
     parser = argparse.ArgumentParser(
@@ -360,6 +369,11 @@ def build_parser() -> argparse.ArgumentParser:
     fit.add_argument("--verbose", action="store_true")
     fit.add_argument("--step-sampler", action="store_true", help="use a slice step sampler instead of MLFriends rejection")
     fit.set_defaults(func=cmd_fit)
+
+    pcon = subparsers.add_parser("plot-constraints", help="figures: what constrains the mass where, and the outer-tracer audit")
+    pcon.add_argument("--k1", default="K1_noDM_composite", help="finished no-DM run to draw")
+    pcon.add_argument("--k2", default="K2_cored_composite", help="finished dark-matter run to draw")
+    pcon.set_defaults(func=cmd_plot_constraints)
 
     insp = subparsers.add_parser("inspect-omegacat", help="dump oMEGACat raw file structure")
     insp.add_argument("--columns", action="store_true", help="also list columns")
