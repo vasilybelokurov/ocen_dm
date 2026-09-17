@@ -80,6 +80,14 @@ def write_report(labels: Iterable[str], path: Path | None = None, plots_dir: Pat
     path = path or results_dir() / "fits" / "comparison.md"
     plots_dir = plots_dir or (results_dir().parent / "plots")
     md = ["# Nested-sampling runs: comparison\n", comparison_table(runs), ""]
+    # independent-engine check of every best sample (JamPy shares the parametrisation)
+    try:
+        import jampy  # noqa: F401
+        md.append("## Engine cross-check of the best samples (our Jeans solver vs JamPy)\n")
+        for r in runs:
+            md += [f"**{r['label']}**\n", engine_crosscheck(r["label"], ("jeans", "jam")), ""]
+    except ImportError:
+        md.append("(JamPy not installed: engine cross-check skipped)\n")
     fig = plot_posterior_profiles({r["label"]: r["dir"] for r in runs if "profiles" in r},
                                   plots_dir / "fit_posterior_profiles.png", title="Enclosed mass, dark fraction, circular speed (16-84 %)")
     md.append(f"Figure: `{fig.relative_to(plots_dir.parent) if fig.is_relative_to(plots_dir.parent) else fig}`\n")
