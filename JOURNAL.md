@@ -1573,3 +1573,38 @@ the measurement under six different cuts, robustness). CLI: `ocen plot-constrain
 Measurement saved to `data/processed/kinematics/ocen_pm_dispersion_ours.ecsv` — **not** used
 in any fit; using it in place of the published profile is decision A(d), still open.
 Suite 275 passing.
+
+### Perspective and projection effects, done properly (user's concern; Vasiliev & Belokurov 2020 §5.1)
+
+The first measurement subtracted a constant systemic PM. For a body with one 3-D velocity
+observed over a degree that is wrong in three ways (Vasiliev & Belokurov 2020, MNRAS 497,
+4162, §5.1; van de Ven+ 2006 for ω Cen): the systemic velocity projects onto each star's
+*own* tangent basis (perspective contraction −(v_los/D)θ plus the rotation of the
+east/north directions across the field), and a star at unknown depth ζ appears slower by
+μ_sys ζ, which survives as an apparent dispersion |μ_sys| σ_z(R)/D along the systemic-PM
+direction. `kinematics/perspective.py`: `systemic_pm_field` (exact in angle; agrees with
+astropy's cartesian-velocity transform to 1e-15 mas/yr), `depth_dispersion` (σ_z from the
+tracer MGE along the line of sight). `load_members(exact=True)` now subtracts the projected
+field star by star, with the centre value re-estimated once after the field is removed;
+`binned_dispersion(depth_tracer=...)` adds the depth term as a per-star variance
+σ_depth² cos²(φ−φ_sys) (radial) / sin² (tangential).
+
+Sizes for ω Cen: perspective term 0.104 mas/yr at 0.66°, basis-rotation residual ≲ 0.003,
+depth-induced dispersion 0.011–0.031 mas/yr (the tracer's depth at 2000″ is ~23 pc rms).
+**Mock test** (`tests/test_perspective.py`): a Plummer sphere moving rigidly with ω Cen's
+systemic velocity, projected with exact geometry and true depths — the exact treatment
+plus depth term reads σ < 0.01 mas/yr (zero within the 0.02 errors), the exact treatment
+without the depth term reads exactly the predicted |μ_sys| σ_z/D, and the naive constant
+subtraction reads a spurious signal growing outward; with a 0.25 mas/yr internal
+dispersion added it is recovered to 0.02.
+
+**Real data**: naive → exact+depth changes the outer bins by ≤ 0.003 mas/yr (2122″: 0.221 →
+0.218; 1722″: 0.247 → 0.245), less than half a statistical error. Why so little: the
+perspective term is radial and constant around an annulus, so the free per-annulus mean of
+the naive fit absorbed it (mean_R naive −0.062 at 2122″ ≈ the perspective term; after the
+exact removal mean_R = −0.007 ± 0.007, i.e. **no net expansion or contraction — a
+consistency check the exact treatment passes**), and the depth term is ≤ 0.03 in quadrature.
+The systemic PM moves from (−3.2480, −6.7462) to (−3.2479, −6.7451). Conclusions unchanged:
+χ² over the 10 bins K1 = 48, K2 = 18; outer three bins +1.9σ, +2.1σ, +3.1σ above K1. The
+audit figure now carries the naive treatment as a seventh variant. Saved profile
+`ocen_pm_dispersion_ours.ecsv` is the exact+depth version. Suite green.
