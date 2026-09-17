@@ -94,8 +94,12 @@ class SphericalJeans:
         # log of g relative to its value at the current point to avoid overflow.
         ln_g_ref = ln_g[-1]
         integrand = np.exp(ln_g - ln_g_ref) * nu * G * m / r          # (g nu G M / s^2) * s
-        cumulative = integrate.cumulative_simpson(integrand, x=u, initial=0.0)
-        outer = cumulative[-1] - cumulative                            # int_r^{r_max}
+        # int_r^{r_max}, accumulated from the OUTSIDE inward. Subtracting a
+        # cumulative integral from its total loses everything once the outer part
+        # is below 1e-16 of the whole (the integrand spans 20 decades), which made
+        # sigma_r collapse to zero at ~3 sigma_MGE, well inside r_cut (2026-09-18).
+        outer = integrate.cumulative_simpson(integrand[::-1], x=-u[::-1], initial=0.0)[::-1]
+        outer = np.maximum(outer, 0.0)
         # nu sigma_r^2 = exp(ln_g_ref - ln_g) * outer ; add the analytic tail beyond
         # r_max assuming nu ~ r^-s and M const there (tiny when r_max is generous).
         with np.errstate(divide="ignore", invalid="ignore"):
