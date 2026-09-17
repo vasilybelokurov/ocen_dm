@@ -1057,3 +1057,20 @@ above beyond 1300″).
 `ocen fit --tracer {composite,trager}` (composite is the default). Six nested runs are now
 in progress: K1/K2-cored/K2-NFW with the Trager tracer (kept as the systematics variant)
 and with the composite tracer.
+
+**Correction (same day, before any run finished):** `composite_profile` interpolated the
+Trager profile through *all* its points when setting the splice zero-point, including the
+weight-0.03 outliers that sit 0.5–0.9 mag off the curve at 42″, 67″, 93″; the offset was
+biased by ≈0.25 mag (inner counts placed too bright). Caught by the regression test
+(`test_star_counts_below_trager_light_in_the_core` measured a 0.00 mag deficit where the
+diagnostic had 0.2–0.3). Fix: only outer points with weight ≥ 0.5 enter the anchor; a
+synthetic test with planted low-weight outliers now guards it. The three composite nested
+runs were killed, their outputs deleted, and relaunched. With the corrected splice the
+composite MGE is flatter still (I(1″)/I(30″) = 1.13; smallest Gaussian 7.1″) and the K1
+Nelder–Mead maximum is lnL = 109.5 (HST radial 110/40, tangential 94/40, MUSE 46/29,
+DR2 13/9, EDR3 218/8; M• = 4e3, M_rem = 7.5e4 at 0.3 pc, D = 5.54). The mis-spliced
+profile, 0.25 mag brighter in the core, had fit better (150.7) — the ML numbers from an
+11-D Nelder–Mead differ by tens between runs, so the tracer question (which stars, how
+segregated) is deferred to the nested-sampling maxima and to a per-sample tracer profile
+(the HST PM stars are 2–3 mag fainter than the F625W < 19 count sample). Six runs in
+progress; nothing concluded yet.

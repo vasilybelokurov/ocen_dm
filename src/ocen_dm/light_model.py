@@ -129,17 +129,21 @@ def star_count_profile(mag_cut: float = 19.0, r_min_arcsec: float = 1.0, r_max_a
 
 
 def composite_profile(outer: SurfaceBrightnessProfile, inner: SurfaceBrightnessProfile,
-                      r_switch_arcsec: float = 25.0, anchor_arcsec: tuple[float, float] = (30.0, 100.0)) -> SurfaceBrightnessProfile:
+                      r_switch_arcsec: float = 25.0, anchor_arcsec: tuple[float, float] = (30.0, 100.0),
+                      min_outer_weight: float = 0.5) -> SurfaceBrightnessProfile:
     """Splice a star-count profile inside ``r_switch`` onto a light profile outside.
 
     The inner profile's arbitrary zero-point is set by the weighted mean magnitude
     offset from the outer profile over ``anchor_arcsec``, where both are trusted
-    (outside the giant-dominated core, inside the field of view). Both profiles
-    must have points in the anchor range.
+    (outside the giant-dominated core, inside the field of view). Only outer
+    points with ``weight >= min_outer_weight`` enter the anchor: Trager's
+    low-weight points sit 0.5-0.9 mag off the curve and, interpolated through,
+    biased the zero-point by 0.2-0.3 mag (found 2026-09-17). Both profiles must
+    have points in the anchor range.
     """
     lo, hi = anchor_arcsec
     a_in = (inner.r_arcsec >= lo) & (inner.r_arcsec <= hi)
-    a_out = (outer.r_arcsec >= lo) & (outer.r_arcsec <= hi)
+    a_out = (outer.r_arcsec >= lo) & (outer.r_arcsec <= hi) & (outer.weight >= min_outer_weight)
     if a_in.sum() < 2 or a_out.sum() < 2:
         raise ValueError("both profiles need at least two points in the anchor range")
     # interpolate the outer profile (in mag) at the inner anchor radii
