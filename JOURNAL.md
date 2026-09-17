@@ -1374,3 +1374,23 @@ mass must be bounded by what the cluster can hold — otherwise "K2" is a fit to
 all of which spherical Jeans of a bound tracer cannot describe) or a contamination/systematic
 floor in the Gaia dispersion. Either way it is not a bound halo signal. The controls now
 finishing (K2 without EDR3, K2 on a K1 mock) will quantify how much of the Δ ln Z is EDR3.
+
+## 2026-09-18 — Control 1: K2-cored without EDR3 — no dark-matter preference
+
+1.36M calls / 142 min. **ln Z = 211.64 ± 0.40 vs K1-no-EDR3 210.30 ± 0.42: Δ ln Z = +1.3**,
+i.e. nothing (run-to-run scatter is 0.5; two extra parameters). χ² 134 / 118, the same
+clean fit. **M_DM(<100 pc) is unconstrained: median 1.3e5, 16–84 % [4e3, 1.6e6], 47 % of
+the posterior below 1e5 M☉**, r_s anywhere in [16, 500] pc; every other parameter is the
+K1 value. So the entire Δ ln Z = +51 (cored) / +42 (NFW) of the full-data K2 runs comes
+from the 8 thinned Gaia EDR3 points. Without them, the HST + MUSE + Gaia DR2 kinematics
+(to 46 pc) are fully described by stars + remnants + a ~4e4 M☉ central mass and put no
+lower bound on dark mass; the 95 % upper limit is M_DM(<100 pc) < 3.2e6 M☉ (weak, because
+the data end at 46 pc and the halo family is unbounded outward).
+
+**Proposal recorded, NOT implemented (user asked that model changes be discussed first):**
+tie the K2 truncation to the cluster's Jacobi radius instead of the fixed r_t = 1000 pc,
+and cap the r_s prior accordingly. Numbers: with the Baumgardt orbit (R_peri 1.47 kpc,
+R_gc now 6.37 kpc) and a flat 220 km/s rotation curve, r_J = 160 pc today (59 pc at
+pericentre) for the K1-like model; the K2-cored posterior halo would push its own r_J to
+420 pc. The diff is saved in the session scratchpad (`jacobi_truncation_proposal.diff`),
+tests included; it changes the K2 family and therefore waits for a decision.
