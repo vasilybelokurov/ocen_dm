@@ -84,3 +84,33 @@ def test_real_members_projection_is_orthogonal_and_errors_are_consistent():
     trace = np.asarray(t["pmra_error"], float) ** 2 + np.asarray(t["pmdec_error"], float) ** 2
     np.testing.assert_allclose(s.err_r**2 + s.err_t**2, trace, rtol=1e-10)
     assert np.all(np.isfinite(s.mu_r)) and np.all(np.isfinite(s.mu_t))
+
+
+def test_free_mixture_recovers_cluster_dispersion_under_heavy_contamination():
+    """Cluster sigma = 0.20, errors 0.35, 85 per cent field with sigma 5-7: the mixture must
+    recover the cluster and the field fraction; a P-free measurement would be hopeless."""
+    from ocen_dm.kinematics.outer_profile import mixture_dispersion_free
+    n_c, n_f = 3000, 17000
+    sigmas, fs = [], []
+    for seed in (5, 6, 7, 8):                      # single realisations scatter by ~0.015 in this regime
+        rng = np.random.default_rng(seed)
+        err = rng.uniform(0.25, 0.45, n_c + n_f)
+        v = np.concatenate([rng.normal(0.0, 0.20, n_c),
+                            np.where(rng.uniform(size=n_f) < 0.6, rng.normal(0.5, 5.0, n_f), rng.normal(-1.0, 7.0, n_f))])
+        out = mixture_dispersion_free(v + rng.normal(0, err), err)
+        sigmas.append(out["sigma"]); fs.append(out["f"])
+        assert out["sigma"] == pytest.approx(0.20, abs=0.035)
+        assert out["n_cluster"] == pytest.approx(n_c, rel=0.06)
+    assert np.mean(sigmas) == pytest.approx(0.20, abs=0.012)          # unbiased on average
+    assert np.mean(fs) == pytest.approx(n_f / (n_c + n_f), abs=0.01)
+
+
+def test_free_mixture_does_not_steal_the_member_wings():
+    """No field at all: the floor on the field width stops EM from carving a narrow 'field'
+    out of the member distribution (which biased sigma low without it)."""
+    from ocen_dm.kinematics.outer_profile import mixture_dispersion_free
+    rng = np.random.default_rng(6)
+    n = 20000; err = rng.uniform(0.2, 0.4, n); v = rng.normal(0.0, 0.40, n) + rng.normal(0, err)
+    out = mixture_dispersion_free(v, err)
+    assert out["sigma"] == pytest.approx(0.40, abs=0.01)
+    assert out["f"] < 0.02

@@ -31,7 +31,7 @@ from ..paths import processed_dir, results_dir
 from . import style
 from .style import add_pc_axis
 
-__all__ = ["plot_constraint_map", "plot_outer_tracer_audit", "our_outer_profile", "OUTER_EDGES"]
+__all__ = ["plot_constraint_map", "plot_outer_tracer_audit", "our_outer_profile", "our_mixture_profile", "OUTER_EDGES"]
 
 #: log-spaced annuli for our own outer measurement (arcsec)
 OUTER_EDGES = np.geomspace(300.0, 2400.0, 11)
@@ -49,6 +49,34 @@ def _composite_tracer(distance_kpc: float = 5.43):
         fit = fit_mge_projected(load_tracer_profile("composite"), sigma_range_arcsec=(7.0, 3000.0))
         _TRACER_CACHE[distance_kpc] = build_stellar_mge(fit, distance_kpc, 1.0)
     return _TRACER_CACHE[distance_kpc]
+
+
+def our_mixture_profile(edges: np.ndarray = OUTER_EDGES, distance_kpc: float = 5.43,
+                        g_max: float = np.inf, field_sigma_min: float = 1.5) -> Table:
+    """Contamination-modelled PM dispersion: free cluster + two-Gaussian field mixture per
+    annulus over ALL quality stars (no membership probability used), exact systemic field,
+    depth term included. Columns as :func:`our_outer_profile` plus ``f_field``."""
+    from ..kinematics.outer_profile import mixture_dispersion_free
+    from ..kinematics.perspective import depth_dispersion
+    s = load_members(exact=True, distance_kpc=distance_kpc)
+    q = s.select(((s.quality_flag & QUALITY_BIT) > 0) & (s.g_mag <= g_max))
+    tracer = _composite_tracer(distance_kpc)
+    phi_sys = np.arctan2(*q.mu_sys)
+    rows = []
+    for lo, hi in zip(edges[:-1], edges[1:]):
+        m = (q.r_arcsec >= lo) & (q.r_arcsec < hi)
+        if m.sum() < 20:
+            continue
+        sd = depth_dispersion(tracer, q.r_arcsec[m] * distance_kpc * 1e3 / 206264.806, float(np.hypot(*q.mu_sys)), distance_kpc)
+        dphi = q.phi[m] - phi_sys
+        rr = mixture_dispersion_free(q.mu_r[m], q.err_r[m], sd**2 * np.cos(dphi) ** 2, field_sigma_min=field_sigma_min)
+        tt = mixture_dispersion_free(q.mu_t[m], q.err_t[m], sd**2 * np.sin(dphi) ** 2, field_sigma_min=field_sigma_min)
+        rows.append((lo, float(np.median(q.r_arcsec[m])), hi, int(m.sum()), rr["sigma"], rr["sigma_err"], rr["mean"],
+                     tt["sigma"], tt["sigma_err"], tt["mean"], np.sqrt(0.5 * (rr["sigma"] ** 2 + tt["sigma"] ** 2)),
+                     0.5 * np.hypot(rr["sigma_err"], tt["sigma_err"]), 0.5 * (rr["f"] + tt["f"]),
+                     float(np.median(q.g_mag[m]))))
+    return Table(rows=rows, names=("r_lower", "r_median", "r_upper", "n_stars", "sigma_pmr", "sigma_pmr_err", "mean_pmr",
+                                   "sigma_pmt", "sigma_pmt_err", "mean_pmt", "sigma_pm", "sigma_pm_err", "f_field", "median_g"))
 
 
 def our_outer_profile(edges: np.ndarray = OUTER_EDGES, prob_min: float = 0.9,
@@ -99,10 +127,11 @@ def _datasets_in_kms(D: float) -> list[dict]:
     out.append(dict(name="Gaia DR2 (Baumgardt+ 2019)", r=np.asarray(dr2["r"]), sigma=np.asarray(dr2["sigma_pm"]) * k,
                     err=0.5 * (np.asarray(dr2["sigma_pm_err_lo"]) + np.asarray(dr2["sigma_pm_err_hi"])) * k,
                     n=None, kind="pm", color=style.SERIES[2], marker="^"))
-    ours = our_outer_profile()
-    out.append(dict(name="Gaia EDR3, our measurement", r=np.asarray(ours["r_median"]),
-                    sigma=np.asarray(ours["sigma_pm"]) * k, err=np.asarray(ours["sigma_pmr_err"]) * k,
-                    n=np.asarray(ours["n_stars"]), kind="pm", color=style.INK, marker="D",
+    ours = our_mixture_profile()
+    out.append(dict(name="Gaia EDR3, our measurement (field modelled)", r=np.asarray(ours["r_median"]),
+                    sigma=np.asarray(ours["sigma_pm"]) * k, err=np.asarray(ours["sigma_pm_err"]) * k,
+                    n=np.round(np.asarray(ours["n_stars"]) * (1 - np.asarray(ours["f_field"]))).astype(int),
+                    kind="pm", color=style.INK, marker="D",
                     edges=(np.asarray(ours["r_lower"]), np.asarray(ours["r_upper"])), table=ours))
     return out
 
@@ -133,12 +162,18 @@ def plot_constraint_map(path: Path | str = "plots/constraint_map.png",
     ax.set_title("What constrains the mass, and where", fontsize=11)
     add_pc_axis(ax, D)
 
-    # residuals of every dataset against K1, and the K2/K1 model ratio
+    # residuals of every dataset against K1, and the K2/K1 model ratio. The Gaia points are
+    # dispersions about the rotating mean, so the model second moment has mu_rot^2/2 removed
+    # before the comparison (the same convention as the likelihood).
+    from ..kinematics.likelihood import pm_rotation_curve
     ratio = _sigma_1d_kms(j2, D2, R) / _sigma_1d_kms(j1, D, R)
     axr.plot(R, 100 * (ratio - 1), color=style.SERIES[1], lw=2, label="K2 / K1 model (proper motion)")
     axr.axhline(0, color=style.INK_SECONDARY, lw=0.8)
     for d in data:
         model = _sigma_1d_kms(j1, D, d["r"], d["kind"])
+        if "Gaia" in d["name"]:
+            rot = pm_rotation_curve(d["r"]) * KMS_PER_MASYR_KPC * D
+            model = np.sqrt(np.maximum(model**2 - 0.5 * rot**2, 1e-6))
         scale = s1.get("MUSE" if d["kind"] == "los" else "GaiaDR2" if "DR2" in d["name"] else "GaiaEDR3", 1.0) \
             if d["name"] != "HST PM (oMEGACat)" else 1.0
         axr.errorbar(d["r"], 100 * (d["sigma"] / (model * scale) - 1), yerr=100 * d["err"] / (model * scale),
@@ -176,6 +211,9 @@ def plot_outer_tracer_audit(path: Path | str = "plots/outer_tracer_audit.png") -
         ("naive: constant systemic PM, no depth term", dict(prob_min=0.9, exact=False, depth=False), "#7a5cc7", "P"),
     ]
     tables = [(lab, our_outer_profile(edges, **kw), c, m) for lab, kw, c, m in variants]
+    mix = our_mixture_profile(edges)
+    mix["sigma_pmr_err"] = mix["sigma_pm_err"]
+    tables.append(("field contamination modelled (no P cut)", mix, "#b5175f", "*"))
     ref = tables[0][1]
 
     fig, axes = plt.subplots(2, 2, figsize=(12, 8))
@@ -212,14 +250,15 @@ def plot_outer_tracer_audit(path: Path | str = "plots/outer_tracer_audit.png") -
     add_pc_axis(a_sig, 5.43)
 
     for lab, t, c, m in tables[1:]:
-        a_rat.plot(t["r_median"], 100 * (np.asarray(t["sigma_pm"]) / np.asarray(ref["sigma_pm"]) - 1), m + "-",
+        ref_at = np.interp(np.asarray(t["r_median"]), np.asarray(ref["r_median"]), np.asarray(ref["sigma_pm"]))
+        a_rat.plot(t["r_median"], 100 * (np.asarray(t["sigma_pm"]) / ref_at - 1), m + "-",
                    ms=4, color=c, lw=1.2, label=lab)
     a_rat.axhline(0, color=style.INK, lw=1.2)
     a_rat.fill_between(ref["r_median"], -100 * ref["sigma_pmr_err"] / ref["sigma_pm"],
                        100 * ref["sigma_pmr_err"] / ref["sigma_pm"], color=style.COLOR_FIELD, alpha=0.3, lw=0,
                        label="statistical error of the reference")
     a_rat.set_xscale("log"); a_rat.set_xlabel("R  [arcsec]")
-    a_rat.set_ylabel("change vs reference  [%]"); a_rat.legend(fontsize=7.5)
+    a_rat.set_ylabel("change vs reference  [%]"); a_rat.legend(fontsize=7, ncol=2)
     a_rat.set_title("Robustness of the outer dispersion", fontsize=10)
     add_pc_axis(a_rat, 5.43)
 
