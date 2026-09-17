@@ -186,6 +186,31 @@ class SphericalJeans:
         self._check_inside_tracer(RR)
         return np.sqrt(self.projected_second_moment(RR, kind) / self.surface_density(RR))
 
+    def projected_moments(self, R: Any) -> dict[str, np.ndarray]:
+        """``Sigma`` and the three second moments ``Sigma sigma_kind^2`` in one pass.
+
+        Same integrals as :meth:`surface_density` and
+        :meth:`projected_second_moment`, but the nodes, tracer density, ``nu
+        sigma_r^2`` and ``beta`` are evaluated once and shared -- this is the
+        routine the likelihood calls, so it is the hot path.
+        """
+        RR = np.atleast_1d(np.asarray(R, dtype=float))
+        r, wu, _ = self._projection_nodes(RR)
+        _, _, ln_nu = self._table
+        with np.errstate(invalid="ignore"):
+            nu = np.exp(ln_nu(np.log(r)))
+        nu[~np.isfinite(nu) | (r >= self.r_cut)] = 0.0
+        ns = self.nu_sigma_r2(r.ravel()).reshape(r.shape)
+        beta = self.anisotropy.beta(r)
+        ratio2 = (RR[:, None] / r) ** 2
+        base = 2.0 * r * wu
+        return {
+            "Sigma": np.sum(nu * base, axis=1),
+            "los": np.sum((1.0 - beta * ratio2) * ns * base, axis=1),
+            "pmr": np.sum((1.0 - beta + beta * ratio2) * ns * base, axis=1),
+            "pmt": np.sum((1.0 - beta) * ns * base, axis=1),
+        }
+
     def dispersions_kms(self, R_pc: Any) -> dict[str, np.ndarray]:
         """All three projected dispersions in km/s at projected radii in pc.
 
@@ -196,8 +221,8 @@ class SphericalJeans:
         """
         RR = np.atleast_1d(np.asarray(R_pc, dtype=float))
         self._check_inside_tracer(RR)
-        sigma = self.surface_density(RR)
-        return {k: np.sqrt(self.projected_second_moment(RR, k) / sigma) for k in PROJECTIONS}
+        m = self.projected_moments(RR)
+        return {k: np.sqrt(m[k] / m["Sigma"]) for k in PROJECTIONS}
 
     def dispersions_observed(self, R_arcsec: Any, distance_kpc: float) -> dict[str, np.ndarray]:
         """Observables at projected radii in arcsec: ``sigma_los`` [km/s] and the
