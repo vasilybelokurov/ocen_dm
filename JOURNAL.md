@@ -1279,3 +1279,29 @@ Trager-tracer posterior never touched the far-out artefact, and two independent 
 runs of the same 11-D problem reproduce ln Z to 0.5 — the run-to-run scatter to keep in
 mind when reading Δ ln Z between families. `K1_noDM_trager_v2` is the canonical Trager
 run from here; `K1_noDM` is kept as the reproducibility twin.
+
+## 2026-09-18 — K1 composite (full data): the no-DM reference posterior
+
+1.62M calls / 136 min. **ln Z = 134.91 ± 0.47; χ² 355 / 126**, of which **Gaia EDR3 alone
+218 / 8**; the rest is the clean fit of the no-EDR3 run (HST R 38/40, T 46/40, MUSE 39/29,
+DR2 14/9). Parameters are the no-EDR3 ones to within their intervals: M★ = 2.81e6 [2.55,
+2.99], M_rem = 3.9e5 [2.7, 6.0] at 4.2 pc, **M• = 3.8e4 [3.4, 4.2]**, β₀ = −0.046,
+β∞ = 0.233, r_β = 3.3 pc, s_MUSE = 0.984, s_DR2 = 0.950, **s_EDR3 = 1.065 ± 0.007**,
+D = 5.432 [5.387, 5.479].
+
+So the EDR3 profile does not move the no-DM solution — it cannot be accommodated by it. The
+K1 family has one lever for the outskirts (β∞ and the remnant sphere) and it is already used
+by the HST outer bins; the EDR3 points at 1300–2400″ demand more dispersion than any K1
+model gives at those radii (data 0.23–0.28 mas/yr against model 0.17–0.24 after the
+rotation term), and the nuisance scale pinned at 1.065 says the same thing over the whole
+300–2400″ range. Tracer comparison at equal physics: **Δ ln Z (composite − Trager) =
++47.7 ± 0.6** — the composite tracer is decisively preferred, a real result this time
+(both runs on the fixed solver, reproducibility 0.5).
+
+Launched the **false-positive injection**: mock data drawn from this run's best sample
+(M★ = 2.76e6, M_rem = 5.5e5 at 4.7 pc, M• = 4.0e4, β₀ = −0.045, β∞ = 0.23, real bins and
+errors, seed 7) fitted with K2-cored. If K2 reports a non-zero M_DM(<100 pc) here, the
+real-data K2 preference is not to be believed at that level. K2-cored and K2-NFW on the real
+data are in the bulk of their posteriors (ln Z 171 and 163 and rising against K1's 134.9),
+K2-cored-noEDR3 has started. Report: `results/fits/comparison.md`; figures
+`plots/fit_posterior_profiles.png`, `plots/fit_K1_noDM_composite_posterior_profiles.png`.
