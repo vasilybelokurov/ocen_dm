@@ -833,3 +833,50 @@ Vasiliev (2021) catalogue value (`baumgardt_ocen_parameters.distance`). The two 
 0.8σ — mild, and a 1.2% effect on pc scales and on the PM→km/s conversion, so no result above
 changes materially; but the record was wrong and is now corrected in the plotting constants,
 the plan and here. D stays a parameter in Milestone 3 with both values as priors/checks.
+
+---
+
+## 2026-09-17 — Milestone 3 begins: the spherical Jeans solver, verified three ways
+
+Decision (approved): our own spherical Jeans solver is primary; JamPy and AGAMA are the
+independent checks; JamPy stays available for the axisymmetric extension.
+
+### `src/ocen_dm/kinematics/`
+
+- `anisotropy.py` — the spec's β(r) = β₀ + (β∞−β₀) r²/(r²+r_β²), with its integrating
+  factor g(r) = r^{2β₀}(r²+r_β²)^{β∞−β₀} in closed form. **This is exactly JamPy's
+  `logistic` anisotropy with α = 2**, which is what lets the JamPy comparison be exact.
+- `jeans.py` — `SphericalJeans(mass, tracer, anisotropy)`: νσ_r² by cumulative Simpson on a
+  600-point log grid (outside in), splined in the log; the three projected second moments
+  (LOS, PM radial, PM tangential) by the substitution r = R cosh u, which removes the
+  singularity at r = R and leaves smooth integrals that 96 Gauss–Legendre nodes handle,
+  vectorised over R. `dispersions_observed(R_arcsec, D)` returns σ_LOS in km/s and the PM
+  dispersions in mas/yr. **5 ms per model** (build + three projections at 70 radii).
+
+### Verification
+
+| Check | Result |
+|---|---|
+| Isotropic Plummer, σ_r(r) = √(GM/6√(r²+a²)) | 1.3e-5 |
+| Isotropic Plummer, σ_p(R) = √(3πGM/64√(R²+a²)) | 1.1e-5 |
+| Isotropy identity (pmr = pmt = los) | exact |
+| **JamPy** `jam_sph_proj`, 3-Gaussian MGE + 10⁴ M☉ BH, β 0.05→0.5, 25 radii, all three projections | **≤ 1.0e-3** (JamPy's own interpolation level) |
+| **AGAMA** QuasiSpherical DF, Plummer, β = 0 / −0.5 | **2.8e-5 / 3.6e-5** |
+| AGAMA, cuspy NFW tracer, β = 0 / +0.3 | 3e-2 (limited by AGAMA's Multipole+DF numerics; same at β = 0) |
+
+One defect found and fixed: with a Gaussian tracer the density underflows to zero far
+inside `r_max`; a spline through ln(0) developed a kink that the projection nodes sampled
+as a 10¹⁰ km/s value at one radius. The table now stops where ν has fallen 20 decades below
+its peak (`r_cut`, 131 pc for the test MGE).
+
+### A physical constraint on the K1 prior, from the AGAMA check
+
+For a cored Plummer tracer with constant β₀ = +0.1 / +0.3, AGAMA's realised density exceeds
+the input by ×1.27 / ×2.58 at 0.3 pc: **no positive distribution function exists** for
+radial anisotropy in a core (An & Evans 2006: the tracer cusp must satisfy γ ≥ 2β). Our
+solver still returns a Jeans solution for such models — the equation has one — but the
+model is unphysical. The ω Cen MGE is cored (μ_V flat inside ~100″), so **β₀ ≤ 0** in K1;
+radial anisotropy may only develop outward (β∞ > 0), consistent with Watkins+ 2015's
+isotropic cores and Watkins+ 2013's global β = 0.10. Encoded as a test so it is not lost.
+
+Tests: `tests/test_jeans.py`, 17 tests (two external, skipped where JamPy/AGAMA absent).
