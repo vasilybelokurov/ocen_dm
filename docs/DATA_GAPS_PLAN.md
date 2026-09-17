@@ -58,6 +58,10 @@ Two of the gaps closed from the user's canonical catalogue store `~/data/catalog
 - **WP4 verified feasible:** one `sqlutilpy.local_join` returns all 157,481 Kuzma 2025
   source_ids in 162 s with 100% match; median |pmra_pmdec_corr| = 0.11.
 
+**2026-09-17:** WP1 done for Trager 1995 and Baumgardt 2019 (Noyola 2006 checked: ω Cen absent,
+not applicable). **WP2 done** — `light_model.py`, 11-Gaussian MGE, rms 0.18 mag, R_h = 280″ =
+7.37 pc. **WP5 done** for the DR2 profile (4.7–46 pc). Open: WP4, WP6, star-count cross-check.
+
 ## Work packages
 
 ### WP1 — Registry, fetch, loaders for five VizieR catalogues (~1 h)

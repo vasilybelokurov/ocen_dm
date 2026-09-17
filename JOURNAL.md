@@ -730,3 +730,60 @@ A 1° cone count on Gaia DR3 (401,654 stars) takes 1.2 s. One run also produced 
 timeout at 10k rows that vanished on retry. Conclusion for WP4 and for the `wsdb` skill,
 which now carries a measured-performance table and the covariance-join recipe: one call,
 seconds, no chunking; minutes or a `COPY` error mean "retry", not "split the input".
+
+---
+
+## 2026-09-17 — WP1/WP2/WP5: light profile, MGE, outer kinematics
+
+### Fetched through the pipeline (VizieR)
+
+- **Trager, King & Djorgovski 1995** `J/AJ/109/218/tables`: 73 V-band points for `ngc5139`,
+  10.5–2588″ (0.28–68 pc), μ_V 16.15–28.17, with the authors' weights and data-set flags.
+  Units come from the VOTable itself (`logr` in log(arcsec), μ in mag/arcsec²).
+- **Baumgardt+ 2019** `J/MNRAS/482/5138/table4`: the Gaia DR2 σ_PM profile of NGC 5139 —
+  9 bins, 179–1747″ (4.7–46 pc), asymmetric errors. The outer kinematics the plan flagged.
+- **Noyola & Gebhardt 2006** `J/AJ/132/447`: checked and **not applicable** — 0 rows for
+  NGC 5139 in either table. Recorded in the registry so the check isn't repeated.
+
+Two ingestion rules had to be refined, both because the strictness caught real structure:
+CDS uses `E_sigma`/`e_sigma` (upper/lower error) — a case collision the resolver refused —
+so matching is now exact-first with a case-insensitive fallback that refuses ambiguity; and
+Trager's `logr` carries a `log(arcsec)` unit, so `build_product` gained a recorded
+`transform` step (`r_arcsec = 10**logr`, noted in the lineage as a re-expression, not new
+information).
+
+### `src/ocen_dm/light_model.py` — the MGE
+
+Spherical MGE fitted **in projection** by weighted non-negative least squares with the
+widths on a log grid; deprojection is analytic and keeps the widths, mapping directly onto
+`mass_models.MGE`. Only the profile's *shape* is used (M/L is a free parameter, so the
+zero-point and extinction cancel). Rows are scaled by `sqrt(weight)/I`, i.e. the fit is in
+magnitudes with the authors' weights as inverse variances.
+
+Result on the real profile (default 64-node grid): **11 Gaussians, weighted rms 0.18 mag**
+against **0.21 mag for Trager's own Chebyshev fit**; the worst residuals are Trager's own
+worst points (ours −1.62 vs theirs −1.67 at 2148″, weight 0.10; the SB-2342 points at weight
+0.03). **Projected half-light radius 280″ = 7.37 pc** — against Harris's 300″ and the
+Baumgardt catalogue's 7.56 pc. That agreement also suggests the catalogue's `RH` is the
+projected half-light radius rather than the 3D half-mass (9.70 pc for this MGE) — recorded
+as suggestive, not settled. `plots/light_profile_mge.png`.
+
+Grid density measured rather than assumed: a noiseless single Gaussian is recovered to
+0.36 / 0.10 / 0.027 / 0.007 mag rms with 16 / 32 / 64 / 128 nodes (fixed-grid NNLS cannot
+place a node exactly on the true width), while the real data plateau at 0.184 mag from 32
+nodes on — the floor is the data scatter, not the grid. Default set to 64.
+
+One test I wrote was wrong, not the code: a +3 mag outlier at weight 0.01 legitimately bends
+a noiseless fit by ~0.1 mag (χ² = 0.09 is not zero); the test now asserts what matters —
+the unit-weight points stay fitted and the half-light radius is unchanged when the outlier's
+weight sits at the floor.
+
+### State
+
+14 products, **201 tests**, 10 figures. Milestone 3 now has its luminous model, its
+systemic phase space, and internal kinematics spanning 0.05–46 pc from three instruments
+(HST, MUSE, Gaia) — with the recorded caveat that the EDR3 and HST σ_PM disagree by 20–25%
+where they overlap and must not be stacked.
+
+Left from the plan: WP4 (Gaia covariance product; recipe written, trivial), WP6 (Kuzma 2025
+footprint), and the star-count cross-check of the light profile from our own catalogues.

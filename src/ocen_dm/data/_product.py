@@ -32,6 +32,8 @@ def build_product(
     keep_extra_columns: bool = True,
     read_kwargs: Mapping[str, Any] | None = None,
     row_filter: Callable[[Any], Any] | None = None,
+    transform: Callable[[Any], Any] | None = None,
+    transform_note: str = "",
 ) -> dict[str, Any]:
     """Standardize, validate and write one product, in that order.
 
@@ -64,6 +66,11 @@ def build_product(
         ``row_filter(table) -> boolean mask`` applied before standardisation, for
         multi-object files from which one object is wanted. The number of rows
         kept and dropped is recorded in the lineage.
+    transform : callable, optional
+        ``transform(table) -> table`` applied after the row filter, for pure
+        re-expressions of published columns (e.g. ``10**logr``). It must add no
+        information; ``transform_note`` states what it did and is recorded in
+        the lineage.
 
     Returns
     -------
@@ -87,6 +94,9 @@ def build_product(
         lineage["rows_in_file"] = int(len(table))
         lineage["rows_selected"] = int(mask.sum())
         table = table[mask]
+    if transform is not None:
+        table = transform(table)
+        lineage["transform"] = transform_note or transform.__name__
     out = standardize(table, schema, keep_extra_columns=keep_extra_columns)
     out.meta["ocen_dataset"] = dataset
     out.meta["ocen_likelihood_rule"] = likelihood_rule

@@ -203,6 +203,81 @@ datasets:
         expected_bytes_tolerance: 0.0
         required: true
 
+  trager1995_sbp:
+    title: "Catalogue of globular cluster surface-brightness profiles"
+    authors: "Trager, King & Djorgovski (1995)"
+    role: "V-band surface-brightness profile of omega Cen, 73 points, 10.5-2590 arcsec
+      (0.28-68 pc at 5.43 kpc), with per-point weights and source flags -- the v1
+      luminous profile for the MGE (specification section 3.1)."
+    paper:
+      journal: "AJ 109, 218 (1995)"
+      ads: "https://ui.adsabs.harvard.edu/abs/1995AJ....109..218T"
+      verified: false
+      verify_note: "Bibliographic reference taken from the VizieR catalogue record
+        J/AJ/109/218; ADS link not fetched."
+    data:
+      kind: vizier
+      vizier_catalogue: "J/AJ/109/218/tables"
+      verified: true
+      verify_note: "Full table retrieved from VizieR 2026-09-17: 17148 rows, 73 for
+        'ngc5139'. Column units read from the VOTable FIELDs: logr [log(arcsec)],
+        muV/muVf/Resid [mag/arcsec2], Weight [0-1], DataSet (source label)."
+      representation: "cds_curated_reproduction"
+    files:
+      - name: "trager1995_tables.vot"
+        url: "https://vizier.cds.unistra.fr/viz-bin/votable?-source=J/AJ/109/218/tables&-out.all&-out.max=unlimited"
+        published_md5: null
+        checksum_source: null
+        expected_bytes: 2102164
+        expected_bytes_tolerance: 0.05
+        byte_reproducibility: "none -- VizieR embeds the export timestamp"
+        required: true
+
+  noyola2006_sbp:
+    title: "Surface brightness profiles of 38 Galactic globular clusters (HST)"
+    authors: "Noyola & Gebhardt (2006)"
+    role: "Checked 2026-09-17 as a possible HST core profile for omega Cen: the
+      catalogue (J/AJ/132/447) contains NO rows for NGC 5139. Not usable; recorded
+      so the check is not repeated."
+    paper:
+      journal: "AJ 132, 447 (2006)"
+      verified: false
+      verify_note: "Reference from the VizieR record only."
+    data:
+      kind: none
+      note: "photdata (916 rows) and smdata (3800 rows) both have 0 rows with NGC = 5139."
+    optional: true
+    files: []
+
+  baumgardt2019_pm_profiles:
+    title: "Mean proper motions, space orbits and velocity dispersion profiles of Galactic globular clusters from Gaia DR2"
+    authors: "Baumgardt, Hilker, Sollima & Bellini (2019)"
+    role: "Gaia DR2 proper-motion dispersion profile of omega Cen: 9 bins, 179-1747
+      arcsec (4.7-46 pc), asymmetric errors -- outer internal kinematics beyond the
+      HST field."
+    paper:
+      doi: "10.1093/mnras/sty2997"
+      journal: "MNRAS 482, 5138 (2019)"
+      verified: false
+      verify_note: "DOI from the VizieR record J/MNRAS/482/5138; not resolved live."
+    data:
+      kind: vizier
+      vizier_catalogue: "J/MNRAS/482/5138/table4"
+      verified: true
+      verify_note: "Full table retrieved from VizieR 2026-09-17: 319 rows, 9 for
+        'NGC 5139'. Units from the VOTable FIELDs: r [arcsec], sigma/E_sigma/e_sigma
+        [mas/yr], NPM (stars per bin)."
+      representation: "cds_curated_reproduction"
+    files:
+      - name: "baumgardt2019_table4.vot"
+        url: "https://vizier.cds.unistra.fr/viz-bin/votable?-source=J/MNRAS/482/5138/table4&-out.all&-out.max=unlimited"
+        published_md5: null
+        checksum_source: null
+        expected_bytes: 38671
+        expected_bytes_tolerance: 0.05
+        byte_reproducibility: "none -- VizieR embeds the export timestamp"
+        required: true
+
   omegacat_vi_kinematics:
     title: "oMEGACat VI: overall kinematics of Omega Centauri in 3D"
     authors: "oMEGACat collaboration (2025)"

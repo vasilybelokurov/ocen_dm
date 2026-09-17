@@ -15,6 +15,27 @@
   },
   "files": [
     {
+      "bytes": 38671,
+      "checksum_ok": null,
+      "checksum_source": null,
+      "dataset": "baumgardt2019_pm_profiles",
+      "exists": true,
+      "md5": "9da8b6efb6008cb449c12c0ee8c1dcea",
+      "message": "downloaded",
+      "name": "baumgardt2019_table4.vot",
+      "ok": true,
+      "path": "/Users/vasilybelokurov/IoA Dropbox/Dr V.A. Belokurov/Code/oCen_dm/data/raw/baumgardt2019_pm_profiles/baumgardt2019_table4.vot",
+      "published_algorithm": "md5",
+      "published_checksum": null,
+      "recorded_utc": "2026-09-17T00:50:51+00:00",
+      "sha256": "2c2c48a854f0110dab5d26aae7bd94f24bc316a8200a3cc901287e8d727148c1",
+      "size_ok": true,
+      "status": "ok",
+      "url": "https://vizier.cds.unistra.fr/viz-bin/votable?-source=J/MNRAS/482/5138/table4&-out.all&-out.max=unlimited",
+      "verification": "size",
+      "verified": false
+    },
+    {
       "bytes": 57600,
       "checksum_ok": null,
       "checksum_source": null,
@@ -531,6 +552,27 @@
       "verified": true
     },
     {
+      "bytes": 2102164,
+      "checksum_ok": null,
+      "checksum_source": null,
+      "dataset": "trager1995_sbp",
+      "exists": true,
+      "md5": "5a3c6f4dfc6a026d35e5333d5ec7d7b2",
+      "message": "downloaded",
+      "name": "trager1995_tables.vot",
+      "ok": true,
+      "path": "/Users/vasilybelokurov/IoA Dropbox/Dr V.A. Belokurov/Code/oCen_dm/data/raw/trager1995_sbp/trager1995_tables.vot",
+      "published_algorithm": "md5",
+      "published_checksum": null,
+      "recorded_utc": "2026-09-17T00:50:51+00:00",
+      "sha256": "e9e4849799fc16f928d0cc33c6f2c602b5280223a8f4cefeeabb410f73ca3cef",
+      "size_ok": true,
+      "status": "ok",
+      "url": "https://vizier.cds.unistra.fr/viz-bin/votable?-source=J/AJ/109/218/tables&-out.all&-out.max=unlimited",
+      "verification": "size",
+      "verified": false
+    },
+    {
       "bytes": 118940646,
       "checksum_ok": true,
       "checksum_source": "Zenodo API record 4891252, files[].checksum, read 2026-09-16",
@@ -596,5 +638,5 @@
       "verified": true
     }
   ],
-  "written_utc": "2026-09-16T21:35:49+00:00"
+  "written_utc": "2026-09-17T00:50:51+00:00"
 }

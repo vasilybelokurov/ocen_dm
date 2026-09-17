@@ -254,9 +254,26 @@ def resolve_columns(
             "would otherwise be ignored silently."
         )
 
-    lookup = {str(c).lower(): str(c) for c in columns}
-    if len(lookup) != len(list(columns)):
-        raise SchemaError(f"{schema.name}: source table has case-colliding column names")
+    # CDS tables legitimately use case to carry meaning (``E_sigma`` = upper error,
+    # ``e_sigma`` = lower error), so matching is exact first and case-insensitive
+    # only as a fallback; a case-insensitive fallback is refused where it would be
+    # ambiguous.
+    exact = {str(c): str(c) for c in columns}
+    lookup: dict[str, str | None] = {}
+    for c in columns:
+        key = str(c).lower()
+        lookup[key] = None if key in lookup else str(c)   # None marks an ambiguous key
+
+    def find(name: str) -> str | None:
+        if name in exact:
+            return exact[name]
+        hit = lookup.get(name.lower())
+        if hit is None and name.lower() in lookup:
+            raise SchemaError(
+                f"{schema.name}: {name!r} matches several columns differing only in "
+                f"case; name the exact column in configs/column_maps.yaml"
+            )
+        return hit
 
     bindings: dict[str, ColumnBinding] = {}
     unresolved: list[str] = []
@@ -264,21 +281,20 @@ def resolve_columns(
     for role in schema.roles:
         if role.name in normalized:
             wanted = normalized[role.name]["column"]
-            if wanted.lower() not in lookup:
+            resolved = find(wanted)
+            if resolved is None:
                 raise SchemaError(
                     f"{schema.name}: column map sends role {role.name!r} to "
                     f"{wanted!r}, which is not in the table"
                 )
-            bindings[role.name] = ColumnBinding(
-                role, lookup[wanted.lower()], normalized[role.name]["unit"]
-            )
+            bindings[role.name] = ColumnBinding(role, resolved, normalized[role.name]["unit"])
             continue
 
         # Candidate lists carry case variants of one name, so deduplicate by the
         # resolved source column: only genuinely distinct columns are ambiguous.
         hits: list[str] = []
         for candidate in role.candidates:
-            match = lookup.get(candidate.lower())
+            match = find(candidate)
             if match is not None and match not in hits:
                 hits.append(match)
 

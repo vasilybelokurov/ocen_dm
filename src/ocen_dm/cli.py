@@ -86,7 +86,8 @@ def cmd_preprocess(args: argparse.Namespace) -> int:
     A schema violation aborts that dataset's product: nothing is written, and
     the command exits non-zero. An invalid table is never published.
     """
-    from .data import baumgardt_catalogue, fimbulthul, kuzma2025, kuzma2026, omegacat, vasiliev2021
+    from .data import (baumgardt2019, baumgardt_catalogue, fimbulthul, kuzma2025, kuzma2026,
+                       omegacat, trager1995, vasiliev2021)
 
     ensure_data_tree()
     reports: list[dict[str, Any]] = []
@@ -97,6 +98,8 @@ def cmd_preprocess(args: argparse.Namespace) -> int:
         "omegacat": omegacat,
         "vasiliev2021": vasiliev2021,
         "baumgardt": baumgardt_catalogue,
+        "trager1995": trager1995,
+        "baumgardt2019": baumgardt2019,
     }
     selected = args.dataset or list(modules)
 
@@ -249,7 +252,7 @@ def build_parser() -> argparse.ArgumentParser:
     fetch.set_defaults(func=cmd_fetch_data)
 
     pre = subparsers.add_parser("preprocess", help="build validated processed products")
-    pre.add_argument("--dataset", action="append", help="kuzma2025|kuzma2026|fimbulthul|omegacat|vasiliev2021|baumgardt")
+    pre.add_argument("--dataset", action="append", help="kuzma2025|kuzma2026|fimbulthul|omegacat|vasiliev2021|baumgardt|trager1995|baumgardt2019")
     pre.set_defaults(func=cmd_preprocess)
 
     inv = subparsers.add_parser("inventory", help="print the dataset inventory")
