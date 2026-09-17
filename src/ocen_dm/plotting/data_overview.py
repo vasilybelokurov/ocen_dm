@@ -253,8 +253,10 @@ def _asym(table: Table, name: str) -> np.ndarray:
     return np.vstack([np.asarray(table[f"{name}_err_lo"]), np.asarray(table[f"{name}_err_hi"])])
 
 
-def _add_pc_axis(ax) -> None:
-    secax = ax.secondary_xaxis("top", functions=(lambda a: a * ARCSEC_TO_PC, lambda p: p / ARCSEC_TO_PC))
+def _add_pc_axis(ax, per_unit_arcsec: float = 1.0) -> None:
+    """Secondary x axis in pc; ``per_unit_arcsec`` = 60 when the axis is in arcmin."""
+    k = ARCSEC_TO_PC * per_unit_arcsec
+    secax = ax.secondary_xaxis("top", functions=(lambda a: a * k, lambda p: p / k))
     secax.set_xlabel(f"r  [pc]  (D = {OCEN_DISTANCE_KPC} kpc)", color=style.INK_SECONDARY)
     secax.tick_params(colors=style.INK_SECONDARY)
 
@@ -568,6 +570,84 @@ def plot_light_profile_mge() -> Path:
     return _save(fig, "light_profile_mge")
 
 
+def _count_profile(x_deg, y_deg, edges_arcmin):
+    """Surface density of stars in annuli: (mid, density, Poisson error, counts)."""
+    r = np.hypot(x_deg, y_deg) * 60.0
+    n, _ = np.histogram(r, bins=edges_arcmin)
+    area = np.pi * (edges_arcmin[1:] ** 2 - edges_arcmin[:-1] ** 2)
+    mid = np.sqrt(edges_arcmin[1:] * edges_arcmin[:-1])
+    return mid, n / area, np.sqrt(np.maximum(n, 1)) / area, n
+
+
+def plot_light_profile_star_counts() -> Path:
+    """Shape check of the MGE against star counts from the three catalogues we hold.
+
+    Each sample is scaled onto the MGE over a radial range where it is trusted
+    (outside its crowding-limited core, inside its field-contaminated outskirts),
+    so only the shapes are compared. The MGE has no light beyond its widest
+    Gaussian, so comparisons beyond the Trager data (~43') are extrapolation.
+    """
+    from ..light_model import fit_mge_projected, load_trager_profile
+
+    fit = fit_mge_projected(load_trager_profile())
+    cosd = np.cos(np.radians(OCEN_DEC))
+
+    vb = _load("vasiliev2021_ocen_members", "tails")
+    m = (np.asarray(vb["membership_prob"]) > 0.9) & (np.asarray(vb["g_mag"]) < 19)
+    xv, yv = (np.asarray(vb["ra"])[m] - OCEN_RA) * cosd, np.asarray(vb["dec"])[m] - OCEN_DEC
+    kz = _load("kuzma2025_periphery", "tails")
+    mk = np.asarray(kz["membership_prob"]) > MEMBER_THRESHOLD
+    xk, yk = (np.asarray(kz["ra"])[mk] - OCEN_RA) * cosd, np.asarray(kz["dec"])[mk] - OCEN_DEC
+    oc = Table.read(raw_dir() / "omegacat_vi_kinematics" / "catalog_and_selections.fits")
+    mo = (np.asarray(oc["selection_hq_astrometry_and_membership"]) == 1) & (np.asarray(oc["f625w"]) < 20)
+    xo, yo = (np.asarray(oc["RA"])[mo] - OCEN_RA) * cosd, np.asarray(oc["DEC"])[mo] - OCEN_DEC
+
+    # Anchoring ranges: outside each sample's crowding-limited core (HST resolves
+    # the core; Gaia does not inside ~6-10'), inside the Trager data (43').
+    samples = (
+        (_count_profile(xo, yo, np.geomspace(0.1, 5.0, 14)), 0.5, 4.5, style.SERIES[0],
+         f"HST oMEGACat, F625W < 20, hq astrometry + membership (n={mo.sum():,})"),
+        (_count_profile(xv, yv, np.geomspace(0.3, 40, 22)), 8.0, 30.0, style.SERIES[1],
+         f"Gaia EDR3 members P > 0.9, G < 19 (n={m.sum():,})"),
+        (_count_profile(xk, yk, np.geomspace(2, 120, 14)), 15.0, 42.0, style.SERIES[2],
+         f"Gaia + Pristine members P > 0.5, G₀ < 16 (n={mk.sum():,})"),
+    )
+
+    rr = np.geomspace(0.1, 150, 400)
+    model = fit.surface_intensity(rr * 60)
+    fig, (ax, axr) = plt.subplots(2, 1, figsize=(8.5, 8), sharex=True,
+                                  gridspec_kw={"height_ratios": [3, 1]})
+    ax.plot(rr, model, color=style.INK, lw=2, label="MGE of the Trager+ 1995 light profile")
+    ax.axvspan(43.0, 150.0, color=style.GRID, alpha=0.6, lw=0)
+    ax.text(45, model.max() * 1.5, "beyond the Trager data:\nMGE is extrapolation", fontsize=8.5,
+            color=style.INK_SECONDARY, va="top")
+    for (mid, sig, err, n), lo, hi, color, label in samples:
+        sel = (mid > lo) & (mid < hi) & (n >= 10)
+        scale = np.exp(np.mean(np.log(fit.surface_intensity(mid[sel] * 60)) - np.log(sig[sel])))
+        good = n >= 10
+        ax.errorbar(mid[good], sig[good] * scale, yerr=err[good] * scale, fmt="o", ms=style.MARKER_PT,
+                    color=color, ecolor=color, elinewidth=style.ERR_PT, capsize=2, label=label)
+        d = -2.5 * np.log10(sig[good] * scale / fit.surface_intensity(mid[good] * 60))
+        axr.errorbar(mid[good], d, yerr=2.5 / np.log(10) * err[good] / sig[good], fmt="o",
+                     ms=style.MARKER_PT, color=color, ecolor=color, elinewidth=style.ERR_PT, capsize=2)
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_ylim(model.max() * 1e-7, model.max() * 3)
+    ax.set_ylabel("surface density, scaled to the MGE (arbitrary)")
+    ax.set_title("Star-count check of the light profile: shapes only, each sample anchored where complete")
+    for (mid, sig, err, n), lo, hi, color, _ in samples:
+        ax.axvspan(lo, hi, ymin=0.0, ymax=0.02, color=color, alpha=0.9, lw=0)   # anchoring range marker
+    ax.legend(loc="lower left", fontsize=8.5)
+    _add_pc_axis(ax, per_unit_arcsec=60.0)
+    axr.axhline(0, color=style.INK_SECONDARY, lw=0.8)
+    axr.axvspan(43.0, 150.0, color=style.GRID, alpha=0.6, lw=0)
+    axr.set_ylim(-2.0, 4.0)
+    axr.set_ylabel("counts − MGE  [mag]")
+    axr.set_xlabel("R  [arcmin]")
+    fig.tight_layout()
+    return _save(fig, "light_profile_star_counts")
+
+
 PLOTS = (
     plot_sky_overview,
     plot_kuzma2025_proper_motions,
@@ -579,6 +659,7 @@ PLOTS = (
     plot_omegacat_rotation_axis,
     plot_omegacat_3d_velocities,
     plot_light_profile_mge,
+    plot_light_profile_star_counts,
 )
 
 

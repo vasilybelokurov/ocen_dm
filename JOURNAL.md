@@ -787,3 +787,39 @@ where they overlap and must not be stacked.
 
 Left from the plan: WP4 (Gaia covariance product; recipe written, trivial), WP6 (Kuzma 2025
 footprint), and the star-count cross-check of the light profile from our own catalogues.
+
+### WP4 and the star-count cross-check (same day)
+
+**WP4 done.** `selection/gaia_covariance.py`: one `sqlutilpy.local_join` fetches the full Gaia
+DR3 astrometric covariance for all 157,481 Kuzma 2025 stars in **3.7 s**. The product
+`kuzma2025_periphery_gaia_covariance` carries `pmra_pmdec_corr` (median |corr| 0.11),
+the parallax terms and RUWE, and the build refuses to write if any star is unmatched, if the
+catalogue's PMs differ from Gaia's beyond their rounding (the release check), or if a
+correlation is out of range. Five tests with a mocked join.
+
+**Light profile validated by star counts.** `plots/light_profile_star_counts.png` compares
+the Trager MGE with surface-density profiles from the three catalogues we hold, each anchored
+only where it is complete:
+
+| Sample | Anchored | rms vs MGE |
+|---|---|---|
+| HST oMEGACat, F625W < 20, hq (222,792 stars) | 0.5–4.5′ | **0.09 mag** |
+| Gaia EDR3 members P > 0.9, G < 19 (76,118) | 8–30′ | **0.19 mag** |
+| Gaia+Pristine members P > 0.5, G₀ < 16 (2,737) | 15–42′ | **0.09 mag** |
+
+So the MGE shape holds from 0.5′ to 42′ (0.8–66 pc) against three independent tracers. Gaia
+is crowding-incomplete inside ~6–10′ (residuals rise to +4 mag inward) and HST inside ~0.3′;
+beyond the Trager data (43′) the MGE is extrapolation and the member counts sit above it.
+
+The first version of this figure anchored EDR3 over 2–20′, inside its incomplete core, which
+shifted the whole sample 1.4 mag high and made the MGE look wrong at 5–11′. The slopes had
+agreed all along (6.1 vs 6.3 mag over 7–36′); the anchoring was the error. Fixed and the
+anchoring ranges are now drawn on the figure.
+
+**Consequence for the model:** the luminous profile beyond ~43′ (> 68 pc) is not constrained
+by the light data and would need the member star counts as a tracer — with their own
+selection effects — if the halo's outer extent is ever to be tied to the stars there. Inside
+that radius it is solid.
+
+State: 15 products, **206 tests**, 11 figures. Remaining from the plan: WP6 (Kuzma 2025
+selection footprint). Milestone 3 can start.
