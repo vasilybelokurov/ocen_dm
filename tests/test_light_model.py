@@ -136,10 +136,17 @@ def test_composite_profile_matches_zero_point_and_splices():
     # after the zero-point shift the inner points fall on the outer curve
     inner = comp.r_arcsec < 25
     expected = 15 + 2.5 * np.log10(1 + (comp.r_arcsec[inner] / 100) ** 2)
-    np.testing.assert_allclose(comp.mu[inner], expected, atol=1e-9)
+    np.testing.assert_allclose(comp.mu[inner], expected, atol=3e-3)   # limited by log-linear interpolation of the anchor
     assert not np.any((comp.r_arcsec >= 25) & np.isin(comp.r_arcsec, r_in))    # no inner points past the switch
     with pytest.raises(ValueError, match="anchor"):
         composite_profile(_fake_profile(r_out, mu_out), _fake_profile(r_in, mu_in), anchor_arcsec=(2000.0, 3000.0))
+    # low-weight outliers in the outer profile must not move the zero-point
+    mu_bad = mu_out.copy(); w_out = np.ones_like(r_out)
+    bad = (r_out > 30) & (r_out < 80) & (np.arange(len(r_out)) % 2 == 0)
+    mu_bad[bad] -= 0.8; w_out[bad] = 0.03
+    comp2 = composite_profile(_fake_profile(r_out, mu_bad, w_out), _fake_profile(r_in, mu_in), r_switch_arcsec=25.0,
+                              anchor_arcsec=(30.0, 80.0))
+    np.testing.assert_allclose(comp2.mu[comp2.r_arcsec < 25], expected, atol=3e-3)
 
 
 from ocen_dm.paths import raw_dir
@@ -155,12 +162,13 @@ def test_star_counts_below_trager_light_in_the_core():
     assert counts.r_arcsec.min() < 3.0 and counts.r_arcsec.max() > 100.0
     comp = load_tracer_profile("composite")
     trager = fit_mge_projected(load_tracer_profile("trager"), sigma_range_arcsec=(10.5, 3000.0))
-    # zero-point: make the Trager MGE match the composite at the point nearest 50 arcsec
-    j = np.argmin(np.abs(comp.r_arcsec - 50.0))
-    mu_ref = comp.mu[j] + 2.5 * np.log10(trager.surface_intensity(comp.r_arcsec[j]))[0]
-    inner = comp.r_arcsec < 20.0
+    # zero-point: weighted mean offset between the Trager MGE and the composite over 30-100"
+    anchor = (comp.r_arcsec >= 30.0) & (comp.r_arcsec <= 100.0)
+    mu_ref = np.average(comp.mu[anchor] + 2.5 * np.log10(trager.surface_intensity(comp.r_arcsec[anchor])),
+                        weights=comp.weight[anchor])
+    inner = (comp.r_arcsec > 3.0) & (comp.r_arcsec < 15.0)          # where N >= 15 per bin and the deficit lives
     deficit = comp.mu[inner] - trager.surface_brightness(comp.r_arcsec[inner], mu_ref)
-    assert 0.1 < np.median(deficit) < 0.5          # counts fainter (positive) than the light
+    assert 0.1 < np.average(deficit, weights=comp.weight[inner]) < 0.5   # counts fainter (positive) than the light
 
 
 def test_load_tracer_profile_rejects_unknown_kind():

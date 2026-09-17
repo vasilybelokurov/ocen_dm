@@ -28,7 +28,7 @@ def test_fit_cli_writes_all_products(tmp_path, monkeypatch):
     for f in ("posterior.ecsv", "summary.json", "profiles.npz", "run.yaml", "ml_x.npy"):
         assert (out / f).exists(), f
     summary = json.loads((out / "summary.json").read_text())
-    assert summary["family"] == "K1_noDM" and set(summary["parameters"]) == set(fam.names)
+    assert summary["family"] == "K1_noDM_composite" and set(summary["parameters"]) == set(fam.names)   # default tracer
     assert summary["n_points"] == 69                       # 40 + 29 bins
     prof = np.load(out / "profiles.npz")
     assert prof["M_total"].shape[1] == 60 and np.all(np.isfinite(prof["v_circ"]))
