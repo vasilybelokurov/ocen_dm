@@ -245,9 +245,9 @@ def cmd_fit(args: argparse.Namespace) -> int:
     datasets = args.datasets.split(",")
     data = KinematicData.load(datasets, gaia_edr3_pm={"r_min_arcsec": args.gaia_r_min})
     if args.family == "K1":
-        family = NoDarkMatterModel()
+        family = NoDarkMatterModel(tracer=args.tracer)
     elif args.family in ("K2-cored", "K2-nfw"):
-        family = DarkMatterModel(gamma=0.0 if args.family == "K2-cored" else 1.0)
+        family = DarkMatterModel(gamma=0.0 if args.family == "K2-cored" else 1.0, tracer=args.tracer)
     else:
         print(f"unknown family {args.family!r}", file=sys.stderr)
         return 2
@@ -301,6 +301,8 @@ def build_parser() -> argparse.ArgumentParser:
     fit = subparsers.add_parser("fit", help="run a nested-sampling Jeans fit (K1 / K2-cored / K2-nfw)")
     fit.add_argument("--family", default="K1", choices=["K1", "K2-cored", "K2-nfw"])
     fit.add_argument("--datasets", default=DEFAULT_DATASETS, help="comma-separated dataset keys")
+    fit.add_argument("--tracer", default="composite", choices=["composite", "trager"],
+                     help="tracer density: HST star counts inside 25 arcsec + Trager light (default), or Trager only")
     fit.add_argument("--gaia-r-min", type=float, default=300.0, help="inner cut for the Gaia EDR3 profile, arcsec")
     fit.add_argument("--n-live", type=int, default=400)
     fit.add_argument("--dlogz", type=float, default=0.5)

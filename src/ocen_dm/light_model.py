@@ -34,7 +34,7 @@ from astropy.table import Table
 from scipy import optimize
 
 from .mass_models import MGE
-from .paths import processed_dir
+from .paths import processed_dir, raw_dir
 
 __all__ = [
     "SurfaceBrightnessProfile",
@@ -44,6 +44,7 @@ __all__ = [
     "projected_half_light_radius",
     "build_stellar_mge",
     "arcsec_to_pc",
+    "star_count_profile", "composite_profile", "load_tracer_profile",
 ]
 
 ARCSEC_PER_RAD = 206264.806
@@ -92,6 +93,79 @@ def load_trager_profile(path: Path | None = None) -> SurfaceBrightnessProfile:
         weight=np.asarray(table["weight"], dtype=float)[order],
         source="Trager, King & Djorgovski 1995, V band (VizieR J/AJ/109/218)",
     )
+
+
+def star_count_profile(mag_cut: float = 19.0, r_min_arcsec: float = 1.0, r_max_arcsec: float = 120.0,
+                       n_bins: int = 22, path: Path | None = None) -> SurfaceBrightnessProfile:
+    """Number-density profile of oMEGACat stars, as a pseudo surface-brightness profile.
+
+    The kinematic tracers are stars, not light: a surface-brightness profile is
+    weighted by a handful of bright giants in the core, whereas the Jeans
+    equation needs the *number* density of the tracer population. Inside ~20
+    arcsec the HST counts lie 0.2-0.3 mag below the Trager MGE for every
+    magnitude cut from F625W < 18 to < 20 (JOURNAL 2026-09-17), so this is not
+    incompleteness.
+
+    Uses the authors' ``selection_hq_f625w`` flag, the pixel-based centre
+    (15000, 15000) at 0.04 arcsec/pixel (their notebook), Poisson errors. The
+    output ``mu`` is ``-2.5 log10(counts / area)`` up to an arbitrary zero-point;
+    ``weight`` is the Poisson weight relative to a bin of 100 stars, capped at 1.
+    """
+    path = path or raw_dir() / "omegacat_vi_kinematics" / "catalog_and_selections.fits"
+    t = Table.read(path)
+    hq = np.asarray(t["selection_hq_f625w"]).astype(bool) & np.isfinite(np.asarray(t["f625w"], float))
+    m = hq & (np.asarray(t["f625w"], float) < mag_cut)
+    x = -0.04 * (np.asarray(t["x"], float)[m] - 15000.0)
+    y = 0.04 * (np.asarray(t["y"], float)[m] - 15000.0)
+    edges = np.geomspace(r_min_arcsec, r_max_arcsec, n_bins + 1)
+    n, _ = np.histogram(np.hypot(x, y), edges)
+    keep = n >= 5
+    mid = np.sqrt(edges[1:] * edges[:-1])[keep]
+    density = n[keep] / (np.pi * np.diff(edges**2))[keep]
+    return SurfaceBrightnessProfile(
+        r_arcsec=mid, mu=-2.5 * np.log10(density), weight=np.minimum(n[keep] / 100.0, 1.0),
+        source=f"oMEGACat star counts, selection_hq_f625w, F625W < {mag_cut:g} (n={m.sum():,})",
+    )
+
+
+def composite_profile(outer: SurfaceBrightnessProfile, inner: SurfaceBrightnessProfile,
+                      r_switch_arcsec: float = 25.0, anchor_arcsec: tuple[float, float] = (30.0, 100.0)) -> SurfaceBrightnessProfile:
+    """Splice a star-count profile inside ``r_switch`` onto a light profile outside.
+
+    The inner profile's arbitrary zero-point is set by the weighted mean magnitude
+    offset from the outer profile over ``anchor_arcsec``, where both are trusted
+    (outside the giant-dominated core, inside the field of view). Both profiles
+    must have points in the anchor range.
+    """
+    lo, hi = anchor_arcsec
+    a_in = (inner.r_arcsec >= lo) & (inner.r_arcsec <= hi)
+    a_out = (outer.r_arcsec >= lo) & (outer.r_arcsec <= hi)
+    if a_in.sum() < 2 or a_out.sum() < 2:
+        raise ValueError("both profiles need at least two points in the anchor range")
+    # interpolate the outer profile (in mag) at the inner anchor radii
+    mu_out_at_inner = np.interp(np.log(inner.r_arcsec[a_in]), np.log(outer.r_arcsec[a_out]), outer.mu[a_out])
+    offset = np.average(mu_out_at_inner - inner.mu[a_in], weights=inner.weight[a_in])
+    use_in = inner.r_arcsec < r_switch_arcsec
+    use_out = outer.r_arcsec >= r_switch_arcsec
+    r = np.concatenate([inner.r_arcsec[use_in], outer.r_arcsec[use_out]])
+    mu = np.concatenate([inner.mu[use_in] + offset, outer.mu[use_out]])
+    w = np.concatenate([inner.weight[use_in], outer.weight[use_out]])
+    order = np.argsort(r)
+    return SurfaceBrightnessProfile(
+        r_arcsec=r[order], mu=mu[order], weight=w[order],
+        source=f"{inner.source} inside {r_switch_arcsec:g} arcsec (zero-point offset {offset:+.3f} mag over "
+               f"{lo:g}-{hi:g} arcsec) + {outer.source} outside",
+    )
+
+
+def load_tracer_profile(kind: str = "composite") -> SurfaceBrightnessProfile:
+    """``'trager'``: the V-band light; ``'composite'``: HST star counts inside 25 arcsec + Trager outside."""
+    trager = load_trager_profile()
+    if kind == "trager":
+        return trager
+    if kind == "composite":
+        return composite_profile(trager, star_count_profile())
+    raise ValueError(f"unknown tracer profile kind {kind!r}")
 
 
 @dataclass(frozen=True)
