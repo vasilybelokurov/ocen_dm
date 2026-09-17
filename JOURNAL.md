@@ -1022,3 +1022,38 @@ M★ = 3.35e6, M_rem = 4.5e4 at a_rem = 0.8 pc, M• = 4.0e4, β₀ = −0.14, �
 r_β = 3.4 pc, s_MUSE = 0.98, D = 5.44 kpc. The stale nested runs (no PM term) were killed
 and their outputs deleted; K1, K2-cored and K2-NFW relaunched with the corrected
 likelihood (400 live points, dlogz 0.5, seed 42). Figure: `plots/fit_K1_ml_profiles.png`.
+
+### The tracer is stars, not light: composite profile from HST counts
+
+The persistent 10–20″ dip (model 0.74, data 0.78–0.80 mas/yr in both PM components) sent
+me back to the light model. Star counts from the oMEGACat catalogue (`selection_hq_f625w`,
+pixel-based centre, 1–120″) anchored to the Trager MGE over 30–100″ lie **0.2–0.3 mag
+below it inside 20″ for every cut F625W < 18, 19, 20** (N = 47–560 per bin at < 19). The
+agreement across cuts rules out incompleteness; the V-band light is boosted by a few bright
+giants in the core, while the Jeans equation needs the number density of the stars whose
+velocities are measured. A flatter tracer core raises the predicted central dispersion —
+the sign of the dip.
+
+`light_model.star_count_profile(mag_cut=19)` (Poisson weights relative to 100 stars),
+`composite_profile(outer, inner, r_switch=25″, anchor=(30, 100)″)` (zero-point by weighted
+mean offset; tested on a synthetic Plummer that splices exactly), `load_tracer_profile
+('trager'|'composite')`. The composite MGE (12 Gaussians, smallest 14.5″ although 1.7″ was
+allowed — the counts *are* flat inside 15″; rms 0.178 mag; R_h 279.8″ vs 280.4″) has
+I(1″)/I(30″) = 1.30 against Trager's 1.61.
+
+K1 maximum likelihood with the composite tracer: **lnL 82.5 → 150.7**, χ² 536 → 399/126;
+HST radial 148 → 75/40, tangential 103 → 50/40, MUSE 51 → 44/29, Gaia DR2 13/9; Gaia EDR3
+still 217/8. The dip is gone (figure `plots/fit_K1_composite_ml_profiles.png`). The
+parameters moved where the physics says they should: **M• → 9e2 (prior floor: no IMBH
+needed by the dispersion profile)**, M_rem = 8.9e4 at a_rem = 0.3 pc (the prior's lower
+edge — a compact dark-remnant core is the fit's preferred way to supply the central mass;
+this M•/M_rem degeneracy is the well-known one), M★ = 3.46e6, β₀ = 0, β∞ = 0.28,
+r_β = 5 pc, s_MUSE = 0.97, s_DR2 = 0.94, s_EDR3 = 1.05, **D = 5.51 kpc** (now 1.6σ above the
+5.43 prior and close to oMEGACat's kinematic 5.494 ± 0.061). Remaining structure: HST σ_R
+falls below the model by 3–4σ in the outermost three bins (200–300″), and the EDR3 profile
+disagrees in shape at the 1 % level of its percentile errors (below the model at 300–700″,
+above beyond 1300″).
+
+`ocen fit --tracer {composite,trager}` (composite is the default). Six nested runs are now
+in progress: K1/K2-cored/K2-NFW with the Trager tracer (kept as the systematics variant)
+and with the composite tracer.

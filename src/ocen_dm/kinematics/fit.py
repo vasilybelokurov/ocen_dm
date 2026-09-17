@@ -32,7 +32,7 @@ import numpy as np
 from astropy.table import Table
 from scipy.special import erfinv
 
-from ..light_model import MGEFit, build_stellar_mge, fit_mge_projected, load_trager_profile
+from ..light_model import MGEFit, build_stellar_mge, fit_mge_projected, load_tracer_profile
 from ..mass_models import CompositeMassModel, PointMass, RemnantPlummer, TruncatedGNFW
 from ..paths import processed_dir, results_dir
 from .anisotropy import Anisotropy
@@ -129,9 +129,18 @@ class NoDarkMatterModel:
     label = "K1_noDM"
 
     def __init__(self, mge_fit: MGEFit | None = None, instruments: Sequence[str] = NUISANCE_INSTRUMENTS,
-                 distance_prior: Prior | None = "default", fix_distance: bool = False) -> None:
-        self.mge_fit = mge_fit if mge_fit is not None else fit_mge_projected(
-            load_trager_profile(), sigma_range_arcsec=MGE_SIGMA_RANGE_ARCSEC)
+                 distance_prior: Prior | None = "default", fix_distance: bool = False,
+                 tracer: str = "trager") -> None:
+        self.tracer = tracer
+        if mge_fit is None:
+            profile = load_tracer_profile(tracer)
+            # smallest Gaussian = innermost datum of whichever profile is used
+            sigma_range = (max(MGE_SIGMA_RANGE_ARCSEC[0] if tracer == "trager" else float(profile.r_arcsec.min()), 0.5),
+                           MGE_SIGMA_RANGE_ARCSEC[1])
+            mge_fit = fit_mge_projected(profile, sigma_range_arcsec=sigma_range)
+        self.mge_fit = mge_fit
+        if tracer != "trager" and not hasattr(self, "gamma"):
+            self.label = f"{self.label}_{tracer}"
         self.nuisance_instruments = tuple(instruments)
         if fix_distance:
             distance_prior = None                      # fixed at OCEN_DISTANCE_KPC (tests, comparisons)
@@ -203,8 +212,10 @@ class DarkMatterModel(NoDarkMatterModel):
     def __init__(self, gamma: float = 0.0, r_t: float = 1000.0, **kwargs: Any) -> None:
         self.gamma = float(gamma)
         self.r_t = float(r_t)
-        self.label = "K2_cored" if gamma == 0 else ("K2_nfw" if gamma == 1 else f"K2_gnfw{gamma:g}")
         super().__init__(**kwargs)
+        self.label = "K2_cored" if gamma == 0 else ("K2_nfw" if gamma == 1 else f"K2_gnfw{gamma:g}")
+        if self.tracer != "trager":
+            self.label += f"_{self.tracer}"
 
     def _physical_parameters(self) -> list[Parameter]:
         return super()._physical_parameters() + [

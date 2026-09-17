@@ -116,3 +116,54 @@ def test_real_trager_profile_fits_if_present():
     fit = fit_mge_projected(load_trager_profile(path))
     assert fit.rms_mag < 0.3
     assert 100.0 < projected_half_light_radius(fit) < 600.0     # arcsec; Harris r_h = 300"
+
+
+# ------------------------------------------------------- star counts / composite ---
+def _fake_profile(r, mu, w=None, source="x"):
+    from ocen_dm.light_model import SurfaceBrightnessProfile
+    r = np.asarray(r, float); mu = np.asarray(mu, float)
+    return SurfaceBrightnessProfile(r, mu, np.ones_like(r) if w is None else np.asarray(w, float), source)
+
+
+def test_composite_profile_matches_zero_point_and_splices():
+    from ocen_dm.light_model import composite_profile
+    r_out = np.geomspace(10, 1000, 30); mu_out = 15 + 2.5 * np.log10(1 + (r_out / 100) ** 2)   # Plummer-like
+    r_in = np.geomspace(1, 80, 25); mu_in = 2.5 * np.log10(1 + (r_in / 100) ** 2) + 7.0          # same shape, shifted 8 mag
+    comp = composite_profile(_fake_profile(r_out, mu_out), _fake_profile(r_in, mu_in), r_switch_arcsec=25.0,
+                             anchor_arcsec=(30.0, 80.0))
+    assert np.all(np.diff(comp.r_arcsec) > 0)
+    assert comp.r_arcsec.min() == pytest.approx(1.0) and comp.r_arcsec.max() == pytest.approx(1000.0)
+    # after the zero-point shift the inner points fall on the outer curve
+    inner = comp.r_arcsec < 25
+    expected = 15 + 2.5 * np.log10(1 + (comp.r_arcsec[inner] / 100) ** 2)
+    np.testing.assert_allclose(comp.mu[inner], expected, atol=1e-9)
+    assert not np.any((comp.r_arcsec >= 25) & np.isin(comp.r_arcsec, r_in))    # no inner points past the switch
+    with pytest.raises(ValueError, match="anchor"):
+        composite_profile(_fake_profile(r_out, mu_out), _fake_profile(r_in, mu_in), anchor_arcsec=(2000.0, 3000.0))
+
+
+from ocen_dm.paths import raw_dir
+
+_HAS_CAT = (raw_dir() / "omegacat_vi_kinematics" / "catalog_and_selections.fits").exists()
+
+
+@pytest.mark.skipif(not _HAS_CAT, reason="oMEGACat catalogue not present")
+def test_star_counts_below_trager_light_in_the_core():
+    """The documented finding: number density is 0.2-0.3 mag below the V-band light inside 20 arcsec."""
+    from ocen_dm.light_model import load_tracer_profile, star_count_profile, fit_mge_projected
+    counts = star_count_profile(mag_cut=19.0)
+    assert counts.r_arcsec.min() < 3.0 and counts.r_arcsec.max() > 100.0
+    comp = load_tracer_profile("composite")
+    trager = fit_mge_projected(load_tracer_profile("trager"), sigma_range_arcsec=(10.5, 3000.0))
+    # zero-point: make the Trager MGE match the composite at the point nearest 50 arcsec
+    j = np.argmin(np.abs(comp.r_arcsec - 50.0))
+    mu_ref = comp.mu[j] + 2.5 * np.log10(trager.surface_intensity(comp.r_arcsec[j]))[0]
+    inner = comp.r_arcsec < 20.0
+    deficit = comp.mu[inner] - trager.surface_brightness(comp.r_arcsec[inner], mu_ref)
+    assert 0.1 < np.median(deficit) < 0.5          # counts fainter (positive) than the light
+
+
+def test_load_tracer_profile_rejects_unknown_kind():
+    from ocen_dm.light_model import load_tracer_profile
+    with pytest.raises(ValueError):
+        load_tracer_profile("noyola")
