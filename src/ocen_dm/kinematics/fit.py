@@ -344,6 +344,7 @@ def run_nested(problem: FitProblem, out_dir: Path, *, n_live: int = 400, dlogz: 
     post = Table(samples, names=list(fam.names))
     post.meta["family"] = fam.label
     post.write(out_dir / "posterior.ecsv", format="ascii.ecsv", overwrite=True)
+    np.save(out_dir / "ml_x.npy", x_ml)                 # for --mock-from injection runs
 
     q = np.percentile(samples, [16, 50, 84], axis=0)
     chi2 = problem.chi2(x_ml)

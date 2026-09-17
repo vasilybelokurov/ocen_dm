@@ -235,6 +235,42 @@ def cmd_plot_data(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_fit(args: argparse.Namespace) -> int:
+    """Run one nested-sampling fit (K1 or K2) and write it under results/fits/<label>."""
+    import numpy as np
+
+    from .kinematics import DarkMatterModel, FitProblem, KinematicData, NoDarkMatterModel, run_nested
+    from .paths import results_dir
+
+    datasets = args.datasets.split(",")
+    data = KinematicData.load(datasets, gaia_edr3_pm={"r_min_arcsec": args.gaia_r_min})
+    if args.family == "K1":
+        family = NoDarkMatterModel()
+    elif args.family in ("K2-cored", "K2-nfw"):
+        family = DarkMatterModel(gamma=0.0 if args.family == "K2-cored" else 1.0)
+    else:
+        print(f"unknown family {args.family!r}", file=sys.stderr)
+        return 2
+    problem = FitProblem(family, data)
+    if args.mock_from:
+        x_true = np.load(args.mock_from)
+        rng = np.random.default_rng(args.seed)
+        problem = FitProblem(family, problem.mock_data(x_true, rng))
+    label = args.label or family.label + ("_mock" if args.mock_from else "")
+    out = results_dir() / "fits" / label
+    print(f"fit {family.label}: {len(family.names)} parameters, {problem.data.n_points} points -> {out}")
+    summary = run_nested(problem, out, n_live=args.n_live, dlogz=args.dlogz, seed=args.seed,
+                         max_ncalls=args.max_ncalls, verbose=args.verbose)
+    print(f"logZ = {summary['logz']:.2f} +- {summary['logzerr']:.2f}; chi2_ml = {summary['chi2_ml_total']:.1f} "
+          f"/ {summary['n_points']} points; {summary['n_calls']} calls in {summary['elapsed_s']:.0f} s")
+    for name, q in summary["parameters"].items():
+        print(f"  {name:10s} {q['p50']:12.4g}  [{q['p16']:.4g}, {q['p84']:.4g}]  {q['unit']}")
+    return 0
+
+
+DEFAULT_DATASETS = "hst_pm_radial,hst_pm_tangential,muse_los_dispersion,gaia_dr2_pm,gaia_edr3_pm"
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Build the ``ocen`` argument parser."""
     parser = argparse.ArgumentParser(
@@ -261,6 +297,19 @@ def build_parser() -> argparse.ArgumentParser:
     plot = subparsers.add_parser("plot-data", help="write overview PNGs of the ingested data")
     plot.add_argument("--only", action="append", help="function name, e.g. plot_sky_overview")
     plot.set_defaults(func=cmd_plot_data)
+
+    fit = subparsers.add_parser("fit", help="run a nested-sampling Jeans fit (K1 / K2-cored / K2-nfw)")
+    fit.add_argument("--family", default="K1", choices=["K1", "K2-cored", "K2-nfw"])
+    fit.add_argument("--datasets", default=DEFAULT_DATASETS, help="comma-separated dataset keys")
+    fit.add_argument("--gaia-r-min", type=float, default=300.0, help="inner cut for the Gaia EDR3 profile, arcsec")
+    fit.add_argument("--n-live", type=int, default=400)
+    fit.add_argument("--dlogz", type=float, default=0.5)
+    fit.add_argument("--max-ncalls", type=int, default=None)
+    fit.add_argument("--seed", type=int, default=42)
+    fit.add_argument("--label", default=None, help="output folder name under results/fits (default: family label)")
+    fit.add_argument("--mock-from", default=None, help=".npy parameter vector: fit mock data generated from it")
+    fit.add_argument("--verbose", action="store_true")
+    fit.set_defaults(func=cmd_fit)
 
     insp = subparsers.add_parser("inspect-omegacat", help="dump oMEGACat raw file structure")
     insp.add_argument("--columns", action="store_true", help="also list columns")
