@@ -1087,3 +1087,16 @@ segregation worry is retired for the PM data. The MUSE giants (F625W < 18) also 
 Sampler progress at 35 min: Trager-tracer runs at 130–150k likelihood calls (Lmax still
 below the Nelder–Mead maxima — the 11–13-D posteriors are broad); composite runs just
 started. Expect 1–2 h per run with six sharing the machine.
+
+### Sampler efficiency (same day)
+
+After 70 min the MLFriends runs had used 300–500k likelihood calls for ~3000 iterations
+(≈150 calls per iteration and rising) and their best likelihoods were still 250–450 below
+the optimiser's maxima: the region-based rejection sampler collapses on the needle-like
+M_rem–a_rem–M• degeneracy in 11–13 dimensions. Benchmark on the real K1-composite problem,
+200 live points, fixed 40k-call budget: MLFriends reached Lmax = −487 (logZ −499) in 1472
+iterations; a **slice step sampler** (`ultranest.stepsampler.SliceSampler`, 2·ndim steps,
+mixture random directions) reached **Lmax = −152 (logZ −163) in 1305 iterations at the same
+cost**. `ocen fit --step-sampler` added (recorded in `run.yaml`); the four runs (K1-Trager,
+K1/K2-cored/K2-NFW composite) were restarted with it. The two Trager-tracer K2 runs were
+dropped — the Trager tracer is kept only as the K1 systematics variant.
