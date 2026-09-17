@@ -32,6 +32,13 @@ def test_fit_cli_writes_all_products(tmp_path, monkeypatch):
     assert summary["n_points"] == 69                       # 40 + 29 bins
     prof = np.load(out / "profiles.npz")
     assert prof["M_total"].shape[1] == 60 and np.all(np.isfinite(prof["v_circ"]))
+    # the report machinery runs on it
+    from ocen_dm.kinematics.report import comparison_table, load_run, write_report
+    run = load_run("smoke")
+    table = comparison_table([run, run])
+    assert "ln Z" in table and "M_star" in table and "χ² hst_pm_radial" in table
+    report = write_report(["smoke"], path=tmp_path / "cmp.md", plots_dir=tmp_path / "plots")
+    assert report.exists() and (tmp_path / "plots" / "fit_smoke_posterior_profiles.png").exists()
 
 
 def test_fit_cli_rejects_unknown_family():
