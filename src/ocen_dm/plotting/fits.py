@@ -9,9 +9,10 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ..kinematics.fit import FitProblem
+from ..kinematics.fit import FitProblem, OCEN_DISTANCE_KPC
 from ..kinematics.likelihood import ARCSEC_PER_RAD
-from .style import apply as apply_style, SERIES, COLOR_FIELD as FIELD_GREY, INK_SECONDARY
+from .style import (apply as apply_style, SERIES, COLOR_FIELD as FIELD_GREY, INK_SECONDARY,
+                    add_arcsec_axis, add_pc_axis)
 
 _LABEL = {"los": r"$\sigma_{\rm LOS}$ [km/s]", "pmr": r"$\sigma_{\mu,R}$ [mas/yr]",
           "pmt": r"$\sigma_{\mu,T}$ [mas/yr]", "pmc": r"$\sigma_{\mu}$ [mas/yr]"}
@@ -63,7 +64,8 @@ def plot_profile_fit(problem: FitProblem, x: np.ndarray, path: Path, title: str 
                     ecolor=FIELD_GREY, elinewidth=1, capsize=0, label="data")
         ax.plot(p.r, pred[p.name], "_", color=SERIES[1], ms=10, mew=2, label="model (bin mean)")
         ax.set_xscale("log"); ax.set_ylabel(_LABEL[p.kind])
-        ax.set_title(f"{p.name}  ({p.instrument}, n={p.n})", fontsize=10)
+        ax.set_title(f"{p.name}  ({p.instrument}, n={p.n})", fontsize=10, pad=26)
+        add_pc_axis(ax, D)
         err = np.where(pred[p.name] > p.value, p.err_hi, p.err_lo)
         res = (p.value - pred[p.name]) / err
         rax.axhline(0, color=FIELD_GREY, lw=1); rax.axhspan(-1, 1, color=FIELD_GREY, alpha=0.2, lw=0)
@@ -74,7 +76,7 @@ def plot_profile_fit(problem: FitProblem, x: np.ndarray, path: Path, title: str 
         if i == 0:
             ax.legend(fontsize=8, loc="lower left")
     if title:
-        fig.suptitle(title, y=0.995)
+        fig.suptitle(title, y=1.045)
     path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
     return path
@@ -132,6 +134,8 @@ def plot_posterior_profiles(run_dirs: dict[str, Path], path: Path, title: str = 
                 axes[0].plot(r, np.maximum(mid, 1), color=color, lw=1.0, ls=":", label=f"{label}: DM only")
     axes[0].set_ylim(1e3, None); axes[0].legend(fontsize=8)
     axes[1].set_ylim(f_dm_floor, 1.5)
+    for ax in axes:
+        add_arcsec_axis(ax, OCEN_DISTANCE_KPC)
     if zero_f_dm:
         axes[1].text(0.03, 0.03, "$f_{\\rm DM} \\equiv 0$ (not shown on a log axis):\n" + "\n".join(zero_f_dm),
                      transform=axes[1].transAxes, fontsize=7.5, color=INK_SECONDARY, va="bottom")

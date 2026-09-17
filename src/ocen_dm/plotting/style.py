@@ -66,3 +66,32 @@ def apply() -> None:
         "savefig.dpi": 150,
         "savefig.bbox": "tight",
     })
+
+
+ARCSEC_PER_RAD = 206264.806
+
+
+def add_pc_axis(ax, distance_kpc: float, per_unit_arcsec: float = 1.0, label: str | None = None):
+    """Add a secondary top x axis in pc to an axis whose x is angular.
+
+    ``per_unit_arcsec`` is the number of arcsec in one unit of the parent axis
+    (1 for arcsec, 60 for arcmin, 3600 for degrees).
+    """
+    k = per_unit_arcsec * distance_kpc * 1e3 / ARCSEC_PER_RAD
+    sec = ax.secondary_xaxis("top", functions=(lambda a: a * k, lambda p: p / k))
+    sec.set_xlabel(label if label is not None else f"r  [pc]  (D = {distance_kpc:.2f} kpc)",
+                   color=INK_SECONDARY, fontsize=9)
+    sec.tick_params(colors=INK_SECONDARY, labelsize=8)
+    return sec
+
+
+def add_arcsec_axis(ax, distance_kpc: float, per_unit_pc: float = 1.0, label: str | None = None,
+                    unit: str = "arcsec"):
+    """Add a secondary top x axis in arcsec (or arcmin) to an axis whose x is in pc."""
+    per_arcsec = 60.0 if unit == "arcmin" else 1.0
+    k = per_unit_pc * ARCSEC_PER_RAD / (distance_kpc * 1e3 * per_arcsec)
+    sec = ax.secondary_xaxis("top", functions=(lambda p: p * k, lambda a: a / k))
+    sec.set_xlabel(label if label is not None else f"r  [{unit}]  (D = {distance_kpc:.2f} kpc)",
+                   color=INK_SECONDARY, fontsize=9)
+    sec.tick_params(colors=INK_SECONDARY, labelsize=8)
+    return sec
