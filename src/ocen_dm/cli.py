@@ -325,6 +325,18 @@ def cmd_plot_constraints(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_fetch_field_template(args: argparse.Namespace) -> int:
+    """Fetch the independent Gaia DR3 field annulus used as the contamination template."""
+    from .selection.field_template import build_product
+
+    path = build_product(g_max=args.g_max)
+    from astropy.table import Table
+    t = Table.read(path)
+    print(f"wrote {path}: {t.meta['n_kept']:,} field stars from {t.meta['n_fetched']:,} fetched, "
+          f"{t.meta['surface_density_per_arcmin2']:.2f} per arcmin^2")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Build the ``ocen`` argument parser."""
     parser = argparse.ArgumentParser(
@@ -373,6 +385,10 @@ def build_parser() -> argparse.ArgumentParser:
     fit.add_argument("--verbose", action="store_true")
     fit.add_argument("--step-sampler", action="store_true", help="use a slice step sampler instead of MLFriends rejection")
     fit.set_defaults(func=cmd_fit)
+
+    fft = subparsers.add_parser("fetch-field-template", help="WSDB: Gaia DR3 field annulus for the contamination model")
+    fft.add_argument("--g-max", type=float, default=20.5)
+    fft.set_defaults(func=cmd_fetch_field_template)
 
     pcon = subparsers.add_parser("plot-constraints", help="figures: what constrains the mass where, and the outer-tracer audit")
     pcon.add_argument("--k1", default="K1_noDM_composite", help="finished no-DM run to draw")

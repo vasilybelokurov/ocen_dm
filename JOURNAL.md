@@ -1705,3 +1705,86 @@ field stars at 700–1000″ (2.7 % of the peak), 2651 at 1400–1800″ (35 %),
 those stars as members; only a model of the field can remove their contribution to the
 dispersion. Side-by-side, the two constraint maps show the outermost Gaia point moving
 from +12 % above the no-DM curve (P-cut) to −6 % below it (field modelled).
+
+## 2026-09-18 — The background model was wrong; two dimensions fix it
+
+The user rejected the contamination result on sight: "the model of background+cluster
+reproduces the data poorly around the peak, especially in the outer regions". Correct, and
+the first response was a plotting artefact hiding a real one. Three findings, in order.
+
+**1. The drawn curve was not the fitted model.** I plotted the cluster as one Gaussian of
+width sqrt(sigma^2 + <e^2>), while the model is a sum over stars of Gaussians of width
+sqrt(sigma^2 + e_i^2) with e_i spanning 0.07-0.86 mas/yr. The exact per-star prediction
+(each star's Gaussian integrated over the bin) fits far better than the drawn curve:
+central bin at 1800-2400 arcsec, data 252, exact model 252, drawn approximation 186; chi2
+over 60 bins 162 vs 460. Figures now draw the exact expectation, with residual panels.
+
+**2. The two-Gaussian field really was a bad model, and it biased sigma low.** Even exactly
+drawn it left chi2/bin = 8.2 over the full range at 1800-2400 arcsec. The Galactic field
+there is not two Gaussians: measured in 0.5 degree cells it has **kurtosis 3-17** and
+**unequal widths, 3.1 mas/yr in alpha* and 2.0 in delta** (MAD-based, beyond 1 deg), with
+only 0.13 mas/yr rms cell-to-cell variation in its centre -- so the user's suggestion of
+building the annulus from locally Gaussian pieces would not have worked either: the field
+is non-Gaussian *locally*, not by spatial mixing.
+
+**3. Projection was manufacturing the shoulders.** Projecting a field with two unequal
+widths onto each star's own radial direction mixes them around the annulus. The fix is not
+to project at all: fit in two dimensions.
+
+**What is now implemented.** `selection/field_template.py` fetches an independent Gaia DR3
+field from an annulus **outside** the cluster (0.75-1.6 deg, 226,474 stars, 192,054 after
+quality cuts, 8.5 per arcmin^2; `ocen fetch-field-template`, WSDB, provenance and query in
+the product's metadata) and builds `field_density_2d`, the smoothed empirical density of
+(mu_alpha*, mu_delta) after the same exact systemic-field subtraction, using only stars
+beyond 1 deg (inside that the cluster's own outskirts raise the core fraction by 20 %).
+`kinematics/outer_profile.dispersion_2d` fits, per annulus and with **no membership cut**:
+cluster = 2-D Gaussian with covariance R(phi_i) diag(sigma_R^2 + depth, sigma_T^2) R(phi_i)^T
+plus the star's error covariance; field = the empirical density with only its normalisation
+free. Maximised by multi-start simplex over (sigma_R, sigma_T) with EM for the means and
+the field fraction inside, profile-likelihood intervals, bounded so the fit cannot run away
+to the field solution (it did, in the outermost bin, before the bound).
+
+**Fit quality** (projected onto mu_R for display, chi2 per bin, full range / peak):
+700-1000 arcsec 1.71 / 1.39; 1400-1800 1.87 / 1.27; **1800-2400 1.73 / 1.21**, against
+**8.22 / 2.71** for the two-Gaussian field. Tests: a mock annulus with 85 % field of the
+right shape recovers sigma_R = 0.25 and sigma_T = 0.30 to 0.03; with the cluster at 4 % of
+the stars it still recovers them and does not run away; and a 1-D two-Gaussian fit to the
+same mock is biased low by more than 10 %, reproducing the artefact.
+
+**The measurement** (quality stars, no P cut, exact perspective, depth term):
+
+| r [arcsec] | N | cluster N | f_field | sigma_R | sigma_T | sigma_1D | P>0.9 value |
+|---|---|---|---|---|---|---|---|
+| 521 | 2702 | 2605 | 0.04 | 0.491 ± 0.010 | 0.441 ± 0.009 | 0.466 ± 0.007 | 0.460 |
+| 773 | 15526 | 14341 | 0.08 | 0.412 ± 0.008 | 0.382 ± 0.008 | 0.397 ± 0.006 | 0.393 |
+| 1156 | 19185 | 14668 | 0.24 | 0.312 ± 0.006 | 0.323 ± 0.006 | 0.317 ± 0.004 | 0.313 |
+| 1423 | 17152 | 9527 | 0.45 | 0.279 ± 0.006 | 0.293 ± 0.006 | 0.286 ± 0.004 | 0.280 |
+| 1760 | 16707 | 4961 | 0.70 | 0.235 ± 0.009 | 0.266 ± 0.011 | 0.251 ± 0.007 | 0.245 |
+| 2174 | 19968 | 2337 | 0.88 | 0.211 ± 0.008 | 0.231 ± 0.009 | 0.221 ± 0.006 | 0.218 |
+
+**Corrections to what I wrote earlier today.** (i) The claim that contamination inflates the
+outermost dispersion by 15 % is **withdrawn**: it came from the two-Gaussian field absorbing
+part of the cluster peak. Properly modelled, contamination changes the P > 0.9 values by
+**1-3 %** (upward, because a membership cut also truncates the cluster's own velocity
+wings). (ii) The subsequent claim that the outer points then follow the no-DM curve and lie
+5-6 sigma below the cored halo is also withdrawn -- that was the same artefact.
+
+**What the corrected measurement says.** Against the bin-averaged models with each run's
+fitted Gaia scale: residuals +4.1, +4.5, +3.6, +1.9, +2.2, +4.6, +2.7, +4.1 sigma from 520
+to 2170 arcsec for K1, chi2 = 107/10; for K2-cored 103/10. **With one free Gaia scale the
+no-DM model fits best: s = 1.052, chi2 = 25/10, against 34/10 for the cored halo.** So the
+Gaia dispersions sit ~5 % above the HST-anchored models at every radius from 13 to 57 pc,
+and that offset is flat, not rising: it is an instrumental/selection scale, not a mass
+gradient. No preference for dark matter survives in this dataset once the field is modelled
+properly.
+
+**A new physical result from the same fit.** The anisotropy reverses: sigma_T/sigma_R =
+0.85-0.93 (radial) at 430-780 arcsec, 1.03-1.13 (tangential) beyond 1150 arcsec, with the
+turnover at ~1000 arcsec = 27 pc = 3.6 r_h. Tangential anisotropy in the outskirts is the
+expected signature of tidal stripping preferentially removing radial orbits, and it is
+measured here on the same stars, in the same fit, without a membership cut.
+
+Products: `ocen_field_template_dr3.ecsv` (the field, with its WSDB query and cuts),
+`ocen_pm_dispersion_mixture.ecsv` (the 2-D measurement, per-component). Figures:
+`contamination_model.png` (now: exact model, residual panels, the 2-D template itself, and
+the anisotropy), plus both versions of the constraint map and the tracer audit. Suite 284.

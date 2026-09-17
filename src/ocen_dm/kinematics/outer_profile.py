@@ -32,7 +32,8 @@ from ..paths import processed_dir
 from .perspective import depth_dispersion, systemic_pm_field, systemic_velocity_vector
 
 __all__ = ["MemberSample", "load_members", "systemic_pm", "dispersion_ml", "binned_dispersion",
-           "mixture_dispersion", "mixture_dispersion_free", "field_pdf_factory", "contamination_audit",
+           "mixture_dispersion", "mixture_dispersion_free", "dispersion_with_field_template", "dispersion_2d",
+           "field_pdf_factory", "contamination_audit",
            "OCEN_RA", "OCEN_DEC", "OCEN_VSYS_KMS", "KMS_PER_MASYR_KPC"]
 
 OCEN_RA = 201.696833          # Baumgardt catalogue centre, deg
@@ -60,6 +61,11 @@ class MemberSample:
     g_mag: np.ndarray
     quality_flag: np.ndarray
     phi: np.ndarray                       # position angle of each star, rad, north through east
+    mu_a: np.ndarray = None               # equatorial residuals after the systemic field
+    mu_d: np.ndarray = None
+    err_a: np.ndarray = None              # per-star error covariance in the equatorial frame
+    err_d: np.ndarray = None
+    err_corr: np.ndarray = None
     mu_sys: tuple[float, float] = (0.0, 0.0)
     exact: bool = True                    # systemic field projected star by star, or a constant
 
@@ -67,9 +73,10 @@ class MemberSample:
         return len(self.r_arcsec)
 
     def select(self, mask: np.ndarray) -> "MemberSample":
-        return MemberSample(*(np.asarray(getattr(self, f))[mask] for f in
-                              ("r_arcsec", "mu_r", "mu_t", "err_r", "err_t", "prob", "g_mag", "quality_flag", "phi")),
-                            mu_sys=self.mu_sys, exact=self.exact)
+        fields = ("r_arcsec", "mu_r", "mu_t", "err_r", "err_t", "prob", "g_mag", "quality_flag", "phi",
+                  "mu_a", "mu_d", "err_a", "err_d", "err_corr")
+        vals = [None if getattr(self, f) is None else np.asarray(getattr(self, f))[mask] for f in fields]
+        return MemberSample(*vals, mu_sys=self.mu_sys, exact=self.exact)
 
 
 def systemic_pm(table: Table, r_arcsec: np.ndarray, prob_min: float = 0.9,
@@ -132,6 +139,7 @@ def load_members(path: Any = None, ra0: float = OCEN_RA, dec0: float = OCEN_DEC,
     return MemberSample(r, mu_r, mu_t, err_r, err_t,
                         np.asarray(table["membership_prob"], float), np.asarray(table["g_mag"], float),
                         np.asarray(table["quality_flag"], int), np.arctan2(x, y),
+                        mu_a=pmra, mu_d=pmdec, err_a=ea, err_d=ed, err_corr=rho,
                         mu_sys=(float(mu_sys[0]), float(mu_sys[1])), exact=exact)
 
 
@@ -319,6 +327,84 @@ def contamination_audit(sample: MemberSample, edges: np.ndarray, quality_mask: i
                                    "f_contam", "f_contam_err", "f_from_probabilities", "field_rms"))
 
 
+def dispersion_with_field_template(values: np.ndarray, errors: np.ndarray, field_pdf,
+                                   extra_var=0.0, sigma_grid: np.ndarray | None = None) -> dict[str, float]:
+    """Cluster dispersion with the field taken from an **independent** sample.
+
+    ``value_i ~ (1-f) N(mean, sigma^2 + err_i^2 + extra_var_i) + f field_pdf(value_i)``, where
+    ``field_pdf`` is measured outside the cluster (see
+    :mod:`ocen_dm.selection.field_template`) and only its normalisation ``f`` is free. This
+    is the treatment to trust where the field dominates: a field fitted to the same stars
+    can absorb the cluster peak, and does (JOURNAL 2026-09-18).
+
+    Solved as a profile likelihood on a grid in ``sigma`` with ``(mean, f)`` maximised by EM
+    at each node -- robust where the cluster is a per-cent-level component and a simplex
+    search on three parameters wanders (found 2026-09-18 in the outermost annulus).
+    """
+    v = np.asarray(values, float); e2 = np.asarray(errors, float) ** 2 + np.asarray(extra_var, float)
+    fp = np.maximum(np.asarray(field_pdf(v), float), 1e-300)
+    coarse = np.geomspace(0.03, 1.2, 120) if sigma_grid is None else np.asarray(sigma_grid, float)
+
+    def profile(sigma: float) -> tuple[float, float, float]:
+        """Maximised log-likelihood at fixed sigma, with (mean, f) by EM."""
+        var = sigma**2 + e2
+        mean, f = float(np.median(v)), 0.5
+        ll = -np.inf
+        for _ in range(200):
+            pc = (1 - f) * np.exp(-0.5 * (v - mean) ** 2 / var) / np.sqrt(2 * np.pi * var)
+            pf = f * fp
+            tot = np.maximum(pc + pf, 1e-300)
+            r = pc / tot
+            new_ll = float(np.sum(np.log(tot)))
+            f = 1.0 - r.sum() / len(v)
+            w = r / var
+            mean = float((w * v).sum() / max(w.sum(), 1e-300))
+            if abs(new_ll - ll) < 1e-8:
+                ll = new_ll
+                break
+            ll = new_ll
+        return ll, mean, f
+
+    ll_coarse = np.array([profile(sg)[0] for sg in coarse])
+    j0 = int(np.argmax(ll_coarse))
+    if sigma_grid is None:
+        # refine around the maximum so that the 1-sigma interval is not quantised by the
+        # coarse grid step (3 per cent in sigma, which is larger than the statistical error
+        # for 10^4 stars -- found 2026-09-18)
+        lo = coarse[max(j0 - 2, 0)]; hi = coarse[min(j0 + 2, len(coarse) - 1)]
+        grid = np.geomspace(lo, hi, 161)
+    else:
+        grid = coarse
+    # two stages: locate the maximum on a coarse grid, then refine, so that the 1-sigma
+    # interval is not quantised by the 3 per cent grid step (larger than the statistical
+    # error for 10^4 stars -- found 2026-09-18)
+    ll_coarse = np.array([profile(sg)[0] for sg in coarse])
+    j0 = int(np.argmax(ll_coarse))
+    grid = (np.geomspace(coarse[max(j0 - 3, 0)], coarse[min(j0 + 3, len(coarse) - 1)], 241)
+            if sigma_grid is None else coarse)
+    out = np.array([profile(sg) for sg in grid])
+    ll = out[:, 0]
+    i = int(np.argmax(ll))
+    sigma, mean, f = float(grid[i]), float(out[i, 1]), float(out[i, 2])
+    # 1-sigma interval from the profile likelihood (Delta ln L = 1/2), interpolated
+    target = ll[i] - 0.5
+    def cross(side):
+        idx = range(i, len(grid) - 1) if side > 0 else range(i, 0, -1)
+        for j in idx:
+            k = j + side
+            if ll[k] < target:
+                t = (target - ll[j]) / (ll[k] - ll[j]) if ll[k] != ll[j] else 0.0
+                return float(grid[j] + t * (grid[k] - grid[j]))
+        return float(grid[-1] if side > 0 else grid[0])
+    lo_s, hi_s = cross(-1), cross(+1)
+    if lo_s <= grid[0] * 1.001 or hi_s >= grid[-1] * 0.999:      # interval wider than the refined window
+        out2 = np.array([profile(sg) for sg in coarse]); ll = out2[:, 0]; grid = coarse
+        i = int(np.argmax(ll)); target = ll[i] - 0.5; lo_s, hi_s = cross(-1), cross(+1)
+    return {"sigma": sigma, "sigma_err": 0.5 * (hi_s - lo_s), "sigma_lo": lo_s, "sigma_hi": hi_s,
+            "mean": mean, "f": f, "n_cluster": float((1 - f) * len(v)), "lnl": float(ll[i]),
+            "at_grid_edge": bool(i == 0 or i == len(grid) - 1)}
+
+
 def mixture_dispersion_free(values: np.ndarray, errors: np.ndarray, extra_var=0.0, n_iter: int = 200,
                             field_sigma_min: float = 1.5) -> dict[str, float]:
     """Cluster dispersion from a 3-component mixture with the field fitted freely.
@@ -365,3 +451,124 @@ def mixture_dispersion_free(values: np.ndarray, errors: np.ndarray, extra_var=0.
     sigma = np.sqrt(s2)
     return {"sigma": sigma, "sigma_err": 0.5 * sigma / np.sqrt(max(d2, 1e-12)), "mean": mean, "f": f,
             "field": (w, m.copy(), s.copy()), "n_cluster": float(nc)}
+
+
+# ---------------------------------------------------------------- 2-D fit ---
+def dispersion_2d(sample: MemberSample, mask: np.ndarray, field_density, depth_var: np.ndarray | float = 0.0,
+                  sigma_grid: np.ndarray | None = None, n_iter: int = 300, sigma_max: float = 1.2) -> dict[str, float]:
+    """Cluster dispersion from the **two-dimensional** proper-motion distribution.
+
+    The field is not projected: each star is scored against a two-dimensional empirical
+    density ``field_density(mu_alpha*, mu_delta)`` measured outside the cluster, in the same
+    equatorial frame in which the systemic motion has been removed. Projecting onto the
+    radial direction mixes the field's two unequal widths (3.1 and 2.0 mas/yr for omega Cen)
+    around the annulus and manufactures non-Gaussian structure that no one-dimensional model
+    fits; in two dimensions that problem does not arise.
+
+    The cluster is a two-dimensional Gaussian whose covariance is
+    ``R(phi_i) diag(sigma_R^2 + depth_R^2, sigma_T^2 + depth_T^2) R(phi_i)^T`` plus the
+    star's own error covariance -- so the anisotropy and the rotation are fitted in the
+    frame where they are defined, star by star.
+
+    Returns ``sigma_r``, ``sigma_t``, their 1-sigma profile-likelihood intervals, the mean
+    radial and tangential motions, the field fraction ``f`` and the cluster count.
+    """
+    s = sample.select(mask)
+    a, d = np.asarray(s.mu_a, float), np.asarray(s.mu_d, float)
+    ea, ed, rho = np.asarray(s.err_a, float), np.asarray(s.err_d, float), np.asarray(s.err_corr, float)
+    phi = np.asarray(s.phi, float)
+    cos_p, sin_p = np.sin(phi), np.cos(phi)          # radial unit vector in (alpha*, delta)
+    fp = np.maximum(np.asarray(field_density(a, d), float), 1e-300)
+    dv = np.broadcast_to(np.asarray(depth_var, float), a.shape)
+
+    def loglike(sr2: float, st2: float) -> tuple[float, float, float, float]:
+        """Maximised log-likelihood at fixed (sigma_R^2, sigma_T^2); means and f by EM."""
+        # cluster covariance per star, in the equatorial frame
+        vr, vt = sr2 + dv, st2
+        caa = vr * cos_p**2 + vt * sin_p**2 + ea**2
+        cdd = vr * sin_p**2 + vt * cos_p**2 + ed**2
+        cad = (vr - vt) * cos_p * sin_p + rho * ea * ed
+        det = caa * cdd - cad**2
+        mr, mt, f = 0.0, 0.0, 0.5
+        ll = -np.inf
+        for _ in range(n_iter):
+            ma = mr * cos_p + mt * (-sin_p); md = mr * sin_p + mt * cos_p
+            da, dd = a - ma, d - md
+            q = (cdd * da**2 - 2 * cad * da * dd + caa * dd**2) / det
+            pc = (1 - f) * np.exp(-0.5 * q) / (2 * np.pi * np.sqrt(det))
+            tot = np.maximum(pc + f * fp, 1e-300)
+            r = pc / tot
+            new_ll = float(np.sum(np.log(tot)))
+            f = 1.0 - r.sum() / len(a)
+            # weighted least squares for the mean in the rotated frame
+            w = r / det
+            A11 = np.sum(w * (cdd * cos_p**2 - 2 * cad * cos_p * sin_p + caa * sin_p**2))
+            A22 = np.sum(w * (cdd * sin_p**2 + 2 * cad * cos_p * sin_p + caa * cos_p**2))
+            A12 = np.sum(w * (-cdd * cos_p * sin_p + cad * (cos_p**2 - sin_p**2) + caa * sin_p * cos_p))
+            b1 = np.sum(w * (cdd * a * cos_p - cad * (a * sin_p + d * cos_p) + caa * d * sin_p))
+            b2 = np.sum(w * (-cdd * a * sin_p + cad * (a * cos_p - d * sin_p) + caa * d * cos_p))
+            det_A = A11 * A22 - A12**2
+            if abs(det_A) > 1e-30:
+                mr = (b1 * A22 - b2 * A12) / det_A
+                mt = (b2 * A11 - b1 * A12) / det_A
+            if abs(new_ll - ll) < 1e-7:
+                ll = new_ll
+                break
+            ll = new_ll
+        return ll, mr, mt, f
+
+    # maximise over (sigma_R, sigma_T) with a simplex on the log variances -- a grid over both
+    # would cost thousands of EM solves on 3 x 10^4 stars -- then scan each axis for the interval
+    from scipy.optimize import minimize
+
+    if sigma_grid is not None:
+        grid = np.asarray(sigma_grid, float)
+        tab = np.array([[loglike(sr**2, st**2)[0] for st in grid] for sr in grid])
+        i, j = np.unravel_index(np.argmax(tab), tab.shape)
+        sr_hat, st_hat = float(grid[i]), float(grid[j])
+    else:
+        # multi-start, bounded to cluster-like dispersions: started from the sample variance the
+        # simplex runs away to the field solution once the cluster is a few per cent of the
+        # stars (the outermost annulus, found 2026-09-18)
+        best = (-np.inf, sigma_max / 3, sigma_max / 3)
+        for s0 in (0.15, 0.25, 0.40, 0.60):
+            res = minimize(lambda p: -loglike(min(np.exp(p[0]), sigma_max**2), min(np.exp(p[1]), sigma_max**2))[0],
+                           [np.log(s0**2)] * 2, method="Nelder-Mead",
+                           options={"xatol": 1e-4, "fatol": 1e-4, "maxiter": 300})
+            sr, st = float(np.sqrt(min(np.exp(res.x[0]), sigma_max**2))), float(np.sqrt(min(np.exp(res.x[1]), sigma_max**2)))
+            if -res.fun > best[0] and max(sr, st) < 0.98 * sigma_max:
+                best = (-res.fun, sr, st)
+        sr_hat, st_hat = best[1], best[2]
+    ll_max, mr, mt, f = loglike(sr_hat**2, st_hat**2)
+
+    def interval(which: str) -> tuple[float, float]:
+        """1-sigma profile-likelihood interval on one dispersion, the other re-maximised."""
+        lo = hi = None
+        for side in (-1, +1):
+            x = sr_hat if which == "r" else st_hat
+            step = 0.02 * x * side
+            for _ in range(60):
+                x = x + step
+                if x <= 0.01:
+                    break
+                if which == "r":
+                    ll = minimize(lambda p: -loglike(x**2, np.exp(p[0]))[0], [np.log(st_hat**2)],
+                                  method="Nelder-Mead", options={"xatol": 1e-4, "fatol": 1e-4, "maxiter": 60}).fun * -1
+                else:
+                    ll = minimize(lambda p: -loglike(np.exp(p[0]), x**2)[0], [np.log(sr_hat**2)],
+                                  method="Nelder-Mead", options={"xatol": 1e-4, "fatol": 1e-4, "maxiter": 60}).fun * -1
+                if ll < ll_max - 0.5:
+                    break
+            if side < 0:
+                lo = x
+            else:
+                hi = x
+        return lo, hi
+
+    lo_r, hi_r = interval("r"); lo_t, hi_t = interval("t")
+    sigma = np.sqrt(0.5 * (sr_hat**2 + st_hat**2))
+    return {"sigma_r": sr_hat, "sigma_r_err": 0.5 * (hi_r - lo_r), "sigma_t": st_hat,
+            "sigma_t_err": 0.5 * (hi_t - lo_t), "sigma": sigma,
+            "sigma_err": float(0.5 * np.hypot(0.5 * (hi_r - lo_r), 0.5 * (hi_t - lo_t))),
+            "mean_r": mr, "mean_t": mt, "f": f, "n_cluster": float((1 - f) * len(a)), "lnl": ll_max,
+            "n_stars": int(len(a)), "at_bound": bool(max(sr_hat, st_hat) > 0.9 * sigma_max)}

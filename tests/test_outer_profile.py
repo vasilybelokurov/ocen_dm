@@ -114,3 +114,64 @@ def test_free_mixture_does_not_steal_the_member_wings():
     out = mixture_dispersion_free(v, err)
     assert out["sigma"] == pytest.approx(0.40, abs=0.01)
     assert out["f"] < 0.02
+
+
+def _fake_field_density(sigma_a=3.1, sigma_d=2.0, offset=(3.25, 6.75)):
+    """A field density with unequal widths and heavy tails, like the real one."""
+    def density(a, d):
+        a = np.asarray(a, float) - offset[0]; d = np.asarray(d, float) - offset[1]
+        core = np.exp(-0.5 * ((a / sigma_a) ** 2 + (d / sigma_d) ** 2)) / (2 * np.pi * sigma_a * sigma_d)
+        tail = np.exp(-0.5 * ((a / (3 * sigma_a)) ** 2 + (d / (3 * sigma_d)) ** 2)) / (2 * np.pi * 9 * sigma_a * sigma_d)
+        return 0.6 * core + 0.4 * tail
+    return density
+
+
+def _mock_annulus(n_cluster=4000, n_field=20000, sigma_r=0.25, sigma_t=0.30, err=0.3, seed=0):
+    """Cluster + field in an annulus, in the 2-D equatorial frame."""
+    from ocen_dm.kinematics.outer_profile import MemberSample
+    rng = np.random.default_rng(seed)
+    n = n_cluster + n_field
+    phi = rng.uniform(0, 2 * np.pi, n)
+    cos_p, sin_p = np.sin(phi), np.cos(phi)
+    e = np.full(n, err)
+    vr = np.concatenate([rng.normal(0, sigma_r, n_cluster), np.zeros(n_field)])
+    vt = np.concatenate([rng.normal(0, sigma_t, n_cluster), np.zeros(n_field)])
+    a = vr * cos_p + vt * (-sin_p); d = vr * sin_p + vt * cos_p
+    # field: unequal widths plus a heavy tail, offset by the systemic motion
+    fa = np.where(rng.uniform(size=n_field) < 0.6, rng.normal(0, 3.1, n_field), rng.normal(0, 9.3, n_field)) + 3.25
+    fd = np.where(rng.uniform(size=n_field) < 0.6, rng.normal(0, 2.0, n_field), rng.normal(0, 6.0, n_field)) + 6.75
+    a[n_cluster:] = fa; d[n_cluster:] = fd
+    a = a + rng.normal(0, e); d = d + rng.normal(0, e)
+    mu_r = a * cos_p + d * sin_p; mu_t = -a * sin_p + d * cos_p
+    r = rng.uniform(1800, 2400, n)
+    return MemberSample(r, mu_r, mu_t, e, e, np.ones(n), np.full(n, 19.0), np.full(n, 3), phi,
+                        mu_a=a, mu_d=d, err_a=e, err_d=e, err_corr=np.zeros(n))
+
+
+def test_2d_fit_recovers_anisotropic_dispersion_under_a_dominant_field():
+    """85 per cent field, cluster sigma below the per-star errors: sigma_R and sigma_T recovered."""
+    from ocen_dm.kinematics.outer_profile import dispersion_2d
+    s = _mock_annulus()
+    out = dispersion_2d(s, np.ones(len(s), bool), _fake_field_density())
+    assert out["sigma_r"] == pytest.approx(0.25, abs=0.03)
+    assert out["sigma_t"] == pytest.approx(0.30, abs=0.03)
+    assert out["f"] == pytest.approx(20000 / 24000, abs=0.02)
+    assert not out["at_bound"]
+
+
+def test_2d_fit_does_not_run_away_when_the_cluster_is_a_few_per_cent():
+    from ocen_dm.kinematics.outer_profile import dispersion_2d
+    s = _mock_annulus(n_cluster=800, n_field=20000, seed=3)
+    out = dispersion_2d(s, np.ones(len(s), bool), _fake_field_density())
+    assert out["sigma"] < 0.5 and not out["at_bound"]
+    assert out["sigma_r"] == pytest.approx(0.25, abs=0.06)
+
+
+def test_projecting_an_anisotropic_field_is_what_breaks_the_1d_fit():
+    """The projected field is not a two-Gaussian: fitting one biases the cluster sigma low."""
+    from ocen_dm.kinematics.outer_profile import dispersion_2d, mixture_dispersion_free
+    s = _mock_annulus(seed=1)
+    two_d = dispersion_2d(s, np.ones(len(s), bool), _fake_field_density())
+    one_d = mixture_dispersion_free(s.mu_r, s.err_r, 0.0)
+    assert two_d["sigma_r"] == pytest.approx(0.25, abs=0.03)
+    assert one_d["sigma"] < 0.9 * two_d["sigma_r"]          # the 1-D fit is biased low
