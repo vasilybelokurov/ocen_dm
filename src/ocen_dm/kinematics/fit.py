@@ -324,7 +324,7 @@ def _sha256(path: Path) -> str:
 
 def run_nested(problem: FitProblem, out_dir: Path, *, n_live: int = 400, dlogz: float = 0.5,
                max_ncalls: int | None = None, seed: int = 42, n_profile_samples: int = 300,
-               resume: str = "overwrite", verbose: bool = False) -> dict[str, Any]:
+               resume: str = "overwrite", verbose: bool = False, step_sampler: bool = False) -> dict[str, Any]:
     """Run ultranest on ``problem`` and write posterior, summary and profiles to ``out_dir``.
 
     Files written: ``posterior.ecsv`` (equally weighted samples), ``summary.json``
@@ -343,6 +343,13 @@ def run_nested(problem: FitProblem, out_dir: Path, *, n_live: int = 400, dlogz: 
     np.random.seed(seed)
     sampler = ultranest.ReactiveNestedSampler(list(fam.names), problem.loglike_vector, fam.transform,
                                               log_dir=str(out_dir / "ultranest"), resume=resume)
+    if step_sampler:
+        # MLFriends rejection sampling needed ~150 calls per iteration on the 11-13-D
+        # K1/K2 posteriors (2026-09-17); a slice sampler costs ~2 ndim steps per
+        # iteration whatever the region shape.
+        import ultranest.stepsampler as uss
+        sampler.stepsampler = uss.SliceSampler(
+            nsteps=2 * len(fam.names), generate_direction=uss.generate_mixture_random_direction)
     result = sampler.run(min_num_live_points=n_live, dlogz=dlogz, max_ncalls=max_ncalls,
                          viz_callback=None, show_status=verbose)
     elapsed = time.time() - t0
