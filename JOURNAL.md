@@ -1321,3 +1321,26 @@ with inclination 50° and rotation — is not ours), and finds mildly radial ani
 they did, twice as strong (a spherical β with rotation removed is not their global
 axisymmetric β). No pipeline defect indicated; no precision claim possible with this
 preset. Output `results/fits/preset_watkins2013/`.
+
+## 2026-09-18 — K2-NFW (composite tracer, full data): first dark-matter posterior — read with the controls pending
+
+2.23M calls / 228 min. **ln Z = 176.65 ± 0.63 vs K1 134.91 ± 0.47: Δ ln Z = +41.7** for
+two extra parameters. χ² 260 / 126 (HST R 35/40, T 50/40, MUSE 39/29, DR2 11/9, **EDR3
+124/8** — down from 218 but still 15σ-equivalent for 8 points). Posterior: **M_DM(<100 pc)
+= 2.35e6 [2.09, 2.60] M☉**, r_s = 680 pc [430, 900] (the prior's upper decade; the halo is
+effectively a constant-density background over the data), M★ = 1.35e6 [1.08, 2.15],
+M_rem = 1.62e6 [0.92, 1.83] at 5.8 pc, M• = 4.2e4 [3.8, 4.6], β as in K1, s_EDR3 = 1.045,
+D = 5.443. Zero samples below M_DM = 1e4: the posterior does not touch the no-DM corner.
+
+What this is and is not. It is the Jeans models saying that the EDR3 dispersion profile at
+300–2400″ needs ~2e6 M☉ more mass than the light-plus-remnants can supply, spread over the
+whole cluster (r_s ≫ data), and that they will happily take that mass out of M★ (1.35e6 is a
+V-band M/L well below 1) and put it into remnants and a halo — the three components are
+degenerate where only the outer profile constrains them. It is **not yet** a detection:
+(i) the K1-no-EDR3 fit was clean, so the entire preference rests on the 8 EDR3 points whose
+1 % errors are model percentiles and whose shape neither family reproduces (χ² 124/8 even
+here); (ii) the **false-positive injection** (K2 on a K1 mock) and (iii) the **K2 without
+EDR3** are running precisely to test this and finish within the hour; (iv) the M★–M_rem–M_DM
+degeneracy needs an external prior (a stellar M/L from the CMD, a remnant fraction from
+N-body) before any component can be quoted on its own. Figures:
+`plots/fit_K2_nfw_composite_posterior_profiles.png`, `plots/fit_posterior_profiles.png`.
