@@ -1120,3 +1120,35 @@ as a result. Figures: `plots/fit_K1_noDM_posterior_profiles.png`,
 `plots/fit_posterior_profiles.png` (to be overwritten by the multi-run comparison).
 Composite-tracer runs at the time of writing: K1 remainder 70 % (Lmax 204), K2-cored
 remainder 99.9 % (Lmax 224.6), K2-NFW remainder 99.9 % (Lmax 210).
+
+### K1 with the composite tracer (the reference no-DM model)
+
+2.0M calls / 161 min. **ln Z = 160.17 ± 0.54; max ln L = 206.5; χ² 287 / 126** (HST R
+64/40, T 77/40, MUSE 50/29, DR2 13/9, EDR3 84/8). Medians [16–84 %]: M★ = 2.61e6 [2.55,
+2.97], M_rem = 6.4e5 [4.2, 7.1] at a_rem = 5.1 pc [4.6, 5.3], **M• = 4.65e4 [4.27, 4.98]**,
+**β₀ = −0.72 [−0.74, −0.71]**, β∞ = 0.200 [0.195, 0.205], r_β = 1.09 pc [1.03, 1.16],
+s_MUSE = 0.973, s_DR2 = 0.947, s_EDR3 = 1.056, **D = 5.489 [5.476, 5.530] kpc**.
+
+Two things to take seriously and one to distrust. (i) The evidence prefers the composite
+tracer over the light-weighted one by **Δ ln Z = +73** with the same K1 physics — the
+tracer choice is settled by the data, not by argument. (ii) D = 5.49 kpc reproduces
+oMEGACat VI's kinematic distance (5.494 ± 0.061) independently of their modelling, with the
+equipartition nuisance absorbing the MUSE/HST offset (s_MUSE = 0.973 ± 0.008). (iii) The
+sampler's maximum (206.5) is far above every Nelder–Mead maximum I quoted yesterday
+(≤ 150.7): those optimiser numbers were not maxima, and the tracer comparison made from
+them (mis-spliced vs corrected) is void. The posterior itself sits in a corner the
+optimiser never found: **a 4.6e4 M☉ point mass with a strongly tangential core
+(β₀ = −0.72) turning radial by 1 pc**, plus an unsegregated 6.4e5 M☉ remnant sphere.
+Tangential bias near a central mass is what the cusp needs to keep σ_R flat while the
+point mass lifts σ_T and σ_LOS — a legitimate solution of the Jeans equation, but M• is
+4× the literature upper limit (Baumgardt+ 2019 ≲ 1.2e4; Häberle+ 2024 ≥ 8.2e3 from fast
+stars), and the ±7 % width comes from a model with χ²/N = 2.3. I do not read it as a BH
+measurement. It is the K1 family saying: the inner 10″ want more central mass than the
+flat-cored tracer plus a diffuse remnant population can give it, and given only a point
+mass and an anisotropy profile, this is the best it can do.
+
+Launched: the **no-DM false-positive injection** (K2-cored fitted to a mock drawn from the
+K1-composite best sample with the real bins and errors) and a **K1 variant without the
+Gaia EDR3 profile** (its 8 points with 1 % model-percentile errors carry 84 of the 287 χ²).
+K2-cored and K2-NFW composite runs at 35–38 % remainder (ln Z 184.9 and 171.8 and rising —
+already above K1's 160.2; not final).
