@@ -44,3 +44,14 @@ def test_fit_cli_writes_all_products(tmp_path, monkeypatch):
 def test_fit_cli_rejects_unknown_family():
     with pytest.raises(SystemExit):
         main(["fit", "--family", "K9"])
+
+
+@pytest.mark.skipif(not _HAS_DATA, reason="processed kinematics not present")
+def test_fit_cli_preset_runs_and_prints_comparison(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr("ocen_dm.paths.results_dir", lambda: tmp_path / "results")
+    rc = main(["fit", "--preset", "watkins2013", "--n-live", "30", "--max-ncalls", "600", "--seed", "1"])
+    assert rc == 0
+    out = capsys.readouterr().out
+    assert "preset watkins2013" in out and "like-for-like comparison" in out
+    assert "ML_V" in out and "published 2.71" in out and "beta_0" in out
+    assert (tmp_path / "results" / "fits" / "preset_watkins2013" / "summary.json").exists()

@@ -1220,3 +1220,23 @@ Next in this thread: the like-for-like literature presets (Watkins+ 2013, oMEGAC
 Baumgardt & Hilker 2018, Baumgardt+ 2019) as `ocen fit --preset ...` with the published
 numbers printed beside ours in the comparison report; an AGAMA-DF K1 fit as the
 positive-DF counterpart of the Jeans K1.
+
+### Like-for-like literature presets
+
+`ocen fit --preset {watkins2013, omegacat6, baumgardt2018, imbh_limit}` runs our pipeline
+under a published analysis's assumptions and prints our posterior beside the published
+number with a pull in σ. Family options added for this: `fixed={...}` (parameters held and
+removed from the vector), `constant_beta`, `beta0_max`, `distance_kpc` with `fix_distance`.
+
+| preset | their assumptions we impose | compared quantity |
+|---|---|---|
+| watkins2013 | HST PMs only, D = 4.59 kpc, constant β (prior up to +0.5), constant M/L, no remnants/BH, Trager tracer | M/L_V = 2.71 ± 0.05 (L_V from Harris V_t = 3.68, E(B−V) = 0.12, R_V = 3.1 → 8.6e5 L☉ at 4.59 kpc), β = 0.10 ± 0.02 |
+| omegacat6 | HST + MUSE, composite tracer, **flat** D prior 4.5–6.5 | D = 5.494 ± 0.061 |
+| baumgardt2018 | HST + MUSE + Gaia DR2, D fixed 5.24 kpc (**UNVERIFIED** — to check in their Table 1) | M_total = 3.55e6 |
+| imbh_limit | HST + MUSE, remnants free | M• 95 % upper limit vs 1.2e4 (van der Marel & Anderson 2010, 1σ) |
+
+Caveat stated in the code: our PMs are oMEGACat's, not the Watkins+ 2013 sample, so that
+preset tests the modelling under their assumptions, not a re-reduction. An attribution slip
+caught while checking `docs/LITERATURE_BASELINES.md`: the 1.2e4 IMBH limit is van der Marel
+& Anderson 2010, not Baumgardt+ 2019 (whose result is "no IMBH, 4.6 % in stellar BHs");
+preset renamed. The presets will run once the five posterior jobs release the CPUs.
