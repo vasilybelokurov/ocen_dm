@@ -146,3 +146,7 @@ baumgardt_ocen_parameters:
   r_peri: {column: RPERI, unit: kpc}
   r_apo:  {column: RAPO,  unit: kpc}
   feh: FEH
+
+# VizieR VOTables carry their units; no declarations needed.
+trager1995_ocen_sbp: {}
+baumgardt2019_ocen_pm_dispersion: {}

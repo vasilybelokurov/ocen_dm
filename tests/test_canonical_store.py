@@ -110,10 +110,14 @@ def test_local_file_with_wrong_size_fails_verification(store, isolated_root):
     from ocen_dm.data import download as dl
 
     reg = isolated_root / "provenance" / "datasets.yaml"
-    # The fixture nulled every expected size; the baumgardt file's is the last
-    # occurrence in the registry, so re-arm just that one with a wrong value.
-    head, _, tail = reg.read_text().rpartition("expected_bytes: null")
-    reg.write_text(head + "expected_bytes: 12345" + tail)
+    # The fixture nulled every expected size; re-arm only the gc_catalog file's,
+    # located by its name rather than by position in the registry.
+    import re
+    text = reg.read_text()
+    text = re.sub(r'(name: "gc_catalog_updated.fits"(?:(?!name:).)*?expected_bytes: )null',
+                  r"\g<1>12345", text, count=1, flags=re.S)
+    assert "expected_bytes: 12345" in text
+    reg.write_text(text)
     results = dl.fetch_all(only=["baumgardt_gc_catalogue"], log=lambda _: None)
     assert results[0].status == "failed"
 
@@ -208,3 +212,21 @@ def test_row_filter_lineage_in_build_product(isolated_root, synthetic_periphery)
     )
     assert report["lineage"]["rows_in_file"] == len(synthetic_periphery)
     assert report["lineage"]["rows_selected"] == report["n_rows"]
+
+
+def test_transform_is_recorded_in_lineage(isolated_root, synthetic_periphery):
+    from ocen_dm.data import kuzma2025
+
+    directory = isolated_root / "data" / "raw" / kuzma2025.DATASET
+    directory.mkdir(parents=True)
+    synthetic_periphery.write(directory / "wCen_table.fits")
+
+    def shift(table):
+        table = table.copy(); table["ra"] = table["ra"] + 0 * u.deg; return table
+
+    report = build_product(
+        dataset=kuzma2025.DATASET, schema=kuzma2025.SCHEMA, path=directory / "wCen_table.fits",
+        hdu=1, subdir="tails", likelihood_rule="t", transform=shift, transform_note="identity shift",
+    )
+    assert report["lineage"]["transform"] == "identity shift"
+    assert Table.read(report["path"]).meta["ocen_raw"]["transform"] == "identity shift"

@@ -520,6 +520,54 @@ def plot_omegacat_3d_velocities() -> Path:
     fig.tight_layout()
     return _save(fig, "omegacat_vi_3d_velocities")
 
+# --------------------------------------------------------------- light model ------
+def plot_light_profile_mge() -> Path:
+    """Trager+ 1995 surface-brightness data with the projected MGE fit and residuals."""
+    from ..light_model import (arcsec_to_pc, fit_mge_projected, load_trager_profile,
+                               projected_half_light_radius)
+
+    prof = load_trager_profile()
+    fit = fit_mge_projected(prof)
+    model_rel = -2.5 * np.log10(fit.surface_intensity(prof.r_arcsec))
+    zero_point = np.average(prof.mu - model_rel, weights=prof.weight)   # maps unit light to the data scale
+    resid = prof.mu - (zero_point + model_rel)
+    r_half = projected_half_light_radius(fit)
+
+    fig, (ax, axr) = plt.subplots(2, 1, figsize=(8.5, 8), sharex=True,
+                                  gridspec_kw={"height_ratios": [3, 1]})
+    rr = np.geomspace(prof.r_arcsec.min() * 0.7, prof.r_arcsec.max() * 1.3, 400)
+    ymin, ymax = prof.mu.min() - 0.8, prof.mu.max() + 1.2
+    for s, f in fit.components:
+        mu_c = zero_point - 2.5 * np.log10(f / (2 * np.pi * s**2) * np.exp(-0.5 * (rr / s) ** 2))
+        ax.plot(rr[mu_c < ymax], mu_c[mu_c < ymax], color=style.COLOR_FIELD, lw=0.9)
+    ax.plot(rr, zero_point - 2.5 * np.log10(fit.surface_intensity(rr)), color=style.SERIES[0], lw=2,
+            label=f"MGE, {len(fit.fractions)} Gaussians (weighted rms {fit.rms_mag:.2f} mag)")
+    sc = ax.scatter(prof.r_arcsec, prof.mu, c=prof.weight, cmap=style.SEQUENTIAL, vmin=0, vmax=1,
+                    s=30, zorder=5, edgecolors=style.INK, linewidths=0.4,
+                    label="Trager+ 1995 V band (colour = authors' weight)")
+    ax.axvline(r_half, color=style.INK_SECONDARY, lw=0.8, ls="--")
+    ax.text(r_half * 1.06, ymin + 0.6,
+            f"R_h = {r_half:.0f}″ = {arcsec_to_pc(r_half, OCEN_DISTANCE_KPC):.2f} pc\n"
+            "(Harris 300″, Baumgardt 7.56 pc)", color=style.INK_SECONDARY, fontsize=8.5, va="top")
+    ax.set_ylim(ymax, ymin)
+    ax.set_xscale("log")
+    ax.set_ylabel("μ_V  [mag / arcsec²]")
+    ax.legend(loc="lower left", fontsize=8.5)
+    ax.set_title("Omega Cen light profile: Trager+ 1995 data and the projected MGE fit")
+    cb = fig.colorbar(sc, ax=ax, pad=0.02)
+    cb.set_label("point weight", color=style.INK_SECONDARY)
+    cb.outline.set_visible(False)
+    _add_pc_axis(ax)
+    axr.axhline(0, color=style.INK_SECONDARY, lw=0.8)
+    axr.scatter(prof.r_arcsec, resid, c=prof.weight, cmap=style.SEQUENTIAL, vmin=0, vmax=1, s=22,
+                edgecolors=style.INK, linewidths=0.4)
+    axr.set_ylabel("data − MGE  [mag]")
+    axr.set_xlabel("R  [arcsec]")
+    axr.set_ylim(-2, 2)
+    fig.tight_layout()
+    return _save(fig, "light_profile_mge")
+
+
 PLOTS = (
     plot_sky_overview,
     plot_kuzma2025_proper_motions,
@@ -530,6 +578,7 @@ PLOTS = (
     plot_omegacat_profiles,
     plot_omegacat_rotation_axis,
     plot_omegacat_3d_velocities,
+    plot_light_profile_mge,
 )
 
 

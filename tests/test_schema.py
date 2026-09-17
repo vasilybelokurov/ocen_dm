@@ -145,3 +145,22 @@ def test_load_column_map_reads_yaml(tmp_path):
     assert load_column_map(path, "demo") == {"ra": {"column": "RAdeg", "unit": None}}
     assert load_column_map(path, "absent") == {}
     assert load_column_map(tmp_path / "nofile.yaml", "demo") == {}
+
+
+def test_cds_case_sensitive_error_columns_resolve_exactly():
+    """CDS uses E_x (upper) and e_x (lower); both must resolve, exactly."""
+    schema = TableSchema("cds", roles=(ColumnRole("hi", "mas / yr", ("E_sigma",)),
+                                       ColumnRole("lo", "mas / yr", ("e_sigma",))))
+    mapping = resolve_columns(schema, ["r", "sigma", "E_sigma", "e_sigma"])
+    assert mapping["hi"].source == "E_sigma" and mapping["lo"].source == "e_sigma"
+
+
+def test_case_insensitive_fallback_refuses_ambiguity():
+    schema = TableSchema("cds", roles=(ColumnRole("x", "mas / yr", ("E_SIGMA",)),))
+    with pytest.raises(SchemaError, match="differing only in case"):
+        resolve_columns(schema, ["E_sigma", "e_sigma"])
+
+
+def test_case_insensitive_fallback_still_works_without_collision():
+    schema = TableSchema("ci", roles=(ColumnRole("ra", "deg", ("ra",)),))
+    assert resolve_columns(schema, ["RA", "DEC"])["ra"].source == "RA"

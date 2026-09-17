@@ -28,7 +28,7 @@ python -m ocen_dm.cli fetch-data             # download + checksum + manifest
 python -m ocen_dm.cli preprocess             # standardize -> data/processed
 python -m ocen_dm.cli inspect-omegacat --columns
 python -m ocen_dm.cli plot-data              # PNG figures -> plots/
-python -m pytest tests -q                    # 175 tests, no network needed
+python -m pytest tests -q                    # 201 tests, no network needed
 ```
 
 Two datasets are journal supplementary material and must be fetched by hand:
