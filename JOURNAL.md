@@ -1687,3 +1687,21 @@ term per annulus). Not used in any fit. The figures now carry the mixture profil
 measurement (field modelled)" and the audit shows it beside the P-cut variants. Decision
 A(d) — replace the published EDR3 profile by this measurement in the fits — is now
 supported by the evidence and would change the K1/K2 comparison; it remains the user's.
+
+### Figures: both versions, and the contamination model made visible (user request)
+
+`ocen plot-constraints` now writes five figures: `constraint_map.png` (Gaia points from the
+cluster+field mixture) and `constraint_map_pcut.png` (Gaia points from the P > 0.9 + quality
+members, no contamination model); `outer_tracer_audit.png` (reference = P > 0.9) and
+`outer_tracer_audit_mixture.png` (reference = mixture, P-cut shown as the variant); and
+`contamination_model.png`, which shows the modelling itself: for 700–1000″, 1400–1800″ and
+1800–2400″ the radial-PM histogram of all quality stars with the fitted cluster and field
+components (wide view, log; zoom on the peak, linear), the field stars expected under the
+cluster peak within ±3σ, and the field fraction and P-cut bias versus radius.
+
+The zoom panels are the argument in one picture: under the cluster peak there are 684
+field stars at 700–1000″ (2.7 % of the peak), 2651 at 1400–1800″ (35 %), and **5031 at
+1800–2400″ — 174 % of the cluster stars in the same PM window**. A membership cut selects
+those stars as members; only a model of the field can remove their contribution to the
+dispersion. Side-by-side, the two constraint maps show the outermost Gaia point moving
+from +12 % above the no-DM curve (P-cut) to −6 % below it (field modelled).

@@ -314,9 +314,13 @@ DEFAULT_DATASETS = "hst_pm_radial,hst_pm_tangential,muse_los_dispersion,gaia_dr2
 
 def cmd_plot_constraints(args: argparse.Namespace) -> int:
     """Write the constraint-map and outer-tracer-audit figures."""
-    from .plotting.constraints import plot_constraint_map, plot_outer_tracer_audit
+    from .plotting.constraints import plot_constraint_map, plot_contamination_model, plot_outer_tracer_audit
 
-    for path in (plot_constraint_map(k1=args.k1, k2=args.k2), plot_outer_tracer_audit()):
+    for path in (plot_constraint_map(k1=args.k1, k2=args.k2, contamination_modelled=True),
+                 plot_constraint_map("plots/constraint_map_pcut.png", k1=args.k1, k2=args.k2, contamination_modelled=False),
+                 plot_outer_tracer_audit(reference="pcut"),
+                 plot_outer_tracer_audit("plots/outer_tracer_audit_mixture.png", reference="mixture"),
+                 plot_contamination_model()):
         print(f"  wrote {path}")
     return 0
 
