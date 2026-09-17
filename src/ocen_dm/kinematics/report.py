@@ -47,11 +47,14 @@ def comparison_table(runs: Iterable[dict]) -> str:
         for n in r["summary"]["parameters"]:
             if n not in names:
                 names.append(n)
-    ref = max(r["summary"]["logz"] for r in runs)
+    # evidences are comparable only between runs fitted to the same data
+    datasets = [tuple(sorted(r["summary"]["datasets"])) for r in runs]
+    common = datasets[0] if all(d == datasets[0] for d in datasets) else None
+    ref = max(r["summary"]["logz"] for r in runs) if common else None
     lines = ["| quantity | " + " | ".join(r["label"] for r in runs) + " |",
              "|---|" + "---|" * len(runs)]
     lines.append("| ln Z | " + " | ".join(f"{r['summary']['logz']:.2f} ± {r['summary']['logzerr']:.2f}" for r in runs) + " |")
-    lines.append("| Δ ln Z vs best | " + " | ".join(f"{r['summary']['logz'] - ref:+.2f}" for r in runs) + " |")
+    lines.append("| Δ ln Z vs best | " + " | ".join((f"{r['summary']['logz'] - ref:+.2f}" if ref is not None else "n/a (different data)") for r in runs) + " |")
     lines.append("| max ln L | " + " | ".join(f"{r['summary']['lnL_max']:.1f}" for r in runs) + " |")
     lines.append("| χ² at max L / N | " + " | ".join(f"{r['summary']['chi2_ml_total']:.0f} / {r['summary']['n_points']}" for r in runs) + " |")
     for ds in runs[0]["summary"]["chi2_ml"]:
