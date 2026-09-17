@@ -1074,3 +1074,16 @@ profile, 0.25 mag brighter in the core, had fit better (150.7) — the ML number
 segregated) is deferred to the nested-sampling maxima and to a per-sample tracer profile
 (the HST PM stars are 2–3 mag fainter than the F625W < 19 count sample). Six runs in
 progress; nothing concluded yet.
+
+**Which stars does the composite trace?** Count profiles by magnitude, each anchored to the
+composite MGE over 30–100″ (residuals in mag inside 30″): F625W 17–19 within ±0.1;
+19–21 within ±0.14; **the actual HST PM sample (hq astrometry + membership, 18.5–21)
+within ±0.16 and mostly ±0.05**; only the faintest bin 21–23 shows a +0.2–0.35 deficit
+inside 30″ (crowding incompleteness and/or mass segregation — not separable here, and not
+used). So the composite tracer describes the stars whose proper motions we fit; the
+segregation worry is retired for the PM data. The MUSE giants (F625W < 18) also match to
+±0.1 outside 3″.
+
+Sampler progress at 35 min: Trager-tracer runs at 130–150k likelihood calls (Lmax still
+below the Nelder–Mead maxima — the 11–13-D posteriors are broad); composite runs just
+started. Expect 1–2 h per run with six sharing the machine.
