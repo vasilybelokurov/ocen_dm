@@ -51,7 +51,7 @@ def _fake_sample(n=4000, sigma=0.3, seed=3):
     err = rng.uniform(0.2, 0.4, n)
     return MemberSample(r, rng.normal(0, sigma, n) + rng.normal(0, err),
                         rng.normal(0, sigma, n) + rng.normal(0, err), err, err,
-                        np.full(n, 0.97), rng.uniform(17, 20, n), np.full(n, 3))
+                        np.full(n, 0.97), rng.uniform(17, 20, n), np.full(n, 3), rng.uniform(-np.pi, np.pi, n))
 
 
 def test_binned_dispersion_columns_and_recovery():

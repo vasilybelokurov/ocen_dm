@@ -39,10 +39,32 @@ OUTER_EDGES = np.geomspace(300.0, 2400.0, 11)
 QUALITY_BIT = 2
 
 
+_TRACER_CACHE: dict = {}
+
+
+def _composite_tracer(distance_kpc: float = 5.43):
+    """The composite (star-count) tracer MGE, for the line-of-sight depth term."""
+    if distance_kpc not in _TRACER_CACHE:
+        from ..light_model import build_stellar_mge, fit_mge_projected, load_tracer_profile
+        fit = fit_mge_projected(load_tracer_profile("composite"), sigma_range_arcsec=(7.0, 3000.0))
+        _TRACER_CACHE[distance_kpc] = build_stellar_mge(fit, distance_kpc, 1.0)
+    return _TRACER_CACHE[distance_kpc]
+
+
 def our_outer_profile(edges: np.ndarray = OUTER_EDGES, prob_min: float = 0.9,
-                      quality_mask: int | None = QUALITY_BIT, **kwargs) -> Table:
-    """Our error-deconvolved PM dispersion profile from the member catalogue."""
-    return binned_dispersion(load_members(), edges, prob_min=prob_min, quality_mask=quality_mask, **kwargs)
+                      quality_mask: int | None = QUALITY_BIT, exact: bool = True, depth: bool = True,
+                      distance_kpc: float = 5.43, **kwargs) -> Table:
+    """Our error-deconvolved PM dispersion profile from the member catalogue.
+
+    ``exact`` projects the systemic 3-D velocity onto each star's own tangent basis
+    (perspective contraction and basis rotation removed exactly); ``depth`` removes the
+    apparent dispersion from the unknown line-of-sight depth. Both default on; switching
+    them off reproduces the naive constant-subtraction measurement for comparison.
+    """
+    sample = load_members(exact=exact, distance_kpc=distance_kpc)
+    return binned_dispersion(sample, edges, prob_min=prob_min, quality_mask=quality_mask,
+                             depth_tracer=_composite_tracer(distance_kpc) if depth else None,
+                             distance_kpc=distance_kpc, **kwargs)
 
 
 def _model(label: str):
@@ -143,19 +165,17 @@ def plot_constraint_map(path: Path | str = "plots/constraint_map.png",
 def plot_outer_tracer_audit(path: Path | str = "plots/outer_tracer_audit.png") -> Path:
     """Are the distant tracers secure, and is their dispersion resolved rather than deconvolved?"""
     style.apply()
-    sample = load_members()
     edges = OUTER_EDGES
     variants = [
-        ("P > 0.9, quality flag (reference)", dict(prob_min=0.9, quality_mask=QUALITY_BIT), style.INK, "o"),
-        ("P > 0.5", dict(prob_min=0.5, quality_mask=QUALITY_BIT), style.SERIES[0], "v"),
-        ("P > 0.99", dict(prob_min=0.99, quality_mask=QUALITY_BIT), style.SERIES[2], "^"),
-        ("G < 18.5 (errors 0.13 mas/yr)", dict(prob_min=0.9, quality_mask=QUALITY_BIT, g_range=(0, 18.5)),
-         style.SERIES[1], "s"),
-        ("no quality cut", dict(prob_min=0.9), style.COLOR_FIELD, "x"),
-        ("errors inflated 20 %", dict(prob_min=0.9, quality_mask=QUALITY_BIT, err_scale=1.2),
-         style.SERIES_EXTRA, "d"),
+        ("P > 0.9, quality flag, exact projection (reference)", dict(prob_min=0.9), style.INK, "o"),
+        ("P > 0.5", dict(prob_min=0.5), style.SERIES[0], "v"),
+        ("P > 0.99", dict(prob_min=0.99), style.SERIES[2], "^"),
+        ("G < 18.5 (errors 0.13 mas/yr)", dict(prob_min=0.9, g_range=(0, 18.5)), style.SERIES[1], "s"),
+        ("no quality cut", dict(prob_min=0.9, quality_mask=None), style.COLOR_FIELD, "x"),
+        ("errors inflated 20 %", dict(prob_min=0.9, err_scale=1.2), style.SERIES_EXTRA, "d"),
+        ("naive: constant systemic PM, no depth term", dict(prob_min=0.9, exact=False, depth=False), "#7a5cc7", "P"),
     ]
-    tables = [(lab, binned_dispersion(sample, edges, **kw), c, m) for lab, kw, c, m in variants]
+    tables = [(lab, our_outer_profile(edges, **kw), c, m) for lab, kw, c, m in variants]
     ref = tables[0][1]
 
     fig, axes = plt.subplots(2, 2, figsize=(12, 8))
