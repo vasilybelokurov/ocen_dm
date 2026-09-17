@@ -1271,3 +1271,11 @@ rest on the EDR3 profile (8 thinned points, 1 % model-percentile errors, 300–2
 **K2-cored run without EDR3** was launched to test exactly that. Figures:
 `plots/fit_K1_noDM_composite_noEDR3_posterior_profiles.png`; JamPy cross-check of the best
 sample in `results/fits/comparison.md`.
+
+**K1-Trager v2 (fixed solver) = K1-Trager v1.** ln Z = 87.21 ± 0.32 vs 86.75 ± 0.16 before
+the fix; every parameter median agrees to well within a third of its 68 % interval (M• 4.15e4
+vs 4.16e4, D 5.435 vs 5.436, s_EDR3 1.072 vs 1.072); χ² 446.0 vs 445.6. Two conclusions: the
+Trager-tracer posterior never touched the far-out artefact, and two independent slice-sampler
+runs of the same 11-D problem reproduce ln Z to 0.5 — the run-to-run scatter to keep in
+mind when reading Δ ln Z between families. `K1_noDM_trager_v2` is the canonical Trager
+run from here; `K1_noDM` is kept as the reproducibility twin.
