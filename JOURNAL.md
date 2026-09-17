@@ -1469,3 +1469,15 @@ magnitude in the core** — at 0.3–1 pc the NFW run carries f_DM = 7e-4–5e-3
 run's 4e-6–9e-5, and the NFW curve is already flat by 3 pc. Both reach ~0.45–0.56 at 100 pc.
 So the cusp/core choice is decided inside 1 pc, where HST gives the tightest data and where
 the ~4e4 M☉ point mass sits — a degeneracy to keep in view when the M• question is taken up.
+
+**Dual radius axes on every figure (user request).** `plotting/style.py` now holds
+`add_pc_axis(ax, distance_kpc, per_unit_arcsec=1)` and
+`add_arcsec_axis(ax, distance_kpc, unit='arcsec'|'arcmin')`; every plot with an angular
+radius axis carries a pc scale on top and every plot in pc carries an arcsec scale, each
+labelled with the distance used (5.43 kpc for the data figures, the model's own fitted
+distance for the fit panels — 5.40 kpc in the K2-cored figure, which is why its top axis
+differs slightly from the data figures'). Added where it was missing: the MUSE dispersion
+and rotation panels of `omegacat_vi_profiles`, all five panels of every data-vs-model
+figure, and the three panels of the posterior-profile figure. Tests
+(`tests/test_plotting_axes.py`, 4) check both conversions, the arcmin variant, the
+round trip and the distance dependence. Suite 266 passing.

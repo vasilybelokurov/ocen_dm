@@ -259,10 +259,7 @@ def _asym(table: Table, name: str) -> np.ndarray:
 
 def _add_pc_axis(ax, per_unit_arcsec: float = 1.0) -> None:
     """Secondary x axis in pc; ``per_unit_arcsec`` = 60 when the axis is in arcmin."""
-    k = ARCSEC_TO_PC * per_unit_arcsec
-    secax = ax.secondary_xaxis("top", functions=(lambda a: a * k, lambda p: p / k))
-    secax.set_xlabel(f"r  [pc]  (D = {OCEN_DISTANCE_KPC} kpc)", color=style.INK_SECONDARY)
-    secax.tick_params(colors=style.INK_SECONDARY)
+    style.add_pc_axis(ax, OCEN_DISTANCE_KPC, per_unit_arcsec)
 
 
 def plot_omegacat_profiles() -> Path:
@@ -309,12 +306,14 @@ def plot_omegacat_profiles() -> Path:
     ax_los.set_ylabel("σ_LOS  [km / s]")
     ax_los.set_xlabel("r  [arcsec]")
     ax_los.set_title("Line-of-sight dispersion, MUSE (n = 29)")
+    _add_pc_axis(ax_los)
 
     ax_rot.errorbar(r_los, rot["v_rot"], yerr=_asym(rot, "v_rot"), fmt="o-", ms=style.MARKER_PT,
                     color=style.SERIES[0], ecolor=style.SERIES[0], elinewidth=style.ERR_PT, capsize=2)
     ax_rot.set_ylabel("rotation amplitude v_rot  [km / s]")
     ax_rot.set_xlabel("r  [arcsec]")
     ax_rot.set_title("Line-of-sight rotation")
+    _add_pc_axis(ax_rot)
 
     for ax in axes.ravel():
         ax.set_xscale("log")
