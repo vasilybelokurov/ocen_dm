@@ -42,8 +42,10 @@ def test_bright_subsample_resolves_the_outer_dispersion():
 
 @pytest.mark.skipif(not (_HAS_RUNS and _HAS_MEMBERS), reason="runs or members missing")
 def test_figures_render(tmp_path):
-    from ocen_dm.plotting.constraints import plot_constraint_map, plot_outer_tracer_audit
-    a = plot_constraint_map(tmp_path / "map.png")
-    b = plot_outer_tracer_audit(tmp_path / "audit.png")
-    assert a.exists() and a.stat().st_size > 50_000
-    assert b.exists() and b.stat().st_size > 50_000
+    from ocen_dm.plotting.constraints import plot_constraint_map, plot_contamination_model, plot_outer_tracer_audit
+    for path in (plot_constraint_map(tmp_path / "map.png"),
+                 plot_constraint_map(tmp_path / "map_pcut.png", contamination_modelled=False),
+                 plot_outer_tracer_audit(tmp_path / "audit.png"),
+                 plot_outer_tracer_audit(tmp_path / "audit_mix.png", reference="mixture"),
+                 plot_contamination_model(tmp_path / "contam.png", annuli=((1400.0, 1800.0),))):
+        assert path.exists() and path.stat().st_size > 50_000
