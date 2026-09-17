@@ -242,9 +242,17 @@ def cmd_fit(args: argparse.Namespace) -> int:
     from .kinematics import DarkMatterModel, FitProblem, KinematicData, NoDarkMatterModel, run_nested
     from .paths import results_dir
 
-    datasets = args.datasets.split(",")
+    preset = None
+    if args.preset:
+        from .kinematics.presets import build_preset
+        preset, family, datasets = build_preset(args.preset)
+        print(f"preset {preset.name}: {preset.reference}\n  {preset.url}\n  {preset.notes}")
+    else:
+        datasets = args.datasets.split(",")
     data = KinematicData.load(datasets, gaia_edr3_pm={"r_min_arcsec": args.gaia_r_min})
-    if args.family == "K1":
+    if preset is not None:
+        pass
+    elif args.family == "K1":
         family = NoDarkMatterModel(tracer=args.tracer, backend=args.backend)
     elif args.family in ("K2-cored", "K2-nfw"):
         family = DarkMatterModel(gamma=0.0 if args.family == "K2-cored" else 1.0, tracer=args.tracer, backend=args.backend)
@@ -266,7 +274,7 @@ def cmd_fit(args: argparse.Namespace) -> int:
         rng = np.random.default_rng(args.seed)
         problem = FitProblem(family, FitProblem(gen, data).mock_data(x_true, rng))
         print(f"mock data generated from {gen.label} with seed {args.seed}: " + ", ".join(f"{n}={v:.4g}" for n, v in zip(gen.names, x_true)))
-    label = args.label or family.label + ("_mock" if args.mock_from else "")
+    label = args.label or (f"preset_{preset.name}" if preset else family.label + ("_mock" if args.mock_from else ""))
     out = results_dir() / "fits" / label
     print(f"fit {family.label}: {len(family.names)} parameters, {problem.data.n_points} points -> {out}")
     summary = run_nested(problem, out, n_live=args.n_live, dlogz=args.dlogz, seed=args.seed,
@@ -275,6 +283,22 @@ def cmd_fit(args: argparse.Namespace) -> int:
           f"/ {summary['n_points']} points; {summary['n_calls']} calls in {summary['elapsed_s']:.0f} s")
     for name, q in summary["parameters"].items():
         print(f"  {name:10s} {q['p50']:12.4g}  [{q['p16']:.4g}, {q['p84']:.4g}]  {q['unit']}")
+    if preset is not None:
+        from astropy.table import Table
+        from .kinematics.presets import derived_quantities
+        post = Table.read(out / "posterior.ecsv")
+        rows = [derived_quantities(preset, {n: float(r[n]) for n in family.names}, family) for r in post]
+        print("\nlike-for-like comparison:")
+        for key, (val, err, note) in preset.published.items():
+            ours = np.array([r[key] for r in rows if key in r])
+            if len(ours) == 0:
+                continue
+            lo, med, hi = np.percentile(ours, [16, 50, 84])
+            if np.isfinite(err):
+                pull = (med - val) / np.hypot(err, 0.5 * (hi - lo))
+                print(f"  {key:9s} ours {med:.4g} [{lo:.4g}, {hi:.4g}]  published {val:.4g} +- {err:.2g}  ({pull:+.1f} sigma)  -- {note}")
+            else:
+                print(f"  {key:9s} ours 95% upper limit {np.percentile(ours, 95):.4g}  published limit {val:.4g}  -- {note}")
     return 0
 
 
@@ -310,6 +334,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     fit = subparsers.add_parser("fit", help="run a nested-sampling Jeans fit (K1 / K2-cored / K2-nfw)")
     fit.add_argument("--family", default="K1", choices=["K1", "K2-cored", "K2-nfw"])
+    fit.add_argument("--preset", default=None, choices=["watkins2013", "omegacat6", "baumgardt2018", "imbh_limit"],
+                     help="run under a published analysis's assumptions and compare with its numbers")
     fit.add_argument("--datasets", default=DEFAULT_DATASETS, help="comma-separated dataset keys")
     fit.add_argument("--tracer", default="composite", choices=["composite", "trager"],
                      help="tracer density: HST star counts inside 25 arcsec + Trager light (default), or Trager only")

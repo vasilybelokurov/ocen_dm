@@ -130,11 +130,32 @@ class NoDarkMatterModel:
 
     def __init__(self, mge_fit: MGEFit | None = None, instruments: Sequence[str] = NUISANCE_INSTRUMENTS,
                  distance_prior: Prior | None = "default", fix_distance: bool = False,
-                 tracer: str = "trager", backend: str = "jeans") -> None:
+                 tracer: str = "trager", backend: str = "jeans", fixed: dict[str, float] | None = None,
+                 constant_beta: bool = False, beta0_max: float = 0.0, distance_kpc: float | None = None) -> None:
+        """
+        Parameters
+        ----------
+        fixed : dict, optional
+            Parameters held at given values and removed from the sampled vector
+            (e.g. ``{"M_rem": 1e4, "M_bh": 1e2}`` to switch remnants and BH off).
+        constant_beta : bool
+            Use a single anisotropy ``beta_0`` (``beta_inf = beta_0``); literature
+            comparisons with constant-anisotropy models need this.
+        beta0_max : float
+            Upper edge of the ``beta_0`` prior (default 0, the An & Evans bound for a
+            cored tracer; literature presets that fitted radial anisotropy raise it).
+        distance_kpc : float, optional
+            Fixed distance to use instead of :data:`OCEN_DISTANCE_KPC` when
+            ``fix_distance`` is true.
+        """
         if backend not in ("jeans", "jam", "agama"):
             raise ValueError("backend must be 'jeans', 'jam' or 'agama'")
         self.backend = backend
         self.tracer = tracer
+        self.fixed = dict(fixed or {})
+        self.constant_beta = constant_beta
+        self.beta0_max = float(beta0_max)
+        self.fixed_distance_kpc = float(distance_kpc) if distance_kpc is not None else OCEN_DISTANCE_KPC
         if mge_fit is None:
             profile = load_tracer_profile(tracer)
             # smallest Gaussian = innermost datum of whichever profile is used
@@ -162,15 +183,18 @@ class NoDarkMatterModel:
             Parameter("a_rem", Prior("loguniform", 0.3, 20.0), "pc", r"a_{\rm rem}"),
             Parameter("M_bh", Prior("loguniform", 1e2, 3e5), "Msun", r"M_\bullet"),
         ]
+        b0max = getattr(self, "beta0_max", 0.0)
         if getattr(self, "backend", "jeans") == "agama":
             # Cuddeford-Osipkov-Merritt family of the positive DF: beta -> 1 beyond r_a
-            params += [Parameter("beta_0", Prior("uniform", -1.0, 0.0), "", r"\beta_0"),
+            params += [Parameter("beta_0", Prior("uniform", -1.0, b0max), "", r"\beta_0"),
                        Parameter("r_a", Prior("loguniform", 1.0, 1000.0), "pc", r"r_a")]
+        elif getattr(self, "constant_beta", False):
+            params += [Parameter("beta_0", Prior("uniform", -1.0, b0max), "", r"\beta")]
         else:
-            params += [Parameter("beta_0", Prior("uniform", -1.0, 0.0), "", r"\beta_0"),         # An & Evans: cored tracer => beta_0 <= 0
+            params += [Parameter("beta_0", Prior("uniform", -1.0, b0max), "", r"\beta_0"),      # An & Evans: cored tracer => beta_0 <= 0
                        Parameter("beta_inf", Prior("uniform", -1.0, 1.0), "", r"\beta_\infty"),
                        Parameter("r_beta", Prior("loguniform", 0.5, 100.0), "pc", r"r_\beta")]
-        return params
+        return [p for p in params if p.name not in getattr(self, "fixed", {})]
 
     def _parameters(self) -> tuple[Parameter, ...]:
         params = self._physical_parameters()
@@ -183,7 +207,15 @@ class NoDarkMatterModel:
 
     # -- construction ---------------------------------------------------------
     def distance(self, theta: dict[str, float]) -> float:
-        return float(theta.get("distance", OCEN_DISTANCE_KPC))
+        return float(theta.get("distance", self.fixed_distance_kpc))
+
+    def complete(self, theta: dict[str, float]) -> dict[str, float]:
+        """Sampled parameters plus the fixed ones and the constant-beta aliases."""
+        full = {**self.fixed, **theta}
+        if self.constant_beta and "beta_inf" not in full:
+            full["beta_inf"] = full["beta_0"]
+            full.setdefault("r_beta", 1.0)
+        return full
 
     def scales(self, theta: dict[str, float]) -> dict[str, float]:
         return {inst: float(theta[f"s_{inst}"]) for inst in self.nuisance_instruments}
@@ -199,6 +231,7 @@ class NoDarkMatterModel:
         :class:`~ocen_dm.kinematics.backends.AgamaDFBackend` (``'agama'``); all
         expose ``projected_moments`` and ``mass``.
         """
+        theta = self.complete(theta)
         D = self.distance(theta)
         stars = build_stellar_mge(self.mge_fit, D, total_mass=theta["M_star"])
         comps = [stars, RemnantPlummer(theta["M_rem"], theta["a_rem"]), PointMass(theta["M_bh"])]
