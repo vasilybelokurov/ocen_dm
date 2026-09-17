@@ -213,6 +213,7 @@ def plot_outer_tracer_audit(path: Path | str = "plots/outer_tracer_audit.png") -
     tables = [(lab, our_outer_profile(edges, **kw), c, m) for lab, kw, c, m in variants]
     mix = our_mixture_profile(edges)
     mix["sigma_pmr_err"] = mix["sigma_pm_err"]
+    mix["n_stars"] = np.round(np.asarray(mix["n_stars"]) * (1 - np.asarray(mix["f_field"]))).astype(int)   # cluster stars, not all stars
     tables.append(("field contamination modelled (no P cut)", mix, "#b5175f", "*"))
     ref = tables[0][1]
 
