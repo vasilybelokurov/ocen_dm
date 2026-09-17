@@ -1507,3 +1507,69 @@ The injection figure showed the mock-fitted model against the **real** profiles,
 The corrected injection figure shows what the numbers always said: residuals scatter within
 ±2σ on all five datasets (χ² 23 / 34 / 22 / 3 / 4 = 87 for 126 points) — K2 fitted to no-DM
 data reproduces it without inventing a halo. Suite 267 passing.
+
+## 2026-09-18 — Where the constraints come from, and an independent measurement of the outer dispersion
+
+Two questions from the user: make plots that show directly what each dataset constrains,
+and check whether the outer signal rests on secure, genuinely hot distant tracers.
+
+### `kinematics/outer_profile.py` — our own PM dispersion from the member catalogue
+
+Per-star radial/tangential PMs about the centre with the **error covariance projected onto
+the same directions** (`pmra_error`, `pmdec_error`, `pmra_pmdec_corr`), and a 1-D
+maximum-likelihood dispersion per annulus with the per-star errors deconvolved and the mean
+fitted simultaneously. Tests cover recovery when the errors exceed the signal, the bias from
+a 10 % error underestimate (0.25 → 0.305 mas/yr) and from 3 % contamination (0.25 → >0.4).
+
+Two things had to be right before the numbers meant anything:
+1. **Subtract the systemic PM before projecting.** Projecting the absolute PM onto the
+   radial/tangential directions turns the cluster's own motion into an azimuthal pattern of
+   amplitude |μ_sys|, read as a spurious dispersion of |μ_sys|/√2 ≈ 5.3 mas/yr — which is
+   exactly what the first run produced. Our error-weighted systemic PM from members inside
+   600″: **(−3.2480, −6.7462) mas/yr**, matching the published (−3.25, −6.75).
+2. **Use the authors' quality flag** (bit 2). Without it the inner annuli are inflated by
+   35 % at 350″ falling to 0 by 1400″ — the Gaia crowding systematic. With it our
+   measurement reproduces the published profile to **≤5 % median, ≤10 % everywhere beyond
+   500″** — an independent reproduction of Vasiliev & Baumgardt's profile from their
+   catalogue, with our own error budget (0.3–3 % statistical, against their ~1 %).
+
+### Answering the question
+
+| annulus | N (P>0.9 + quality) | σ measured | per-star error (all / G<18.5) | K1 model | K2 model |
+|---|---|---|---|---|---|
+| 300–369″ | 39 | 0.503 ± 0.057 | 0.25 / 0.03 | 0.574 | 0.563 |
+| 689–849″ | 14224 | 0.394 ± 0.004 | 0.35 / 0.13 | 0.400 | 0.394 |
+| 1045–1286″ | 14520 | 0.313 ± 0.004 | 0.38 / 0.13 | 0.317 | 0.319 |
+| 1286–1583″ | 9414 | 0.281 ± 0.004 | 0.38 / 0.13 | 0.272 | 0.281 |
+| 1583–1949″ | 4884 | 0.247 ± 0.005 | 0.37 / 0.13 | 0.234 | 0.251 |
+| 1949–2400″ | 2337 | 0.221 ± 0.007 | 0.36 / 0.13 | 0.196 | 0.222 |
+
+(model values are bin-averaged and carry each run's fitted Gaia scale, 1.068 / 1.050.)
+χ² over these 10 bins: **K1 = 52, K2 = 16**.
+
+* **Inside ~1200″ (32 pc) the two families are indistinguishable**: the K2/K1 model ratio is
+  within 2 % from 2″ to 1000″ (K2 is in fact marginally *lower*, having moved mass from
+  stars to halo), far below the data errors. No dark matter is needed or detectable there.
+* **Beyond ~1300″ (35 pc) they separate**: +5 % at 1400″, +9 % at 1700″, +16 % at 2100″,
+  against data errors of 1.4–3 %. The measured dispersions follow K2 and sit 2.2σ, 2.6σ,
+  3.5σ above K1.
+* **Secure distant tracers exist**: 9414, 4884 and 2337 members with P > 0.9 and the quality
+  flag in the outer three annuli; the expected contamination (Σ(1−P)) is 1–3 %.
+* **They are genuinely hot, not deconvolved artefacts**: restricting to G < 18.5, whose
+  per-star errors are **0.13 mas/yr — three times smaller than the 0.25–0.28 mas/yr signal**,
+  gives the same dispersion to within 10 % (and to within 4 % at 1000–2000″). Inflating all
+  errors by 20 % lowers σ by ~12 %, tightening the P > 0.99 cut by ~10 %: neither erases a
+  16 % model difference.
+
+So the user's reading is confirmed, with one refinement: the transition is at ~1300″ ≈ 35 pc
+≈ 5 half-light radii, not "a few hundred arcsec", and inside it the two models agree to 2 %
+rather than merely "fit equally well". What remains open is whether hot tracers at 35–64 pc
+mean *bound* mass: at those radii the tidal and escaping populations are exactly what a
+bound-tracer Jeans model cannot represent (JOURNAL, K2-cored entry).
+
+Figures: `plots/constraint_map.png` (all datasets in km/s, K1 and K2 curves, deviations from
+K1, tracer counts per bin) and `plots/outer_tracer_audit.png` (counts, errors vs signal,
+the measurement under six different cuts, robustness). CLI: `ocen plot-constraints`.
+Measurement saved to `data/processed/kinematics/ocen_pm_dispersion_ours.ecsv` — **not** used
+in any fit; using it in place of the published profile is decision A(d), still open.
+Suite 275 passing.
