@@ -96,21 +96,38 @@ def write_report(labels: Iterable[str], path: Path | None = None, plots_dir: Pat
     md.append(f"Figure: `{fig.relative_to(plots_dir.parent) if fig.is_relative_to(plots_dir.parent) else fig}`\n")
     for r in runs:
         s = r["summary"]
-        datasets = list(s["datasets"])
-        data = KinematicData.load(datasets, gaia_edr3_pm={"r_min_arcsec": 300.0})
-        tracer = "composite" if s["family"].endswith("_composite") else "trager"
-        if s["family"].startswith("K1"):
-            fam = NoDarkMatterModel(tracer=tracer)
-        else:
-            fam = DarkMatterModel(gamma=0.0 if "cored" in s["family"] else 1.0, tracer=tracer)
+        data, prov = data_for(s)
+        fam = _family_for(s)
         P = FitProblem(fam, data)
         x_ml = np.array([s["parameters"][n]["ml"] for n in fam.names])
         samples = np.array([np.asarray(r["posterior"][n]) for n in fam.names]).T
+        suffix = "" if prov.get("kind") != "mock" else (
+            f"  [MOCK data from {prov['generating_family']}, seed {prov['seed']}]")
         out = plot_profile_fit(P, x_ml, plots_dir / f"fit_{r['label']}_posterior_profiles.png",
-                               title=f"{r['label']}: best sample and 16-84 % posterior band", samples=samples)
+                               title=f"{r['label']}: best sample and 16-84 % posterior band{suffix}", samples=samples)
         md.append(f"Figure: `{out.name}`")
     path.write_text("\n".join(md))
     return path
+
+
+def data_for(summary: dict):
+    """The data a run was actually fitted to: the real profiles, or its mock realisation.
+
+    A mock run stores its generating family, parameter vector and seed (``summary['data']``),
+    so the same realisation is rebuilt exactly. Drawing a mock-fitted model against the real
+    profiles is meaningless, and before 2026-09-18 the reports did just that.
+    """
+    from .fit import FitProblem
+    from .likelihood import KinematicData
+
+    data = KinematicData.load(list(summary["datasets"]), gaia_edr3_pm={"r_min_arcsec": 300.0})
+    prov = summary.get("data", {"kind": "real"})
+    if prov.get("kind") != "mock":
+        return data, prov
+    gen = _family_for({"family": prov["generating_family"]}, "jeans")
+    x_true = np.array([prov["truth"][n] for n in gen.names])
+    rng = np.random.default_rng(prov["seed"])
+    return FitProblem(gen, data).mock_data(x_true, rng), prov
 
 
 def _family_for(summary: dict, backend: str = "jeans"):
@@ -134,7 +151,7 @@ def engine_crosscheck(label: str, backends: Iterable[str] = ("jeans", "jam")) ->
 
     run = load_run(label)
     s = run["summary"]
-    data = KinematicData.load(list(s["datasets"]), gaia_edr3_pm={"r_min_arcsec": 300.0})
+    data, _ = data_for(s)
     lines = ["| engine | " + " | ".join(f"χ² {d}" for d in s["datasets"]) + " | ln L |", "|---|" + "---|" * (len(s["datasets"]) + 1)]
     for b in backends:
         fam = _family_for(s, b)

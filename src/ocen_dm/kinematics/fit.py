@@ -383,7 +383,8 @@ def _sha256(path: Path) -> str:
 
 def run_nested(problem: FitProblem, out_dir: Path, *, n_live: int = 400, dlogz: float = 0.5,
                max_ncalls: int | None = None, seed: int = 42, n_profile_samples: int = 300,
-               resume: str = "overwrite", verbose: bool = False, step_sampler: bool = False) -> dict[str, Any]:
+               resume: str = "overwrite", verbose: bool = False, step_sampler: bool = False,
+               data_provenance: dict[str, Any] | None = None) -> dict[str, Any]:
     """Run ultranest on ``problem`` and write posterior, summary and profiles to ``out_dir``.
 
     Files written: ``posterior.ecsv`` (equally weighted samples), ``summary.json``
@@ -437,6 +438,9 @@ def run_nested(problem: FitProblem, out_dir: Path, *, n_live: int = 400, dlogz: 
         "n_points": problem.data.n_points,
         "datasets": {p.name: {"kind": p.kind, "n": p.n, "instrument": p.instrument, "note": p.note}
                      for p in problem.data.profiles},
+        # what was actually fitted: real profiles, or a mock realisation. Without this a
+        # report cannot know which data to draw the model against (JOURNAL 2026-09-18).
+        "data": data_provenance or {"kind": "real"},
     }
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2))
 
@@ -451,6 +455,7 @@ def run_nested(problem: FitProblem, out_dir: Path, *, n_live: int = 400, dlogz: 
         "family": fam.label, "git_commit": _git_commit(), "started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(t0)),
         "elapsed_s": round(elapsed, 1), "sampler": {"name": "ultranest", "version": ultranest.__version__,
                                                     "n_live": n_live, "dlogz": dlogz, "seed": seed, "max_ncalls": max_ncalls},
+        "data": data_provenance or {"kind": "real"},
         "priors": {p.name: p.prior.describe() for p in fam.parameters},
         "distance_kpc": None if fam.distance_prior else OCEN_DISTANCE_KPC,
         "inputs": {f.name: _sha256(f) for f in sorted(kin.glob("*.ecsv"))},

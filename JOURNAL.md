@@ -1481,3 +1481,29 @@ and rotation panels of `omegacat_vi_profiles`, all five panels of every data-vs-
 figure, and the three panels of the posterior-profile figure. Tests
 (`tests/test_plotting_axes.py`, 4) check both conversions, the arcmin variant, the
 round trip and the distance dependence. Suite 266 passing.
+
+### Defect found while regenerating the figures: mock runs were drawn against the real data
+
+The injection figure showed the mock-fitted model against the **real** profiles, with
+χ² = 227 on Gaia EDR3 where the run itself had recorded 4. Cause: nothing in
+`summary.json`/`run.yaml` said the run had been fitted to a mock realisation, so
+`write_report` reloaded the real data. Fixed:
+
+* `run_nested(..., data_provenance=...)` writes a `data` block — `{"kind": "real"}` or
+  `{"kind": "mock", generating_family, seed, source_file, tracer, truth: {...}}` — into both
+  `summary.json` and `run.yaml`; the CLI fills it whenever `--mock-from` is used.
+* `report.data_for(summary)` rebuilds the mock realisation exactly (same generating family,
+  same truth vector, same seed) and every figure title carries `[MOCK data from ..., seed n]`.
+  Verified on the existing run: rebuilt χ² = 86.5 against the recorded 86.5, per dataset
+  22.9 / 34.4 / 22.2 / 3.1 / 3.9. The 2026-09-18 injection run's provenance was backfilled
+  from its launch command and marked `backfilled` in the file.
+* Root cause of the wrong data being silently plausible: **`NoDarkMatterModel()` defaults to
+  `tracer="trager"` while `ocen fit` defaults to `--tracer composite`**, so a report that
+  constructs a family instead of reading the run's label gets a different light model (9 vs
+  11 Gaussians). `_family_for` already derives the tracer from the run label; a test now
+  pins both defaults so the mismatch cannot drift silently. Whether to make the two defaults
+  agree is a model-default change and is left for discussion.
+
+The corrected injection figure shows what the numbers always said: residuals scatter within
+±2σ on all five datasets (χ² 23 / 34 / 22 / 3 / 4 = 87 for 126 points) — K2 fitted to no-DM
+data reproduces it without inventing a halo. Suite 267 passing.
