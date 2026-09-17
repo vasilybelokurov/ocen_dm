@@ -1608,3 +1608,82 @@ The systemic PM moves from (−3.2480, −6.7462) to (−3.2479, −6.7451). Con
 χ² over the 10 bins K1 = 48, K2 = 18; outer three bins +1.9σ, +2.1σ, +3.1σ above K1. The
 audit figure now carries the naive treatment as a seventh variant. Saved profile
 `ocen_pm_dispersion_ours.ecsv` is the exact+depth version. Suite green.
+
+## 2026-09-18 — Field contamination of the outer members, and rotation
+
+### Estimating and modelling contamination (user's question)
+
+Three handles, all in the member catalogue: Σ(1−P) from the published probabilities
+(0.1–1.1 % of the P > 0.9 stars, rising outward); the field-to-member ratio per annulus
+(field stars with P < 0.05 outnumber members 6:1 at 1800–2400″ — 22 178 vs 3842); and the
+field PM distribution at the same radii (σ ≈ 5–7 mas/yr in two broad components).
+
+Guarding against it: `mixture_dispersion_free` fits, per annulus and per component, a
+**cluster + two-Gaussian field mixture to all quality stars with no membership probability
+used at all** — cluster N(μ̄, σ² + e_i² + depth term), field widths floored at 1.5 mas/yr
+(without the floor EM carves a narrow "field" out of the members' wings and biases σ low,
+seen as 0.4–0.5 mas/yr "field" components at 500–1000″). Tests: heavy-contamination mock
+(85 % field, errors 0.35, σ = 0.20) recovered without bias over four seeds (0.196–0.222,
+mean 0.205) and identical to a full Nelder–Mead maximisation of the 8-parameter likelihood;
+a pure-cluster mock returns σ to 0.01 with f < 0.02. A first version that took the field
+template from P < 0.05 stars was discarded: that template has a hole at the cluster PM.
+
+Result (quality stars, exact systemic field, depth term):
+
+| annulus | N all | P>0.9 cut | P>0.99 cut | **mixture** | field frac. |
+|---|---|---|---|---|---|
+| 300–500″ | 1200 | 0.463 | 0.450 | 0.460 ± 0.008 | 0.06 |
+| 500–700″ | 11366 | 0.430 | 0.418 | 0.433 ± 0.003 | 0.05 |
+| 700–1000″ | 29513 | 0.376 | 0.358 | 0.375 ± 0.002 | 0.11 |
+| 1000–1400″ | 30545 | 0.313 | 0.294 | 0.308 ± 0.002 | 0.28 |
+| 1400–1800″ | 20101 | 0.263 | 0.242 | 0.252 ± 0.003 | 0.62 |
+| 1800–2400″ | 26519 | 0.229 | 0.201 | **0.195 ± 0.004** | 0.89 |
+
+Inside 1400″ the P > 0.9 sample is clean; at 1400–1800″ contamination inflates it by 4 %;
+**at 1800–2400″ by 15 % (0.229 → 0.195)**. The bright (G < 18.5) subsample, whose cluster
+peak is resolved, agrees with the mixture to 1–3 % (0.207 in the last annulus); a 3 mas/yr
+field-width floor changes nothing.
+
+### Rotation (user's question)
+
+In the **fits**: taken into account at the second-moment level. Every published dispersion
+is about the rotating mean (MUSE: per-annulus rotation curve; HST: locally corrected PMs;
+Vasiliev: joint fit), so the likelihood adds ⟨v̄²⟩ back — v_rot²/2 for MUSE, μ_rot² for the
+HST tangential component, μ_rot²/2 for the 1-D Gaia profiles, from the Vasiliev & Baumgardt
+rotation curve — and compares total second moments, which is what a spherical Jeans model
+predicts regardless of how they split into ordered and random motion. **Not** modelled:
+rotation's dynamical role (the ε ≈ 0.17 flattening, axisymmetry, inclination); that is what
+the JamPy axisymmetric back-end is for. In **our own measurement**: the free per-annulus
+mean tangential PM is the rotation — it reproduces the published curve (−0.238, −0.222,
+−0.155, −0.091, −0.033, −0.020 vs 0.249, 0.218, 0.158, 0.098, 0.051, 0.020 mas/yr) — and its
+azimuthal variation is ≤ 0.05 mas/yr, adding ≤ 0.8 % to σ_T². The comparison with the
+models therefore needs μ_rot²/2 removed from the model second moment; the first
+constraint-map comparison omitted this and was biased at 300–700″, where μ_rot²/2 is
+13–15 % of σ².
+
+### What the corrected comparison says (6 annuli, models bin-averaged, rotation term in)
+
+| annulus | mixture σ | K1 (s = 1) | K2-cored (s = 1) |
+|---|---|---|---|
+| 300–500″ | 0.460 ± 0.008 | 0.476 | 0.474 |
+| 500–700″ | 0.433 ± 0.003 | 0.386 | 0.384 |
+| 700–1000″ | 0.375 ± 0.002 | 0.345 | 0.346 |
+| 1000–1400″ | 0.308 ± 0.002 | 0.287 | 0.295 |
+| 1400–1800″ | 0.252 ± 0.003 | 0.235 | 0.251 |
+| 1800–2400″ | 0.195 ± 0.004 | 0.192 | 0.219 |
+
+Best single Gaia scale: K1 s = 1.082 → χ² = 86 / 6; K2 s = 1.063 → χ² = 245 / 6. With
+contamination modelled, **the outer two annuli follow the no-DM curve and lie 5–6σ below
+the cored-halo curve** that the full-data K2 fit had put through the published profile's
+outer points. What remains is a *uniform* 8 % excess of the Gaia dispersions over the
+HST-anchored K1 at 500–1800″ (13–47 pc), robust to the bright-star cut, the field-width
+floor and the error scale, plus a 7σ deficit in the innermost, crowded annulus (300–500″,
+1200 stars). Equipartition predicts the opposite sign for bright Gaia members, so this 8 %
+is either a Gaia systematic in the overlap region or real extra mass at 2–7 r_h — a
+compact component, not the r_s ≈ 700 pc background the unconstrained K2 chose.
+
+Saved: `data/processed/kinematics/ocen_pm_dispersion_mixture.ecsv` (with the rotation
+term per annulus). Not used in any fit. The figures now carry the mixture profile as "our
+measurement (field modelled)" and the audit shows it beside the P-cut variants. Decision
+A(d) — replace the published EDR3 profile by this measurement in the fits — is now
+supported by the evidence and would change the K1/K2 comparison; it remains the user's.

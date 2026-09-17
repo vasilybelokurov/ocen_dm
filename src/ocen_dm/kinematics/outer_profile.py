@@ -32,6 +32,7 @@ from ..paths import processed_dir
 from .perspective import depth_dispersion, systemic_pm_field, systemic_velocity_vector
 
 __all__ = ["MemberSample", "load_members", "systemic_pm", "dispersion_ml", "binned_dispersion",
+           "mixture_dispersion", "mixture_dispersion_free", "field_pdf_factory", "contamination_audit",
            "OCEN_RA", "OCEN_DEC", "OCEN_VSYS_KMS", "KMS_PER_MASYR_KPC"]
 
 OCEN_RA = 201.696833          # Baumgardt catalogue centre, deg
@@ -221,3 +222,146 @@ def binned_dispersion(sample: MemberSample, edges: np.ndarray, prob_min: float =
     return Table(rows=rows, names=("r_lower", "r_median", "r_upper", "n_stars", "sigma_pmr", "sigma_pmr_err",
                                    "mean_pmr", "sigma_pmt", "sigma_pmt_err", "mean_pmt", "sigma_pm",
                                    "median_err", "expected_contaminants", "median_g"))
+
+
+# ------------------------------------------------------------ contamination ---
+def _two_gaussian_em(v: np.ndarray, n_iter: int = 60) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Fit a 2-component 1-D Gaussian mixture (weights, means, sigmas) by EM."""
+    w = np.array([0.6, 0.4]); mu = np.array([np.median(v), np.median(v)]) + np.array([-1.0, 1.0]) * np.std(v) * 0.5
+    sd = np.array([np.std(v), 2 * np.std(v)])
+    for _ in range(n_iter):
+        pdf = np.stack([w[k] * np.exp(-0.5 * ((v - mu[k]) / sd[k]) ** 2) / (sd[k] * np.sqrt(2 * np.pi)) for k in range(2)])
+        resp = pdf / np.maximum(pdf.sum(axis=0), 1e-300)
+        nk = resp.sum(axis=1)
+        w = nk / len(v); mu = (resp * v).sum(axis=1) / nk
+        sd = np.sqrt(np.maximum((resp * (v - mu[:, None]) ** 2).sum(axis=1) / nk, 1e-8))
+    return w, mu, sd
+
+
+def field_pdf_factory(field_values: np.ndarray):
+    """Empirical PM distribution of the field stars in an annulus, as a callable pdf."""
+    w, mu, sd = _two_gaussian_em(np.asarray(field_values, float))
+
+    def pdf(v: np.ndarray) -> np.ndarray:
+        v = np.asarray(v, float)
+        return sum(w[k] * np.exp(-0.5 * ((v - mu[k]) / sd[k]) ** 2) / (sd[k] * np.sqrt(2 * np.pi)) for k in range(2))
+
+    pdf.params = (w, mu, sd)
+    return pdf
+
+
+def mixture_dispersion(values: np.ndarray, errors: np.ndarray, field_pdf, extra_var=0.0
+                       ) -> tuple[float, float, float, float, float]:
+    """Cluster dispersion with contamination modelled instead of cut away.
+
+    ``value_i ~ (1 - f) N(mean, sigma^2 + err_i^2 + extra_var_i) + f field_pdf(value_i)``, fitted to
+    *all* stars (no membership cut), so neither field stars nor the truncated wings of the
+    member distribution bias ``sigma``. Returns ``(sigma, sigma_err, mean, f, f_err)``.
+    """
+    v = np.asarray(values, float); e2 = np.asarray(errors, float) ** 2 + np.asarray(extra_var, float)
+    fp = np.maximum(field_pdf(v), 1e-300)
+
+    def nll(theta):
+        mean, ln_s2, logit_f = theta
+        f = 1.0 / (1.0 + np.exp(-logit_f))
+        var = np.exp(ln_s2) + e2
+        pc = np.exp(-0.5 * (v - mean) ** 2 / var) / np.sqrt(2 * np.pi * var)
+        return -float(np.sum(np.log((1 - f) * pc + f * fp)))
+
+    var0 = max(np.var(v[np.abs(v - np.median(v)) < 1.0]) - np.mean(e2), 1e-4)
+    res = optimize.minimize(nll, [np.median(v), np.log(var0), np.log(0.02 / 0.98)], method="Nelder-Mead",
+                            options={"xatol": 1e-7, "fatol": 1e-7, "maxiter": 4000})
+    mean, s2, lf = res.x[0], float(np.exp(res.x[1])), res.x[2]
+    f = 1.0 / (1.0 + np.exp(-lf))
+    # errors from the diagonal curvature of the profile likelihood
+    def curv(i, h):
+        x0 = res.x.copy(); xp = x0.copy(); xm = x0.copy(); xp[i] += h; xm[i] -= h
+        return (nll(xp) - 2 * nll(x0) + nll(xm)) / h**2
+    sig_ln_s2 = 1.0 / np.sqrt(max(curv(1, 0.05), 1e-12)); sig_lf = 1.0 / np.sqrt(max(curv(2, 0.1), 1e-12))
+    sigma = np.sqrt(s2)
+    return sigma, 0.5 * sigma * sig_ln_s2, mean, f, f * (1 - f) * sig_lf
+
+
+def contamination_audit(sample: MemberSample, edges: np.ndarray, quality_mask: int | None = 2,
+                        field_prob_max: float = 0.05, depth_tracer: Any = None, distance_kpc: float = 5.43) -> Table:
+    """Per annulus: the P-cut dispersions (P>0.9, P>0.99), the mixture-model dispersion fitted to
+    all quality stars with the field distribution taken from the P<``field_prob_max`` stars, the
+    fitted contaminant fraction, and the published-probability estimate ``sum(1-P)/N``."""
+    q = np.ones(len(sample), bool) if quality_mask is None else (sample.quality_flag & quality_mask) > 0
+    s = sample.select(q)
+    phi_sys = np.arctan2(s.mu_sys[0], s.mu_sys[1])
+    rows = []
+    for lo, hi in zip(edges[:-1], edges[1:]):
+        m = (s.r_arcsec >= lo) & (s.r_arcsec < hi)
+        mem9 = m & (s.prob >= 0.9); mem99 = m & (s.prob >= 0.99); fld = m & (s.prob < field_prob_max)
+        if mem9.sum() < 20 or fld.sum() < 50:
+            continue
+        xr = xt = 0.0
+        if depth_tracer is not None:
+            sd = depth_dispersion(depth_tracer, s.r_arcsec[m] * distance_kpc * 1e3 / 206264.806, float(np.hypot(*s.mu_sys)), distance_kpc)
+            dphi = s.phi[m] - phi_sys; xr, xt = sd**2 * np.cos(dphi) ** 2, sd**2 * np.sin(dphi) ** 2
+        out = {}
+        for comp, val, err, xv in (("r", s.mu_r, s.err_r, xr), ("t", s.mu_t, s.err_t, xt)):
+            fpdf = field_pdf_factory(val[fld])
+            out[comp] = mixture_dispersion(val[m], err[m], fpdf, xv)
+            out[comp + "_field"] = fpdf.params
+        s9r, _, _ = dispersion_ml(s.mu_r[mem9], s.err_r[mem9]); s9t, _, _ = dispersion_ml(s.mu_t[mem9], s.err_t[mem9])
+        s99r, _, _ = dispersion_ml(s.mu_r[mem99], s.err_r[mem99]); s99t, _, _ = dispersion_ml(s.mu_t[mem99], s.err_t[mem99])
+        (sr, esr, _, fr, efr), (st, est, _, ft, eft) = out["r"], out["t"]
+        rows.append((lo, float(np.median(s.r_arcsec[m])), hi, int(m.sum()), int(mem9.sum()), int(fld.sum()),
+                     np.sqrt(0.5 * (s9r**2 + s9t**2)), np.sqrt(0.5 * (s99r**2 + s99t**2)),
+                     np.sqrt(0.5 * (sr**2 + st**2)), 0.5 * np.hypot(esr, est),
+                     0.5 * (fr + ft), 0.5 * np.hypot(efr, eft),
+                     float(np.sum(1 - s.prob[mem9]) / mem9.sum()),
+                     float(np.sqrt(np.sum(out["r_field"][0] * (out["r_field"][2] ** 2 + out["r_field"][1] ** 2))))))
+    return Table(rows=rows, names=("r_lower", "r_median", "r_upper", "n_all", "n_p90", "n_field",
+                                   "sigma_p90", "sigma_p99", "sigma_mixture", "sigma_mixture_err",
+                                   "f_contam", "f_contam_err", "f_from_probabilities", "field_rms"))
+
+
+def mixture_dispersion_free(values: np.ndarray, errors: np.ndarray, extra_var=0.0, n_iter: int = 200,
+                            field_sigma_min: float = 1.5) -> dict[str, float]:
+    """Cluster dispersion from a 3-component mixture with the field fitted freely.
+
+    ``value_i ~ (1-f) N(mean, sigma^2 + err_i^2 + extra_var_i) + f [w N(m1, s1^2) + (1-w) N(m2, s2^2)]``
+    by EM over *all* stars in the annulus: no membership probability is used anywhere, so the
+    field density at the cluster's proper motion is an interpolation of the smooth broad
+    components rather than a template with a hole where the members were removed. The field
+    widths are floored at ``field_sigma_min`` (mas/yr): the Galactic field has sigma ~ 5-7
+    mas/yr here, and without the floor EM places a narrow "field" component on the wings of
+    the member distribution and biases ``sigma`` low (seen 2026-09-18). Returns
+    ``sigma``, its error (profile-likelihood curvature), ``mean``, ``f`` (field fraction of the
+    annulus) and the field components.
+    """
+    v = np.asarray(values, float); e2 = np.asarray(errors, float) ** 2 + np.asarray(extra_var, float)
+    med = np.median(v); core = np.abs(v - med) < 1.0
+    mean, s2 = float(np.median(v[core])), max(float(np.var(v[core]) - np.mean(e2[core])), 1e-4)
+    f = 0.3; w = 0.6; m = np.array([med, med]); s = np.array([3.0, 8.0])
+    for _ in range(n_iter):
+        var = s2 + e2
+        pc = (1 - f) * np.exp(-0.5 * (v - mean) ** 2 / var) / np.sqrt(2 * np.pi * var)
+        p1 = f * w * np.exp(-0.5 * ((v - m[0]) / s[0]) ** 2) / (s[0] * np.sqrt(2 * np.pi))
+        p2 = f * (1 - w) * np.exp(-0.5 * ((v - m[1]) / s[1]) ** 2) / (s[1] * np.sqrt(2 * np.pi))
+        tot = np.maximum(pc + p1 + p2, 1e-300)
+        rc, r1, r2 = pc / tot, p1 / tot, p2 / tot
+        nc, n1, n2 = rc.sum(), r1.sum(), r2.sum()
+        f = (n1 + n2) / len(v); w = n1 / max(n1 + n2, 1e-12)
+        m = np.array([(r1 * v).sum() / n1, (r2 * v).sum() / n2])
+        s = np.sqrt(np.maximum([(r1 * (v - m[0]) ** 2).sum() / n1, (r2 * (v - m[1]) ** 2).sum() / n2],
+                               field_sigma_min**2))
+        # cluster component: heteroscedastic, so its M-step is a weighted ML in (mean, s2)
+        wts = rc / var
+        mean = float((wts * v).sum() / wts.sum())
+        # one Newton-like step on s2 from the weighted score, kept positive
+        score = 0.5 * np.sum(rc * ((v - mean) ** 2 / var**2 - 1.0 / var))
+        fisher = 0.5 * np.sum(rc / var**2)
+        s2 = max(s2 + score / fisher, 1e-6)
+    # curvature error on sigma at the converged responsibilities
+    def nll_s2(ls2):
+        var = np.exp(ls2) + e2
+        return -float(np.sum(rc * (-0.5 * (v - mean) ** 2 / var - 0.5 * np.log(var))))
+    h = 0.05; l0 = np.log(s2)
+    d2 = (nll_s2(l0 + h) - 2 * nll_s2(l0) + nll_s2(l0 - h)) / h**2
+    sigma = np.sqrt(s2)
+    return {"sigma": sigma, "sigma_err": 0.5 * sigma / np.sqrt(max(d2, 1e-12)), "mean": mean, "f": f,
+            "field": (w, m.copy(), s.copy()), "n_cluster": float(nc)}
