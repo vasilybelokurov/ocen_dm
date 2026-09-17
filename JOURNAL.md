@@ -1407,3 +1407,55 @@ their value; not an independent precision measurement without an external constr
 the equipartition offset (their analysis treats the samples differently). Remaining
 parameters as in K1 (M• = 4.5e4 [3.4, 5.5]). Output `results/fits/preset_omegacat6/`.
 Waiting for the last run (injection) before any comparison or decision.
+
+## 2026-09-18 — Control 2: false-positive injection, and the complete-set comparison
+
+**Injection.** K2-cored fitted to a mock drawn from the K1-composite best sample (no dark
+matter; real bins and errors; seed 7): 2.04M calls / 224 min, ln Z = 267.58 ± 0.45,
+χ² 87 / 126. **Recovered M_DM(<100 pc) = 1.0e4 [2.3e3, 5.9e4]; 95 % upper limit 1.4e5 M☉;
+100 % of the posterior below 1e6.** The K2 machinery does not invent a halo from noise:
+the real-data K2 values (3.7e6 cored, 2.3e6 NFW) lie a factor 25 above the mock's 95 %
+limit. Recovery of the other parameters exposes the expected degeneracy — total mass
+inside the data recovered to 7 % (3.07e6 vs 3.31e6 truth) but split differently between
+M★ (1.64e6 vs 2.76e6) and M_rem (1.43e6 vs 0.55e6); β₀ −0.15 vs −0.045 (2σ), M• 4.5e4 vs
+4.0e4 (1.4σ), D 5.433 vs 5.505 (the N(5.43, 0.05) prior pulls), nuisances within 1σ.
+
+**The complete set** (`results/fits/comparison.md`, `comparison_noEDR3.md`,
+`comparison_injection.md`; figures `plots/fit_posterior_profiles_main.png` and one
+data-vs-model panel per run; JamPy cross-checks of every best sample within ≤ 2.4 in ln L):
+
+| run | data | ln Z | χ²/N | M_DM(<100 pc) |
+|---|---|---|---|---|
+| K1 Trager | all | 87.2 ± 0.3 | 446/126 | — |
+| K1 composite | all | 134.9 ± 0.5 | 355/126 | — |
+| K2 NFW composite | all | 176.7 ± 0.6 | 260/126 | 2.35e6 [2.09, 2.60] |
+| **K2 cored composite** | all | **185.9 ± 0.5** | 237/126 | 3.69e6 [3.28, 4.08], r_s 730 pc |
+| K1 composite | no EDR3 | 210.3 ± 0.4 | 137/118 | — |
+| K2 cored composite | no EDR3 | 211.6 ± 0.4 | 134/118 | unconstrained; 95 % < 3.2e6 |
+| K2 cored on K1 mock | all (mock) | 267.6 ± 0.5 | 87/126 | 1.0e4; 95 % < 1.4e5 |
+
+What the set says, without a decision attached:
+1. The composite (star-count) tracer is preferred over the light-weighted one by
+   Δ ln Z = +48 at equal physics; every run with it fits HST + MUSE + Gaia DR2 with
+   χ²/N ≈ 1.1–1.2 and structureless residuals.
+2. The only dataset no model fits is the Gaia EDR3 profile (χ² 218/8 for K1, 102/8 for
+   the best K2): its 8 thinned points with 1 % model-percentile errors alternate ±5σ
+   around even the best K2 curve. All of the K2 preference (+51 / +42) comes from it; with
+   EDR3 removed the K1/K2 evidences are equal (Δ = +1.3) and the DM mass is unconstrained.
+3. The halo the full-data K2 runs choose (r_s ≈ 700 pc, uniform ρ ≈ 0.9 M☉ pc⁻³, M(<500 pc)
+   > 1e8) is not a component bound to a 4e6 M☉ cluster whose Jacobi radius is ~160 pc
+   today and ~60 pc at pericentre; in the enclosed-mass figure it is the curve that leaves
+   the data region at 50 pc and never turns over.
+4. The injection shows the pipeline does not produce such a halo from a no-DM truth with
+   these bins and errors; the preference is therefore a genuine statement about the EDR3
+   profile's shape relative to a bound-tracer Jeans model — not a false positive of the
+   method, and not evidence of a bound dark halo either.
+5. Every run wants M• ≈ 4e4 M☉ (3.4–4.6e4) independently of tracer, dataset and family,
+   against the ≲ 1.2e4 literature limit; unresolved, and the item the imbh_limit preset
+   and the AGAMA-DF engine are for.
+6. Distance 5.43 ± 0.05 with the literature prior in every run; 5.71 [5.26, 6.07] with a
+   flat prior (degenerate with the equipartition scale). Watkins-2013 preset: M/L_V 2.54 vs
+   2.71, β 0.20 vs 0.10, χ²/dof 20 — order-of-magnitude agreement only.
+
+Decisions on the model (K2 truncation/prior; how to treat the EDR3 profile) are the
+user's and are pending; the Jacobi-truncation proposal diff remains parked.
