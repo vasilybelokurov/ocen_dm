@@ -1878,3 +1878,45 @@ Contamination itself, properly modelled, moves nothing by more than its error ba
 anisotropy profiles are identical within errors: both give sigma_T/sigma_R rising from
 0.82-0.85 at 435 arcsec to 1.08-1.12 beyond 1700 arcsec, crossing unity at ~1000 arcsec
 (27 pc). A test now asserts the two methods agree to 6 per cent and within 2 sigma. Suite 288.
+
+### The "wiggle" at 10-20 pc: an artefact of my own comparison, not a feature of the cluster
+
+The user spotted a wiggle in the residual panel of the constraint map between 10 and 20 pc:
+the Gaia points dipped below the model near 350-450 arcsec and jumped ~9 per cent above it
+at 500-700 arcsec. Traced and removed. The dispersions on that panel are ours, measured as
+scatter **about the mean motion fitted in the same annulus**, but the streaming term I
+removed from the model was the **published** Vasiliev & Baumgardt rotation curve. The two
+disagree exactly where the rotation peaks:
+
+| r ["] | our fitted mean tangential motion | published v_rot | ratio |
+|---|---|---|---|
+| 348 | 0.139 | 0.236 | 0.59 |
+| 434 | 0.226 | 0.249 | 0.90 |
+| 521 | 0.218 | 0.243 | 0.90 |
+| 635 | 0.189 | 0.216 | 0.87 |
+| 943 | 0.137 | 0.137 | 1.00 |
+| 1760 | 0.037 | 0.033 | 1.11 |
+
+Since the term enters as ``mu_rot^2 / 2`` and the rotation peaks at 430-580 arcsec,
+over-subtracting it by 10-40 per cent there carved a dip into the model curve and produced
+the apparent excess in the data. The constraint map now uses **our own measured mean
+motions** for our own points (the published curve is still used for datasets whose means we
+do not have), and the wiggle is gone.
+
+With the comparison made self-consistently, in total second moments, the deviation from the
+no-dark-matter model is smooth and rises monotonically outward:
+
+| r [pc] | 9.5 | 11.7 | 13.6 | 15.8 | 18.2 | 21.1 | 24.7 | 29.2 | 35.7 | 45.1 | 57.4 |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| data / K1 − 1 | −11 %* | −1 % | +5 % | +4 % | +5 % | +3 % | +2 % | +4 % | +5 % | +10 % | +17 % |
+
+(*53 stars, ±8 per cent). So there is no structure at 10-20 pc; there is a ~4 per cent
+offset from 13 to 36 pc and a genuine rise beyond 40 pc. Whether that rise is mass or a
+Gaia scale error is the open question, unchanged.
+
+Worth noting for later: our fitted mean tangential motion is **10-13 per cent below** the
+published rotation amplitude between 430 and 800 arcsec, and 40 per cent below it at
+350 arcsec. Both are measured from the same catalogue, so the difference is in the
+definition (a sinusoid amplitude fitted per annulus versus the azimuthal mean of the
+tangential component) or in the treatment of contamination. It does not affect the
+dispersions, but it should be understood before any rotation result is quoted.
