@@ -88,7 +88,7 @@ def our_mixture_profile(edges: np.ndarray = OUTER_EDGES, distance_kpc: float = 5
         sd = depth_dispersion(tracer, q.r_arcsec[m] * distance_kpc * 1e3 / 206264.806, float(np.hypot(*q.mu_sys)), distance_kpc)
         dphi = q.phi[m] - phi_sys
         if dens2d is not None:
-            o = dispersion_2d(q, m, dens2d, depth_var=sd**2)
+            o = dispersion_2d(q, m, dens2d, depth_var=sd**2, field_at=q.absolute_pm)
             rows.append((lo, float(np.median(q.r_arcsec[m])), hi, int(m.sum()), o["sigma_r"], o["sigma_r_err"], o["mean_r"],
                          o["sigma_t"], o["sigma_t_err"], o["mean_t"], o["sigma"], o["sigma_err"], o["f"],
                          float(np.median(q.g_mag[m]))))

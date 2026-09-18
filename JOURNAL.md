@@ -1801,3 +1801,19 @@ the decomposition only uses the field density *in the neighbourhood of the clust
 where the field is a smooth, slowly varying floor; rotating the bulk of the field blob
 barely changes it, and the free normalisation absorbs what is left. Equatorial is kept
 (fewer transformations, identical answer).
+
+**"The background has no systemic velocity" (user, correctly).** The subtraction of
+``mu_sys(position)`` is a coordinate shift applied to every star so that members scatter
+about zero; for field stars it is not a physical statement, and the field's distribution is
+position-independent in **absolute** proper motion, not in the shifted frame. Building the
+template in the shifted frame therefore displaces it by the difference in ``mu_sys`` between
+the template region and the target annulus. Measured: that difference is
+**(0.0003, 0.014) mas/yr** -- negligible, because the perspective term is radial and cancels
+when averaged around an annulus; only its scatter within each region survives (0.03 in
+pmra*, 0.16 in pmdec for the template ring). Refitting with the template built and scored in
+absolute proper motion changes sigma by **<= 0.1 per cent**. The pipeline now does it the
+correct way regardless: `MemberSample` carries the systemic field per star (`sys_a`,
+`sys_d`) and exposes `absolute_pm`; `field_density_2d(absolute=True)` is the default and
+`dispersion_2d(field_at=...)` scores the field there. A test builds a mock whose field sits
+at a large offset and shows that scoring in the wrong frame mis-assigns the field fraction
+by more than 0.1.
