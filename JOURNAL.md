@@ -1788,3 +1788,16 @@ Products: `ocen_field_template_dr3.ecsv` (the field, with its WSDB query and cut
 `ocen_pm_dispersion_mixture.ecsv` (the 2-D measurement, per-component). Figures:
 `contamination_model.png` (now: exact model, residual panels, the 2-D template itself, and
 the anisotropy), plus both versions of the constraint map and the tracer audit. Suite 284.
+
+**Which frame is the field template built in?** Equatorial: the residual proper motions
+``(mu_alpha*, mu_delta)`` after the exact systemic-field subtraction. The field is a
+Galactic population, so the physically natural frame is Galactic, and the two differ: the
+angle between equatorial and Galactic north varies from -6.0 to -10.3 degrees across the
+field, so ignoring the rotation displaces a 7.5 mas/yr field star by up to 0.53 mas/yr --
+more than the cluster's dispersion. Tested by rebuilding the template in ``(mu_l*, mu_b)``
+and rotating each member's residual and radial direction to match: **sigma changes by
+0.0002-0.0005 mas/yr, 0.0-0.2 per cent**, against errors of 0.006-0.010. The reason is that
+the decomposition only uses the field density *in the neighbourhood of the cluster peak*,
+where the field is a smooth, slowly varying floor; rotating the bulk of the field blob
+barely changes it, and the free normalisation absorbs what is left. Equatorial is kept
+(fewer transformations, identical answer).
