@@ -194,4 +194,8 @@ def test_field_is_scored_in_absolute_proper_motion():
     wrong = dispersion_2d(s, np.ones(len(s), bool), dens_abs)
     assert right["sigma_r"] == pytest.approx(0.25, abs=0.03)
     assert right["f"] == pytest.approx(20000 / 24000, abs=0.02)
-    assert abs(wrong["f"] - right["f"]) > 0.1           # the wrong frame mis-assigns the field
+    # scored in the cluster frame the field density is wrong where the cluster sits, so the
+    # fit hands the field too many stars and the cluster comes out far too cold
+    assert wrong["sigma_r"] < 0.6 * right["sigma_r"]
+    assert abs(wrong["sigma_r"] - right["sigma_r"]) > 5 * right["sigma_r_err"]
+    assert wrong["f"] > right["f"] + 0.03
