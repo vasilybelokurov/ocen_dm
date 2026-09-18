@@ -79,6 +79,8 @@ def build_product(g_max: float = 20.5, ruwe_max: float = 1.4, excess_noise_max: 
             & (0.5 * (d["pmra_error"] + d["pmdec_error"]) < pm_error_max))
     t = Table({
         "r_arcsec": r[keep],
+        "sys_a": exp_a[keep],
+        "sys_d": exp_d[keep],
         "mu_a": pmra[keep],
         "mu_d": pmdec[keep],
         "mu_r": (pmra * cos_p + pmdec * sin_p)[keep],
@@ -115,7 +117,7 @@ def load_field_template(path: Path | None = None) -> Table:
 
 
 def field_density_2d(table: Table | None = None, bw: float = 0.15, step: float = 0.05,
-                     vmax: float = 25.0, r_min_arcsec: float = 3600.0):
+                     vmax: float = 30.0, r_min_arcsec: float = 3600.0, absolute: bool = True):
     """Two-dimensional empirical density of the field proper motions, per (mas/yr)^2.
 
     Built in the equatorial frame after the systemic field has been removed -- the frame in
@@ -135,6 +137,14 @@ def field_density_2d(table: Table | None = None, bw: float = 0.15, step: float =
     t = table if table is not None else load_field_template()
     keep = np.asarray(t["r_arcsec"], float) >= r_min_arcsec
     a = np.asarray(t["mu_a"], float)[keep]; d = np.asarray(t["mu_d"], float)[keep]
+    if absolute:
+        # The field has no systemic motion of its own: its distribution is position
+        # independent in ABSOLUTE proper motion, so the template is built there and scored
+        # at each target star's absolute proper motion. (Measured difference from doing it
+        # in the residual frame: <= 0.1 per cent in sigma, because the perspective term is
+        # radial and cancels around an annulus -- JOURNAL 2026-09-18.)
+        a = a + np.asarray(t["sys_a"], float)[keep]
+        d = d + np.asarray(t["sys_d"], float)[keep]
     edges = np.arange(-vmax, vmax + step, step)
     centres = 0.5 * (edges[1:] + edges[:-1])
     h, _, _ = np.histogram2d(a, d, bins=[edges, edges])

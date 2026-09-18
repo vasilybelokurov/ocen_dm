@@ -66,15 +66,22 @@ class MemberSample:
     err_a: np.ndarray = None              # per-star error covariance in the equatorial frame
     err_d: np.ndarray = None
     err_corr: np.ndarray = None
+    sys_a: np.ndarray = None              # the systemic field subtracted at each star's position
+    sys_d: np.ndarray = None
     mu_sys: tuple[float, float] = (0.0, 0.0)
     exact: bool = True                    # systemic field projected star by star, or a constant
 
     def __len__(self) -> int:
         return len(self.r_arcsec)
 
+    @property
+    def absolute_pm(self) -> tuple[np.ndarray, np.ndarray]:
+        """Observed (absolute) proper motions: residual plus the systemic field."""
+        return self.mu_a + self.sys_a, self.mu_d + self.sys_d
+
     def select(self, mask: np.ndarray) -> "MemberSample":
         fields = ("r_arcsec", "mu_r", "mu_t", "err_r", "err_t", "prob", "g_mag", "quality_flag", "phi",
-                  "mu_a", "mu_d", "err_a", "err_d", "err_corr")
+                  "mu_a", "mu_d", "err_a", "err_d", "err_corr", "sys_a", "sys_d")
         vals = [None if getattr(self, f) is None else np.asarray(getattr(self, f))[mask] for f in fields]
         return MemberSample(*vals, mu_sys=self.mu_sys, exact=self.exact)
 
@@ -140,6 +147,7 @@ def load_members(path: Any = None, ra0: float = OCEN_RA, dec0: float = OCEN_DEC,
                         np.asarray(table["membership_prob"], float), np.asarray(table["g_mag"], float),
                         np.asarray(table["quality_flag"], int), np.arctan2(x, y),
                         mu_a=pmra, mu_d=pmdec, err_a=ea, err_d=ed, err_corr=rho,
+                        sys_a=np.broadcast_to(exp_a, pmra.shape).copy(), sys_d=np.broadcast_to(exp_d, pmdec.shape).copy(),
                         mu_sys=(float(mu_sys[0]), float(mu_sys[1])), exact=exact)
 
 
@@ -455,7 +463,8 @@ def mixture_dispersion_free(values: np.ndarray, errors: np.ndarray, extra_var=0.
 
 # ---------------------------------------------------------------- 2-D fit ---
 def dispersion_2d(sample: MemberSample, mask: np.ndarray, field_density, depth_var: np.ndarray | float = 0.0,
-                  sigma_grid: np.ndarray | None = None, n_iter: int = 300, sigma_max: float = 1.2) -> dict[str, float]:
+                  sigma_grid: np.ndarray | None = None, n_iter: int = 300, sigma_max: float = 1.2,
+                  field_at: tuple[np.ndarray, np.ndarray] | None = None) -> dict[str, float]:
     """Cluster dispersion from the **two-dimensional** proper-motion distribution.
 
     The field is not projected: each star is scored against a two-dimensional empirical
@@ -478,7 +487,13 @@ def dispersion_2d(sample: MemberSample, mask: np.ndarray, field_density, depth_v
     ea, ed, rho = np.asarray(s.err_a, float), np.asarray(s.err_d, float), np.asarray(s.err_corr, float)
     phi = np.asarray(s.phi, float)
     cos_p, sin_p = np.sin(phi), np.cos(phi)          # radial unit vector in (alpha*, delta)
-    fp = np.maximum(np.asarray(field_density(a, d), float), 1e-300)
+    # The cluster is modelled in residual proper motion (systemic field removed), but the
+    # FIELD has no systemic motion of its own: its distribution is position-independent in
+    # *absolute* proper motion. ``field_at`` therefore gives the absolute proper motions at
+    # which to score the field template, which is itself built in absolute proper motion.
+    fa, fd = (a, d) if field_at is None else (np.asarray(field_at[0], float)[mask],
+                                              np.asarray(field_at[1], float)[mask])
+    fp = np.maximum(np.asarray(field_density(fa, fd), float), 1e-300)
     dv = np.broadcast_to(np.asarray(depth_var, float), a.shape)
 
     def loglike(sr2: float, st2: float) -> tuple[float, float, float, float]:

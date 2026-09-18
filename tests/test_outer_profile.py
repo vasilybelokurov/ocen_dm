@@ -175,3 +175,23 @@ def test_projecting_an_anisotropic_field_is_what_breaks_the_1d_fit():
     one_d = mixture_dispersion_free(s.mu_r, s.err_r, 0.0)
     assert two_d["sigma_r"] == pytest.approx(0.25, abs=0.03)
     assert one_d["sigma"] < 0.9 * two_d["sigma_r"]          # the 1-D fit is biased low
+
+
+def test_field_is_scored_in_absolute_proper_motion():
+    """The field has no systemic motion: its template must be evaluated at the star's
+    absolute PM, not at the cluster-frame residual. Here the two differ by a large constant,
+    so scoring in the wrong frame destroys the field term and the fit."""
+    from ocen_dm.kinematics.outer_profile import dispersion_2d
+    s = _mock_annulus(seed=4)
+    shift = np.array([3.25, 6.75])                      # the systemic motion, as for omega Cen
+    s = MemberSample(s.r_arcsec, s.mu_r, s.mu_t, s.err_r, s.err_t, s.prob, s.g_mag, s.quality_flag, s.phi,
+                     mu_a=s.mu_a, mu_d=s.mu_d, err_a=s.err_a, err_d=s.err_d, err_corr=s.err_corr,
+                     sys_a=np.full(len(s), -shift[0]), sys_d=np.full(len(s), -shift[1]))
+    # the mock's field is already centred at +shift in the residual frame, i.e. at zero in
+    # absolute PM; a template built in absolute PM must be scored there
+    dens_abs = _fake_field_density(offset=(0.0, 0.0))
+    right = dispersion_2d(s, np.ones(len(s), bool), dens_abs, field_at=s.absolute_pm)
+    wrong = dispersion_2d(s, np.ones(len(s), bool), dens_abs)
+    assert right["sigma_r"] == pytest.approx(0.25, abs=0.03)
+    assert right["f"] == pytest.approx(20000 / 24000, abs=0.02)
+    assert abs(wrong["f"] - right["f"]) > 0.1           # the wrong frame mis-assigns the field
