@@ -496,13 +496,17 @@ def dispersion_2d(sample: MemberSample, mask: np.ndarray, field_density, depth_v
     fp = np.maximum(np.asarray(field_density(fa, fd), float), 1e-300)
     dv = np.broadcast_to(np.asarray(depth_var, float), a.shape)
 
+    # the line-of-sight depth term acts along the systemic proper motion, not along the
+    # radial direction: it enters as a rank-1 covariance along that fixed direction
+    mu_hat = np.asarray(sample.mu_sys, float)
+    mu_hat = mu_hat / max(float(np.hypot(*mu_hat)), 1e-12)
+
     def loglike(sr2: float, st2: float) -> tuple[float, float, float, float]:
         """Maximised log-likelihood at fixed (sigma_R^2, sigma_T^2); means and f by EM."""
         # cluster covariance per star, in the equatorial frame
-        vr, vt = sr2 + dv, st2
-        caa = vr * cos_p**2 + vt * sin_p**2 + ea**2
-        cdd = vr * sin_p**2 + vt * cos_p**2 + ed**2
-        cad = (vr - vt) * cos_p * sin_p + rho * ea * ed
+        caa = sr2 * cos_p**2 + st2 * sin_p**2 + ea**2 + dv * mu_hat[0] ** 2
+        cdd = sr2 * sin_p**2 + st2 * cos_p**2 + ed**2 + dv * mu_hat[1] ** 2
+        cad = (sr2 - st2) * cos_p * sin_p + rho * ea * ed + dv * mu_hat[0] * mu_hat[1]
         det = caa * cdd - cad**2
         mr, mt, f = 0.0, 0.0, 0.5
         ll = -np.inf
