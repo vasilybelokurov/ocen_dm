@@ -168,9 +168,15 @@ def _datasets_in_kms(D: float, contamination_modelled: bool = True) -> list[dict
         ours = our_outer_profile()
         name, errcol = "Gaia EDR3, our measurement (P > 0.9 members, no contamination model)", "sigma_pmr_err"
         n = np.asarray(ours["n_stars"])
+    # our own fit measures the mean motions as well, so the streaming term for these points
+    # is measured rather than taken from the published rotation curve
+    stream2 = None
+    if "mean_pmt" in ours.colnames:
+        stream2 = 0.5 * (np.asarray(ours["mean_pmr"]) ** 2 + np.asarray(ours["mean_pmt"]) ** 2) * k**2
     out.append(dict(name=name, r=np.asarray(ours["r_median"]), sigma=np.asarray(ours["sigma_pm"]) * k,
                     err=np.asarray(ours[errcol]) * k, n=n, kind="pm", color=style.INK, marker="D",
-                    edges=(np.asarray(ours["r_lower"]), np.asarray(ours["r_upper"])), table=ours))
+                    edges=(np.asarray(ours["r_lower"]), np.asarray(ours["r_upper"])), table=ours,
+                    streaming2=stream2))
     return out
 
 
@@ -212,7 +218,12 @@ def plot_constraint_map(path: Path | str = "plots/constraint_map.png",
     axr.axhline(0, color=style.INK_SECONDARY, lw=0.8)
     for d in data:
         model = _sigma_1d_kms(j1, D, d["r"], d["kind"])
-        if "Gaia" in d["name"]:
+        # published dispersions are measured about a rotating mean, so the model's second
+        # moment must have the streaming term removed before comparison. Our own points carry
+        # their measured mean motions; the others use the Vasiliev & Baumgardt rotation curve.
+        if d.get("streaming2") is not None:
+            model = np.sqrt(np.maximum(model**2 - d["streaming2"], 1e-6))
+        elif "Gaia" in d["name"]:
             rot = pm_rotation_curve(d["r"]) * KMS_PER_MASYR_KPC * D
             model = np.sqrt(np.maximum(model**2 - 0.5 * rot**2, 1e-6))
         scale = s1.get("MUSE" if d["kind"] == "los" else "GaiaDR2" if "DR2" in d["name"] else "GaiaEDR3", 1.0) \
