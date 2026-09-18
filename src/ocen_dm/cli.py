@@ -316,7 +316,19 @@ def cmd_plot_constraints(args: argparse.Namespace) -> int:
     """Write the constraint-map and outer-tracer-audit figures."""
     from .plotting.constraints import plot_constraint_map, plot_contamination_model, plot_outer_tracer_audit
 
-    for path in (plot_constraint_map(k1=args.k1, k2=args.k2, contamination_modelled=True),
+    from .plotting.constraints import fit_quality_table, plot_annulus_fits
+
+    t = fit_quality_table()
+    print("  per-annulus fit quality (chi2 per bin of the projected histogram):")
+    print("    r [arcsec]     N    f_field   sigma_R        sigma_T        chi2/bin R (all, peak)   T (all, peak)")
+    for row in t:
+        print("    %4.0f-%4.0f %7d   %.3f   %.3f±%.3f  %.3f±%.3f     %.2f, %.2f          %.2f, %.2f" % (
+            row["r_lower"], row["r_upper"], row["n_stars"], row["f_field"], row["sigma_pmr"], row["sigma_pmr_err"],
+            row["sigma_pmt"], row["sigma_pmt_err"], row["chi2_r_wide"], row["chi2_r_peak"],
+            row["chi2_t_wide"], row["chi2_t_peak"]))
+    for path in (plot_annulus_fits("plots/outer_fit_annuli_radial.png", component="r"),
+                 plot_annulus_fits("plots/outer_fit_annuli_tangential.png", component="t"),
+                 plot_constraint_map(k1=args.k1, k2=args.k2, contamination_modelled=True),
                  plot_constraint_map("plots/constraint_map_pcut.png", k1=args.k1, k2=args.k2, contamination_modelled=False),
                  plot_outer_tracer_audit(reference="pcut"),
                  plot_outer_tracer_audit("plots/outer_tracer_audit_mixture.png", reference="mixture"),

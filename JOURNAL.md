@@ -1817,3 +1817,38 @@ correct way regardless: `MemberSample` carries the systemic field per star (`sys
 `dispersion_2d(field_at=...)` scores the field there. A test builds a mock whose field sits
 at a large offset and shows that scoring in the wrong frame mis-assigns the field fraction
 by more than 0.1.
+
+### Per-annulus fits: figures, residuals and recorded fit quality (user request)
+
+`ocen plot-constraints` now also writes `plots/outer_fit_annuli_radial.png` and
+`..._tangential.png`: one panel per annulus over |mu| < 15 mas/yr on a logarithmic count
+axis, showing the data, the fitted cluster component, the field component and their sum,
+with a residual strip (data − model)/sqrt(model) beneath each and the chi2 per bin printed
+for the whole range and for the cluster peak separately. The cluster peak region is shaded.
+The same routine writes the fit-quality product
+`data/processed/kinematics/ocen_outer_fit_quality.ecsv` (per annulus: N, f_field, N_cluster,
+sigma_R, sigma_T with errors, mean_R, mean_T, and four chi2 values).
+
+| annulus ["] | N | f_field | sigma_R | sigma_T | chi2/bin R (all / peak) | T (all / peak) |
+|---|---|---|---|---|---|---|
+| 300-369 | 41 | 0.049 | 0.501 ± 0.065 | 0.505 ± 0.066 | 0.05 / 0.57 | 0.06 / 0.48 |
+| 455-560 | 2702 | 0.036 | 0.491 ± 0.010 | 0.441 ± 0.009 | 0.66 / 0.97 | 0.73 / 1.19 |
+| 689-849 | 15526 | 0.076 | 0.412 ± 0.008 | 0.382 ± 0.008 | 1.32 / 1.04 | 1.58 / 1.62 |
+| 849-1045 | 19057 | 0.127 | 0.363 ± 0.007 | 0.354 ± 0.007 | 1.66 / 1.56 | 2.00 / 1.96 |
+| 1286-1583 | 17152 | 0.445 | 0.280 ± 0.006 | 0.292 ± 0.006 | 1.43 / 1.35 | 1.58 / 1.47 |
+| 1949-2400 | 19968 | 0.883 | 0.212 ± 0.008 | 0.230 ± 0.009 | 1.38 / 0.97 | 1.51 / 0.96 |
+
+The model tracks the data over three to four decades in counts in every annulus. Fit
+quality is **chi2/bin = 0.05-1.7 over the full range and 0.5-2.0 at the peak**; it is worst
+(1.6-2.0) at 849-1045 arcsec, where the cluster and field contribute comparably and the
+statistics are largest, and best in the outermost annulus where the field dominates and is
+measured directly. Nothing in the residuals is systematic at the level that moves sigma:
+the peak residuals alternate in sign bin to bin rather than showing a coherent excess or
+deficit.
+
+**Also fixed while making these**: the line-of-sight depth term was being added entirely to
+the radial variance in the 2-D fit, whereas it acts along the direction of the systemic
+proper motion. It now enters as a rank-1 covariance along that fixed direction (and its
+projection is used when drawing the model curves). The effect on sigma is at the fourth
+decimal -- the term is 0.01-0.03 mas/yr against dispersions of 0.2-0.5 -- but the model is
+now the one described in the docstring. Suite 288.

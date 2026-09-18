@@ -31,8 +31,8 @@ from ..paths import processed_dir, results_dir
 from . import style
 from .style import add_pc_axis
 
-__all__ = ["plot_constraint_map", "plot_outer_tracer_audit", "plot_contamination_model", "our_outer_profile",
-           "our_mixture_profile", "OUTER_EDGES"]
+__all__ = ["plot_constraint_map", "plot_outer_tracer_audit", "plot_contamination_model", "plot_annulus_fits",
+           "fit_quality_table", "annulus_fits", "our_outer_profile", "our_mixture_profile", "OUTER_EDGES"]
 
 #: log-spaced annuli for our own outer measurement (arcsec)
 OUTER_EDGES = np.geomspace(300.0, 2400.0, 11)
@@ -321,12 +321,15 @@ def plot_outer_tracer_audit(path: Path | str = "plots/outer_tracer_audit.png", r
     return path
 
 
-def _model_histogram(sub, fit, dens2d, bins, depth_var, n_over: int = 12, seed: int = 0):
-    """Expected counts per bin of the projected radial PM under the fitted 2-D model.
+def _model_histogram(sub, fit, dens2d, bins, depth_var, component: str = "r",
+                     n_over: int = 12, seed: int = 0):
+    """Expected counts per bin of the projected proper motion under the fitted 2-D model.
 
-    The cluster part is integrated analytically per star; the field part is drawn from the
-    empirical two-dimensional template and projected onto each star's own radial direction,
-    which is what makes the projected field non-Gaussian.
+    The cluster part is integrated analytically for each star (its own error, its own depth
+    term, the dispersion along the requested component); the field part is drawn from the
+    empirical two-dimensional template **in absolute proper motion** and projected onto each
+    star's own radial or tangential direction, which is what makes the projected field
+    non-Gaussian.
     """
     from scipy.stats import norm
 
@@ -334,16 +337,135 @@ def _model_histogram(sub, fit, dens2d, bins, depth_var, n_over: int = 12, seed: 
 
     rng = np.random.default_rng(seed)
     n = len(sub.mu_r); f = fit["f"]
-    var = fit["sigma_r"] ** 2 + np.asarray(depth_var, float) + sub.err_r**2
-    cdf = norm.cdf((bins[None, :] - fit["mean_r"]) / np.sqrt(var)[:, None])
+    radial = component == "r"
+    sig = fit["sigma_r"] if radial else fit["sigma_t"]
+    mean = fit["mean_r"] if radial else fit["mean_t"]
+    err = sub.err_r if radial else sub.err_t
+    # the depth term points along the systemic proper motion; project it onto this component
+    mu_hat = np.asarray(sub.mu_sys, float); mu_hat = mu_hat / max(float(np.hypot(*mu_hat)), 1e-12)
+    phi_sys = np.arctan2(mu_hat[0], mu_hat[1])
+    proj_depth = np.cos(sub.phi - phi_sys) ** 2 if radial else np.sin(sub.phi - phi_sys) ** 2
+    var = sig**2 + np.asarray(depth_var, float) * proj_depth + err**2
+    cdf = norm.cdf((bins[None, :] - mean) / np.sqrt(var)[:, None])
     clu = (1 - f) * np.diff(cdf, axis=1).sum(axis=0)
     t = load_field_template(); keep = np.asarray(t["r_arcsec"], float) >= 3600.0
-    fa, fd = np.asarray(t["mu_a"], float)[keep], np.asarray(t["mu_d"], float)[keep]
+    fa = (np.asarray(t["mu_a"], float) + np.asarray(t["sys_a"], float))[keep]
+    fd = (np.asarray(t["mu_d"], float) + np.asarray(t["sys_d"], float))[keep]
     n_f = int(round(f * n)) * n_over
     j = rng.choice(len(fa), size=n_f, replace=True); k = rng.choice(n, size=n_f, replace=True)
-    proj = fa[j] * np.sin(sub.phi[k]) + fd[j] * np.cos(sub.phi[k]) + rng.normal(0, sub.err_r[k])
-    fld = np.histogram(proj, bins)[0] / n_over
+    # back to the cluster frame at the target star's position, then project
+    ra_, rd_ = fa[j] - sub.sys_a[k], fd[j] - sub.sys_d[k]
+    if radial:
+        proj = ra_ * np.sin(sub.phi[k]) + rd_ * np.cos(sub.phi[k])
+    else:
+        proj = -ra_ * np.cos(sub.phi[k]) + rd_ * np.sin(sub.phi[k])
+    fld = np.histogram(proj + rng.normal(0, err[k]), bins)[0] / n_over
     return clu, fld
+
+
+def annulus_fits(edges: np.ndarray = OUTER_EDGES, distance_kpc: float = 5.43):
+    """Fit every annulus and return ``(sample, [(lo, hi, subsample, fit, depth_var), ...])``."""
+    from ..kinematics.outer_profile import dispersion_2d
+    from ..kinematics.perspective import depth_dispersion
+    from ..selection.field_template import field_density_2d
+
+    s = load_members(exact=True, distance_kpc=distance_kpc)
+    q = s.select((s.quality_flag & QUALITY_BIT) > 0)
+    tracer = _composite_tracer(distance_kpc)
+    dens2d = field_density_2d()
+    out = []
+    for lo, hi in zip(edges[:-1], edges[1:]):
+        m = (q.r_arcsec >= lo) & (q.r_arcsec < hi)
+        if m.sum() < 20:
+            continue
+        sub = q.select(m)
+        sd = depth_dispersion(tracer, sub.r_arcsec * distance_kpc * 1e3 / 206264.806,
+                              float(np.hypot(*q.mu_sys)), distance_kpc)
+        out.append((lo, hi, sub, dispersion_2d(q, m, dens2d, depth_var=sd**2, field_at=q.absolute_pm), sd**2))
+    return q, dens2d, out
+
+
+def fit_quality_table(edges: np.ndarray = OUTER_EDGES, distance_kpc: float = 5.43,
+                      save: bool = True) -> Table:
+    """Per-annulus parameters and goodness of fit of the 2-D cluster + field model.
+
+    chi2 per bin of the projected histograms, over the full proper-motion range (where the
+    field dominates) and over the cluster peak, for both components.
+    """
+    q, dens2d, fits = annulus_fits(edges, distance_kpc)
+    rows = []
+    for lo, hi, sub, fit, dvar in fits:
+        chis = {}
+        for comp in ("r", "t"):
+            v = sub.mu_r if comp == "r" else sub.mu_t
+            for tag, lim, nb in (("wide", (-15, 15), 121), ("peak", (-1.5, 1.5), 61)):
+                bins = np.linspace(lim[0], lim[1], nb)
+                data, _ = np.histogram(v, bins)
+                clu, fld = _model_histogram(sub, fit, dens2d, bins, dvar, component=comp)
+                model = clu + fld
+                chis[f"chi2_{comp}_{tag}"] = float(np.sum((data - model) ** 2 / np.maximum(model, 1)) / (nb - 1))
+        rows.append((lo, float(np.median(sub.r_arcsec)), hi, int(len(sub)), fit["f"], fit["n_cluster"],
+                     fit["sigma_r"], fit["sigma_r_err"], fit["sigma_t"], fit["sigma_t_err"],
+                     fit["mean_r"], fit["mean_t"], chis["chi2_r_wide"], chis["chi2_r_peak"],
+                     chis["chi2_t_wide"], chis["chi2_t_peak"]))
+    t = Table(rows=rows, names=("r_lower", "r_median", "r_upper", "n_stars", "f_field", "n_cluster",
+                                "sigma_pmr", "sigma_pmr_err", "sigma_pmt", "sigma_pmt_err",
+                                "mean_pmr", "mean_pmt", "chi2_r_wide", "chi2_r_peak",
+                                "chi2_t_wide", "chi2_t_peak"))
+    t.meta["description"] = ("2-D cluster + empirical-field fit per annulus; chi2 values are per bin of the "
+                             "projected histogram, 'wide' = |mu| < 15 mas/yr (120 bins), 'peak' = |mu| < 1.5 (60 bins)")
+    if save:
+        path = processed_dir() / "kinematics" / "ocen_outer_fit_quality.ecsv"
+        t.write(path, format="ascii.ecsv", overwrite=True)
+    return t
+
+
+def plot_annulus_fits(path: Path | str = "plots/outer_fit_annuli.png", component: str = "r",
+                      edges: np.ndarray = OUTER_EDGES, distance_kpc: float = 5.43, n_col: int = 2) -> Path:
+    """Data and fitted model in every annulus, with residuals and the chi2 of each panel."""
+    style.apply()
+    q, dens2d, fits = annulus_fits(edges, distance_kpc)
+    label = r"\mu_R" if component == "r" else r"\mu_T"
+    n = len(fits); n_row = int(np.ceil(n / n_col))
+    fig = plt.figure(figsize=(6.6 * n_col, 3.4 * n_row))
+    outer = fig.add_gridspec(n_row, n_col, hspace=0.42, wspace=0.22)
+    for k, (lo, hi, sub, fit, dvar) in enumerate(fits):
+        inner = outer[k // n_col, k % n_col].subgridspec(2, 1, height_ratios=[3, 1], hspace=0.05)
+        ax = fig.add_subplot(inner[0]); axr = fig.add_subplot(inner[1], sharex=ax)
+        v = sub.mu_r if component == "r" else sub.mu_t
+        bins = np.linspace(-15, 15, 121); mid = 0.5 * (bins[1:] + bins[:-1])
+        data, _ = np.histogram(v, bins)
+        clu, fld = _model_histogram(sub, fit, dens2d, bins, dvar, component=component)
+        model = clu + fld
+        ax.bar(mid, data, width=bins[1] - bins[0], color=style.COLOR_FIELD, alpha=0.75, label="data")
+        ax.step(bins, np.append(clu, clu[-1]), where="post", color=style.SERIES[0], lw=1.6,
+                label=r"cluster: $\sigma$ = %.3f $\pm$ %.3f, N = %.0f" % (
+                    fit["sigma_r"] if component == "r" else fit["sigma_t"],
+                    fit["sigma_r_err"] if component == "r" else fit["sigma_t_err"], fit["n_cluster"]))
+        ax.step(bins, np.append(fld, fld[-1]), where="post", color=style.SERIES[1], lw=1.6,
+                label="field: f = %.3f" % fit["f"])
+        ax.step(bins, np.append(model, model[-1]), where="post", color=style.INK, lw=1.1, ls="--", label="total")
+        ax.set_yscale("log"); ax.set_ylim(0.5, 3 * max(data.max(), 1))
+        ax.set_ylabel("stars per bin"); ax.legend(fontsize=6.5, loc="upper right")
+        ax.set_title(r"%.0f$-$%.0f arcsec  (%.1f$-$%.1f pc):  %s stars" % (
+            lo, hi, lo * distance_kpc * 1e3 / 206264.806, hi * distance_kpc * 1e3 / 206264.806, f"{len(sub):,}"),
+            fontsize=9.5)
+        ax.tick_params(labelbottom=False)
+        res = (data - model) / np.sqrt(np.maximum(model, 1))
+        axr.bar(mid, res, width=bins[1] - bins[0], color=style.INK_SECONDARY)
+        axr.axhline(0, color=style.INK, lw=0.8); axr.set_ylim(-4.5, 4.5)
+        axr.set_xlabel((r"$\mu_R$" if component == "r" else r"$\mu_T$") + "  [mas/yr]  (systemic motion removed)")
+        axr.set_ylabel(r"$\chi$", fontsize=8)
+        peak = np.abs(mid) < 1.5
+        axr.text(0.02, 0.78, r"$\chi^2$/bin = %.2f (all), %.2f (peak)" % (
+            np.sum(res**2) / len(res), np.sum(res[peak] ** 2) / max(peak.sum(), 1)),
+            transform=axr.transAxes, fontsize=7.5)
+        axr.axvspan(-1.5, 1.5, color=style.SERIES[0], alpha=0.07, lw=0)
+    fig.suptitle("Per-annulus fit, %s component: data, cluster + field model, residuals"
+                 % ("radial" if component == "r" else "tangential"), y=0.995)
+    path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
+    return path
 
 
 def plot_contamination_model(path: Path | str = "plots/contamination_model.png",
@@ -380,7 +502,7 @@ def plot_contamination_model(path: Path | str = "plots/contamination_model.png",
             ax = axes[row, j]
             bins = np.linspace(lim[0], lim[1], nb); mid = 0.5 * (bins[1:] + bins[:-1])
             data, _ = np.histogram(sub.mu_r, bins)
-            clu, fld = _model_histogram(sub, fit, dens2d, bins, sd**2)
+            clu, fld = _model_histogram(sub, fit, dens2d, bins, sd**2, component="r")
             ax.bar(mid, data, width=bins[1] - bins[0], color=style.COLOR_FIELD, alpha=0.7, label="data (radial PM)")
             ax.step(bins, np.append(clu, clu[-1]), where="post", color=style.SERIES[0], lw=1.8,
                     label=r"cluster: $\sigma_R$ = %.3f, N = %.0f" % (fit["sigma_r"], fit["n_cluster"]))
