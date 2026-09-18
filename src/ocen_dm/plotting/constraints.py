@@ -32,6 +32,7 @@ from . import style
 from .style import add_pc_axis
 
 __all__ = ["plot_constraint_map", "plot_outer_tracer_audit", "plot_contamination_model", "plot_annulus_fits",
+           "plot_method_comparison",
            "fit_quality_table", "annulus_fits", "our_outer_profile", "our_mixture_profile", "OUTER_EDGES"]
 
 #: log-spaced annuli for our own outer measurement (arcsec)
@@ -551,6 +552,72 @@ def plot_contamination_model(path: Path | str = "plots/contamination_model.png",
     ax.set_title("Anisotropy from the same fit", fontsize=9.5)
 
     fig.suptitle("Field contamination of the Gaia EDR3 outskirts: the two-dimensional model", y=0.995)
+    path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
+    return path
+
+
+def plot_method_comparison(path: Path | str = "plots/outer_method_comparison.png",
+                           edges: np.ndarray = OUTER_EDGES, distance_kpc: float = 5.43) -> Path:
+    """Membership cut versus cluster+field decomposition, component by component.
+
+    Panels: the radial and tangential dispersion profiles measured both ways; their
+    fractional difference against the statistical errors; and the anisotropy each method
+    implies. The field fraction of each annulus runs along the top of the difference panel,
+    since that is what sets how much the two can differ.
+    """
+    style.apply()
+    mix = our_mixture_profile(edges, distance_kpc=distance_kpc)     # 2-D cluster + field, no P cut
+    cut = our_outer_profile(edges)                                   # P > 0.9 members, error deconvolution
+    r = np.asarray(mix["r_median"])
+    fig, axes = plt.subplots(2, 2, figsize=(12.5, 8.4))
+    (a_r, a_t), (a_d, a_b) = axes
+    cols = {"cut": "#b5175f", "mix": style.INK}
+
+    for ax, comp, name in ((a_r, "sigma_pmr", "radial"), (a_t, "sigma_pmt", "tangential")):
+        ax.errorbar(np.asarray(cut["r_median"]), cut[comp], yerr=cut[f"{comp}_err"], fmt="o", ms=5,
+                    color=cols["cut"], ecolor=cols["cut"], elinewidth=1.2, lw=0,
+                    label="P > 0.9 members, errors deconvolved")
+        ax.errorbar(r, mix[comp], yerr=mix[f"{comp}_err"], fmt="D", ms=5, color=cols["mix"],
+                    ecolor=cols["mix"], elinewidth=1.2, lw=0, label="cluster + field decomposition (all stars)")
+        ax.set_xscale("log"); ax.set_yscale("log")
+        ax.set_xlabel("R  [arcsec]"); ax.set_ylabel(r"$\sigma_%s$  [mas/yr]" % ("R" if comp.endswith("pmr") else "T"))
+        ax.set_title("%s component" % name, fontsize=10.5); ax.legend(fontsize=8)
+        add_pc_axis(ax, distance_kpc)
+
+    for comp, colour, marker, lab in (("sigma_pmr", style.SERIES[0], "o", r"$\sigma_R$"),
+                                      ("sigma_pmt", style.SERIES[2], "^", r"$\sigma_T$")):
+        d = np.asarray(mix[comp]) / np.asarray(cut[comp]) - 1.0
+        e = np.hypot(np.asarray(mix[f"{comp}_err"]) / np.asarray(mix[comp]),
+                     np.asarray(cut[f"{comp}_err"]) / np.asarray(cut[comp]))
+        a_d.errorbar(r, 100 * d, yerr=100 * e, fmt=marker + "-", ms=5, color=colour, ecolor=colour,
+                     elinewidth=1.2, lw=1.2, label=lab)
+    a_d.axhline(0, color=style.INK, lw=1)
+    a_d.set_xscale("log"); a_d.set_xlabel("R  [arcsec]")
+    a_d.set_ylabel("decomposition $-$ membership cut  [%]")
+    a_d.set_title("How much the two methods differ", fontsize=10.5); a_d.legend(fontsize=8, loc="upper left")
+    add_pc_axis(a_d, distance_kpc)
+    ax2 = a_d.twinx()
+    ax2.plot(r, 100 * np.asarray(mix["f_field"]), ":", color=style.SERIES[1], lw=1.6)
+    ax2.set_ylabel("field fraction of the annulus  [%]", color=style.SERIES[1])
+    ax2.tick_params(axis="y", colors=style.SERIES[1]); ax2.set_ylim(0, 100); ax2.grid(False)
+
+    for tab, colour, marker, lab in ((cut, cols["cut"], "o", "P > 0.9 members"),
+                                     (mix, cols["mix"], "D", "decomposition")):
+        ratio = np.asarray(tab["sigma_pmt"]) / np.asarray(tab["sigma_pmr"])
+        err = ratio * np.hypot(np.asarray(tab["sigma_pmt_err"]) / np.asarray(tab["sigma_pmt"]),
+                               np.asarray(tab["sigma_pmr_err"]) / np.asarray(tab["sigma_pmr"]))
+        a_b.errorbar(np.asarray(tab["r_median"]), ratio, yerr=err, fmt=marker, ms=5, color=colour,
+                     ecolor=colour, elinewidth=1.2, lw=0, label=lab)
+    a_b.axhline(1.0, color=style.INK_SECONDARY, lw=0.9, ls="--")
+    a_b.set_xscale("log"); a_b.set_xlabel("R  [arcsec]"); a_b.set_ylabel(r"$\sigma_T / \sigma_R$")
+    a_b.set_title("Anisotropy implied by each method", fontsize=10.5); a_b.legend(fontsize=8)
+    a_b.text(0.03, 0.08, "radial orbits", transform=a_b.transAxes, fontsize=8, color=style.INK_SECONDARY)
+    a_b.text(0.03, 0.88, "tangential orbits", transform=a_b.transAxes, fontsize=8, color=style.INK_SECONDARY)
+    add_pc_axis(a_b, distance_kpc)
+
+    fig.suptitle("Membership cut versus cluster + background decomposition, Gaia EDR3 outskirts", y=0.995)
+    fig.tight_layout()
     path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
     return path

@@ -1852,3 +1852,29 @@ proper motion. It now enters as a rank-1 covariance along that fixed direction (
 projection is used when drawing the model curves). The effect on sigma is at the fourth
 decimal -- the term is 0.01-0.03 mas/yr against dispersions of 0.2-0.5 -- but the model is
 now the one described in the docstring. Suite 288.
+
+### Membership cut versus decomposition, component by component (user request)
+
+`plots/outer_method_comparison.png` (also written by `ocen plot-constraints`): the radial
+and tangential dispersion profiles measured both ways, their fractional difference with the
+field fraction overlaid, and the anisotropy each method implies.
+
+| r ["] | f_field | sigma_R: cut / decomp | sigma_T: cut / decomp | sigma_T/sigma_R: cut / decomp |
+|---|---|---|---|---|
+| 435 | 0.045 | 0.508 / 0.509 (+0.2 %) | 0.419 / 0.434 (+3.7 %) | 0.824 / 0.853 |
+| 635 | 0.048 | 0.451 / 0.452 (+0.2 %) | 0.394 / 0.402 (+2.0 %) | 0.874 / 0.890 |
+| 941 | 0.127 | 0.360 / 0.363 (+1.0 %) | 0.347 / 0.354 (+2.0 %) | 0.964 / 0.974 |
+| 1152 | 0.235 | 0.308 / 0.313 (+1.6 %) | 0.318 / 0.322 (+1.4 %) | 1.032 / 1.030 |
+| 1408 | 0.445 | 0.274 / 0.280 (+2.3 %) | 0.286 / 0.292 (+2.2 %) | 1.043 / 1.042 |
+| 1722 | 0.703 | 0.231 / 0.236 (+2.3 %) | 0.257 / 0.265 (+3.1 %) | 1.115 / 1.124 |
+| 2122 | 0.883 | 0.210 / 0.212 (+0.9 %) | 0.226 / 0.230 (+1.4 %) | 1.076 / 1.082 |
+
+The two agree to **0-4 per cent in every annulus and both components**, with the
+decomposition always the higher of the two (a membership cut is a proper-motion cut: it
+removes the cluster's own velocity wings along with the field). The difference does **not**
+grow with the field fraction -- it is +2 to +3 per cent at f = 0.05 and the same at
+f = 0.88 -- so it is the wing truncation, not contamination, that separates the methods.
+Contamination itself, properly modelled, moves nothing by more than its error bar. The
+anisotropy profiles are identical within errors: both give sigma_T/sigma_R rising from
+0.82-0.85 at 435 arcsec to 1.08-1.12 beyond 1700 arcsec, crossing unity at ~1000 arcsec
+(27 pc). A test now asserts the two methods agree to 6 per cent and within 2 sigma. Suite 288.

@@ -72,3 +72,19 @@ def test_annulus_figures_render(tmp_path):
     for comp in ("r", "t"):
         p = plot_annulus_fits(tmp_path / f"annuli_{comp}.png", component=comp)
         assert p.exists() and p.stat().st_size > 100_000
+
+
+@pytest.mark.skipif(not _HAS_MEMBERS, reason="member catalogue not present")
+def test_method_comparison_figure_and_agreement(tmp_path):
+    """The two measurements must agree within a few per cent, component by component."""
+    from ocen_dm.plotting.constraints import our_mixture_profile, our_outer_profile, plot_method_comparison
+    mix = our_mixture_profile(); cut = our_outer_profile()
+    for comp in ("sigma_pmr", "sigma_pmt"):
+        d = np.asarray(mix[comp]) / np.asarray(cut[comp]) - 1.0
+        e = np.hypot(np.asarray(mix[f"{comp}_err"]) / np.asarray(mix[comp]),
+                     np.asarray(cut[f"{comp}_err"]) / np.asarray(cut[comp]))
+        assert np.all(np.abs(d) < 0.06)                      # never more than 6 per cent apart
+        assert np.all(d > -0.02)                             # the decomposition is never lower by much
+        assert np.median(np.abs(d) / e) < 2.0                # and consistent within the errors
+    p = plot_method_comparison(tmp_path / "cmp.png")
+    assert p.exists() and p.stat().st_size > 80_000
