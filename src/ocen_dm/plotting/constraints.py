@@ -1775,21 +1775,24 @@ def plot_estimator_audit(path: Path | str = "plots/estimator_before_after.png",
     a3.set_title("Anisotropy: more radial at 400-700 arcsec", fontsize=10.5)
     a3.legend(fontsize=8.5, loc="upper left"); add_pc_axis(a3, distance_kpc)
 
-    # (d) rotation against the published curve, the independent check
+    # (d) rotation: our fitted mean tangential motion against the published curve. The
+    # estimator never sees that curve, so this is an independent check of the algebra.
+    keep = (rp > 300) & (rp <= 2400)
+    a4.plot(rp[keep], vp[keep], "-", lw=2.4, color=style.SERIES[1], alpha=0.85,
+            label="published rotation curve (never used by our fit)")
     pub = np.interp(np.asarray(g["r_median"], float), rp, vp)
-    for col, lab, ls, col_ in (("meant_legacy_signs", "before", "--", OLD),
-                               ("meant_fixed", "after", "-", NEW)):
-        y = np.asarray(g[col]) / pub
-        med = np.median(y[:7])
+    for col, lab, ls, col_ in (("meant_legacy_signs", "our fit, before", "--", OLD),
+                               ("meant_fixed", "our fit, after", "-", NEW)):
+        y = np.asarray(g[col])
+        med = np.median((y / pub)[:7])
         a4.plot(g["r_median"], y, "D" + ls, ms=7, lw=1.8, color=col_,
-                mfc="white" if lab == "before" else col_,
-                label="%s (median %.2f over 356-1328\")" % (lab, med))
-    a4.axhline(1.0, color=style.INK_SECONDARY, lw=1.5)
-    a4.set_xscale("log"); a4.set_ylim(0.5, 2.0)
+                mfc="white" if "before" in lab else col_,
+                label="%s (median %.0f %% of it over 356-1328\")" % (lab, 100 * med))
+    a4.set_xscale("log")
     a4.set_xlabel("R  [arcsec]")
-    a4.set_ylabel("our fitted rotation / published curve")
-    a4.set_title("Independent check: a curve the estimator never sees", fontsize=10.5)
-    a4.legend(fontsize=8.5, loc="upper left"); add_pc_axis(a4, distance_kpc)
+    a4.set_ylabel("rotation, $|\\langle\\mu_T\\rangle|$  [mas/yr]")
+    a4.set_title("Independent check: rotation, which our fit never uses", fontsize=10.5)
+    a4.legend(fontsize=8.2, loc="upper right"); add_pc_axis(a4, distance_kpc)
 
     fig.tight_layout()
     path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
