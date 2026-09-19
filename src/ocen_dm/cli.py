@@ -323,7 +323,10 @@ def cmd_plot_constraints(args: argparse.Namespace) -> int:
     from .plotting.constraints import plot_constraint_map, plot_contamination_model, plot_outer_tracer_audit
 
     from .plotting.constraints import (fit_quality_table, plot_annulus_fits, plot_dataset_step,
-                                       plot_method_comparison, plot_offset_explained,
+                                       plot_extended_profile, plot_hst_gaia_star_by_star,
+                                       plot_master_datasets, plot_method_comparison,
+                                       plot_offset_explained, plot_periphery,
+                                       plot_periphery_density, plot_pm_datasets,
                                        plot_residual_significance)
 
     t = fit_quality_table()
@@ -334,7 +337,13 @@ def cmd_plot_constraints(args: argparse.Namespace) -> int:
             row["r_lower"], row["r_upper"], row["n_stars"], row["f_field"], row["sigma_pmr"], row["sigma_pmr_err"],
             row["sigma_pmt"], row["sigma_pmt_err"], row["chi2_r_wide"], row["chi2_r_peak"],
             row["chi2_t_wide"], row["chi2_t_peak"]))
-    for path in (plot_offset_explained(),
+    for path in (plot_master_datasets(),
+                 plot_pm_datasets(),
+                 plot_extended_profile(),
+                 plot_periphery(),
+                 plot_periphery_density(),
+                 plot_hst_gaia_star_by_star(),
+                 plot_offset_explained(),
                  plot_dataset_step(),
                  plot_residual_significance(),
                  plot_method_comparison(),
