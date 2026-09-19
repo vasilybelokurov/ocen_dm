@@ -3140,3 +3140,22 @@ Neither edge can be pushed further within these catalogues.
 The one untested route is **oMEGACat II** (arXiv:2404.03722), the standalone HST astrometric
 catalogue, which we have not ingested. It is probably the same footprint, but its outer
 photometric coverage has not been checked.
+
+## 2026-09-19 -- master figure and the data-preparation write-up
+
+`plots/master_datasets.png` regenerated with our own HST measurement drawn to 360 arcsec
+alongside the published profile that the likelihood currently receives, and the 300-360
+arcsec overlap shaded.
+
+`docs/data_analysis.tex` written and compiled to `docs/data_analysis.pdf`, 10 pages, 6
+figures, with a bibliography of verified links. Sections: the governing principle (a star
+whose error approaches the dispersion measures the error model, not the cluster); the
+catalogues; the estimator (2-D mixture, empirical field, exact perspective, depth, rotation);
+HST (flag definition, validation against the published profile, the 360 arcsec limit and why
+it cannot move); Gaia EDR3 (why the published spline is not used, the raw-error problem, the
+failure of the density-only inflation, our low-noise measurement); cross-validation
+(HST/Gaia overlap by three routes, Pristine at 0.995 +- 0.014); supporting datasets; the
+Jacobi radius and the periphery overdensity; the 127-point dataset; and the three open
+decisions.
+
+LaTeX build artefacts are gitignored; the .tex and .pdf are tracked.

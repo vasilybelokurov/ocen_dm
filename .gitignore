@@ -12,3 +12,10 @@ __pycache__/
 .ask-codex-packet.md
 *.tmp*
 .*.part
+docs/*.aux
+docs/*.fdb_latexmk
+docs/*.fls
+docs/*.log
+docs/*.out
+docs/*.bbl
+docs/*.blg

@@ -1454,9 +1454,19 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
                                      gridspec_kw={"height_ratios": [2.5, 1.15, 1.0]})
 
     # --- context: real data that exists but is not fitted --------------------------
+    from ..kinematics.hst_profile import hst_profile
     rp, sp = published_profile()
     a1.plot(pc(rp[rp > 0]), sp[rp > 0] * k, color=style.SERIES[0], lw=1.4, ls="--", alpha=0.5,
             label="Gaia EDR3 published spline [not fitted]")
+    hst_ours = hst_profile(edges_arcsec=tuple(np.concatenate(
+        [np.geomspace(3.0, 150.0, 11), [200., 250., 300., 340., 360.]])), min_stars=40)
+    a1.errorbar(pc(hst_ours["r_median"]), np.asarray(hst_ours["sigma_pm"]) * k,
+                yerr=np.asarray(hst_ours["sigma_pm_err"]) * k, linestyle="-", lw=1.6,
+                label="HST, our measurement to 360\" [not fitted yet]",
+                **dataset_style("hst", size=6.5, fitted=False))
+    a1.axvspan(pc(300.0), pc(360.0), color=style.SERIES[2], alpha=0.22, lw=0)
+    a1.annotate("HST and Gaia\nboth measure here", (pc(328.0), 25.0), fontsize=8,
+                ha="center", va="top", color=style.SERIES[2])
     draw(a1, np.asarray(pr["r_pc"])[ok], np.asarray(pr["sigma_kms"])[ok],
          np.asarray(pr["sigma_kms_err"])[ok], "pristine", fitted=False, size=8)
     los = periphery_los_profile()
@@ -1482,7 +1492,7 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
 
     a1.axvspan(0.03, 200 * distance_kpc * 1e3 / 206264.806, color=style.SERIES[0],
                alpha=0.05, lw=0)
-    a1.annotate("no Gaia EDR3 star passes\nthe quality flag here", (0.55, 24.0), fontsize=8.5,
+    a1.annotate("no Gaia EDR3 star passes\nthe quality flag here", (0.35, 24.5), fontsize=8.5,
                 color=style.SERIES[0], ha="center", va="top")
     a1.axvline(R_JACOBI_PERI_PC, color=style.INK_SECONDARY, lw=1.2, ls=":")
     a1.annotate("$r_J$ pericentre", (R_JACOBI_PERI_PC * 1.05, 4.3), rotation=90, fontsize=8,
