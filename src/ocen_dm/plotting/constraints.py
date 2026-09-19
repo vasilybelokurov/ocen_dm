@@ -1457,12 +1457,12 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
     from ..kinematics.hst_profile import hst_profile
     rp, sp = published_profile()
     a1.plot(pc(rp[rp > 0]), sp[rp > 0] * k, color=style.SERIES[0], lw=1.4, ls="--", alpha=0.5,
-            label="Gaia EDR3 published spline [not fitted]")
+            label="Gaia EDR3 published spline [context only]")
     hst_ours = hst_profile(edges_arcsec=tuple(np.concatenate(
         [np.geomspace(3.0, 150.0, 11), [200., 250., 300., 340., 360.]])), min_stars=40)
     a1.errorbar(pc(hst_ours["r_median"]), np.asarray(hst_ours["sigma_pm"]) * k,
                 yerr=np.asarray(hst_ours["sigma_pm_err"]) * k, linestyle="-", lw=1.6,
-                label="HST, our measurement to 360\" [not fitted yet]",
+                label="HST, ours to 360\" [context only, not yet in the likelihood]",
                 **dataset_style("hst", size=6.5, fitted=False))
     a1.axvspan(pc(300.0), pc(360.0), color=style.SERIES[2], alpha=0.22, lw=0)
     a1.annotate("HST and Gaia\nboth measure here", (pc(328.0), 25.0), fontsize=8,
@@ -1488,7 +1488,7 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
         for col, comp in (("sigma_pmr", "radial"), ("sigma_pmt", "tangential")):
             st = dataset_style("gaia_edr3", comp, size=5.5)
             a1.plot(pc(g["r_median"]), np.asarray(g[col]) * k, ls=":", lw=1.0, **st,
-                    label="Gaia EDR3 (our measurement), %s [measured, not fitted apart]" % comp)
+                    label="Gaia EDR3 (ours), %s component [measured; only the combination is fitted]" % comp)
 
     a1.axvspan(0.03, 200 * distance_kpc * 1e3 / 206264.806, color=style.SERIES[0],
                alpha=0.05, lw=0)
@@ -1518,7 +1518,7 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
     st = dataset_style("pristine", "combined", size=7.0, fitted=False)
     a3.plot(np.asarray(pr["r_pc"])[ok],
             np.asarray(pr["sigma_pmt"])[ok] / np.asarray(pr["sigma_pmr"])[ok],
-            ls="none", label="Pristine [not fitted]", **st)
+            ls="none", label="Pristine [context only]", **st)
     a3.axhline(1.0, color=style.INK_SECONDARY, lw=1.5)
     a3.annotate("tangentially biased", (75, 1.22), fontsize=8, color=style.INK_SECONDARY, ha="right")
     a3.annotate("radially biased", (75, 0.755), fontsize=8, color=style.INK_SECONDARY, ha="right")

@@ -131,8 +131,10 @@ def dataset_style(key: str, component: str = "combined", size: float = 6.5,
                   fitted: bool = True) -> dict:
     """Marker keyword arguments for one dataset and component.
 
-    ``fitted=False`` keeps the same symbol and colour and lightens the mark, so that data
-    shown for context are never mistaken for a different instrument.
+    ``fitted=False`` means the dataset is drawn for context and is **not** among those the
+    likelihood receives; it keeps the same symbol and colour and is lightened, so that data
+    shown for context are never mistaken for a different instrument. It does not mean a model
+    failed to describe it.
     """
     if key in DATASET_KEY_MAP:
         key, component = DATASET_KEY_MAP[key]
@@ -152,4 +154,4 @@ def dataset_label(key: str, component: str = "combined", fitted: bool = True) ->
     text = DATASET_STYLE[key]["label"]
     if component != "combined":
         text += ", %s" % component
-    return text if fitted else "%s [not fitted]" % text
+    return text if fitted else "%s [context only, not in the likelihood]" % text
