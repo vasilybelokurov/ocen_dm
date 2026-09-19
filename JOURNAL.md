@@ -2112,3 +2112,66 @@ dispersions are quoted about a rotating mean). It does tell us the excess cannot
 attributed to mass, and that no constant scale is the right way to absorb the difference.
 Nested runs without scales (K1, K2-cored) are in progress; their evidence comparison will
 say what the data prefer when nothing is free to soak up a 7 per cent offset.
+
+## 2026-09-19 — HST versus Gaia on the same stars, and why EDR3 stops at ~460 arcsec
+
+Three points from the user, all taken: line-of-sight and proper-motion measurements may
+legitimately differ; two proper-motion catalogues may not; and EDR3 is the best Gaia data
+available. The middle point is testable directly, so it was tested.
+
+### The same stars, measured twice (`plots/hst_gaia_star_by_star.png`)
+
+`selection/hst_gaia_match.py` matches the oMEGACat catalogue to the Vasiliev & Baumgardt
+EDR3 members within 0.3 arcsec: **6423 matches**, of which 2211 have P > 0.9 and good HST
+astrometry. HST proper motions are locally corrected, so only differences and dispersions
+are comparable -- never the zero point.
+
+| sample | N | rms(Gaia − HST) | quoted errors allow | ratio |
+|---|---|---|---|---|
+| G < 17 | 1800 | 0.99 | 0.13 | **7.4** |
+| 17 < G < 18 | 411 | 1.15 | 0.29 | 3.9 |
+| G < 18, r < 200" | 925 | 1.07 | 0.15 | 7.0 |
+| G < 18, 200-300" | 1158 | 0.99 | 0.17 | 5.9 |
+| G < 18, 300-460" | 128 | 0.91 | 0.18 | 5.1 |
+
+And the dispersion each instrument reports **from the identical stars**:
+
+| annulus | N | HST | Gaia | Gaia / HST |
+|---|---|---|---|---|
+| 100-200" | 761 | 0.649 | 0.766 | **+18 %** |
+| 200-300" | 1158 | 0.577 | 0.714 | **+24 %** |
+| 300-460" | 128 | 0.534 | 0.633 | **+19 %** |
+
+So the two catalogues do **not** agree where they overlap: Gaia carries about 1 mas/yr of
+per-star scatter that its formal errors do not describe -- five to seven times the quoted
+precision -- and consequently reports a dispersion 18-24 per cent too high. HST resolves
+35,300 stars per square arcminute inside 100 arcsec against Gaia's 62: this is crowding, and
+it is Gaia's problem, not HST's.
+
+### Why EDR3 does not reach the radii DR2 does
+
+| annulus | in the EDR3 catalogue | P > 0.9 | passing the quality flag |
+|---|---|---|---|
+| 0-100" | 543 | 392 | **0** |
+| 100-200" | 2528 | 1922 | **0** |
+| 200-300" | 5171 | 3973 | **5** |
+| 300-460" | 17290 | 14672 | 494 |
+| 460-700" | 47369 | 42773 | 12072 |
+
+Vasiliev & Baumgardt's astrometric quality filter removes **every** Gaia star inside
+200 arcsec and all but five inside 300 -- exactly the stars the star-by-star test shows to
+be wrong. Yet their published profile is tabulated from r = 0 (0.561 mas/yr at the centre,
+0.556 at 24 arcsec, ...): **inside ~400 arcsec that profile is a smooth model continued
+inward, not a measurement.** Our fits have been fed thinned points from it starting at
+300 arcsec, with 1 per cent errors, in a range where no usable Gaia star exists. That is a
+real defect in the likelihood, not a matter of taste.
+
+Baumgardt+ 2019's DR2 profile does have points at 179-338 arcsec, and they agree with HST
+(−1.7 per cent mean) where the EDR3 profile does not (−6.2 per cent). Since DR2's astrometry
+is worse than EDR3's, the agreement most likely reflects their different (brighter, more
+conservative) selection and larger quoted errors rather than better data.
+
+**Proposal, not implemented:** use Gaia EDR3 only beyond 460 arcsec, from our own binned
+measurement rather than the published smooth profile, and drop the Gaia DR2 profile or
+restrict it likewise. With that, "PM datasets must agree" becomes testable rather than
+assumed, since HST and Gaia would no longer be asked to describe the same radii.
