@@ -1115,7 +1115,7 @@ def plot_pm_datasets(path: Path | str = "plots/pm_datasets_edr3_rebuild.png",
     a1.fill_between(rp[rp > 0], lo_b[rp > 0], hi_b[rp > 0], color=style.INK_SECONDARY, alpha=0.18, lw=0)
     a1.plot(rp[rp > 0], sp[rp > 0], color=style.INK_SECONDARY, lw=2,
             label="Gaia EDR3, published spline (Vasiliev & Baumgardt 2021)")
-    a1.axvspan(0.5, 460, color=style.SERIES[1], alpha=0.06, lw=0)
+    a1.axvspan(0.5, 300, color=style.SERIES[1], alpha=0.06, lw=0)
     a1.errorbar(hst.r, hst.value, yerr=[hst.err_lo, hst.err_hi], fmt="o", ms=4,
                 color=style.SERIES[1], lw=1, label="HST (oMEGACat)")
     a1.errorbar(dr2.r, dr2.value, yerr=[dr2.err_lo, dr2.err_hi], fmt="s", ms=5,
@@ -1124,19 +1124,21 @@ def plot_pm_datasets(path: Path | str = "plots/pm_datasets_edr3_rebuild.png",
                 color=style.COLOR_FIELD, lw=1.3, label="ours, old: all quality stars, raw catalogue errors")
     a1.errorbar(new["r_median"], new["sigma_pm"], yerr=new["sigma_pm_err"], fmt="D-", ms=7,
                 color=style.SERIES[0], lw=2, capsize=3, zorder=5,
-                label="ours, new: err < 0.4$\\sigma$, error-model independent, R > 460\"")
+                label="ours, new: err < 0.4$\\sigma$, error-model independent, R > 300\"")
     row_h = ov[ov["sample"] == "HST, high-quality astrometry"][0]
     row_g = ov[ov["sample"] == "Gaia, quality flag"][0]
-    a1.errorbar([335.0], [row_h["sigma"]], yerr=[row_h["sigma_err"]], fmt="*", ms=19,
+    a1.errorbar([318.0], [row_h["sigma"]], yerr=[row_h["sigma_err"]], fmt="*", ms=19,
                 color=style.SERIES[1], zorder=6, label="HST, quality cut, 300-380\"  (N = %d)" % row_h["n_stars"])
-    a1.errorbar([355.0], [row_g["sigma"]], yerr=[row_g["sigma_err"]], fmt="*", ms=19,
+    a1.errorbar([338.0], [row_g["sigma"]], yerr=[row_g["sigma_err"]], fmt="*", ms=19,
                 color=style.SERIES[2], zorder=6, capsize=3,
                 label="Gaia EDR3, quality cut, same annulus  (N = %d)" % row_g["n_stars"])
     a1.annotate("same stars' quality standard,\nGaia/HST = %.2f $\\pm$ %.2f" % (row_g["ratio"], row_g["ratio_err"]),
-                (355.0, row_g["sigma"]), textcoords="offset points", xytext=(16, -52), fontsize=8,
+                (338.0, row_g["sigma"]), textcoords="offset points", xytext=(10, -56), fontsize=8,
                 color=style.SERIES[2])
-    a1.text(175, 0.80, "no usable Gaia EDR3 here:\nthe quality flag passes\nfewer than 500 stars",
+    a1.text(165, 0.80, "the quality flag passes\n5 Gaia stars in total\ninside 300 arcsec",
             fontsize=8.5, color=style.SERIES[1], ha="center")
+    a1.annotate("53 and 441 flagged stars,\nerrors only 5-9 % of the signal",
+                (415.0, 0.78), fontsize=8, color=style.SERIES[0], ha="center")
     a1.set_xscale("log"); a1.set_yscale("log")
     a1.set_ylabel("1-D PM dispersion  [mas/yr]")
     a1.set_ylim(0.18, 0.95)
@@ -1159,7 +1161,7 @@ def plot_pm_datasets(path: Path | str = "plots/pm_datasets_edr3_rebuild.png",
         y, ye = ratio(np.asarray(r_, float), v_, e_)
         a2.errorbar(r_, y, yerr=ye, fmt=fmt, ms=5 if fmt[0] != "D" else 7, color=col,
                     lw=1.8 if fmt[0] == "D" else 1.0, label=lab, zorder=5 if fmt[0] == "D" else 3)
-    a2.axvspan(0.5, 460, color=style.SERIES[1], alpha=0.06, lw=0)
+    a2.axvspan(0.5, 300, color=style.SERIES[1], alpha=0.06, lw=0)
     a2.set_xscale("log"); a2.set_xlabel("R  [arcsec]")
     a2.set_ylabel("ratio to published\nEDR3 spline")
     a2.set_ylim(0.80, 1.30); a2.set_xlim(100, 2700)
