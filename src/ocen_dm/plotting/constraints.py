@@ -30,10 +30,10 @@ from ..kinematics.report import _family_for
 from ..selection.hst_gaia_match import OCEN_DEC, OCEN_RA
 from ..paths import processed_dir, results_dir
 from . import style
-from .style import add_pc_axis
+from .style import add_arcsec_axis, add_pc_axis
 
 __all__ = ["plot_constraint_map", "plot_outer_tracer_audit", "plot_contamination_model", "plot_annulus_fits",
-           "plot_method_comparison", "plot_residual_significance", "plot_dataset_step", "plot_offset_explained", "plot_datasets_unscaled", "plot_hst_gaia_star_by_star", "hst_gaia_excess_table", "hst_gaia_overlap_table", "plot_pm_datasets",
+           "plot_method_comparison", "plot_residual_significance", "plot_dataset_step", "plot_offset_explained", "plot_datasets_unscaled", "plot_hst_gaia_star_by_star", "hst_gaia_excess_table", "hst_gaia_overlap_table", "plot_pm_datasets", "plot_periphery",
            "fit_quality_table", "annulus_fits", "our_outer_profile", "our_mixture_profile", "OUTER_EDGES"]
 
 #: log-spaced annuli for our own outer measurement (arcsec)
@@ -1166,6 +1166,62 @@ def plot_pm_datasets(path: Path | str = "plots/pm_datasets_edr3_rebuild.png",
     a2.set_ylabel("ratio to published\nEDR3 spline")
     a2.set_ylim(0.80, 1.30); a2.set_xlim(100, 2700)
     a2.legend(fontsize=8, ncol=4, loc="lower left", framealpha=0.95)
+    fig.tight_layout()
+    path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
+    return path
+
+
+def plot_periphery(path: Path | str = "plots/periphery_where_the_cluster_ends.png",
+                   distance_kpc: float = 5.43) -> Path:
+    """Where does omega Cen stop? The profile from the centre out to 400 pc.
+
+    The Gaia member catalogue is truncated at 63 pc, which is a retrieval radius and not a
+    boundary, and the Jacobi radius is larger. Beyond that edge the Pristine periphery sample
+    carries proper motions whose membership is itself proper-motion based, so it is shown as
+    a band between two fixed selection windows rather than as points; the spectroscopic
+    line-of-sight velocities have no such selection and are the honest probe.
+    """
+    from ..kinematics.likelihood import load_profile
+    from ..kinematics.outer_gaia import load_edr3_profile
+    from ..kinematics.periphery import (GAIA_EDGE_DEG, KMS_PER_MASYR_KPC, R_JACOBI_NOW_PC,
+                                        R_JACOBI_PERI_PC, periphery_los_profile,
+                                        periphery_pm_profile)
+    style.apply()
+    k = KMS_PER_MASYR_KPC * distance_kpc
+    pc = lambda arcsec: np.asarray(arcsec, float) * distance_kpc * 1e3 / 206264.806
+
+    fig, ax = plt.subplots(figsize=(9.4, 5.8))
+    hst = load_profile("hst_pm_combined")
+    ax.errorbar(pc(hst.r), np.asarray(hst.value) * k, yerr=np.asarray(hst.err_lo) * k,
+                fmt="o", ms=4, color=style.SERIES[1], lw=1, label="HST proper motions")
+    g = load_edr3_profile()
+    ax.errorbar(pc(g["r_median"]), np.asarray(g["sigma_pm"]) * k,
+                yerr=np.asarray(g["sigma_pm_err"]) * k, fmt="D-", ms=7, lw=2,
+                color=style.SERIES[0], capsize=3, label="Gaia EDR3, our measurement")
+    lo_w, hi_w = periphery_pm_profile(0.8), periphery_pm_profile(1.2)
+    ax.fill_between(lo_w["r_pc"], lo_w["sigma_kms"], hi_w["sigma_kms"],
+                    color=style.COLOR_FIELD, alpha=0.55, lw=0,
+                    label="Pristine periphery PMs, between 0.8 and 1.2 mas/yr windows")
+    ax.plot(lo_w["r_pc"], lo_w["sigma_kms"], color=style.INK_SECONDARY, lw=1.2, ls=":")
+    ax.plot(hi_w["r_pc"], hi_w["sigma_kms"], color=style.INK_SECONDARY, lw=1.2, ls=":")
+    los = periphery_los_profile()
+    ax.errorbar(los["r_pc"], los["sigma_kms"], yerr=los["sigma_kms_err"], fmt="s", ms=9,
+                color=style.SERIES[2], lw=1.8, capsize=4, zorder=6,
+                label="spectroscopic $v_{\\rm los}$, no PM selection")
+    for x_, lab, ls in ((pc(GAIA_EDGE_DEG * 3600), "Gaia catalogue edge", "-"),
+                        (R_JACOBI_PERI_PC, "$r_J$ at pericentre", "--"),
+                        (R_JACOBI_NOW_PC, "$r_J$ now", ":")):
+        ax.axvline(x_, color=style.INK_SECONDARY, lw=1.2, ls=ls, alpha=0.8)
+        ax.text(x_ * 1.03, 21.5, lab, rotation=90, fontsize=8, color=style.INK_SECONDARY, va="top")
+    ax.set_xscale("log"); ax.set_yscale("log")
+    ax.set_xlabel("r  [pc]"); ax.set_ylabel("velocity dispersion  [km/s]")
+    ax.set_xlim(0.2, 500); ax.set_ylim(3.5, 24)
+    ax.set_yticks([4, 6, 8, 10, 15, 20]); ax.set_yticklabels(["4", "6", "8", "10", "15", "20"])
+    ax.legend(fontsize=8.2, loc="lower left")
+    ax.set_title("Where does $\\omega$ Cen stop? The dispersion flattens near the Jacobi radius",
+                 fontsize=11)
+    add_arcsec_axis(ax, distance_kpc)
     fig.tight_layout()
     path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
