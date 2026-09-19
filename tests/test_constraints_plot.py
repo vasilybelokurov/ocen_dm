@@ -88,3 +88,15 @@ def test_method_comparison_figure_and_agreement(tmp_path):
         assert np.median(np.abs(d) / e) < 2.0                # and consistent within the errors
     p = plot_method_comparison(tmp_path / "cmp.png")
     assert p.exists() and p.stat().st_size > 80_000
+
+
+@pytest.mark.skipif(not (_HAS_RUNS and _HAS_MEMBERS), reason="runs or members missing")
+def test_both_streaming_treatments_render_and_differ(tmp_path):
+    """Both versions are kept: the published rotation curve and our own fitted means."""
+    from ocen_dm.plotting.constraints import _datasets_in_kms, plot_constraint_map
+    a = _datasets_in_kms(5.43, True, "self")[-1]
+    b = _datasets_in_kms(5.43, True, "published")[-1]
+    assert a["streaming2"] is not None and b["streaming2"] is None
+    for name, stream in (("self.png", "self"), ("pub.png", "published")):
+        p = plot_constraint_map(tmp_path / name, streaming=stream)
+        assert p.exists() and p.stat().st_size > 80_000

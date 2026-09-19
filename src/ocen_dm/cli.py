@@ -329,8 +329,16 @@ def cmd_plot_constraints(args: argparse.Namespace) -> int:
     for path in (plot_method_comparison(),
                  plot_annulus_fits("plots/outer_fit_annuli_radial.png", component="r"),
                  plot_annulus_fits("plots/outer_fit_annuli_tangential.png", component="t"),
-                 plot_constraint_map(k1=args.k1, k2=args.k2, contamination_modelled=True),
-                 plot_constraint_map("plots/constraint_map_pcut.png", k1=args.k1, k2=args.k2, contamination_modelled=False),
+                 # four constraint maps: {field modelled, P > 0.9} x {rotation from our own
+                 # fit, rotation from the published curve}
+                 plot_constraint_map("plots/constraint_map_selfconsistent.png", k1=args.k1, k2=args.k2,
+                                     contamination_modelled=True, streaming="self"),
+                 plot_constraint_map("plots/constraint_map.png", k1=args.k1, k2=args.k2,
+                                     contamination_modelled=True, streaming="published"),
+                 plot_constraint_map("plots/constraint_map_pcut_selfconsistent.png", k1=args.k1, k2=args.k2,
+                                     contamination_modelled=False, streaming="self"),
+                 plot_constraint_map("plots/constraint_map_pcut.png", k1=args.k1, k2=args.k2,
+                                     contamination_modelled=False, streaming="published"),
                  plot_outer_tracer_audit(reference="pcut"),
                  plot_outer_tracer_audit("plots/outer_tracer_audit_mixture.png", reference="mixture"),
                  plot_contamination_model()):
