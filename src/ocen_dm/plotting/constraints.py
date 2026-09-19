@@ -138,11 +138,16 @@ def _sigma_1d_kms(jeans, D: float, R_arcsec: np.ndarray, kind: str = "pm") -> np
     return np.sqrt(0.5 * (m["pmr"] ** 2 + m["pmt"] ** 2)) if kind == "pm" else m["los"]
 
 
-def _datasets_in_kms(D: float, contamination_modelled: bool = True) -> list[dict]:
+def _datasets_in_kms(D: float, contamination_modelled: bool = True, streaming: str = "self") -> list[dict]:
     """Every dispersion dataset converted to a 1-D dispersion in km/s.
 
     ``contamination_modelled`` selects our Gaia measurement: the cluster+field mixture over
     all quality stars (True) or the P > 0.9 members with the quality flag (False).
+    ``streaming`` selects how the rotation term is removed from the model for our own
+    points: ``'self'`` uses the mean motions fitted in the same annuli as the dispersions,
+    ``'published'`` uses the Vasiliev & Baumgardt rotation curve (the original treatment,
+    kept for comparison -- it over-subtracts by 10-40 per cent near the rotation peak and
+    manufactures a wiggle at 10-20 pc, JOURNAL 2026-09-18).
     """
     k = KMS_PER_MASYR_KPC * D
     out = []
@@ -171,7 +176,7 @@ def _datasets_in_kms(D: float, contamination_modelled: bool = True) -> list[dict
     # our own fit measures the mean motions as well, so the streaming term for these points
     # is measured rather than taken from the published rotation curve
     stream2 = None
-    if "mean_pmt" in ours.colnames:
+    if streaming == "self" and "mean_pmt" in ours.colnames:
         stream2 = 0.5 * (np.asarray(ours["mean_pmr"]) ** 2 + np.asarray(ours["mean_pmt"]) ** 2) * k**2
     out.append(dict(name=name, r=np.asarray(ours["r_median"]), sigma=np.asarray(ours["sigma_pm"]) * k,
                     err=np.asarray(ours[errcol]) * k, n=n, kind="pm", color=style.INK, marker="D",
@@ -182,12 +187,12 @@ def _datasets_in_kms(D: float, contamination_modelled: bool = True) -> list[dict
 
 def plot_constraint_map(path: Path | str = "plots/constraint_map.png",
                         k1: str = "K1_noDM_composite", k2: str = "K2_cored_composite",
-                        contamination_modelled: bool = True) -> Path:
+                        contamination_modelled: bool = True, streaming: str = "self") -> Path:
     """All dispersion data in km/s with the K1 and K2 curves, their ratio, and the tracer counts."""
     style.apply()
     j1, D, s1, _ = _model(k1)
     j2, D2, s2, _ = _model(k2)
-    data = _datasets_in_kms(D, contamination_modelled)
+    data = _datasets_in_kms(D, contamination_modelled, streaming)
     R = np.geomspace(2.0, 2400.0, 220)
 
     fig, axes = plt.subplots(3, 1, figsize=(9.5, 11), sharex=True,
@@ -205,7 +210,8 @@ def plot_constraint_map(path: Path | str = "plots/constraint_map.png",
     ax.set_yscale("log"); ax.set_ylabel("1-D velocity dispersion  [km/s]")
     ax.legend(fontsize=8, ncol=2, loc="lower left")
     ax.set_title("What constrains the mass, and where"
-                 + ("  (Gaia: field contamination modelled)" if contamination_modelled else "  (Gaia: P > 0.9 members, no contamination model)"),
+                 + ("  (Gaia: field contamination modelled" if contamination_modelled else "  (Gaia: P > 0.9 members, no contamination model")
+                 + ("; rotation from our own fit)" if streaming == "self" else "; rotation from the published curve)"),
                  fontsize=11)
     add_pc_axis(ax, D)
 

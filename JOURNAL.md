@@ -1920,3 +1920,18 @@ published rotation amplitude between 430 and 800 arcsec, and 40 per cent below i
 definition (a sinusoid amplitude fitted per annulus versus the azimuthal mean of the
 tangential component) or in the treatment of contamination. It does not affect the
 dispersions, but it should be understood before any rotation result is quoted.
+
+**Both versions kept (user request).** `plot_constraint_map(..., streaming=...)` selects how
+the rotation term is removed from the model for our own points, and `ocen plot-constraints`
+writes all four combinations:
+
+| file | Gaia measurement | rotation term |
+|---|---|---|
+| `constraint_map_selfconsistent.png` | field contamination modelled | our own fitted mean motions |
+| `constraint_map.png` | field contamination modelled | published Vasiliev & Baumgardt curve |
+| `constraint_map_pcut_selfconsistent.png` | P > 0.9 members | our own fitted mean motions |
+| `constraint_map_pcut.png` | P > 0.9 members | published curve |
+
+The titles state which treatment each uses. The self-consistent pair is the one to read: in
+the other two the model has 10-40 per cent too much rotation removed between 350 and 800
+arcsec, which is what produced the apparent wiggle at 10-20 pc.
