@@ -535,13 +535,18 @@ def dispersion_2d(sample: MemberSample, mask: np.ndarray, field_density, depth_v
             r = pc / tot
             new_ll = float(np.sum(np.log(tot)))
             f = 1.0 - r.sum() / len(a)
-            # weighted least squares for the mean in the rotated frame
+            # Weighted least squares for the mean in the rotated frame. With
+            # J = [[cos, -sin], [sin, cos]] and Sigma^-1 = (1/det) [[cdd, -cad], [-cad, caa]],
+            # the normal equations are (sum r J^T Sigma^-1 J) u = sum r J^T Sigma^-1 x. The
+            # off-diagonal cad terms in A12 and b2 carry a MINUS sign; they were positive
+            # until 2026-09-19, which biased the fitted tangential mean whenever the cluster
+            # was anisotropic (synthetic test: -0.125 recovered for a true -0.200).
             w = r / det
             A11 = np.sum(w * (cdd * cos_p**2 - 2 * cad * cos_p * sin_p + caa * sin_p**2))
             A22 = np.sum(w * (cdd * sin_p**2 + 2 * cad * cos_p * sin_p + caa * cos_p**2))
-            A12 = np.sum(w * (-cdd * cos_p * sin_p + cad * (cos_p**2 - sin_p**2) + caa * sin_p * cos_p))
+            A12 = np.sum(w * (-cdd * cos_p * sin_p - cad * (cos_p**2 - sin_p**2) + caa * sin_p * cos_p))
             b1 = np.sum(w * (cdd * a * cos_p - cad * (a * sin_p + d * cos_p) + caa * d * sin_p))
-            b2 = np.sum(w * (-cdd * a * sin_p + cad * (a * cos_p - d * sin_p) + caa * d * cos_p))
+            b2 = np.sum(w * (-cdd * a * sin_p - cad * (a * cos_p - d * sin_p) + caa * d * cos_p))
             det_A = A11 * A22 - A12**2
             if abs(det_A) > 1e-30:
                 mr = (b1 * A22 - b2 * A12) / det_A
@@ -577,28 +582,48 @@ def dispersion_2d(sample: MemberSample, mask: np.ndarray, field_density, depth_v
     ll_max, mr, mt, f = loglike(sr_hat**2, st_hat**2)
 
     def interval(which: str) -> tuple[float, float]:
-        """1-sigma profile-likelihood interval on one dispersion, the other re-maximised."""
-        lo = hi = None
+        """1-sigma profile-likelihood interval on one dispersion, the other re-maximised.
+
+        The crossing of ``ln L = ln L_max - 1/2`` is bracketed with a geometrically growing
+        step and then **interpolated**. Stepping by a fixed 2 per cent of sigma and returning
+        the first point past the crossing, as this did until 2026-09-19, imposed a floor of
+        2 per cent per component (1.4 per cent combined) on every reported uncertainty
+        regardless of sample size: every HST bin with more than 10^5 stars sat exactly on it.
+        """
+        def profile(x: float) -> float:
+            if which == "r":
+                return -minimize(lambda p: -loglike(x**2, np.exp(p[0]))[0], [np.log(st_hat**2)],
+                                 method="Nelder-Mead",
+                                 options={"xatol": 1e-4, "fatol": 1e-4, "maxiter": 60}).fun
+            return -minimize(lambda p: -loglike(np.exp(p[0]), x**2)[0], [np.log(sr_hat**2)],
+                             method="Nelder-Mead",
+                             options={"xatol": 1e-4, "fatol": 1e-4, "maxiter": 60}).fun
+
+        x0 = sr_hat if which == "r" else st_hat
+        out = []
         for side in (-1, +1):
-            x = sr_hat if which == "r" else st_hat
-            step = 0.02 * x * side
-            for _ in range(60):
-                x = x + step
+            step = 0.002 * x0
+            x_in, d_in = x0, 0.0                      # last point inside the interval
+            x_out = None
+            for _ in range(80):
+                x = x_in + side * step
                 if x <= 0.01:
+                    x_out, d_out = 0.01, ll_max - profile(0.01)
                     break
-                if which == "r":
-                    ll = minimize(lambda p: -loglike(x**2, np.exp(p[0]))[0], [np.log(st_hat**2)],
-                                  method="Nelder-Mead", options={"xatol": 1e-4, "fatol": 1e-4, "maxiter": 60}).fun * -1
-                else:
-                    ll = minimize(lambda p: -loglike(np.exp(p[0]), x**2)[0], [np.log(sr_hat**2)],
-                                  method="Nelder-Mead", options={"xatol": 1e-4, "fatol": 1e-4, "maxiter": 60}).fun * -1
-                if ll < ll_max - 0.5:
+                d = ll_max - profile(x)
+                if d >= 0.5:
+                    x_out, d_out = x, d
                     break
-            if side < 0:
-                lo = x
+                x_in, d_in, step = x, d, step * 1.6
+            if x_out is None:                          # never crossed: report the last point
+                out.append(x_in)
+                continue
+            # linear interpolation in the log-likelihood drop between the bracketing points
+            if d_out > d_in:
+                out.append(x_in + (x_out - x_in) * (0.5 - d_in) / (d_out - d_in))
             else:
-                hi = x
-        return lo, hi
+                out.append(x_out)
+        return out[0], out[1]
 
     lo_r, hi_r = interval("r"); lo_t, hi_t = interval("t")
     sigma = np.sqrt(0.5 * (sr_hat**2 + st_hat**2))

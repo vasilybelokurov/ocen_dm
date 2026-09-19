@@ -3159,3 +3159,80 @@ Jacobi radius and the periphery overdensity; the 127-point dataset; and the thre
 decisions.
 
 LaTeX build artefacts are gitignored; the .tex and .pdf are tracked.
+
+## 2026-09-19 -- Codex review: two real bugs in the estimator
+
+Ran the Codex review on the data-analysis modules and the write-up (effort high, 419 s, diff
+80 kB). Twelve findings. Two are genuine defects in the estimator, verified independently and
+fixed; several are valid criticisms of the write-up, now corrected; the rest are recorded as
+limitations. The review is kept at `docs/codex_review_2026-09-19.md`.
+
+### Bug 1: wrong sign on the covariance cross-terms in the mean update
+
+`outer_profile.py`, the weighted-least-squares step inside the EM loop. With
+$J=[[\cos,-\sin],[\sin,\cos]]$ and $\Sigma^{-1}=(1/\det)[[c_{dd},-c_{ad}],[-c_{ad},c_{aa}]]$,
+the normal equations $(\sum r J^\top \Sigma^{-1} J)u = \sum r J^\top \Sigma^{-1} x$ give a
+**minus** sign on the `cad` terms in `A12` and `b2`. Both were positive.
+
+Verified three ways before touching anything: hand derivation; a synthetic anisotropic sample
+with streaming, where the code returned mean_T = -0.125 for an injected -0.200 while the
+corrected algebra returned -0.205; and direct numerical maximisation of the same likelihood,
+which returned -0.2048.
+
+`cad` vanishes when the cluster is isotropic and the errors uncorrelated, which is why every
+existing mock missed it. Effect on the real data:
+
+* the **combined dispersion changes by at most 0.17 per cent** -- the quantity the likelihood
+  currently receives is essentially unaffected;
+* the **anisotropy** moves materially: T/R at 437 arcsec goes 0.867 to 0.823, at 533 arcsec
+  0.898 to 0.865;
+* the **fitted rotation** moves by up to 17 per cent.
+
+The last one is an independent confirmation that the fix is right: our fitted mean tangential
+motion against Vasiliev & Baumgardt's published rotation curve, which the estimator never
+sees, had a median ratio of **0.90 before the fix and 0.977 after**.
+
+### Bug 2: a 1.4 per cent floor on every quoted uncertainty
+
+The profile-likelihood interval stepped by a fixed $0.02\sigma$ and returned the first point
+past the $\Delta\ln L = 0.5$ crossing, with no interpolation. That is a floor of 2 per cent
+per component, 1.4 per cent combined, independent of sample size. Every HST bin in the
+write-up sat exactly on it: $0.0089/0.6268 = 1.42$ per cent, $0.0083/0.5852 = 1.42$, and so
+on for $10^5$ stars.
+
+Now bracketed with a geometrically growing step and interpolated on the likelihood drop.
+Recovery on clean synthetic samples: reported error / analytic expectation = 0.98, 1.00, 0.96
+at N = 2000, 20000, 100000. The HST uncertainties fall from 1.42 per cent to **0.12-0.39 per
+cent**; the Gaia ones from 1.4-6 to 1.1-7 per cent (they were never at the floor).
+
+### Findings accepted into the write-up
+
+* **Pristine is not an independent astrometric check.** Its proper motions are Gaia's, and
+  the samples share stars: 33 of the 52 selected Gaia stars in the innermost annulus, 11-37
+  per cent further out (verified). It remains a valid test of selection and estimator. The
+  ratio, recomputed after the fixes, is 1.005 +- 0.012.
+* **The abstract overstated the overlap.** The clean, quality-selected comparison is
+  1.03 +- 0.13; the 4 per cent figure belonged to the route using rejected HST stars, an
+  empirical correction and a radius adjustment. Fixed, and the three routes are now stated to
+  be nested rather than independent.
+* **HST covariances are diagonal**, because the catalogue supplies no correlation column. The
+  text claimed full covariances.
+* **Position angle convention.** Our 148 deg is measured from east through north; the
+  astronomical convention gives **122 deg**.
+* **The systemic-motion sentence was wrong.** The 5.3 mas/yr artefact is what removing
+  nothing produces. Subtracting the constant vector removes the leading term; the exact
+  projection removes a residual of order 0.06 mas/yr at 2400 arcsec.
+* **1.077 is a ratio of dispersions, not of errors.** Intrinsic and measurement variances add.
+* **The 2 per cent bound is approximate**, since the threshold is on the mean of the two
+  component errors and against a pilot profile.
+* **The midpoint prescription is a sensitivity, not a calibrated systematic.**
+
+New section *Known limitations* records the four that are not fixable today: the field
+template does not follow the science selection (restricting it to the same error ceiling
+moves the outermost bin by ~1.5 per cent); adding a constant does not restore HST's frame;
+the error cut uses the published profile as a pilot and equipartition makes brightness a
+kinematic selection; per-bin errors are treated as independent.
+
+`tests/test_mixture_recovery.py` added: seven tests injecting streaming and anisotropy, a
+comparison against direct numerical maximisation, and an $N^{-1/2}$ scaling check. The old
+mocks all had zero streaming and isotropic dispersions, which is why nothing caught either bug.

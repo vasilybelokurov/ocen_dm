@@ -21,10 +21,13 @@ estimator, and which cross-checks. The central methodological point is that both
 proper-motion catalogues contain a large population of stars whose quoted uncertainties are
 underestimated, and that any dispersion measured from them is a statement about the error
 model rather than about the cluster. Once each survey's own quality selection is respected,
-HST and \emph{Gaia}~EDR3 agree to $0\pm4$ per cent in their overlap, an independent
-Pristine-based measurement agrees with \emph{Gaia} to $0.5\pm1.4$ per cent, and both
-published profiles are reproduced to a few tenths of a per cent. The final dataset is 127
-binned points from five profiles spanning $0.05$--$57$\,pc.
+HST and \emph{Gaia}~EDR3 agree in their $300$--$360''$ overlap at
+$\sigma_{\rm Gaia}/\sigma_{\rm HST}=1.03\pm0.13$, the precision being set by the 17
+quality-flagged \emph{Gaia} stars available there; a Pristine-based measurement using a
+different membership definition agrees with \emph{Gaia} to $0.5\pm1.2$ per cent, though it
+is not an independent astrometric check because its proper motions are the same \emph{Gaia}
+measurements. Both published profiles are reproduced to a few tenths of a per cent. The
+final dataset is 127 binned points from five profiles spanning $0.05$--$57$\,pc.
 \end{abstract}
 
 \section{Scope and principle}
@@ -73,9 +76,13 @@ two-dimensional Gaussian whose principal axes follow that star's own radial dire
 \mathsf{C}_i = R(\phi_i)\,\mathrm{diag}(\sigma_R^2,\sigma_T^2)\,R(\phi_i)^{\!\top}
               + \mathsf{E}_i + \mathsf{D}_i ,
 \end{equation}
-with $\mathsf{E}_i$ the star's full proper-motion error covariance, including the
-correlation coefficient, and $\mathsf{D}_i$ a rank-one term for the apparent dispersion
-induced by the cluster's line-of-sight depth. The field is an \emph{empirical}
+with $\mathsf{E}_i$ the star's proper-motion error covariance and $\mathsf{D}_i$ a rank-one
+term for the apparent dispersion induced by the cluster's line-of-sight depth. For
+\emph{Gaia} and Pristine, $\mathsf{E}_i$ carries the catalogue's correlation coefficient;
+for HST it is diagonal, because the oMEGACat table supplies no correlation column. Any real
+HST correlation therefore leaks into the inferred $\sigma_R$ and $\sigma_T$ through the
+omitted $\pm2\rho\,\epsilon_\alpha\epsilon_\delta\sin\phi\cos\phi$ terms; the size of that
+leak is not established here. The field is an \emph{empirical}
 two-dimensional proper-motion density measured outside the cluster, not a Gaussian. The free
 parameters per annulus are $\sigma_R$, $\sigma_T$, the two mean motions, and the field
 fraction.
@@ -92,9 +99,11 @@ distribution directly. No subtraction is performed.
 
 \paragraph{Systemic motion.} The cluster's three-dimensional velocity is projected onto each
 star's own tangent basis following \citet[\S5.1]{vasiliev2020}, which removes the perspective
-contraction and the rotation of the equatorial basis across the field exactly. Subtracting a
-constant instead manufactures an azimuthal pattern of amplitude $|\mu_{\rm sys}|$, which
-reads as a spurious dispersion of $5.3$\,\masyr.
+contraction and the rotation of the equatorial basis across the field exactly. Removing
+nothing at all would leave an azimuthal pattern of amplitude $|\mu_{\rm sys}|=7.5$\,\masyr,
+reading as a spurious dispersion of $5.3$\,\masyr. Subtracting the constant equatorial vector
+removes that leading term; what the exact projection additionally removes is the residual,
+of order $0.06$\,\masyr\ at $2400''$.
 
 \paragraph{Rotation.} The fitted mean radial and tangential motions absorb streaming, so
 $\sigma$ is measured about a rotating mean. The mean-square streaming is retained so that the
@@ -136,9 +145,9 @@ $r$ ($''$) & $N$ & ours (\masyr) & published & ratio \\
 18.0 & 3224 & $0.7654\pm0.0108$ & 0.7776 & 0.984 \\
 39.4 & 15574 & $0.7493\pm0.0106$ & 0.7440 & 1.007 \\
 85.9 & 66878 & $0.7070\pm0.0100$ & 0.7079 & 0.999 \\
-175.8 & 142615 & $0.6268\pm0.0089$ & 0.6236 & 1.005 \\
-270.2 & 119576 & $0.5511\pm0.0078$ & 0.5504 & 1.001 \\
-310.8 & 16912 & $0.5257\pm0.0074$ & 0.5199 & 1.011 \\
+175.8 & 142615 & $0.6268\pm0.0008$ & 0.6236 & 1.005 \\
+270.2 & 119576 & $0.5511\pm0.0008$ & 0.5504 & 1.001 \\
+310.8 & 16912 & $0.5257\pm0.0020$ & 0.5199 & 1.011 \\
 \bottomrule
 \end{tabular}
 \caption{Median ratio $1.0042$, scatter $2.5$ per cent, the scatter arising in the innermost
@@ -155,7 +164,12 @@ relaxed.
 Stars failing the flag are not usable as a substitute. Running the identical estimator on
 each subset where both exist gives an unflagged-to-flagged dispersion ratio of $1.092$,
 $1.088$, $1.079$ and $1.052$ at $150$--$200$, $200$--$250$, $250$--$300$ and $300$--$340''$,
-a weighted mean of $1.077\pm0.011$: their errors are underestimated by about 8 per cent.
+a weighted mean of $1.077\pm0.011$. This is a ratio of \emph{dispersions}, not of errors:
+since intrinsic and measurement variances add, an excess of this size would require
+substantially larger error underestimates, and population differences and residual
+contamination would have to be excluded before attributing it to errors at all. It is used
+below only as an empirical sensitivity, never as a calibrated error correction in a fitted
+dataset.
 Taken raw, without a field model, they are worse still, and the apparent dispersion
 \emph{rises} outwards ($0.80$, $0.88$, $1.78$\,\masyr\ at $340$--$380$, $380$--$420$,
 $420$--$466''$), because HST proper motions are relative to the cluster so field stars sit
@@ -194,10 +208,15 @@ $0.951$. Raw errors under-correct, the density-only $\eta$ over-corrects.
 \subsection{Our measurement}
 
 We therefore avoid depending on either. The profile uses quality-flagged stars with
-$\epsilon < 0.4\,\sigma(R)$, so that an error rescaling by $\eta$ can move the deconvolved
-dispersion by at most $\tfrac12 (0.4)^2(\eta^2-1)\simeq2$ per cent by construction. The
-quoted value is the midpoint of the raw-error and $\eta$-inflated fits and half their
-separation is carried as a systematic.
+$\tfrac12(\epsilon_\alpha+\epsilon_\delta) < 0.4\,\sigma_{\rm pub}(R)$, where
+$\sigma_{\rm pub}$ is the published profile used only as a pilot. The intended bound is
+$\tfrac12(0.4)^2(\eta^2-1)\simeq2$ per cent; it is approximate rather than strict, because
+the threshold is applied to the arithmetic mean of the two component errors and against a
+pilot rather than the inferred dispersion, so an individual component may exceed it. The
+quoted value is the midpoint of the raw-error and $\eta$-inflated fits, with half their
+separation carried as a systematic. That half-separation is a \emph{sensitivity} to the
+choice of error model; it is not demonstrated to bracket the truth, since both endpoints
+share the same error-model assumptions.
 
 \begin{table}[h]
 \centering\small
@@ -205,15 +224,15 @@ separation is carried as a systematic.
 \toprule
 $r$ ($''$) & $N$ & $\sigma$ (\masyr) & stat & sys & $\sigma_T/\sigma_R$ & $f_{\rm field}$ \\
 \midrule
-356 & 52 & 0.4789 & 0.0373 & 0.0001 & 0.960 & 0.04 \\
-437 & 276 & 0.4497 & 0.0191 & 0.0007 & 0.867 & 0.06 \\
-533 & 1477 & 0.4350 & 0.0062 & 0.0017 & 0.897 & 0.06 \\
-662 & 2754 & 0.4016 & 0.0057 & 0.0019 & 0.891 & 0.10 \\
-830 & 3176 & 0.3614 & 0.0051 & 0.0016 & 0.953 & 0.16 \\
-1043 & 2895 & 0.3204 & 0.0045 & 0.0012 & 0.988 & 0.34 \\
-1328 & 2552 & 0.2934 & 0.0083 & 0.0008 & 1.083 & 0.59 \\
-1690 & 2615 & 0.2523 & 0.0089 & 0.0005 & 1.076 & 0.85 \\
-2148 & 3261 & 0.2314 & 0.0138 & 0.0004 & 1.171 & 0.95 \\
+356 & 52 & 0.4790 & 0.0335 & 0.0001 & 0.949 & 0.04 \\
+437 & 276 & 0.4504 & 0.0141 & 0.0007 & 0.823 & 0.06 \\
+533 & 1477 & 0.4356 & 0.0064 & 0.0017 & 0.865 & 0.06 \\
+662 & 2754 & 0.4019 & 0.0046 & 0.0019 & 0.869 & 0.10 \\
+830 & 3176 & 0.3614 & 0.0040 & 0.0016 & 0.942 & 0.16 \\
+1043 & 2895 & 0.3204 & 0.0042 & 0.0012 & 0.985 & 0.34 \\
+1328 & 2552 & 0.2934 & 0.0050 & 0.0008 & 1.088 & 0.59 \\
+1690 & 2615 & 0.2523 & 0.0070 & 0.0005 & 1.081 & 0.85 \\
+2148 & 3261 & 0.2314 & 0.0117 & 0.0004 & 1.171 & 0.95 \\
 \bottomrule
 \end{tabular}
 \caption{The error-model systematic is $0.1$--$0.4$ per cent against $1.4$--$6$ per cent
@@ -239,14 +258,16 @@ $300$--$360''$. Three routes, differing in how HST's rejected stars are used, ag
 \toprule
 Route & HST & \emph{Gaia} & \emph{Gaia}/HST \\
 \midrule
-$300$--$340''$, both flagged & 16912 at $311''$ & 17 at $318''$ & $1.028\pm0.132$ \\
-$300$--$380''$, both flagged & 16978 at $311''$ & 52 at $356''$ & $0.933\pm0.074$ \\
-$300$--$460''$, HST corrected & 92568 at $327''$ & 328 at $430''$ & $0.966\pm0.038$ \\
+$300$--$340''$, both flagged & 16912 at $311''$ & 17 at $318''$ & $1.028\pm0.125$ \\
+$300$--$380''$, both flagged & 16978 at $311''$ & 52 at $356''$ & $0.934\pm0.065$ \\
+$300$--$460''$, HST corrected & 92568 at $327''$ & 328 at $430''$ & $0.967\pm0.029$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The first route is the cleanest: the two samples land at $311''$ and $318''$, essentially the
+The three routes are not independent: they share the same HST stars and nest in radius, so
+they are three treatments of one comparison rather than three confirmations. The first route
+is the cleanest: the two samples land at $311''$ and $318''$, essentially the
 same place, so nothing is extrapolated and no correction is applied on either side. Within an
 annulus the two samples do not sit at the same radius in general, because HST's coverage
 falls outwards while \emph{Gaia}'s flag passes more stars outwards; where that matters both
@@ -258,14 +279,21 @@ counterpart. On identical stars, unflagged \emph{Gaia} carries $0.90$, $0.79$, $
 $0.44$\,\masyr\ of scatter beyond its quoted errors at $0$--$100$, $100$--$200$, $200$--$300$
 and $300$--$460''$, falling outwards exactly as crowding should.
 
-\subsection{An independent catalogue: Pristine}
+\subsection{A second selection: Pristine}
 
-The Pristine periphery catalogue provides a fully independent test: different survey,
-different selection, different field model. Selecting on metallicity alone ([Fe/H]\,$<-1.2$;
+The Pristine periphery catalogue provides a different survey, a different membership
+definition and a different field model. It is \emph{not} an independent astrometric check:
+its proper motions are \emph{Gaia} measurements, and the two samples share stars directly,
+33 of the 52 selected \emph{Gaia} stars in the innermost annulus and 11--37 per cent further
+out. A shared astrometric or estimator defect would leave the ratio near unity while both
+profiles were wrong, and the quoted ratio uncertainty treats the two as independent, which
+they are not. Selecting on metallicity alone ([Fe/H]\,$<-1.2$;
 the field median is $-0.26$ against $-1.49$ for the cluster) and applying the same estimator
 with a field template built from the same catalogue beyond $3.6^\circ$, with \emph{no}
 proper-motion cut, gives a ratio to our \emph{Gaia} profile on nine identical annuli from 9
-to 57\,pc of $\mathbf{0.995\pm0.014}$, with every bin within 5 per cent.
+to 57\,pc of $\mathbf{1.005\pm0.012}$, with every bin within 5 per cent. Read as a test of
+the selection and the estimator, not of the astrometry, this is informative: the membership
+criterion, the magnitude range and the field model all change and the answer does not.
 
 \section{Supporting datasets}
 
@@ -287,8 +315,13 @@ measurements drawn from a proper-motion-selected catalogue. They give $6.12\pm0.
 
 The \emph{Gaia} member catalogue is truncated at $0.670^\circ$ ($63$\,pc), which is the
 authors' retrieval radius, not a boundary. Computed with AGAMA in the McMillan (2017)
-potential for $M=3.55\times10^6\,M_\odot$, the Jacobi radius is $90$\,pc at pericentre and
-$185$\,pc at the present galactocentric radius, so the data stop at $0.70\,r_J$(peri).
+potential for $M=3.55\times10^6\,M_\odot$ and the orbit integrated from the measured
+systemic velocity, the Jacobi radius is $90$\,pc at pericentre and $185$\,pc at the present
+galactocentric radius, so the data stop at $0.70\,r_J$(peri). These two numbers are currently
+hard-coded rather than recomputed by the pipeline, and they use the spherically averaged
+tidal derivative $\Omega^2-\mathrm{d}^2\Phi/\mathrm{d}r^2$; a flattened potential and a
+different angular-frequency convention would shift them. They are used only to orient the
+discussion, never in the inference.
 
 A background-subtracted star count in the Pristine catalogue, using eight control windows in
 proper-motion space, detects the cluster at $78.1\pm10.2$ stars\,deg$^{-2}$ at 57\,pc
@@ -297,9 +330,11 @@ proper-motion space, detects the cluster at $78.1\pm10.2$ stars\,deg$^{-2}$ at 5
 average. The two spectroscopic points that carry the kinematic plateau therefore sit on a
 real overdensity; the third, at 178\,pc from five stars, does not. Beyond $1.6^\circ$ the 23
 surviving candidates are not isotropic (axial Rayleigh $p=0.016$ at position angle
-$148^\circ$, along-axis excess $0.34\pm0.16$\,deg$^{-2}$ against $-0.02$ across), which is
-what tidal tails look like, but the axis was chosen after inspection and the significance is
-$2\sigma$.
+$122^\circ$ measured from north through east, along-axis excess $0.34\pm0.16$\,deg$^{-2}$
+against $-0.02$ across), which is what tidal tails look like. Two caveats: the Rayleigh
+statistic accounts for fitting the axis, but the subsequent wedge comparison is selected on
+the same data, and the angular uniformity of the survey selection after the metallicity and
+proper-motion cuts has not been established.
 
 \section{The dataset that enters the likelihood}
 
@@ -320,6 +355,33 @@ Key & Kind & $N$ & Radial span \\
 entire \emph{Gaia} contribution is 18 points over $4.7$--$57$\,pc, which is the only range
 where a dark halo can separate itself from the stars.}
 \end{table}
+
+\section{Known limitations}
+
+\begin{enumerate}
+\item \textbf{The field template does not follow the science selection.} Both the \emph{Gaia}
+      and HST fits score stars against one empirical \emph{Gaia}~DR3 field density whose
+      magnitude, quality and error selections differ from the sample being fitted; only its
+      normalisation is free. In the outermost \emph{Gaia} bin, where $95$ per cent of the
+      selected stars are field, restricting the template to the same error ceiling moves the
+      fitted dispersion by about $1.5$ per cent, well above the quoted error-model
+      systematic. A selection-matched template is the obvious next improvement.
+\item \textbf{HST's frame is not restored by adding a constant.} The catalogue's proper
+      motions are locally corrected, so position-dependent cluster streaming has been removed
+      from them. Adding the constant systemic vector to score them against an absolute field
+      template therefore leaves them displaced where the removed streaming was largest, of
+      order $0.25$\,\masyr. The numerical effect on the membership responsibilities has not
+      been measured.
+\item \textbf{The error cut uses a pilot profile.} The $0.4\,\sigma$ threshold is evaluated
+      against the published profile, which is the object being replaced. The selection is on
+      errors only and so does not truncate velocities, but its unbiasedness requires the
+      quality selection to be independent of kinematics at fixed radius. \ocen\ shows partial
+      energy equipartition \citep{haeberle2025}, so selecting brighter stars selects more
+      massive ones, which have a lower dispersion.
+\item \textbf{Per-bin errors are treated as independent.} Shared stars between routes, a
+      shared field template, spatially correlated \emph{Gaia} astrometric systematics and a
+      common error calibration are not propagated.
+\end{enumerate}
 
 \section{Open decisions}
 
