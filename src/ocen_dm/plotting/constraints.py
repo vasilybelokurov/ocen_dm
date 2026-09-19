@@ -32,7 +32,7 @@ from . import style
 from .style import add_pc_axis
 
 __all__ = ["plot_constraint_map", "plot_outer_tracer_audit", "plot_contamination_model", "plot_annulus_fits",
-           "plot_method_comparison", "plot_residual_significance",
+           "plot_method_comparison", "plot_residual_significance", "plot_dataset_step",
            "fit_quality_table", "annulus_fits", "our_outer_profile", "our_mixture_profile", "OUTER_EDGES"]
 
 #: log-spaced annuli for our own outer measurement (arcsec)
@@ -635,6 +635,68 @@ def plot_method_comparison(path: Path | str = "plots/outer_method_comparison.png
 
     fig.suptitle("Membership cut versus cluster + background decomposition, Gaia EDR3 outskirts", y=0.995)
     fig.tight_layout()
+    path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
+    return path
+
+
+def plot_dataset_step(path: Path | str = "plots/hst_gaia_step.png", k1: str = "K1_noDM_composite",
+                      distance_kpc: float = 5.43) -> Path:
+    """Where HST ends and Gaia begins: do the two datasets join smoothly?
+
+    Both are compared with the **same unscaled** model, so the fitted Gaia scale cannot hide
+    a mismatch. HST's outermost bin reaches 346 arcsec; Gaia's quality-flagged sample only
+    becomes usable near 500 arcsec, so the two barely overlap and the model bridges the gap
+    unconstrained.
+    """
+    import json
+
+    from ..kinematics.report import _family_for
+    style.apply()
+    edges = np.array([300., 380, 460, 540, 630, 730, 850, 1000, 1200, 1500, 1900, 2400.])
+    mix = our_mixture_profile(edges, distance_kpc=distance_kpc)
+    s = load_members(exact=True, distance_kpc=distance_kpc)
+    q = s.select((s.quality_flag & QUALITY_BIT) > 0)
+    summary = json.loads((results_dir() / "fits" / k1 / "summary.json").read_text())
+    fam = _family_for(summary)
+    x = np.array([summary["parameters"][n]["ml"] for n in fam.names])
+    jeans, D, _ = fam.build(fam.to_dict(x))
+
+    hr = Table.read(processed_dir() / "kinematics" / "omegacat_vi_pm_radial.ecsv")
+    ht = Table.read(processed_dir() / "kinematics" / "omegacat_vi_pm_tangential.ecsv")
+    rh = np.asarray(hr["r_median"])
+    hst = np.sqrt(0.5 * (np.asarray(hr["sigma_pmr"]) ** 2 + np.asarray(ht["sigma_pmt"]) ** 2))
+    hst_err = 0.5 * (np.asarray(hr["sigma_pmr_err_lo"]) + np.asarray(hr["sigma_pmr_err_hi"])) / np.sqrt(2)
+    mod_h = _sigma_1d_kms(jeans, D, rh) / (KMS_PER_MASYR_KPC * D)
+
+    rg = np.asarray(mix["r_median"])
+    gaia = np.sqrt(0.5 * (np.asarray(mix["sigma_pmr"]) ** 2 + np.asarray(mix["mean_pmr"]) ** 2
+                          + np.asarray(mix["sigma_pmt"]) ** 2 + np.asarray(mix["mean_pmt"]) ** 2))
+    gaia_err = np.asarray(mix["sigma_pm_err"])
+    mod_g = _sigma_1d_kms(jeans, D, rg) / (KMS_PER_MASYR_KPC * D)
+
+    fig, (ax, axq) = plt.subplots(2, 1, figsize=(9.5, 7.6), sharex=True,
+                                  gridspec_kw={"height_ratios": [2.4, 1], "hspace": 0.08})
+    ax.axvspan(346, 500, color=style.SERIES[1], alpha=0.12, lw=0)
+    ax.text(352, -13, "no reliable data\nfrom either instrument", fontsize=8, color=style.SERIES[1])
+    ax.errorbar(rh, 100 * (hst / mod_h - 1), yerr=100 * hst_err / mod_h, fmt="o", ms=5, color=style.SERIES[0],
+                ecolor=style.SERIES[0], elinewidth=1.2, lw=0, label="HST oMEGACat (the model's anchor)")
+    ax.errorbar(rg, 100 * (gaia / mod_g - 1), yerr=100 * gaia_err / mod_g, fmt="D", ms=6, color=style.INK,
+                ecolor=style.INK, elinewidth=1.4, lw=0, label="Gaia EDR3, our measurement")
+    ax.axhline(0, color=style.INK, lw=1)
+    ax.set_xscale("log"); ax.set_xlim(140, 2600)
+    ax.set_ylabel("deviation from the same unscaled model  [%]")
+    ax.set_title("HST ends at 346 arcsec, Gaia becomes usable near 500: do they join?", fontsize=11)
+    ax.legend(fontsize=8.5, loc="upper left"); add_pc_axis(ax, distance_kpc)
+
+    frac = [((q.r_arcsec >= lo) & (q.r_arcsec < hi)).sum() / max(((s.r_arcsec >= lo) & (s.r_arcsec < hi)).sum(), 1)
+            for lo, hi in zip(edges[:-1], edges[1:])]
+    axq.step(rg, 100 * np.array(frac), where="mid", color=style.SERIES[2], lw=2, label="Gaia stars passing the quality flag")
+    axq.step(rh, 100 * np.ones_like(rh), where="mid", color=style.SERIES[0], lw=2, label="HST coverage")
+    axq.axvspan(346, 500, color=style.SERIES[1], alpha=0.12, lw=0)
+    axq.axhline(15, color=style.INK_SECONDARY, lw=0.8, ls="--")
+    axq.set_xscale("log"); axq.set_xlabel("R  [arcsec]"); axq.set_ylabel("usable stars  [%]")
+    axq.legend(fontsize=8)
     path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
     return path

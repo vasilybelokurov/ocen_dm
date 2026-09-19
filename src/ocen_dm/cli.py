@@ -316,8 +316,8 @@ def cmd_plot_constraints(args: argparse.Namespace) -> int:
     """Write the constraint-map and outer-tracer-audit figures."""
     from .plotting.constraints import plot_constraint_map, plot_contamination_model, plot_outer_tracer_audit
 
-    from .plotting.constraints import (fit_quality_table, plot_annulus_fits, plot_method_comparison,
-                                       plot_residual_significance)
+    from .plotting.constraints import (fit_quality_table, plot_annulus_fits, plot_dataset_step,
+                                       plot_method_comparison, plot_residual_significance)
 
     t = fit_quality_table()
     print("  per-annulus fit quality (chi2 per bin of the projected histogram):")
@@ -327,7 +327,8 @@ def cmd_plot_constraints(args: argparse.Namespace) -> int:
             row["r_lower"], row["r_upper"], row["n_stars"], row["f_field"], row["sigma_pmr"], row["sigma_pmr_err"],
             row["sigma_pmt"], row["sigma_pmt_err"], row["chi2_r_wide"], row["chi2_r_peak"],
             row["chi2_t_wide"], row["chi2_t_peak"]))
-    for path in (plot_residual_significance(),
+    for path in (plot_dataset_step(),
+                 plot_residual_significance(),
                  plot_method_comparison(),
                  plot_annulus_fits("plots/outer_fit_annuli_radial.png", component="r"),
                  plot_annulus_fits("plots/outer_fit_annuli_tangential.png", component="t"),

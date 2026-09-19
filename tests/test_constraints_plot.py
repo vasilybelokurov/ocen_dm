@@ -141,3 +141,38 @@ def test_residual_significance_figure_and_flatness(tmp_path):
     assert inner_q / inner_all < 0.05
     p = plot_residual_significance(tmp_path / "sig.png")
     assert p.exists() and p.stat().st_size > 60_000
+
+
+@pytest.mark.skipif(not (_HAS_RUNS and _HAS_MEMBERS), reason="runs or members missing")
+def test_hst_and_gaia_do_not_join_smoothly(tmp_path):
+    """HST declines to -5 per cent of the model at its edge; Gaia sits at +10 to +12 per cent
+    where it becomes usable. The step is the feature, not a bump inside the Gaia data."""
+    import json
+    from astropy.table import Table
+    from ocen_dm.kinematics.report import _family_for
+    from ocen_dm.paths import processed_dir, results_dir
+    from ocen_dm.plotting.constraints import (KMS_PER_MASYR_KPC, _sigma_1d_kms, our_mixture_profile,
+                                              plot_dataset_step)
+
+    summary = json.loads((results_dir() / "fits" / "K1_noDM_composite" / "summary.json").read_text())
+    fam = _family_for(summary)
+    x = np.array([summary["parameters"][n]["ml"] for n in fam.names])
+    jeans, D, _ = fam.build(fam.to_dict(x))
+    hr = Table.read(processed_dir() / "kinematics" / "omegacat_vi_pm_radial.ecsv")
+    ht = Table.read(processed_dir() / "kinematics" / "omegacat_vi_pm_tangential.ecsv")
+    rh = np.asarray(hr["r_median"])
+    hst = np.sqrt(0.5 * (np.asarray(hr["sigma_pmr"]) ** 2 + np.asarray(ht["sigma_pmt"]) ** 2))
+    res_h = hst / (_sigma_1d_kms(jeans, D, rh) / (KMS_PER_MASYR_KPC * D)) - 1
+    assert res_h[-1] < -0.03 and res_h[rh > 150][0] > -0.02      # HST declines from ~0 to below -3 %
+    edges = np.array([460., 540, 630, 730, 850, 1000])
+    mix = our_mixture_profile(edges)
+    rg = np.asarray(mix["r_median"])
+    tot = np.sqrt(0.5 * (np.asarray(mix["sigma_pmr"]) ** 2 + np.asarray(mix["mean_pmr"]) ** 2
+                         + np.asarray(mix["sigma_pmt"]) ** 2 + np.asarray(mix["mean_pmt"]) ** 2))
+    res_g = tot / (_sigma_1d_kms(jeans, D, rg) / (KMS_PER_MASYR_KPC * D)) - 1
+    assert np.all(res_g > 0.05)                                   # Gaia sits well above the same model
+    assert res_g.min() - res_h[-1] > 0.10                         # a step of more than 10 per cent
+    # and the two barely overlap: HST ends at 346", Gaia is under 15 per cent usable until ~500"
+    assert hr["r_upper"][-1] < 350
+    p = plot_dataset_step(tmp_path / "step.png")
+    assert p.exists() and p.stat().st_size > 60_000
