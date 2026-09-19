@@ -3032,3 +3032,42 @@ Both windows agree with unity, and both agree with the corrected all-star compar
 which adds one bin beyond where the published profile stops at 300 and needs no correction
 of any kind. Gaia carries 300 arcsec outwards. The two genuinely overlap at 300-340, where
 both instruments have quality-selected stars at the same effective radius.
+
+### Flagged stars only, and the fraction dropped
+
+User: "if the unflagged stars should not be used we just used flagged stars and compute their
+dispersion." Right, and `hst_profile` now defaults to `require_flag=True`,
+`correct_unflagged=False`.
+
+For the record, what the fraction was and why it existed. The dispersion formula never
+contained it. It was a rescaling applied after the fit: a bin of flagged stars is unbiased, a
+bin of unflagged stars reads 1.077 times high because their quoted errors are too small, and
+a bin that is fraction *f* unflagged was assumed to sit linearly in between, so sigma was
+divided by `1 + f (1.077 - 1)`.
+
+The fraction only ever did work in bins straddling 340 arcsec, where the flag runs out
+mid-bin, and those bins only existed because the HST annuli had been chosen to match Gaia's
+edges rather than the flag's own boundary at 340. The goal behind all of it was to push HST
+to 460 arcsec to meet Gaia. That goal was unnecessary: **Gaia starts at 300 arcsec, so
+300-340 is already an overlap using flagged stars on both sides.**
+
+The measurement, flagged stars only, nothing corrected:
+
+| annulus | N | sigma (mas/yr) |
+|---|---|---|
+| 150-200" | 142615 | 0.6268 ± 0.0089 |
+| 200-250" | 150092 | 0.5852 ± 0.0083 |
+| 250-300" | 119576 | 0.5511 ± 0.0078 |
+| 300-340" | 16912 | 0.5257 ± 0.0074 |
+
+and the three comparison routes, which agree:
+
+| route | HST | Gaia | Gaia/HST |
+|---|---|---|---|
+| 300-340", both flagged | 16912 at 311" | 17 at 318" | 1.028 ± 0.132 |
+| 300-380", both flagged | 16978 at 311" | 52 at 356" | 0.933 ± 0.074 |
+| 300-460", HST corrected | 92568 at 327" | 328 at 430" | 0.966 ± 0.038 |
+
+`plots/hst_gaia_overlap.png` redrawn: HST from flagged stars to 340 arcsec as the
+measurement, the corrected extension to 466 drawn faintly as a cross-check only. Eight tests,
+one of which pins the default so the correction cannot creep back in.

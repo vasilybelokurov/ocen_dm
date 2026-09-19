@@ -43,25 +43,26 @@ def test_mixture_tames_the_unflagged_stars():
         y = dispersion_ml(s.mu_t[m], s.err_t[m])[0]
         raw.append(np.sqrt(0.5 * (x ** 2 + y ** 2)))
     assert raw[-1] > raw[0], "raw, it rises outwards, which no cluster does"
-    t = hst_profile(edges_arcsec=(340., 380., 420., 466.))
+    t = hst_profile(edges_arcsec=(340., 380., 420., 466.), require_flag=False,
+                    correct_unflagged=True)
     assert len(t) == 3
     assert t["sigma_pm"][0] > t["sigma_pm"][1], "modelled, it falls"
     assert np.all(np.asarray(t["f_field"]) < 0.06), "the field is a few per cent, not the signal"
 
 
-def test_overlap_exists_and_the_instruments_agree():
-    from ocen_dm.plotting.constraints import hst_gaia_overlap_profile
-    ov = hst_gaia_overlap_profile()
-    assert len(ov) == 2, "300-380 and 380-460 arcsec"
-    assert np.all(np.asarray(ov["n_hst"]) > 5000) and np.all(np.asarray(ov["n_gaia"]) > 40)
-    # the two samples sit at different radii inside the bin, hence the correction
-    assert np.all(np.asarray(ov["r_gaia"]) > np.asarray(ov["r_hst"]))
-    assert np.all(np.abs(np.asarray(ov["ratio"]) - np.asarray(ov["ratio_raw"])) > 0.005)
-    r, e = np.asarray(ov["ratio"]), np.asarray(ov["ratio_err"])
-    w = np.sum(r / e ** 2) / np.sum(1 / e ** 2)
-    we = 1 / np.sqrt(np.sum(1 / e ** 2))
-    assert abs(w - 1.0) < 2 * we, "the instruments agree once HST's unflagged stars are fixed"
-    assert 0.92 < w < 1.08
+def test_overlap_exists_on_flagged_stars_alone():
+    """The point: no correction is needed, because 300-340 arcsec has flagged stars on both sides."""
+    from ocen_dm.plotting.constraints import hst_gaia_overlap_tests
+    t = hst_gaia_overlap_tests()
+    clean = t[t["flagged_only"]][0]
+    assert clean["r_lower"] == 300 and clean["r_upper"] == 340
+    assert clean["n_hst"] > 10000 and clean["n_gaia"] >= 10
+    # the two samples land at essentially the same radius, so nothing is extrapolated
+    assert abs(clean["r_hst"] - clean["r_gaia"]) < 15
+    assert abs(clean["ratio"] - 1.0) < 2 * clean["ratio_err"]
+    # and all three routes agree with each other
+    r, e = np.asarray(t["ratio"]), np.asarray(t["ratio_err"])
+    assert np.all(np.abs(r - 1.0) < 2 * e)
 
 
 def test_plot_renders(tmp_path):
@@ -77,8 +78,8 @@ def test_unflagged_stars_are_biased_and_the_correction_is_applied():
     assert 1.03 < ratio < 1.13 and err < 0.03
     assert abs(ratio - UNFLAGGED_BIAS[0]) < 4 * UNFLAGGED_BIAS[1], "stored value must track"
     edges = (300., 380., 460.)
-    on = hst_profile(edges_arcsec=edges, correct_unflagged=True)
-    off = hst_profile(edges_arcsec=edges, correct_unflagged=False)
+    on = hst_profile(edges_arcsec=edges, require_flag=False, correct_unflagged=True)
+    off = hst_profile(edges_arcsec=edges, require_flag=False, correct_unflagged=False)
     assert np.all(np.asarray(on["sigma_pm"]) < np.asarray(off["sigma_pm"]))
     # outside 340 arcsec every star is unflagged, so the full correction applies there
     assert on["f_unflagged"][-1] > 0.99
@@ -93,7 +94,19 @@ def test_flagged_measurement_reproduces_the_published_profile():
     from ocen_dm.paths import processed_dir
     pub = Table.read(processed_dir() / "kinematics" / "omegacat_vi_pm_combined.ecsv")
     rp = np.asarray(pub["r_median"], float); sp = np.asarray(pub["sigma_pmc"], float)
-    t = hst_profile(edges_arcsec=(150., 200., 250., 300.), require_flag=True,
-                    correct_unflagged=False)
+    t = hst_profile(edges_arcsec=(150., 200., 250., 300.))
     ratio = np.asarray(t["sigma_pm"]) / np.interp(np.asarray(t["r_median"]), rp, sp)
     assert np.all(np.abs(ratio - 1.0) < 0.035), "our method must reproduce theirs to ~3 per cent"
+
+
+def test_default_is_flagged_only_with_no_correction():
+    """If a star's astrometry is not trusted, leave it out rather than model it."""
+    import inspect
+    from ocen_dm.kinematics.hst_profile import hst_profile
+    sig = inspect.signature(hst_profile)
+    assert sig.parameters["require_flag"].default is True
+    assert sig.parameters["correct_unflagged"].default is False
+    t = hst_profile(edges_arcsec=(150., 200., 250., 300., 340.))
+    assert np.array_equal(np.asarray(t["n_stars"]), np.asarray(t["n_flagged"]))
+    assert np.all(np.asarray(t["f_unflagged"]) == 0.0)
+    assert np.all(np.asarray(t["sigma_pm"]) == np.asarray(t["sigma_raw"]))
