@@ -3083,3 +3083,30 @@ each other at 8.2 and 8.4 pc, with the annulus shaded.
 The master figure still shows the published HST profile, correctly, because that is what the
 likelihood is currently given. Extending the fitted HST dataset to 340 arcsec is the pending
 decision.
+
+### Our HST measurement runs the full radial range, and a correction to an earlier claim
+
+It stopped at 150 arcsec in the figures only because I had run it on the four annuli needed
+for the overlap test. There is no obstacle: the catalogue has 1.4 million proper motions from
+1.8 arcsec outwards. Run over 3 to 340 arcsec against the published profile:
+
+| r (arcsec) | N | ours | published | ratio |
+|---|---|---|---|---|
+| 3.8 | 146 | 0.7708 ± 0.0382 | 0.8048 | 0.958 |
+| 8.3 | 595 | 0.7944 ± 0.0225 | 0.7854 | 1.012 |
+| 18.0 | 3224 | 0.7654 ± 0.0108 | 0.7776 | 0.984 |
+| 39.4 | 15574 | 0.7493 ± 0.0106 | 0.7440 | 1.007 |
+| 85.9 | 66878 | 0.7070 ± 0.0100 | 0.7079 | 0.999 |
+| 176 | 142615 | 0.6268 ± 0.0089 | 0.6236 | 1.005 |
+| 270 | 119576 | 0.5511 ± 0.0078 | 0.5504 | 1.001 |
+| 311 | 16912 | 0.5257 ± 0.0074 | 0.5199 | 1.011 |
+
+**Median ratio 1.0042, scatter 2.5 per cent**, the scatter coming from the innermost bins
+where only a few hundred stars survive the flag.
+
+**Correction.** I reported earlier that our flagged measurement sat 1.1 to 2.3 per cent above
+the published profile and called that a method floor. That was an interpolation error on my
+side: I interpolated the published profile against its `r_lower` column instead of
+`r_median`, which shifts the comparison outwards by half a bin on a falling profile. There is
+no 1-2 per cent method floor. Our pipeline reproduces oMEGACat's own numbers to a few tenths
+of a per cent wherever the statistics allow.
