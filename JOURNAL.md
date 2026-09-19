@@ -2062,3 +2062,53 @@ beyond 460 arcsec instead of the 1-D combined published profile, so beta(r) is c
 the data at large radius, and refit K1 and K2. That is a change to the data the model is
 fitted to, so it waits for the user. A test now pins the disagreement (model < 0.92,
 measured > 1.0 beyond 1300 arcsec).
+
+## 2026-09-19 — No rescaling: how the datasets actually behave
+
+The user objected to the per-instrument scales -- "are you proposing some arbitrary
+rescaling of the Gaia dispersion???" -- and asked to start again without any. The scales
+were mine (introduced 2026-09-17, priors uniform 0.85-1.15 for MUSE and 0.7-1.3 for the two
+Gaia sets) and I had stopped flagging them as the substantive assumption they are. Three
+things make them indefensible as they stood: they are **degenerate with the signal**
+(in the K2 posterior s_GaiaEDR3 and log M_DM correlate at **-0.39**; the median M_DM falls
+from 3.8e6 to 3.45e6 across the fitted range of the scale), the two Gaia releases pull in
+**opposite directions** (0.950 for DR2, 1.065 for EDR3 -- same telescope, same cluster), and
+a radius-independent constant cannot represent either the HST/Gaia step or the outer shape
+mismatch.
+
+`ocen fit --no-scales` added; K1 and K2-cored relaunched without any instrument nuisances.
+Maximum-likelihood reference (K1, 8 parameters, no scales): chi2 = 629 / 126 against 355 with
+the scales free. Per dataset, with **no rescaling anywhere**
+(`plots/datasets_unscaled.png`):
+
+| dataset | 0-100" | 100-350" | 350-1000" | 1000-2500" |
+|---|---|---|---|---|
+| HST PM (oMEGACat) | −0.5 % | −1.9 % | | |
+| MUSE line of sight | −4.7 % | −5.4 % | | |
+| Gaia DR2 (Baumgardt+ 2019) | | −1.7 % | −3.5 % | −1.6 % |
+| Gaia EDR3, our measurement | | −4.1 % | **+7.7 %** | **+12.8 %** |
+| Gaia EDR3, published profile | | −6.2 % | +2.6 % | **+13.3 %** |
+
+So: HST is fitted to within 2 per cent; MUSE sits 5 per cent low, the sign and size expected
+from energy equipartition (its giants are 3 magnitudes brighter than the HST proper-motion
+sample); **Gaia DR2 is consistent with the model everywhere, to within 4 per cent**; and
+**only Gaia EDR3 shows the outer excess**.
+
+### The two Gaia releases disagree with each other, and with a radial trend
+
+| r ["] | 179 | 266 | 310 | 338 | 386 | 448 | 670 | 1137 | 1747 |
+|---|---|---|---|---|---|---|---|---|---|
+| EDR3 / DR2 | −8.5 % | −9.8 % | −9.7 % | −2.2 % | +9.4 % | +5.4 % | +2.6 % | +5.1 % | **+11.9 %** |
+
+The weighted mean beyond 300 arcsec is 1.017 ± 0.015 -- consistent with unity -- but the
+ratio runs from −10 per cent at 200-300 arcsec to +12 per cent at 1750 arcsec. Two analyses
+of the same cluster with the same telescope, differing by 20 per cent across the radial
+range, with a trend rather than an offset. **The outer excess that drives the entire
+dark-matter preference is present in EDR3 and absent in DR2.**
+
+That does not tell us which release is right (EDR3 has far better astrometry; DR2's profile
+comes from a different membership and error treatment, and we still do not know whether its
+dispersions are quoted about a rotating mean). It does tell us the excess cannot yet be
+attributed to mass, and that no constant scale is the right way to absorb the difference.
+Nested runs without scales (K1, K2-cored) are in progress; their evidence comparison will
+say what the data prefer when nothing is free to soak up a 7 per cent offset.

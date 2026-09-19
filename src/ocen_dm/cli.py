@@ -250,12 +250,15 @@ def cmd_fit(args: argparse.Namespace) -> int:
     else:
         datasets = args.datasets.split(",")
     data = KinematicData.load(datasets, gaia_edr3_pm={"r_min_arcsec": args.gaia_r_min})
+    kw = dict(tracer=args.tracer, backend=args.backend)
+    if getattr(args, "no_scales", False):
+        kw["instruments"] = ()
     if preset is not None:
         pass
     elif args.family == "K1":
-        family = NoDarkMatterModel(tracer=args.tracer, backend=args.backend)
+        family = NoDarkMatterModel(**kw)
     elif args.family in ("K2-cored", "K2-nfw"):
-        family = DarkMatterModel(gamma=0.0 if args.family == "K2-cored" else 1.0, tracer=args.tracer, backend=args.backend)
+        family = DarkMatterModel(gamma=0.0 if args.family == "K2-cored" else 1.0, **kw)
     else:
         print(f"unknown family {args.family!r}", file=sys.stderr)
         return 2
@@ -395,6 +398,8 @@ def build_parser() -> argparse.ArgumentParser:
     fit.add_argument("--preset", default=None, choices=["watkins2013", "omegacat6", "baumgardt2018", "imbh_limit"],
                      help="run under a published analysis's assumptions and compare with its numbers")
     fit.add_argument("--datasets", default=DEFAULT_DATASETS, help="comma-separated dataset keys")
+    fit.add_argument("--no-scales", action="store_true",
+                     help="remove the per-instrument multiplicative nuisances (every dataset compared with the same model)")
     fit.add_argument("--tracer", default="composite", choices=["composite", "trager"],
                      help="tracer density: HST star counts inside 25 arcsec + Trager light (default), or Trager only")
     fit.add_argument("--gaia-r-min", type=float, default=300.0, help="inner cut for the Gaia EDR3 profile, arcsec")

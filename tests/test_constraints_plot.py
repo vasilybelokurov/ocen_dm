@@ -203,3 +203,21 @@ def test_model_anisotropy_disagrees_with_the_data_in_the_outskirts(tmp_path):
     assert (meas[outer] - model[outer]).min() > 0.10             # and disagree by > 0.1 in the outskirts
     p = plot_offset_explained(tmp_path / "offset.png")
     assert p.exists() and p.stat().st_size > 60_000
+
+
+@pytest.mark.skipif(not _HAS_MEMBERS, reason="member catalogue not present")
+def test_gaia_releases_disagree_with_a_radial_trend():
+    """DR2 and EDR3 measure the same cluster but drift apart with radius: a constant
+    per-instrument scale cannot represent that."""
+    from astropy.table import Table
+    from ocen_dm.paths import processed_dir
+    dr2 = Table.read(processed_dir() / "kinematics" / "baumgardt2019_ocen_pm_dispersion.ecsv")
+    pub = Table.read(processed_dir() / "kinematics" / "vasiliev2021_ocen_pm_profiles.ecsv")
+    r = np.asarray(dr2["r"]); d = np.asarray(dr2["sigma_pm"])
+    e3 = np.interp(r, np.asarray(pub["r"]), np.asarray(pub["sigma_pm"]))
+    ratio = e3 / d
+    assert ratio[r < 320].mean() < 0.95          # EDR3 below DR2 inside 320 arcsec
+    assert ratio[r > 1500].mean() > 1.08         # and above it beyond 1500
+    # a straight line in log r has a significant slope
+    slope = np.polyfit(np.log10(r), ratio, 1)[0]
+    assert slope > 0.1
