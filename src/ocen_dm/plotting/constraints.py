@@ -1200,7 +1200,8 @@ def plot_periphery(path: Path | str = "plots/periphery_where_the_cluster_ends.pn
                 **dataset_style("hst", size=3.5, fitted=False))
     # our own HST measurement carries the profile from 300 to 340 arcsec, where the
     # published one stops, so that it genuinely overlaps Gaia rather than stopping short
-    ours = hst_profile(edges_arcsec=(150., 200., 250., 300., 340.))
+    ours = hst_profile(edges_arcsec=tuple(np.concatenate(
+        [np.geomspace(2.0, 150.0, 12), [200., 250., 300., 340.]])))
     ax.errorbar(pc(ours["r_median"]), np.asarray(ours["sigma_pm"]) * k,
                 yerr=np.asarray(ours["sigma_pm_err"]) * k, linestyle="-", lw=2, capsize=3,
                 zorder=6, label=dataset_label("hst") + ", ours (flagged stars)",
@@ -1643,8 +1644,8 @@ def plot_hst_gaia_overlap(path: Path | str = "plots/hst_gaia_overlap.png",
     from ..kinematics.outer_gaia import load_edr3_profile
     from .style import dataset_label, dataset_style
     style.apply()
-    flagged = hst_profile(edges_arcsec=(150., 200., 250., 300., 340.), require_flag=True,
-                          correct_unflagged=False)
+    flagged = hst_profile(edges_arcsec=tuple(np.concatenate(
+        [np.geomspace(40.0, 150.0, 5), [200., 250., 300., 340.]])))
     extended = hst_profile(edges_arcsec=(340., 380., 420., 466.), correct_unflagged=True)
     g = load_edr3_profile()
     pub = load_profile("hst_pm_combined")
