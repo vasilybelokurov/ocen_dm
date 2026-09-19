@@ -29,7 +29,7 @@ __all__ = ["QUERY", "PRODUCT", "fetch_field", "build_product", "load_field_templ
            "field_density_2d"]
 
 #: centre and annulus of the field sample (deg)
-OCEN_RA, OCEN_DEC = 201.696833, -47.476583
+from ..cluster import OCEN_DEC, OCEN_RA  # single definition, derived from the data
 R_INNER_DEG, R_OUTER_DEG = 0.75, 1.6
 
 QUERY = """

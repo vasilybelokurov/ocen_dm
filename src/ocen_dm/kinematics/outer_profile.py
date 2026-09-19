@@ -42,8 +42,7 @@ __all__ = ["MemberSample", "load_members", "systemic_pm", "dispersion_ml", "binn
 #: set these outside :mod:`ocen_dm.kinematics.estimator_audit`.
 LEGACY: set[str] = set()
 
-OCEN_RA = 201.696833          # Baumgardt catalogue centre, deg
-OCEN_DEC = -47.476583
+from ..cluster import OCEN_DEC, OCEN_RA  # single definition, derived from the data
 OCEN_VSYS_KMS = 232.6         # systemic line-of-sight velocity (oMEGACat VI)
 KMS_PER_MASYR_KPC = 4.740470463533348
 
