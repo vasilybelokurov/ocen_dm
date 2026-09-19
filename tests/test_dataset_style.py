@@ -38,7 +38,9 @@ def test_unfitted_data_keeps_its_identity():
     b = dataset_style("pristine", fitted=False)
     assert a["marker"] == b["marker"] and a["color"] == b["color"]
     assert b["alpha"] < a["alpha"]
-    assert "not fitted" in dataset_label("pristine", fitted=False)
+    # the label is deliberately unchanged: which datasets are fitted is stated once, in the
+    # coverage panel, not repeated on every legend entry
+    assert dataset_label("pristine", fitted=False) == dataset_label("pristine", fitted=True)
 
 
 def test_every_likelihood_key_has_a_style():
