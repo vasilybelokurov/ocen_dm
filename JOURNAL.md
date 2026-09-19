@@ -3277,3 +3277,34 @@ The last panel is the independent evidence: the published rotation curve is neve
 estimator, and correcting the algebra moves our fitted rotation onto it.
 
 Full suite clean at **348 passed** after the fixes and the test updates.
+
+### Why HST carries no rotation of its own
+
+Checked after the user asked why the rotation swap leaves HST untouched.
+
+oMEGACat proper motions are **locally corrected**: an HST field is too small to hold enough
+extragalactic anchors, so zero motion is defined as the mean motion of the cluster stars in
+each patch. Within every patch the mean is then zero by construction, and the cluster's
+streaming has been spent on setting the frame. Measured directly with our own mixture:
+
+| annulus | N | our fitted \|mean_T\| | Vasiliev curve | ratio |
+|---|---|---|---|---|
+| 40-80" | 61850 | 0.0024 | 0.0543 | 0.04 |
+| 80-130" | 110161 | 0.0064 | 0.0899 | 0.07 |
+| 130-200" | 189791 | 0.0074 | 0.1385 | 0.05 |
+| 200-260" | 180903 | 0.0076 | 0.1815 | 0.04 |
+| 260-340" | 105677 | 0.0060 | 0.2086 | 0.03 |
+
+**96 per cent of the rotation is gone**, as the procedure implies. So HST's rotation term
+must come from outside, and `likelihood.py` already takes it from the Vasiliev & Baumgardt
+curve. Our own curve cannot replace it: we fit rotation only from 356 arcsec outwards, while
+HST ends at 360.
+
+Consequence for the two comparison figures: `master_datasets_rotation_published.png` is
+self-consistent, and `master_datasets_rotation_ours.png` is a hybrid -- our rotation on the
+Gaia points, the published one on HST. Relabel before use.
+
+Not a bug, checked: HST's stored `streaming2` is $v_{\rm rot}^2$ while Gaia's is
+$v_{\rm rot}^2/2$. HST's dataset is the tangential component alone, Gaia's is the combined
+dispersion, and the ratio between those conventions is exactly $\sqrt2$ -- which is why the
+comparison came out at 1.41 at every radius.

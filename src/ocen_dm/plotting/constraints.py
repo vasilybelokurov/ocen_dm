@@ -1413,8 +1413,29 @@ def plot_extended_profile(path: Path | str = "plots/profile_extended_pristine.pn
     return path
 
 
+def gaia_streaming2(which: str = "ours") -> np.ndarray:
+    """Mean-square streaming to remove from the Gaia bins, from either rotation curve.
+
+    ``"ours"`` uses the means fitted per annulus by our own mixture; ``"published"`` uses
+    :math:`\tfrac12 v_{\rm rot}^2` from the Vasiliev & Baumgardt curve, which is a single
+    amplitude on a fixed functional shape. The Jeans model predicts the full second moment,
+    so what it meets is :math:`\sqrt{\sigma^2 - \langle \bar v^2\rangle}` either way.
+    """
+    from ..kinematics.outer_gaia import load_edr3_profile
+    g = load_edr3_profile()
+    if which == "ours":
+        return np.asarray(g["streaming2"], float)
+    if which != "published":
+        raise ValueError("which must be 'ours' or 'published'")
+    t = Table.read(processed_dir() / "kinematics" / "vasiliev2021_ocen_pm_profiles.ecsv")
+    v = np.interp(np.asarray(g["r_median"], float), np.asarray(t["r"], float),
+                  np.asarray(t["vrot_pm"], float))
+    return 0.5 * v ** 2
+
+
 def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
-                         datasets: str | None = None, distance_kpc: float = 5.43) -> Path:
+                         datasets: str | None = None, distance_kpc: float = 5.43,
+                         streaming: str | None = None) -> Path:
     """Everything the likelihood is shown, in one figure, in km/s.
 
     One symbol and one colour per dataset throughout (:data:`ocen_dm.plotting.style.
@@ -1427,6 +1448,12 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
     so proper motions and line-of-sight velocities share an axis. Middle: the anisotropy
     implied by the components. Bottom: what each dataset covers and how many points it
     contributes.
+
+    ``streaming`` selects which rotation curve is removed from the Gaia points before they
+    are drawn, ``"ours"`` or ``"published"``. With it set, the top panel shows
+    :math:`\sqrt{\sigma^2-\langle\bar v^2\rangle}`, the quantity the Jeans model actually
+    meets, and a fourth panel gives the difference between the two choices in units of the
+    measurement error. Leaving it ``None`` draws the raw dispersions.
     """
     from ..cli import DEFAULT_DATASETS
     from ..kinematics.likelihood import load_profile
@@ -1450,8 +1477,14 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
                            label=dataset_label(key, component, fitted), zorder=5 if fitted else 3,
                            **st, **kw)
 
-    fig, (a1, a3, a2) = plt.subplots(3, 1, figsize=(10.6, 11.6), sharex=True,
-                                     gridspec_kw={"height_ratios": [2.5, 1.15, 1.0]})
+    if streaming is None:
+        fig, (a1, a3, a2) = plt.subplots(3, 1, figsize=(10.6, 11.6), sharex=True,
+                                         gridspec_kw={"height_ratios": [2.5, 1.15, 1.0]})
+        a0 = None
+    else:
+        fig, (a1, a0, a3, a2) = plt.subplots(4, 1, figsize=(10.6, 13.2), sharex=True,
+                                             gridspec_kw={"height_ratios": [2.5, 1.0, 1.05, 0.95]})
+        s2 = gaia_streaming2(streaming)
 
     # --- context: real data that exists but is not fitted --------------------------
     from ..kinematics.hst_profile import hst_profile
@@ -1477,7 +1510,10 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
     for key in keys:
         p = load_profile(key)
         scale = 1.0 if p.kind == "los" else k
-        draw(a1, pc(p.r), np.asarray(p.value) * scale,
+        val = np.asarray(p.value, float)
+        if streaming is not None and key == "gaia_edr3_ours":
+            val = np.sqrt(np.maximum(val ** 2 - s2, 1e-12))
+        draw(a1, pc(p.r), val * scale,
              [np.asarray(p.err_lo) * scale, np.asarray(p.err_hi) * scale], key,
              size=4.5 if p.instrument in ("HST", "MUSE") else 7.0)
         st = dataset_style(key)
@@ -1500,10 +1536,36 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
     a1.set_xscale("log"); a1.set_yscale("log")
     a1.set_ylim(3.2, 26); a1.set_xlim(0.03, 300)
     a1.set_yticks([4, 5, 6, 8, 10, 15, 20]); a1.set_yticklabels(["4", "5", "6", "8", "10", "15", "20"])
-    a1.set_ylabel("velocity dispersion  [km/s]")
+    a1.set_ylabel("velocity dispersion  [km/s]" if streaming is None
+                  else r"$\sqrt{\sigma^2-\langle\bar v^2\rangle}$  [km/s]")
     a1.legend(fontsize=7.6, loc="lower left", framealpha=0.93)
-    a1.set_title("$\\omega$ Cen: the kinematic data", fontsize=12)
+    a1.set_title("$\\omega$ Cen: the kinematic data" if streaming is None
+                 else "$\\omega$ Cen: the kinematic data, %s rotation removed"
+                      % ("our fitted" if streaming == "ours" else "the published"),
+                 fontsize=12)
     add_arcsec_axis(a1, distance_kpc)
+
+    # --- effect of the rotation choice ----------------------------------------------
+    if a0 is not None:
+        other = gaia_streaming2("published" if streaming == "ours" else "ours")
+        p = load_profile("gaia_edr3_ours")
+        v = np.asarray(p.value, float); e = np.asarray(p.err_lo, float)
+        this = np.sqrt(np.maximum(v ** 2 - s2, 1e-12))
+        that = np.sqrt(np.maximum(v ** 2 - other, 1e-12))
+        shift = (that - this) / e
+        st = dataset_style("gaia_edr3", size=7)
+        a0.axhline(0.0, color=style.INK_SECONDARY, lw=1.5)
+        a0.axhspan(-1, 1, color=style.SERIES[2], alpha=0.15, lw=0, label="$\\pm1\\sigma$")
+        a0.plot(pc(p.r), shift, ls="-", lw=1.6, **st)
+        a0.set_ylim(-1.6, 1.6)
+        a0.set_ylabel("effect of the other\nrotation curve  [$\\sigma$]")
+        a0.legend(fontsize=8, loc="upper right")
+        a0.annotate("switching to the %s curve moves the points by %.2f$\\sigma$ in quadrature"
+                    % ("published" if streaming == "ours" else "our fitted",
+                       float(np.sqrt(np.sum(shift ** 2)))),
+                    (0.02, 0.08), xycoords="axes fraction", fontsize=8.5,
+                    color=style.INK_SECONDARY)
+        a0.axvline(R_JACOBI_PERI_PC, color=style.INK_SECONDARY, lw=1.2, ls=":")
 
     # --- anisotropy ----------------------------------------------------------------
     hr, ht = load_profile("hst_pm_radial"), load_profile("hst_pm_tangential")
