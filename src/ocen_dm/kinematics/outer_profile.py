@@ -36,6 +36,12 @@ __all__ = ["MemberSample", "load_members", "systemic_pm", "dispersion_ml", "binn
            "field_pdf_factory", "contamination_audit",
            "OCEN_RA", "OCEN_DEC", "OCEN_VSYS_KMS", "KMS_PER_MASYR_KPC"]
 
+#: Reproduce the two estimator defects fixed on 2026-09-19, for the before/after audit only.
+#: ``"signs"`` restores the wrong sign on the covariance cross-terms in the mean update;
+#: ``"interval"`` restores the fixed 2 per cent step that floored every uncertainty. Never
+#: set these outside :mod:`ocen_dm.kinematics.estimator_audit`.
+LEGACY: set[str] = set()
+
 OCEN_RA = 201.696833          # Baumgardt catalogue centre, deg
 OCEN_DEC = -47.476583
 OCEN_VSYS_KMS = 232.6         # systemic line-of-sight velocity (oMEGACat VI)
@@ -544,9 +550,10 @@ def dispersion_2d(sample: MemberSample, mask: np.ndarray, field_density, depth_v
             w = r / det
             A11 = np.sum(w * (cdd * cos_p**2 - 2 * cad * cos_p * sin_p + caa * sin_p**2))
             A22 = np.sum(w * (cdd * sin_p**2 + 2 * cad * cos_p * sin_p + caa * cos_p**2))
-            A12 = np.sum(w * (-cdd * cos_p * sin_p - cad * (cos_p**2 - sin_p**2) + caa * sin_p * cos_p))
+            sgn = +1.0 if "signs" in LEGACY else -1.0
+            A12 = np.sum(w * (-cdd * cos_p * sin_p + sgn * cad * (cos_p**2 - sin_p**2) + caa * sin_p * cos_p))
             b1 = np.sum(w * (cdd * a * cos_p - cad * (a * sin_p + d * cos_p) + caa * d * sin_p))
-            b2 = np.sum(w * (-cdd * a * sin_p - cad * (a * cos_p - d * sin_p) + caa * d * cos_p))
+            b2 = np.sum(w * (-cdd * a * sin_p + sgn * cad * (a * cos_p - d * sin_p) + caa * d * cos_p))
             det_A = A11 * A22 - A12**2
             if abs(det_A) > 1e-30:
                 mr = (b1 * A22 - b2 * A12) / det_A
@@ -600,6 +607,16 @@ def dispersion_2d(sample: MemberSample, mask: np.ndarray, field_density, depth_v
                              options={"xatol": 1e-4, "fatol": 1e-4, "maxiter": 60}).fun
 
         x0 = sr_hat if which == "r" else st_hat
+        if "interval" in LEGACY:                 # the floored version, audit only
+            out = []
+            for side in (-1, +1):
+                x = x0
+                for _ in range(60):
+                    x = x + 0.02 * x0 * side
+                    if x <= 0.01 or ll_max - profile(x) >= 0.5:
+                        break
+                out.append(x)
+            return out[0], out[1]
         out = []
         for side in (-1, +1):
             step = 0.002 * x0
