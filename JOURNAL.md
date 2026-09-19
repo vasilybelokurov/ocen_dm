@@ -3071,3 +3071,15 @@ and the three comparison routes, which agree:
 `plots/hst_gaia_overlap.png` redrawn: HST from flagged stars to 340 arcsec as the
 measurement, the corrected extension to 466 drawn faintly as a cross-check only. Eight tests,
 one of which pins the default so the correction cannot creep back in.
+
+### The periphery figure was still drawing the published HST profile
+
+It stopped at 300 arcsec while Gaia's first point sits at 356, so the two appeared to meet
+without overlapping. Replaced with our own flagged-star measurement, which reaches 340
+arcsec, and the Gaia point for the *same* annulus (300-340, 17 stars, 0.5385 ± 0.0685 mas/yr)
+is drawn alongside HST's last point (311 arcsec, 0.5257 ± 0.0074). The two now sit on top of
+each other at 8.2 and 8.4 pc, with the annulus shaded.
+
+The master figure still shows the published HST profile, correctly, because that is what the
+likelihood is currently given. Extending the fitted HST dataset to 340 arcsec is the pending
+decision.
