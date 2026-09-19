@@ -33,7 +33,7 @@ from . import style
 from .style import add_arcsec_axis, add_pc_axis
 
 __all__ = ["plot_constraint_map", "plot_outer_tracer_audit", "plot_contamination_model", "plot_annulus_fits",
-           "plot_method_comparison", "plot_residual_significance", "plot_dataset_step", "plot_offset_explained", "plot_datasets_unscaled", "plot_hst_gaia_star_by_star", "hst_gaia_excess_table", "hst_gaia_overlap_table", "plot_pm_datasets", "plot_periphery", "plot_periphery_density", "plot_extended_profile", "plot_master_datasets", "plot_hst_gaia_overlap", "hst_gaia_overlap_profile", "hst_gaia_overlap_tests",
+           "plot_method_comparison", "plot_residual_significance", "plot_dataset_step", "plot_offset_explained", "plot_datasets_unscaled", "plot_hst_gaia_star_by_star", "hst_gaia_excess_table", "hst_gaia_overlap_table", "plot_pm_datasets", "plot_periphery", "plot_periphery_density", "plot_extended_profile", "plot_master_datasets", "plot_estimator_audit", "plot_hst_gaia_overlap", "hst_gaia_overlap_profile", "hst_gaia_overlap_tests",
            "fit_quality_table", "annulus_fits", "our_outer_profile", "our_mixture_profile", "OUTER_EDGES"]
 
 #: log-spaced annuli for our own outer measurement (arcsec)
@@ -1713,3 +1713,85 @@ def plot_hst_gaia_overlap(path: Path | str = "plots/hst_gaia_overlap.png",
     fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
     return path
 
+
+
+def plot_estimator_audit(path: Path | str = "plots/estimator_before_after.png",
+                         distance_kpc: float = 5.43) -> Path:
+    """What the two estimator fixes of 2026-09-19 changed, and what they did not.
+
+    Top left: the combined dispersion, the quantity the likelihood receives, is untouched.
+    Top right: the uncertainties, which had been sitting on a 1.4 per cent numerical floor.
+    Bottom left: the anisotropy, which the sign error distorted. Bottom right: the fitted
+    rotation against the published curve the estimator never sees, which is the independent
+    evidence that the corrected algebra is the right one.
+    """
+    from ..kinematics.estimator_audit import gaia_audit, hst_audit
+    from ..kinematics.vb2021_replication import published_profile
+    from .style import dataset_style
+    style.apply()
+    g, h = gaia_audit(), hst_audit()
+    rp, vp = None, None
+    t = Table.read(processed_dir() / "kinematics" / "vasiliev2021_ocen_pm_profiles.ecsv")
+    rp, vp = np.asarray(t["r"], float), np.asarray(t["vrot_pm"], float)
+    OLD, NEW = style.INK_SECONDARY, style.SERIES[0]
+
+    fig, ((a1, a2), (a3, a4)) = plt.subplots(2, 2, figsize=(12.6, 8.8))
+
+    # (a) the combined dispersion: unchanged
+    ratio = np.asarray(g["sigma_fixed"]) / np.asarray(g["sigma_legacy_both"])
+    a1.axhspan(0.995, 1.005, color=style.SERIES[2], alpha=0.16, lw=0, label="$\\pm$0.5 %")
+    a1.axhline(1.0, color=style.INK_SECONDARY, lw=1.5)
+    a1.plot(g["r_median"], ratio, "D-", ms=7, lw=1.8, color=NEW)
+    a1.set_xscale("log"); a1.set_ylim(0.985, 1.015)
+    a1.set_xlabel("R  [arcsec]"); a1.set_ylabel("dispersion, after / before")
+    a1.set_title("The fitted quantity barely moved (max %.2f %%)"
+                 % (100 * np.abs(ratio - 1).max()), fontsize=10.5)
+    a1.legend(fontsize=8, loc="upper right"); add_pc_axis(a1, distance_kpc)
+
+    # (b) the uncertainties, with the floor made visible
+    for tab, lab, mk in ((h, "HST", "o"), (g, "Gaia EDR3", "D")):
+        fx = "err_fixed"; lg = "err_legacy_interval" if "err_legacy_interval" in tab.colnames else "err_legacy"
+        sg = "sigma_fixed"
+        a2.plot(tab["n_stars"], 100 * np.asarray(tab[lg]) / np.asarray(tab[sg]), mk, ms=8,
+                mfc="white", color=OLD, label="%s, before" % lab)
+        a2.plot(tab["n_stars"], 100 * np.asarray(tab[fx]) / np.asarray(tab[sg]), mk, ms=8,
+                color=NEW, label="%s, after" % lab)
+    n = np.geomspace(30, 3e5, 50)
+    a2.plot(n, 100 / np.sqrt(2 * n), "--", color=style.SERIES[1], lw=1.6,
+            label="$1/\\sqrt{2N}$, the statistical limit")
+    a2.axhline(1.414, color=OLD, lw=1.2, ls=":")
+    a2.annotate("the old numerical floor, 1.41 %", (4e4, 1.55), fontsize=8, color=OLD, ha="center")
+    a2.set_xscale("log"); a2.set_yscale("log")
+    a2.set_xlabel("stars in the bin"); a2.set_ylabel("reported uncertainty  [% of $\\sigma$]")
+    a2.set_title("Uncertainties: the floor is gone", fontsize=10.5)
+    a2.legend(fontsize=7.6, loc="lower left")
+
+    # (c) anisotropy
+    a3.plot(g["r_median"], g["ratio_legacy_signs"], "D--", ms=7, mfc="white", lw=1.4,
+            color=OLD, label="before (wrong sign)")
+    a3.plot(g["r_median"], g["ratio_fixed"], "D-", ms=7, lw=2, color=NEW, label="after")
+    a3.axhline(1.0, color=style.INK_SECONDARY, lw=1.5)
+    a3.set_xscale("log"); a3.set_xlabel("R  [arcsec]"); a3.set_ylabel(r"$\sigma_T/\sigma_R$")
+    a3.set_title("Anisotropy: more radial at 400-700 arcsec", fontsize=10.5)
+    a3.legend(fontsize=8.5, loc="upper left"); add_pc_axis(a3, distance_kpc)
+
+    # (d) rotation against the published curve, the independent check
+    pub = np.interp(np.asarray(g["r_median"], float), rp, vp)
+    for col, lab, ls, col_ in (("meant_legacy_signs", "before", "--", OLD),
+                               ("meant_fixed", "after", "-", NEW)):
+        y = np.asarray(g[col]) / pub
+        med = np.median(y[:7])
+        a4.plot(g["r_median"], y, "D" + ls, ms=7, lw=1.8, color=col_,
+                mfc="white" if lab == "before" else col_,
+                label="%s (median %.2f over 356-1328\")" % (lab, med))
+    a4.axhline(1.0, color=style.INK_SECONDARY, lw=1.5)
+    a4.set_xscale("log"); a4.set_ylim(0.5, 2.0)
+    a4.set_xlabel("R  [arcsec]")
+    a4.set_ylabel("our fitted rotation / published curve")
+    a4.set_title("Independent check: a curve the estimator never sees", fontsize=10.5)
+    a4.legend(fontsize=8.5, loc="upper left"); add_pc_axis(a4, distance_kpc)
+
+    fig.tight_layout()
+    path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
+    return path

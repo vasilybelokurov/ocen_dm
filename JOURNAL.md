@@ -3258,3 +3258,22 @@ unaffected and if anything stronger: model 0.89 against measured 1.03-1.13 beyon
 arcsec.
 
 Neither change touches the combined dispersion, which moved by at most 0.17 per cent.
+
+### Before/after figure for the two estimator fixes
+
+`plots/estimator_before_after.png`, built from `kinematics/estimator_audit.py`, which reruns
+the real measurement with either defect restored through a `LEGACY` switch in
+`outer_profile`. The comparison is therefore recomputed, not quoted from notes. Four tests
+pin that the switch reproduces each defect and never leaks outside its block.
+
+| panel | what it shows |
+|---|---|
+| dispersion, after/before | the quantity the likelihood receives moved by at most **0.17 %** |
+| uncertainty vs N | the old 1.41 % floor, and the corrected values following $1/\sqrt{2N}$ |
+| anisotropy | more radial at 400-700 arcsec: T/R at 437 arcsec from 0.867 to 0.823 |
+| rotation / published curve | median over 356-1328 arcsec from **0.93 to 0.98** |
+
+The last panel is the independent evidence: the published rotation curve is never used by the
+estimator, and correcting the algebra moves our fitted rotation onto it.
+
+Full suite clean at **348 passed** after the fixes and the test updates.
