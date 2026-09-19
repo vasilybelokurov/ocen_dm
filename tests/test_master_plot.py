@@ -25,7 +25,10 @@ def test_point_count_matches_the_likelihood():
     keys = DEFAULT_DATASETS.split(",")
     data = KinematicData.load(keys)
     assert data.n_points == sum(len(load_profile(k).r) for k in keys)
-    assert data.n_points == 127
+    # 100 since 2026-09-19: HST moved from the published 40-point profile to our own 22-bin
+    # measurement (per component, reaching 360 arcsec), and Gaia EDR3 split into its radial
+    # and tangential components
+    assert data.n_points == 100
 
 
 def test_master_plot_renders(tmp_path):

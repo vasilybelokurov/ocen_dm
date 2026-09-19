@@ -315,7 +315,8 @@ def cmd_fit(args: argparse.Namespace) -> int:
 #: Gaia EDR3 now enters as our own measurement beyond 460 arcsec rather than the published
 #: spline, whose inner points continue inward over a region with no usable Gaia star
 #: (JOURNAL 2026-09-19). The old key "gaia_edr3_pm" remains available via --datasets.
-DEFAULT_DATASETS = "hst_pm_radial,hst_pm_tangential,muse_los_dispersion,gaia_dr2_pm,gaia_edr3_ours"
+DEFAULT_DATASETS = ("hst_pm_radial_ours,hst_pm_tangential_ours,muse_los_dispersion,"
+                    "gaia_dr2_pm,gaia_edr3_ours_radial,gaia_edr3_ours_tangential")
 
 
 def cmd_plot_constraints(args: argparse.Namespace) -> int:

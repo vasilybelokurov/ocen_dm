@@ -3308,3 +3308,40 @@ Not a bug, checked: HST's stored `streaming2` is $v_{\rm rot}^2$ while Gaia's is
 $v_{\rm rot}^2/2$. HST's dataset is the tangential component alone, Gaia's is the combined
 dispersion, and the ratio between those conventions is exactly $\sqrt2$ -- which is why the
 comparison came out at 1.41 at every radius.
+
+## 2026-09-19 -- the dataset rebuilt: field template, HST to 360 arcsec, Gaia split
+
+Three changes, all agreed beforehand.
+
+**1. Selection-matched field template.** `field_density_2d` now accepts `err_max` and
+`g_range`, and `build_edr3_profile` passes each annulus its own ceiling and magnitude range,
+so the template describes the same population as the stars being fitted rather than a
+fainter, worse-measured one. Eight of the nine bins get a matched template of 12000-45000
+stars; the innermost (300-380 arcsec) falls back to the full template because only 783 stars
+survive its tight cuts, and with a field fraction of 0.039 there it barely matters.
+
+Effect: nothing inside 1000 arcsec, then +0.48 per cent at 1690 and **+1.66 per cent
+(0.32 sigma) at 2148 arcsec** -- the size the Codex review predicted. That bin has 95 per
+cent field, so it is where the template does the most work.
+
+**2. HST extended to 360 arcsec.** `build_hst_profile` writes
+`ocen_pm_dispersion_hst_ours.ecsv`: flagged stars only, no correction of any kind, 22 bins
+per component from 3 to 341 arcsec (the outermost covering 340-360). This replaces the
+published oMEGACat profile in the likelihood, which stopped at 300 and so never overlapped
+Gaia. Its uncertainties run 0.1 to 4.5 per cent against the published profile's uniform 1.4.
+
+**3. Gaia split into components.** Checked first whether that is legitimate: over 60
+independent synthetic realisations with uniform position angles the correlation between the
+fitted sigma_R and sigma_T is **-0.076**, so treating them as two datasets costs about 0.6
+per cent in the joint chi-squared. The product now carries `sigma_pmr_err` and
+`sigma_pmt_err`, each the midpoint of the two error models with half their separation added.
+
+`DEFAULT_DATASETS` is now
+`hst_pm_radial_ours, hst_pm_tangential_ours, muse_los_dispersion, gaia_dr2_pm,
+gaia_edr3_ours_radial, gaia_edr3_ours_tangential`, **100 points**, down from 127 but each far
+better measured. Every incompatible combination is forbidden in `_FORBIDDEN_TOGETHER`.
+
+The write-up gained a **Rotation** section and the new dataset table, and the master figure
+now draws the published HST profile and Gaia spline for context with the fitted data on top.
+
+No fits have been run.

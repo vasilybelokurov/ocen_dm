@@ -117,7 +117,9 @@ def load_field_template(path: Path | None = None) -> Table:
 
 
 def field_density_2d(table: Table | None = None, bw: float = 0.15, step: float = 0.05,
-                     vmax: float = 30.0, r_min_arcsec: float = 3600.0, absolute: bool = True):
+                     vmax: float = 30.0, r_min_arcsec: float = 3600.0, absolute: bool = True,
+                     err_max: float | None = None, g_range: tuple[float, float] | None = None,
+                     min_template: int = 3000):
     """Two-dimensional empirical density of the field proper motions, per (mas/yr)^2.
 
     Built in the equatorial frame after the systemic field has been removed -- the frame in
@@ -136,6 +138,21 @@ def field_density_2d(table: Table | None = None, bw: float = 0.15, step: float =
 
     t = table if table is not None else load_field_template()
     keep = np.asarray(t["r_arcsec"], float) >= r_min_arcsec
+    # Selection matching. The template's own magnitude and error distribution differ from
+    # the sample being fitted -- its median PM error is 0.28 mas/yr against a science
+    # ceiling of 0.09 in the outermost Gaia bin -- and that changes both the error
+    # convolution and, more importantly, which Galactic population the template describes.
+    # Restricting it to the same errors and magnitudes is the fix (Codex review, 2026-09-19).
+    matched = keep.copy()
+    if err_max is not None and "pm_error" in t.colnames:
+        matched &= np.asarray(t["pm_error"], float) <= err_max
+    if g_range is not None and "g_mag" in t.colnames:
+        g = np.asarray(t["g_mag"], float)
+        matched &= (g >= g_range[0]) & (g <= g_range[1])
+    n_matched = int(matched.sum())
+    if n_matched >= min_template:
+        keep = matched
+    selection_matched = bool(n_matched >= min_template)
     a = np.asarray(t["mu_a"], float)[keep]; d = np.asarray(t["mu_d"], float)[keep]
     if absolute:
         # The field has no systemic motion of its own: its distribution is position
@@ -161,6 +178,10 @@ def field_density_2d(table: Table | None = None, bw: float = 0.15, step: float =
 
     density.n_template = int(keep.sum())
     density.bandwidth = bw
+    density.selection_matched = selection_matched
+    density.n_matched = n_matched
+    density.err_max = err_max
+    density.g_range = g_range
     return density
 
 

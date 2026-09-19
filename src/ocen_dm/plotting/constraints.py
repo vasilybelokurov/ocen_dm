@@ -1487,16 +1487,12 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
         s2 = gaia_streaming2(streaming)
 
     # --- context: real data that exists but is not fitted --------------------------
-    from ..kinematics.hst_profile import hst_profile
     rp, sp = published_profile()
     a1.plot(pc(rp[rp > 0]), sp[rp > 0] * k, color=style.SERIES[0], lw=1.4, ls="--", alpha=0.5,
             label="Gaia EDR3, published spline")
-    hst_ours = hst_profile(edges_arcsec=tuple(np.concatenate(
-        [np.geomspace(3.0, 150.0, 11), [200., 250., 300., 340., 360.]])), min_stars=40)
-    a1.errorbar(pc(hst_ours["r_median"]), np.asarray(hst_ours["sigma_pm"]) * k,
-                yerr=np.asarray(hst_ours["sigma_pm_err"]) * k, linestyle="-", lw=1.6,
-                label="HST, our measurement (to 360\")",
-                **dataset_style("hst", size=6.5, fitted=False))
+    hst_pub = load_profile("hst_pm_combined")
+    a1.plot(pc(hst_pub.r), np.asarray(hst_pub.value) * k, "-", lw=1.4, alpha=0.45,
+            color=style.SERIES[1], label="HST, published oMEGACat profile (ends at 300\")")
     a1.axvspan(pc(300.0), pc(360.0), color=style.SERIES[2], alpha=0.22, lw=0)
     a1.annotate("HST and Gaia\nboth measure here", (pc(328.0), 25.0), fontsize=8,
                 ha="center", va="top", color=style.SERIES[2])
@@ -1511,7 +1507,7 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
         p = load_profile(key)
         scale = 1.0 if p.kind == "los" else k
         val = np.asarray(p.value, float)
-        if streaming is not None and key == "gaia_edr3_ours":
+        if streaming is not None and key.startswith("gaia_edr3_ours"):
             val = np.sqrt(np.maximum(val ** 2 - s2, 1e-12))
         draw(a1, pc(p.r), val * scale,
              [np.asarray(p.err_lo) * scale, np.asarray(p.err_hi) * scale], key,

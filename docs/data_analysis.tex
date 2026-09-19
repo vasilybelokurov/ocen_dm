@@ -344,16 +344,20 @@ proper-motion cuts has not been established.
 \toprule
 Key & Kind & $N$ & Radial span \\
 \midrule
-\texttt{hst\_pm\_radial} & PM radial & 40 & $1.8$--$311''$ ($0.05$--$8.2$\,pc) \\
-\texttt{hst\_pm\_tangential} & PM tangential & 40 & $1.8$--$311''$ \\
+\texttt{hst\_pm\_radial\_ours} & PM radial & 22 & $3$--$341''$ ($0.08$--$9.0$\,pc) \\
+\texttt{hst\_pm\_tangential\_ours} & PM tangential & 22 & $3$--$341''$ \\
 \texttt{muse\_los\_dispersion} & LOS & 29 & $5.7$--$290''$ \\
 \texttt{gaia\_dr2\_pm} & PM combined & 9 & $180$--$1747''$ \\
-\texttt{gaia\_edr3\_ours} & PM combined & 9 & $356$--$2148''$ \\
+\texttt{gaia\_edr3\_ours\_radial} & PM radial & 9 & $356$--$2148''$ \\
+\texttt{gaia\_edr3\_ours\_tangential} & PM tangential & 9 & $356$--$2148''$ \\
 \bottomrule
 \end{tabular}
-\caption{127 points. HST and MUSE carry everything inside $7.9$\,pc with 109 of them; the
-entire \emph{Gaia} contribution is 18 points over $4.7$--$57$\,pc, which is the only range
-where a dark halo can separate itself from the stars.}
+\caption{100 points. HST is now our own measurement from flagged stars rather than the
+published profile, which reaches $360''$ instead of $300''$ and so genuinely overlaps
+\emph{Gaia}; and \emph{Gaia} enters as its two components rather than their combination, so
+the anisotropy constrains the model where a halo would act. Fewer points than the previous
+127, but each far better measured: the HST uncertainties are $0.1$--$4.5$ per cent against a
+uniform $1.4$ per cent before.}
 \end{table}
 
 \section{Known limitations}
@@ -383,16 +387,37 @@ where a dark halo can separate itself from the stars.}
       common error calibration are not propagated.
 \end{enumerate}
 
+\section{Rotation}
+
+The Jeans model predicts the full second moment, so each dataset is compared with
+$\sqrt{\sigma_{\rm model}^2-\langle\bar v^2\rangle}$. Where that streaming term comes from
+differs by instrument, and the difference is not cosmetic: it removes between 1 and 17 per
+cent of the squared dispersion in the \emph{Gaia} bins.
+
+\emph{Gaia} supplies its own: our estimator fits a mean motion per annulus. HST cannot.
+Its proper motions are \emph{locally corrected}, with zero motion defined as the mean motion
+of the cluster stars in each patch, so the cluster's streaming has been spent on setting the
+reference frame. Measured directly, our mixture recovers a residual mean tangential motion of
+$0.002$--$0.008$\,\masyr\ over $40$--$340''$ where the true rotation is $0.054$--$0.209$:
+96 per cent of it is gone. HST's rotation term therefore comes from the
+\citet{vasiliev2021} curve, and our own cannot replace it, because we fit rotation only
+outside $356''$ where HST ends.
+
+The two available \emph{Gaia} curves agree closely (Figure~\ref{fig:audit}, lower right), and
+swapping one for the other moves the \emph{Gaia} points by $0.07$ to $0.49$ of their errors,
+$0.95\sigma$ in quadrature across nine points, with alternating signs. Figures
+\texttt{master\_datasets\_rotation\_ours.png} and
+\texttt{master\_datasets\_rotation\_published.png} show both, and the difference is
+invisible by eye because the largest shift is $0.30$\,\kms\ on an axis spanning $3$ to
+$26$\,\kms. Note that only the \emph{Gaia} points differ between those two figures: HST
+carries the published curve in both, so the ``ours'' variant is a hybrid.
+
 \section{Open decisions}
 
 \begin{enumerate}
-\item \textbf{Extend the fitted HST range to $360''$} using our own flagged-star measurement,
-      adding a genuine instrument overlap instead of two profiles meeting at a point.
-\item \textbf{Feed \emph{Gaia} as two datasets}, radial and tangential, as HST already is.
-      The components are measured but the likelihood receives only their combination,
-      discarding the anisotropy information exactly where a halo would act. This needs the
-      per-bin covariance between the two components, which the estimator can report.
-\item \textbf{Decide the status of the four \emph{Gaia} DR2 points inside $380''$.}
+\item \textbf{Decide the status of the four \emph{Gaia} DR2 points inside $380''$.} DR2 has
+      its own, brighter selection and we hold no star list for it, so we cannot assess it
+      from here. It is the least-controlled element of the dataset.
 \end{enumerate}
 
 \begin{figure}[p]

@@ -69,11 +69,20 @@ from __future__ import annotations
 import numpy as np
 from astropy.table import Table
 
+from pathlib import Path
+
 from ..paths import raw_dir
 from .outer_profile import KMS_PER_MASYR_KPC, MemberSample, OCEN_DEC, OCEN_RA, dispersion_2d
 
-__all__ = ["MU_SYS", "HST_R_MAX_ARCSEC", "UNFLAGGED_BIAS", "load_hst_sample",
-           "unflagged_bias", "hst_profile"]
+__all__ = ["MU_SYS", "HST_R_MAX_ARCSEC", "HST_FLAG_MAX_ARCSEC", "UNFLAGGED_BIAS",
+           "DEFAULT_EDGES", "PRODUCT", "load_hst_sample", "unflagged_bias", "hst_profile",
+           "build_hst_profile", "load_hst_product"]
+
+#: where the quality flag runs out: 66 stars in 340-360 arcsec, none beyond
+HST_FLAG_MAX_ARCSEC = 360.0
+PRODUCT = "ocen_pm_dispersion_hst_ours"
+#: log-spaced inside, then the three annuli that carry the overlap with Gaia
+DEFAULT_EDGES = np.concatenate([np.geomspace(2.0, 250.0, 21), [300.0, 340.0, 360.0]])
 
 #: measured ratio of the unflagged to the flagged dispersion, and its uncertainty
 UNFLAGGED_BIAS = (1.077, 0.011)
@@ -190,3 +199,38 @@ def hst_profile(edges_arcsec=(300.0, 340.0), require_flag: bool = True,
                        "unflagged_bias": UNFLAGGED_BIAS,
                        "note": "HST PMs are relative; only dispersions are meaningful. Field is "
                                "the Gaia DR3 empirical template scored in absolute PM."})
+
+
+def build_hst_profile(edges_arcsec=None, distance_kpc: float = 5.43,
+                      min_stars: int = 60) -> "Path":
+    """Measure and write ``ocen_pm_dispersion_hst_ours.ecsv``, flagged stars only.
+
+    This is the product that replaces the published oMEGACat profile in the likelihood: it
+    uses the same stars the survey vouches for, measured with the project's own estimator,
+    and it reaches **360 arcsec** rather than 300, which is what gives a genuine overlap
+    with Gaia (JOURNAL 2026-09-19).
+    """
+    from datetime import datetime, timezone
+    from ..paths import processed_dir
+    t = hst_profile(edges_arcsec=DEFAULT_EDGES if edges_arcsec is None else edges_arcsec,
+                    require_flag=True, correct_unflagged=False,
+                    distance_kpc=distance_kpc, min_stars=min_stars)
+    t.meta.update({
+        "product": PRODUCT, "flag": "selection_hq_astrometry",
+        "r_max_arcsec": HST_FLAG_MAX_ARCSEC,
+        "built_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "note": "flagged stars only, no unflagged-star correction; HST proper motions are "
+                "locally corrected, so the dispersion is about a rotation-free local mean and "
+                "the tangential dataset carries the external rotation term",
+    })
+    path = processed_dir() / "kinematics" / f"{PRODUCT}.ecsv"
+    t.write(path, format="ascii.ecsv", overwrite=True)
+    return path
+
+
+def load_hst_product(path=None) -> Table:
+    from ..paths import processed_dir
+    path = path or processed_dir() / "kinematics" / f"{PRODUCT}.ecsv"
+    if not path.exists():
+        return Table.read(build_hst_profile())
+    return Table.read(path)
