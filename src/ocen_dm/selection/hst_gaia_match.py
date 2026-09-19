@@ -29,7 +29,7 @@ from ..paths import processed_dir, raw_dir
 
 __all__ = ["OCEN_RA", "OCEN_DEC", "build_match", "load_match", "PRODUCT"]
 
-OCEN_RA, OCEN_DEC = 201.696833, -47.476583
+from ..cluster import OCEN_DEC, OCEN_RA  # single definition, derived from the data
 PRODUCT = "hst_gaia_pm_match"
 
 

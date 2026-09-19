@@ -3345,3 +3345,61 @@ The write-up gained a **Rotation** section and the new dataset table, and the ma
 now draws the published HST profile and Gaia spline for context with the fitted data on top.
 
 No fits have been run.
+
+## 2026-09-19 -- the cluster centre was wrong by 10.7 arcsec
+
+Found by the second Codex review, verified three ways, fixed.
+
+### What it was
+
+Four modules hard-coded `(201.696833, -47.476583)` with the comment "Baumgardt catalogue
+centre". **`data/raw/baumgardt_gc_catalogue/` is empty** -- that catalogue was never
+downloaded. The number came from nowhere: written from memory on 2026-09-17, given a
+provenance it did not have, and copied into four files rather than shared.
+
+Both catalogues we use carry their own centre, and neither was consulted:
+
+| source | centre | offset from ours |
+|---|---|---|
+| oMEGACat, from its pixel grid at (15000, 15000), 272 stars | 201.696833, **-47.479569** | 10.75" |
+| Vasiliev & Baumgardt, from the member table's `x, y` | 201.696838, **-47.479339** | 9.92" |
+
+Those two agree with each other to **0.83 arcsec**. A fifth module,
+`plotting/data_overview.py`, had `-47.4795` -- the right value -- so the codebase held two
+different centres at once.
+
+The symptom Codex reported and I reproduced exactly: the 61 stars labelled as the 2.55-3.24
+arcsec bin were really at **7.80-13.90 arcsec** from the true centre.
+
+### The fix
+
+New module `ocen_dm/cluster.py` holds the centre once and `centre()` derives it from either
+catalogue. All five modules import from it. Adopted the oMEGACat value: it is set by the
+densest, best-measured field in the core, and the 0.83 arcsec residual is far below any bin
+width. Six tests in `tests/test_cluster_centre.py`, one of which greps the source tree so the
+literal cannot be re-introduced.
+
+### Where it mattered
+
+**Gaia: nowhere.** Every bin moved by 0.5 sigma or less; a 10.7 arcsec shift at r > 300
+arcsec is at most 3.6 per cent in radius on a shallow gradient.
+
+**HST: in the inner bins, and less than the first look suggested.** Matched on bin edges the
+shifts are at most 2.6 sigma and mostly under 1.5:
+
+| bin | N before -> after | sigma_R before/after | sigma_T before/after | shift |
+|---|---|---|---|---|
+| 4.1-5.3" | 152 -> 166 | 0.7917 / 0.8265 | 0.7405 / 0.8628 | +0.8 / +2.6 sigma |
+| 5.3-6.7" | 226 -> 275 | 0.7786 / 0.8426 | 0.8478 / 0.8271 | +1.8 / -0.6 |
+| 13.8-17.6" | 1532 -> 1522 | 0.7611 / 0.7909 | 0.7631 / 0.7688 | +2.1 / +0.4 |
+| 22.4-28.5" | 4191 -> 4155 | 0.7660 / 0.7580 | 0.7765 / 0.7560 | -1.0 / -2.5 |
+| 340-360" | 66 -> 175 | 0.5109 / 0.5309 | 0.4706 / 0.4648 | +0.7 / -0.2 |
+
+My first comparison table, matching row by row, showed shifts up to 54 sigma. That was
+wrong: the two products have 22 and 21 bins, so the rows do not correspond. Matching on bin
+edges is the right comparison.
+
+The instrument overlap improves slightly: **1.011 +- 0.123** at 300-340 arcsec (was 1.028 +-
+0.125), 0.965 +- 0.069 at 300-380, 0.962 +- 0.029 for the corrected route.
+
+All products, the match and every figure regenerated.

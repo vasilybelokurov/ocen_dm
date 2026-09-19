@@ -3,7 +3,7 @@
 Each function reads a processed product from ``data/processed`` and writes one
 PNG to ``plots/``. Nothing here changes any data. Coordinates are plotted as
 delivered; the cluster centre used for annotation is the SIMBAD/Harris (2010)
-position of NGC 5139, RA 201.697, Dec -47.480 deg.
+position of NGC 5139 (see ocen_dm.cluster for the adopted centre and its provenance).
 """
 
 from __future__ import annotations
@@ -21,7 +21,7 @@ from . import style
 __all__ = ["plot_all", "PLOTS"]
 
 #: NGC 5139 centre, SIMBAD (J2000): 13h26m47.28s -47d28m46.1s
-OCEN_RA, OCEN_DEC = 201.697, -47.4795
+from ..cluster import OCEN_DEC, OCEN_RA  # single definition, derived from the data
 #: Distance used for display: the Baumgardt & Vasiliev (2021) catalogue value,
 #: 5.43 +- 0.05 kpc (products/literature/baumgardt_ocen_parameters). oMEGACat VI's
 #: own kinematic distance is 5.494 +- 0.061 kpc (Haberle et al. 2025, section 4.4);

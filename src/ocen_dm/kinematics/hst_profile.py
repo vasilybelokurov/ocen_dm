@@ -72,7 +72,8 @@ from astropy.table import Table
 from pathlib import Path
 
 from ..paths import raw_dir
-from .outer_profile import KMS_PER_MASYR_KPC, MemberSample, OCEN_DEC, OCEN_RA, dispersion_2d
+from ..cluster import OCEN_DEC, OCEN_RA
+from .outer_profile import KMS_PER_MASYR_KPC, MemberSample, dispersion_2d
 
 __all__ = ["MU_SYS", "HST_R_MAX_ARCSEC", "HST_FLAG_MAX_ARCSEC", "UNFLAGGED_BIAS",
            "DEFAULT_EDGES", "PRODUCT", "load_hst_sample", "unflagged_bias", "hst_profile",
