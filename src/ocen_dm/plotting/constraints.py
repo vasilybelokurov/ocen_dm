@@ -32,7 +32,7 @@ from . import style
 from .style import add_pc_axis
 
 __all__ = ["plot_constraint_map", "plot_outer_tracer_audit", "plot_contamination_model", "plot_annulus_fits",
-           "plot_method_comparison", "plot_residual_significance", "plot_dataset_step", "plot_offset_explained", "plot_datasets_unscaled",
+           "plot_method_comparison", "plot_residual_significance", "plot_dataset_step", "plot_offset_explained", "plot_datasets_unscaled", "plot_hst_gaia_star_by_star",
            "fit_quality_table", "annulus_fits", "our_outer_profile", "our_mixture_profile", "OUTER_EDGES"]
 
 #: log-spaced annuli for our own outer measurement (arcsec)
@@ -918,6 +918,80 @@ def plot_datasets_unscaled(path: Path | str = "plots/datasets_unscaled.png", mod
     axg.legend(fontsize=8, loc="upper left"); axg.set_ylim(-18, 18)
     axg.text(0.55, 0.08, "the two Gaia releases disagree with a radial trend, not a constant",
              transform=axg.transAxes, fontsize=8, color=style.INK_SECONDARY, ha="center")
+    path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
+    return path
+
+
+def plot_hst_gaia_star_by_star(path: Path | str = "plots/hst_gaia_star_by_star.png",
+                               distance_kpc: float = 5.43) -> Path:
+    """Do the two proper-motion catalogues agree on the same stars?
+
+    Left: the per-star difference against what the quoted errors allow. Middle: the
+    dispersion each instrument reports from the identical stars. Right: the fraction of Gaia
+    stars that survive the astrometric quality flag, which is what removes the inner region.
+    """
+    from ..kinematics.outer_profile import dispersion_ml
+    from ..selection.hst_gaia_match import load_match
+    style.apply()
+    t = load_match()
+    r = np.asarray(t["r_arcsec"]); g = np.asarray(t["g_mag"])
+    base = (np.asarray(t["membership_prob"]) > 0.9) & (np.asarray(t["hst_quality"]) > 0)
+    he = 0.5 * (np.asarray(t["hst_pmra_error"]) + np.asarray(t["hst_pmdec_error"]))
+    ge = 0.5 * (np.asarray(t["gaia_pmra_error"]) + np.asarray(t["gaia_pmdec_error"]))
+    sel0 = base & (g < 18)
+    da = np.asarray(t["gaia_pmra"]) - np.median(np.asarray(t["gaia_pmra"])[sel0]) \
+        - (np.asarray(t["hst_pmra"]) - np.median(np.asarray(t["hst_pmra"])[sel0]))
+    dd = np.asarray(t["gaia_pmdec"]) - np.median(np.asarray(t["gaia_pmdec"])[sel0]) \
+        - (np.asarray(t["hst_pmdec"]) - np.median(np.asarray(t["hst_pmdec"])[sel0]))
+
+    fig, (a1, a2, a3) = plt.subplots(1, 3, figsize=(14.5, 4.6))
+    bins = np.linspace(-3, 3, 61); mid = 0.5 * (bins[1:] + bins[:-1])
+    a1.hist(da[sel0], bins=bins, color=style.COLOR_FIELD, alpha=0.8, label="Gaia $-$ HST, same stars")
+    rms = np.sqrt(0.5 * (np.std(da[sel0]) ** 2 + np.std(dd[sel0]) ** 2))
+    exp = np.hypot(np.median(he[sel0]), np.median(ge[sel0]))
+    n, dx = sel0.sum(), bins[1] - bins[0]
+    a1.plot(mid, n * dx * np.exp(-0.5 * (mid / exp) ** 2) / (exp * np.sqrt(2 * np.pi)), color=style.SERIES[1],
+            lw=2, label="what the quoted errors allow (%.2f mas/yr)" % exp)
+    a1.plot(mid, n * dx * np.exp(-0.5 * (mid / rms) ** 2) / (rms * np.sqrt(2 * np.pi)), color=style.SERIES[0],
+            lw=2, ls="--", label="observed (%.2f mas/yr, %.0fx larger)" % (rms, rms / exp))
+    a1.set_yscale("log"); a1.set_ylim(0.5, None)
+    a1.set_xlabel(r"$\mu_{\alpha*}$ difference  [mas/yr]"); a1.set_ylabel("stars per bin")
+    a1.set_title("Same stars, two instruments (G < 18)", fontsize=10); a1.legend(fontsize=7.5)
+
+    edges = np.array([100., 160, 220, 300, 460.])
+    rr, sh, sg = [], [], []
+    for lo, hi in zip(edges[:-1], edges[1:]):
+        m = sel0 & (r >= lo) & (r < hi)
+        if m.sum() < 30:
+            continue
+        rr.append(np.median(r[m]))
+        sh.append(np.sqrt(0.5 * (dispersion_ml(np.asarray(t["hst_pmra"])[m], np.asarray(t["hst_pmra_error"])[m])[0] ** 2
+                                 + dispersion_ml(np.asarray(t["hst_pmdec"])[m], np.asarray(t["hst_pmdec_error"])[m])[0] ** 2)))
+        sg.append(np.sqrt(0.5 * (dispersion_ml(np.asarray(t["gaia_pmra"])[m], np.asarray(t["gaia_pmra_error"])[m])[0] ** 2
+                                 + dispersion_ml(np.asarray(t["gaia_pmdec"])[m], np.asarray(t["gaia_pmdec_error"])[m])[0] ** 2)))
+    a2.plot(rr, sh, "o-", color=style.SERIES[0], lw=1.8, ms=6, label="HST")
+    a2.plot(rr, sg, "D-", color=style.INK, lw=1.8, ms=6, label="Gaia")
+    for x_, a_, b_ in zip(rr, sh, sg):
+        a2.annotate("%+.0f %%" % (100 * (b_ / a_ - 1)), (x_, b_), textcoords="offset points", xytext=(0, 8),
+                    ha="center", fontsize=8, color=style.SERIES[1])
+    a2.set_xscale("log"); a2.set_xlabel("R  [arcsec]"); a2.set_ylabel("1-D PM dispersion  [mas/yr]")
+    a2.set_title("Dispersion from the identical stars", fontsize=10); a2.legend(fontsize=8)
+    add_pc_axis(a2, distance_kpc)
+
+    from ..kinematics.outer_profile import load_members
+    s = load_members(); qq = s.select((s.quality_flag & QUALITY_BIT) > 0)
+    e2 = np.array([0., 100, 200, 300, 460, 700, 1000, 1500, 2400.])
+    frac = [((qq.r_arcsec >= lo) & (qq.r_arcsec < hi)).sum() / max(((s.r_arcsec >= lo) & (s.r_arcsec < hi)).sum(), 1)
+            for lo, hi in zip(e2[:-1], e2[1:])]
+    mid2 = np.sqrt(np.maximum(e2[:-1], 1) * e2[1:])
+    a3.step(mid2, 100 * np.array(frac), where="mid", color=style.SERIES[2], lw=2)
+    a3.axhline(15, color=style.INK_SECONDARY, lw=0.8, ls="--")
+    a3.set_xscale("log"); a3.set_xlabel("R  [arcsec]"); a3.set_ylabel("Gaia stars passing the quality flag  [%]")
+    a3.set_title("Why EDR3 stops: crowding", fontsize=10)
+    a3.text(120, 45, "0 stars pass\ninside 200 arcsec", fontsize=8, color=style.SERIES[2])
+    add_pc_axis(a3, distance_kpc)
+    fig.tight_layout()
     path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
     return path
