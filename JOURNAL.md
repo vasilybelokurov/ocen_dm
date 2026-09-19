@@ -3236,3 +3236,25 @@ kinematic selection; per-bin errors are treated as independent.
 `tests/test_mixture_recovery.py` added: seven tests injecting streaming and anisotropy, a
 comparison against direct numerical maximisation, and an $N^{-1/2}$ scaling check. The old
 mocks all had zero streaming and isotropic dispersions, which is why nothing caught either bug.
+
+### Two scientific conclusions weakened by the error-bar fix
+
+Removing the 1.4 per cent numerical floor made the Gaia uncertainties honest, and two claims
+in the journal that rested on the inflated bars no longer stand as stated.
+
+**1. The outer residual is no longer "flat".** Over 460-1500 arcsec the residual against the
+K1 model has a weighted mean of $+4.26$ per cent and $\chi^2 = 15.5$ for 6 degrees of
+freedom, $p = 0.017$. With the old floor-limited errors it was consistent with a constant.
+Statistically there is now 2-sigma-level structure. **It is not established**, because the
+field template's selection mismatch moves the outer bins by about 1.5 per cent, which exceeds
+the per-point statistical errors of 0.75-1.45 per cent. The test now pins the offset and
+requires no single point to run away, instead of asserting flatness.
+
+**2. The measured anisotropy is noisier at 434 arcsec than the old value suggested.** The
+sign fix moved that bin from T/R = 0.867 to 0.813, and with 394 stars it is the noisiest
+point in the range. The claim that the model and the measurement agree where HST anchors the
+fit now holds over 500-800 arcsec (within 0.03), not from 400. The outer disagreement is
+unaffected and if anything stronger: model 0.89 against measured 1.03-1.13 beyond 1150
+arcsec.
+
+Neither change touches the combined dispersion, which moved by at most 0.17 per cent.
