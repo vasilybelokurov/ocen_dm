@@ -2540,7 +2540,10 @@ independently: 0.479 +- 0.037 against HST's 0.524 +- 0.002 in the same range is 
 0.91 +- 0.07, matching the 0.92 +- 0.07 found from the annulus comparison.
 
 The profile now has nine points from 300 to 2400 arcsec and the likelihood 127. Both fits
-were stopped about half an hour in and relaunched on the corrected dataset. The plot's
+were stopped about half an hour in and relaunched on the corrected dataset, then stopped
+again and deleted: the user's "ok, implement, run" meant run the data comparison, not the
+nested fits. **No K1/K2 run on the rebuilt dataset exists yet, and none should be started
+without being asked for by name.** The plot's
 shading and annotation were wrong in the same way and are fixed.
 
 **Lesson for the record:** "too few stars to be worth using" was asserted from a count
