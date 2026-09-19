@@ -3110,3 +3110,33 @@ side: I interpolated the published profile against its `r_lower` column instead 
 `r_median`, which shifts the comparison outwards by half a bin on a falling profile. There is
 no 1-2 per cent method floor. Our pipeline reproduces oMEGACat's own numbers to a few tenths
 of a per cent wherever the statistics allow.
+
+### Can the overlap be widened? Limits on both sides
+
+| | HST flagged | Gaia usable |
+|---|---|---|
+| 250-300" | 119576 | 3 |
+| 300-340" | 16912 | 17 |
+| 340-360" | **66** | ~18 |
+| 360-380" | **0** | ~17 |
+| 380-466" | 0 | 276 |
+
+The overlap is therefore **300-360 arcsec**, slightly wider than the 300-340 quoted before:
+HST's flag survives to 360, on 66 stars. That bin gives HST 0.4912 ± 0.0347 at 341 arcsec
+against Gaia 0.4375 ± 0.0402 at 363, a ratio of 0.891 ± 0.103, consistent with the other
+routes.
+
+Neither edge can be pushed further within these catalogues.
+
+* **Outward (HST).** The flag requires F625W *and* F814W photometry, and beyond 360 arcsec
+  no star in the catalogue has either. It is not a quality threshold that could be relaxed;
+  the measurement simply does not exist. Using the unflagged stars there is the 8 per cent
+  correction already rejected as a fitting input.
+* **Inward (Gaia).** The quality flag passes 5 stars between 250 and 300 arcsec and none
+  inside 250. Relaxing it is not an option either: the star-by-star HST comparison showed
+  unflagged Gaia carries 0.59 to 0.90 mas/yr of undeclared scatter inside 300 arcsec, which
+  is larger than the dispersion being measured.
+
+The one untested route is **oMEGACat II** (arXiv:2404.03722), the standalone HST astrometric
+catalogue, which we have not ingested. It is probably the same footprint, but its outer
+photometric coverage has not been checked.
