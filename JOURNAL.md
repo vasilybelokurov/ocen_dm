@@ -2782,3 +2782,60 @@ spectroscopy. Bottom panel: each dataset's radial span and point count.
 
 All the new figures are now produced by `ocen-dm plot-constraints`, so they regenerate
 together.
+
+### Two corrections to the master figure
+
+**1. There ARE usable EDR3 data inside 380 arcsec, and we already use them.** The earlier
+phrasing ("the range whose EDR3 equivalent was removed") was wrong and is withdrawn.
+
+| annulus | passing the quality flag | also err < 0.4 sigma | median error | err / sigma |
+|---|---|---|---|---|
+| 0-100" | 0 | 0 | -- | -- |
+| 100-200" | 0 | 0 | -- | -- |
+| 200-250" | 2 | 2 | 0.022 | 0.04 |
+| 250-300" | 3 | 3 | 0.026 | 0.05 |
+| 300-340" | 17 | 17 | 0.026 | 0.05 |
+| 340-380" | 36 | 35 | 0.025 | 0.05 |
+
+The true empty zone is **inside 200 arcsec**, where not one star passes. Between 200 and 300
+there are 5 stars, too few for a bin at `min_stars = 25`. Between 300 and 380 there are 53,
+and **our innermost EDR3 point already uses them**: r = 356 arcsec, 52 stars,
+sigma = 0.4789 +- 0.0373, errors only 5 per cent of the signal.
+
+So what was removed from the published spline was its points at 24, 48, 96 and 168 arcsec,
+which sit where the flag passes nothing. Its 336 arcsec point sat on real data and we
+replaced it with our own measurement of the same stars, not with nothing.
+
+**2. We measure the radial and tangential components and then throw them away.** HST enters
+as two datasets, 40 points each. Our Gaia measurement is built from `sigma_pmr` and
+`sigma_pmt` and handed to the likelihood only as the combination (`kind = "pmc"`). There is
+no reason for that asymmetry, and the discarded information is the interesting part:
+
+| r (arcsec) | sigma_R | sigma_T | T/R |
+|---|---|---|---|
+| 356 | 0.4885 | 0.4691 | 0.960 |
+| 437 | 0.4806 | 0.4165 | 0.867 |
+| 533 | 0.4578 | 0.4109 | 0.898 |
+| 662 | 0.4242 | 0.3777 | 0.891 |
+| 830 | 0.3700 | 0.3525 | 0.953 |
+| 1043 | 0.3224 | 0.3184 | 0.988 |
+| 1328 | 0.2815 | 0.3049 | 1.083 |
+| 1690 | 0.2429 | 0.2614 | 1.076 |
+| 2148 | 0.2126 | 0.2489 | 1.171 |
+
+HST's outer points run T/R = 0.892 to 0.843 over 201-311 arcsec, so the radial bias is
+continuous across the instrument boundary, and the turn to tangential happens near 1100
+arcsec (29 pc). The figure now carries an anisotropy panel showing HST, our Gaia and
+Pristine together.
+
+**Proposal, not implemented.** Feed Gaia EDR3 as two datasets, `gaia_edr3_ours_radial` and
+`gaia_edr3_ours_tangential`, exactly as HST is fed, taking the likelihood from 127 to 136
+points. That is what would let beta(r) be constrained where the dark halo is supposed to
+live, instead of being fixed by HST inside 8 pc and extrapolated outwards. It needs the
+covariance between the two components per bin, which the 2-D fit can report but currently
+does not. Awaiting agreement.
+
+Also withdrawn: the claim that Gaia DR2's four points inside 380 arcsec sit in a region with
+no data. They sit in a region where **EDR3** has almost none, but DR2 has its own, brighter
+selection and we hold no star list for it, so nothing can be said about its usability from
+here. The annotation was removed from the figure.
