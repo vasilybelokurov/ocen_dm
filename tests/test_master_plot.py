@@ -13,9 +13,10 @@ pytestmark = pytest.mark.skipif(not _HAS, reason="products not built")
 
 def test_every_default_dataset_has_a_drawing_style():
     from ocen_dm.cli import DEFAULT_DATASETS
-    from ocen_dm.plotting.constraints import _MASTER_STYLE
+    from ocen_dm.plotting.style import DATASET_KEY_MAP, dataset_style
     for key in DEFAULT_DATASETS.split(","):
-        assert key in _MASTER_STYLE, f"{key} would be drawn with a fallback style"
+        assert key in DATASET_KEY_MAP, f"{key} would be drawn with a fallback style"
+        dataset_style(key)
 
 
 def test_point_count_matches_the_likelihood():
