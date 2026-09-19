@@ -2749,3 +2749,36 @@ the same truncation the star counts found, seen from the kinematic side.
    1.6 sigma difference, not a conflict, but it should not be leaned on.
 
 Plot `plots/profile_extended_pristine.png`, tests `tests/test_pristine_profile.py`. No fits.
+
+### Master figure: everything the likelihood is shown
+
+`plots/master_datasets.png`, from `plot_master_datasets()`, which reads `DEFAULT_DATASETS`
+rather than a hand-written list, so it cannot drift from what is actually fitted. A test
+asserts every default key has a drawing style and that the drawn point count equals the
+likelihood's.
+
+Top panel: all five datasets converted to km/s at D = 5.43 kpc so proper motions and
+line-of-sight velocities share one axis. Behind them, faint and explicitly labelled "not
+fitted": the published EDR3 spline, the Pristine mixture points and the periphery
+spectroscopy. Bottom panel: each dataset's radial span and point count.
+
+| dataset | kind | N | radial span |
+|---|---|---|---|
+| HST, radial PM | pmr | 40 | 1.8-311 arcsec (0.05-8.2 pc) |
+| HST, tangential PM | pmt | 40 | 1.8-311 arcsec |
+| MUSE, line of sight | los | 29 | 5.7-290 arcsec (0.15-7.6 pc) |
+| Gaia DR2 PM (published) | pmc | 9 | 180-1747 arcsec (4.7-46 pc) |
+| Gaia EDR3 PM (ours) | pmc | 9 | 356-2148 arcsec (9.4-57 pc) |
+
+**127 points total.** Three things the figure makes plain:
+
+1. Inside 300 arcsec (7.9 pc) there is **no usable Gaia at all**; HST and MUSE carry that
+   range alone, and they do so with 109 of the 127 points.
+2. The whole Gaia contribution is 18 points over 4.7 to 57 pc, and that is the only range
+   where a dark halo can show itself against the stars.
+3. **Gaia DR2 still contributes 4 points inside 380 arcsec**, the exact range whose EDR3
+   equivalent was removed as extrapolation. This is flagged on the figure. It remains an
+   open inconsistency in the dataset selection and is the obvious next thing to decide.
+
+All the new figures are now produced by `ocen-dm plot-constraints`, so they regenerate
+together.
