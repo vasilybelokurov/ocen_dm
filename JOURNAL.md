@@ -2429,3 +2429,77 @@ Revised proposal, replacing yesterday's: rather than adopting `eta` (which over-
 keeping raw errors (which under-correct), build the outer profile from the low-noise subset
 and quote the `eta`-on/off spread as a systematic. That keeps every outer point independent
 of an error model we have just shown to be imperfect.
+
+## 2026-09-19 (implementation) -- Gaia EDR3 rebuilt as our own measurement
+
+Agreed with the user and implemented. Nothing about the physical model changed; this is
+entirely about which numbers the likelihood is shown.
+
+### What was built
+
+`kinematics/outer_gaia.py` produces `data/processed/kinematics/ocen_pm_dispersion_edr3_ours.ecsv`:
+
+* **quality-flagged EDR3 stars only**, no membership cut, contamination handled by the
+  two-dimensional empirical field template;
+* **only stars with `err < 0.4 sigma(R)`**. An error rescaling by `eta` can then move the
+  deconvolved dispersion by at most `0.4^2 (eta^2 - 1)/2`, about 2 per cent, by construction;
+* the value is the **midpoint of the raw-error and eta-inflated fits**, and half their
+  separation is carried as a systematic added in quadrature to the statistical error. The
+  magnitude-consistency test shows raw errors under-correct and `eta` over-corrects, so the
+  truth is between them;
+* **seven independent annuli from 460 to 2400 arcsec**. Nothing inside 460, where the quality
+  flag leaves too few stars and HST has astrometry the two instruments agree on;
+* exact perspective removal, line-of-sight depth removal, and the fitted mean radial and
+  tangential motions returned as `streaming2` so the Jeans model is compared with the full
+  second moment.
+
+| r (arcsec) | N | sigma | stat | sys | sigma_T/sigma_R | field fraction |
+|---|---|---|---|---|---|---|
+| 533 | 1477 | 0.4350 | 0.0062 | 0.0017 | 0.897 | 0.06 |
+| 662 | 2754 | 0.4016 | 0.0057 | 0.0019 | 0.890 | 0.10 |
+| 830 | 3176 | 0.3614 | 0.0051 | 0.0016 | 0.953 | 0.16 |
+| 1043 | 2895 | 0.3204 | 0.0045 | 0.0012 | 0.988 | 0.34 |
+| 1328 | 2552 | 0.2934 | 0.0083 | 0.0008 | 1.083 | 0.59 |
+| 1690 | 2615 | 0.2523 | 0.0089 | 0.0005 | 1.076 | 0.85 |
+| 2148 | 3261 | 0.2314 | 0.0138 | 0.0004 | 1.171 | 0.95 |
+
+The error-model systematic is 0.1-0.4 per cent, far below the statistical 1.4-6 per cent, so
+the cut did its job. The anisotropy runs radial inside about 1000 arcsec and tangential
+outside, which is what Vasiliev & Baumgardt report independently for omega Cen ("NGC 5139
+transitions from being radially anisotropic in the inner part to tangentially anisotropic in
+the outskirts", their Section 6).
+
+### Wiring
+
+* new dataset key `gaia_edr3_ours` in `kinematics/likelihood.py`, instrument label
+  `GaiaEDR3` so the existing nuisance scale still applies;
+* it and `gaia_edr3_pm` are forbidden together, since they are the same stars;
+* `DEFAULT_DATASETS` now uses it. The published spline stays reachable with `--datasets`;
+* `MemberSample.scale_errors` added so the two error models are one call apart.
+
+The default likelihood went from 126 to 125 points: eight published EDR3 points replaced by
+seven of ours, five of the eight discarded ones having been inward extrapolation.
+
+### The plot
+
+`plots/pm_datasets_edr3_rebuild.png` (the earlier `plots/datasets_unscaled.png` is kept).
+Top panel: HST, Gaia DR2, the published EDR3 spline with its band, our old measurement and
+our new one, plus the starred pair at 300-380 arcsec which is the only annulus where HST's
+high-quality astrometry and Gaia's quality flag both have usable stars. Bottom panel: the
+same divided by the published spline.
+
+Two things are visible at a glance. Inside about 400 arcsec the HST points sit 10-25 per cent
+**above** the published EDR3 spline, which is the extrapolation showing itself. And our new
+measurement lies on the spline to about 1 per cent from 460 to 2400 arcsec, where our old one
+sat 4-7 per cent high.
+
+### Runs
+
+K1 and K2-cored relaunched on the new default datasets as `K1_edr3ours` and
+`K2_cored_edr3ours`, same sampler settings as the reference runs (400 live points,
+dlogz 0.5, seed 42, composite tracer, instrument scales on). Reference values to beat:
+K1 = 134.91 +- 0.47, K2-cored = 185.92 +- 0.51, so the current Delta ln Z is +51.0. Note the
+reference runs took 8158 s and 14251 s, not the hour I quoted to the user.
+
+Gaia DR2 was left untouched, although four of its nine points also sit inside 380 arcsec and
+are open to the same objection. That was not part of the agreed scope.

@@ -79,6 +79,22 @@ class MemberSample:
         """Observed (absolute) proper motions: residual plus the systemic field."""
         return self.mu_a + self.sys_a, self.mu_d + self.sys_d
 
+    def scale_errors(self, factor: np.ndarray | float) -> "MemberSample":
+        """Copy with every per-star uncertainty multiplied by ``factor``.
+
+        Used to switch between the raw Gaia uncertainties as released and the
+        density-dependent inflation of Vasiliev & Baumgardt (2021); see
+        :mod:`ocen_dm.kinematics.vb2021_replication`.
+        """
+        f = np.asarray(factor, float)
+        fields = ("r_arcsec", "mu_r", "mu_t", "err_r", "err_t", "prob", "g_mag", "quality_flag", "phi",
+                  "mu_a", "mu_d", "err_a", "err_d", "err_corr", "sys_a", "sys_d")
+        scaled = {"err_r", "err_t", "err_a", "err_d"}
+        vals = [None if getattr(self, n) is None else
+                (np.asarray(getattr(self, n)) * f if n in scaled else np.asarray(getattr(self, n)))
+                for n in fields]
+        return MemberSample(*vals, mu_sys=self.mu_sys, exact=self.exact)
+
     def select(self, mask: np.ndarray) -> "MemberSample":
         fields = ("r_arcsec", "mu_r", "mu_t", "err_r", "err_t", "prob", "g_mag", "quality_flag", "phi",
                   "mu_a", "mu_d", "err_a", "err_d", "err_corr", "sys_a", "sys_d")
