@@ -71,7 +71,6 @@ def build_edr3_profile(edges: np.ndarray | None = None, err_max_frac: float = 0.
     err = 0.5 * (base.err_r + base.err_t)
     keep = ((qf & QUALITY_BIT) > 0) & (err < err_max_frac * np.interp(base.r_arcsec, rp, sp))
     samples = {"raw": base, "eta": base.scale_errors(eta)}
-    dens2d = field_density_2d()
     tracer = _composite_tracer(distance_kpc)
 
     rows = []
@@ -79,6 +78,12 @@ def build_edr3_profile(edges: np.ndarray | None = None, err_max_frac: float = 0.
         m = keep & (base.r_arcsec >= lo) & (base.r_arcsec < hi)
         if m.sum() < 25:
             continue
+        # a field template matched to THIS bin's selection: same error ceiling, same
+        # magnitude range. Without it the template describes a fainter, worse-measured
+        # population than the stars being fitted.
+        gm = base.g_mag[m]
+        dens2d = field_density_2d(err_max=float(np.max(err[m])),
+                                  g_range=(float(np.min(gm)) - 0.5, float(np.max(gm)) + 0.5))
         r_pc = base.r_arcsec[m] * distance_kpc * 1e3 / 206264.806
         sd = depth_dispersion(tracer, r_pc, float(np.hypot(*base.mu_sys)), distance_kpc)
         out = {k: dispersion_2d(s, m, dens2d, depth_var=sd ** 2, field_at=s.absolute_pm)
@@ -89,17 +94,23 @@ def build_edr3_profile(edges: np.ndarray | None = None, err_max_frac: float = 0.
         stat = float(0.5 * np.hypot(out["raw"]["sigma_r_err"], out["raw"]["sigma_t_err"]))
         mean_r = 0.5 * (out["raw"]["mean_r"] + out["eta"]["mean_r"])
         mean_t = 0.5 * (out["raw"]["mean_t"] + out["eta"]["mean_t"])
+        # per-component values and errors: the midpoint of the two error models, with half
+        # their separation added in quadrature exactly as for the combined dispersion
+        comp = {}
+        for c in ("r", "t"):
+            v = 0.5 * (out["raw"][f"sigma_{c}"] + out["eta"][f"sigma_{c}"])
+            sy = 0.5 * abs(out["raw"][f"sigma_{c}"] - out["eta"][f"sigma_{c}"])
+            comp[c] = (v, float(np.hypot(out["raw"][f"sigma_{c}_err"], sy)))
         rows.append((lo, float(np.median(base.r_arcsec[m])), hi, int(m.sum()), value, stat, sys_err,
                      float(np.hypot(stat, sys_err)), sig["raw"], sig["eta"],
-                     0.5 * (out["raw"]["sigma_r"] + out["eta"]["sigma_r"]),
-                     0.5 * (out["raw"]["sigma_t"] + out["eta"]["sigma_t"]),
+                     comp["r"][0], comp["r"][1], comp["t"][0], comp["t"][1],
                      mean_r, mean_t, 0.5 * (mean_r ** 2 + mean_t ** 2),
                      0.5 * (out["raw"]["f"] + out["eta"]["f"]), float(np.median(eta[m])),
                      float(np.median(base.g_mag[m]))))
     t = Table(rows=rows, names=("r_lower", "r_median", "r_upper", "n_stars", "sigma_pm", "sigma_stat",
                                 "sigma_sys", "sigma_pm_err", "sigma_raw", "sigma_eta", "sigma_pmr",
-                                "sigma_pmt", "mean_pmr", "mean_pmt", "streaming2", "f_field",
-                                "median_eta", "median_g"))
+                                "sigma_pmr_err", "sigma_pmt", "sigma_pmt_err", "mean_pmr",
+                                "mean_pmt", "streaming2", "f_field", "median_eta", "median_g"))
     t.meta.update({
         "product": PRODUCT, "err_max_frac": err_max_frac, "r_min_arcsec": float(edges[0]),
         "distance_kpc": distance_kpc, "quality_bit": QUALITY_BIT,

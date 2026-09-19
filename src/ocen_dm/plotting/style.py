@@ -122,6 +122,10 @@ DATASET_KEY_MAP = {
     "gaia_dr2_pm": ("gaia_dr2", "combined"),
     "gaia_edr3_pm": ("gaia_edr3", "combined"),
     "gaia_edr3_ours": ("gaia_edr3", "combined"),
+    "gaia_edr3_ours_radial": ("gaia_edr3", "radial"),
+    "gaia_edr3_ours_tangential": ("gaia_edr3", "tangential"),
+    "hst_pm_radial_ours": ("hst", "radial"),
+    "hst_pm_tangential_ours": ("hst", "tangential"),
 }
 
 _FILL = {"combined": "full", "radial": "left", "tangential": "right"}

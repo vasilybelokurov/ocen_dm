@@ -233,6 +233,58 @@ def _edr3_ours() -> BinnedProfile:
     )
 
 
+def _hst_ours(component: str) -> BinnedProfile:
+    """Our own HST measurement, flagged stars only, reaching 360 arcsec.
+
+    Replaces the published oMEGACat profile, which stops at 300 arcsec and so never
+    overlapped Gaia. Same stars the survey vouches for, our estimator, 60 arcsec further
+    out. The tangential dataset carries the external rotation term for the same reason the
+    published one does: HST proper motions are locally corrected, so the measured dispersion
+    is about a rotation-free mean while the Jeans model predicts the full second moment.
+    """
+    from .hst_profile import load_hst_product
+    t = load_hst_product()
+    col = "sigma_pmr" if component == "pmr" else "sigma_pmt"
+    r = np.asarray(t["r_median"], float)
+    err = np.asarray(t[col + "_err"], float)
+    other = "hst_pm_tangential_ours" if component == "pmr" else "hst_pm_radial_ours"
+    note = ("our measurement from selection_hq_astrometry stars, cluster+field mixture, "
+            "reaching 360 arcsec where the published profile stops at 300")
+    return BinnedProfile(
+        name="hst_pm_radial_ours" if component == "pmr" else "hst_pm_tangential_ours",
+        kind=component, r=r, r_lower=np.asarray(t["r_lower"], float),
+        r_upper=np.asarray(t["r_upper"], float), value=np.asarray(t[col], float),
+        err_lo=err, err_hi=err, instrument="HST",
+        shares_stars_with=(other, "hst_pm_radial", "hst_pm_tangential", "hst_pm_combined"),
+        note=note + ("; radial PM carries no rotation term" if component == "pmr" else
+                     "; <mu_T>^2 from the Vasiliev & Baumgardt 2021 curve added to the model"),
+        streaming2=None if component == "pmr" else pm_rotation_curve(r) ** 2)
+
+
+def _edr3_ours_component(component: str) -> BinnedProfile:
+    """Our Gaia EDR3 measurement split into its radial and tangential parts.
+
+    The two are measured jointly but are very nearly uncorrelated: over 60 independent
+    synthetic realisations with uniform position angles the correlation between the fitted
+    sigma_R and sigma_T is -0.08, so treating them as two datasets costs a 0.6 per cent
+    error in the joint chi2 and buys the anisotropy at large radius (2026-09-19).
+    """
+    from .outer_gaia import load_edr3_profile
+    t = load_edr3_profile()
+    col = "sigma_pmr" if component == "pmr" else "sigma_pmt"
+    err = np.asarray(t[col + "_err"], float)
+    mean = np.asarray(t["mean_pmr" if component == "pmr" else "mean_pmt"], float)
+    other = "gaia_edr3_ours_tangential" if component == "pmr" else "gaia_edr3_ours_radial"
+    return BinnedProfile(
+        name="gaia_edr3_ours_radial" if component == "pmr" else "gaia_edr3_ours_tangential",
+        kind=component, r=np.asarray(t["r_median"], float),
+        r_lower=np.asarray(t["r_lower"], float), r_upper=np.asarray(t["r_upper"], float),
+        value=np.asarray(t[col], float), err_lo=err, err_hi=err, instrument="GaiaEDR3",
+        shares_stars_with=(other, "gaia_edr3_ours", "gaia_edr3_pm", "gaia_dr2_pm"),
+        note="our measurement, one component; the pair is nearly uncorrelated (rho = -0.08)",
+        streaming2=mean ** 2)
+
+
 DATASETS: dict[str, Any] = {
     "hst_pm_radial": lambda: _omegacat("pm_radial", "sigma_pmr", "pmr", ("hst_pm_tangential", "hst_pm_combined")),
     "hst_pm_tangential": lambda: _omegacat("pm_tangential", "sigma_pmt", "pmt", ("hst_pm_radial", "hst_pm_combined")),
@@ -241,11 +293,23 @@ DATASETS: dict[str, Any] = {
     "gaia_dr2_pm": _baumgardt2019,
     "gaia_edr3_pm": _vasiliev2021,
     "gaia_edr3_ours": _edr3_ours,
+    "gaia_edr3_ours_radial": lambda: _edr3_ours_component("pmr"),
+    "gaia_edr3_ours_tangential": lambda: _edr3_ours_component("pmt"),
+    "hst_pm_radial_ours": lambda: _hst_ours("pmr"),
+    "hst_pm_tangential_ours": lambda: _hst_ours("pmt"),
 }
 
 #: combinations that would count the same stars twice
 _FORBIDDEN_TOGETHER = (("hst_pm_combined", "hst_pm_radial"), ("hst_pm_combined", "hst_pm_tangential"),
-                       ("gaia_edr3_ours", "gaia_edr3_pm"))
+                       ("gaia_edr3_ours", "gaia_edr3_pm"),
+                       ("gaia_edr3_ours", "gaia_edr3_ours_radial"),
+                       ("gaia_edr3_ours", "gaia_edr3_ours_tangential"),
+                       ("gaia_edr3_ours_radial", "gaia_edr3_pm"),
+                       ("gaia_edr3_ours_tangential", "gaia_edr3_pm"),
+                       ("hst_pm_radial", "hst_pm_radial_ours"),
+                       ("hst_pm_tangential", "hst_pm_tangential_ours"),
+                       ("hst_pm_combined", "hst_pm_radial_ours"),
+                       ("hst_pm_combined", "hst_pm_tangential_ours"))
 
 
 def load_profile(name: str, **kwargs: Any) -> BinnedProfile:
