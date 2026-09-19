@@ -2955,3 +2955,54 @@ figure moved to the shared `DATASET_STYLE`.
 **Not implemented, awaiting agreement:** extending the fitted HST dataset from 300 to 460
 arcsec using this measurement, which would give the likelihood a real instrument overlap
 instead of two profiles meeting at a point.
+
+### What the HST quality flag actually is, and whether the correction was justified
+
+`selection_hq_astrometry` is oMEGACat's own published selection (Häberle et al. 2025, ApJ,
+https://arxiv.org/abs/2503.04903, Section 2.1), not anything we defined. It keeps 48 per cent
+of the stars with proper motions and requires all of:
+
+* temporal baseline longer than **10 years**;
+* **N_used / N_found > 0.75** -- the fraction of individual measurements surviving clipping,
+  a low value meaning unreliable astrometry;
+* **reduced chi-square < 5** in both proper-motion components;
+* the proper-motion error inside the **lower 95 per cent of the error distribution in its own
+  0.5-magnitude bin**;
+* reliable photometry in **both F625W and F814W**: unsaturated (which excludes everything
+  brighter than F625W = 13.8), point-spread-function fit quality above the 85th percentile of
+  its magnitude bin, and neighbouring flux inside the fit aperture below half the star's own;
+* **F625W < 24** outright, because there the error limit reaches 0.3 mas/yr, "similar to half
+  of the typical velocity dispersion in the outer regions", and "including stars with errors
+  similar to the actual velocity dispersion would ... make it quite sensitive to the modeling
+  of the proper motion errors."
+
+That last sentence is the principle, and it is the same one this project reached
+independently for Gaia with the `err < 0.4 sigma(R)` cut. The two-filter photometric
+requirement is also not cosmetic: F625W and F814W span 2002 to 2022, so requiring both is how
+they verify the astrometry holds across the whole baseline.
+
+The `_and_membership` version adds a colour-magnitude cut to the red-giant branch or main
+sequence plus a total proper motion below 4.5 mas/yr.
+
+Empirically, flagged against unflagged among stars with proper motions: median F625W 20.86
+against 22.77, median PM error 0.06 against 0.12 mas/yr, pass rate falling from 82 per cent
+at F625W 17-19 to 38 per cent at 23-24 and zero beyond 24.
+
+**Was the 1.077 correction justified for the outer bins?** Beyond 380 arcsec not one star has
+F625W or F814W photometry, so the two-filter requirement rejects them automatically and their
+proper-motion errors are in fact decent, 0.08-0.10 mas/yr. If they failed only on
+photometry their astrometry might be sound. Tested on inner unflagged stars split by whether
+they have photometry:
+
+| annulus | flagged | unflagged, has photometry | unflagged, no photometry |
+|---|---|---|---|
+| 150-250" | 0.6059 | 0.6606 (1.090) | 0.7114 (1.174) |
+| 250-300" | 0.5511 | 0.5950 (1.080) | 0.5873 (1.066) |
+| 300-340" | 0.5257 | 0.5605 (1.066) | 0.5486 (1.044) |
+
+Missing photometry is **not** a free pass: those stars are inflated as much as the rest, and
+at 150-250 arcsec more. That is what the paper's own reasoning predicts, since the photometry
+requirement exists partly to certify the astrometry. The correction stands. The caveat is
+that the no-photometry ratio nearest the boundary is 1.044 rather than 1.077, so the outer
+correction may be up to 3 per cent too large, which would move Gaia/HST from 1.000 to about
+0.97 and remain consistent with agreement.

@@ -20,12 +20,39 @@ that star's error covariance, plus the **same empirical Gaia DR3 field template*
 the Gaia and Pristine profiles, scored in absolute proper motion (relative plus systemic).
 No proper-motion window is imposed, so the answer is not a readout of a cut.
 
+**What the flag is.** ``selection_hq_astrometry`` is oMEGACat's own published high-quality
+selection (Haeberle et al. 2025, ApJ, arXiv:2503.04903, their Section 2.1). It keeps 48 per
+cent of the stars with proper motions and requires, all together: a temporal baseline longer
+than 10 years; more than 75 per cent of the individual measurements surviving the clipping
+stage; reduced chi-square below 5 in both proper-motion components; a proper-motion error
+inside the lower 95 per cent of the error distribution in its own 0.5-magnitude bin; and
+reliable photometry in **both** F625W and F814W (unsaturated, point-spread-function fit
+quality above the 85th percentile of its magnitude bin, neighbour flux inside the fit
+aperture below half the star's own). Stars fainter than F625W = 24 are cut outright, because
+there the error limit reaches 0.3 mas/yr, comparable to half the outer velocity dispersion.
+
+Their stated principle is the one this project arrived at independently for Gaia: **a star
+whose measurement error approaches the dispersion being measured makes the answer a function
+of the error model rather than of the cluster.** The two-filter photometric requirement is
+not cosmetic either -- F625W and F814W span 2002 to 2022, so demanding both is how they
+verify the astrometry is supported across the whole temporal baseline.
+
 **The unflagged stars are not as good as the flagged ones, and it shows.** Running the same
 mixture on each subset where both exist gives an unflagged-to-flagged dispersion ratio of
 1.092, 1.088, 1.079 and 1.052 at 150-200, 200-250, 250-300 and 300-340 arcsec, a weighted
 mean of **1.077 +- 0.011**. Their errors are underestimated by about that much: the same
 pathology as unflagged Gaia, at a fifth of the amplitude. Outside 340 arcsec every star is
 unflagged, so the raw measurement there is biased high by the full 8 per cent.
+
+Those outer stars fail for a specific reason: **beyond 380 arcsec not one has F625W or F814W
+photometry**, so the flag's two-filter requirement rejects them automatically. That could
+have meant their astrometry was fine and the correction inappropriate, so it was tested.
+Inner unflagged stars that lack photometry give dispersions of 1.174, 1.066 and 1.044 times
+the flagged value at 150-250, 250-300 and 300-340 arcsec, against 1.090, 1.080 and 1.066 for
+unflagged stars that have it. Missing photometry is therefore not a free pass: those stars
+are inflated as much as the rest, which is what the paper's own reasoning predicts. The
+adopted 1.077 sits inside that range, though the value nearest the boundary is 1.044, so the
+outer correction could be up to 3 per cent too large.
 ``hst_profile`` therefore divides each bin by ``1 + f_unflagged * (ratio - 1)`` and carries
 the ratio's uncertainty as a systematic. Validation of the whole chain: with the flag
 required, our measurement sits 1.1-2.3 per cent above the published oMEGACat profile in its
