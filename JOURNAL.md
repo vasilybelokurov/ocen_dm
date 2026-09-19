@@ -3006,3 +3006,29 @@ requirement exists partly to certify the astrometry. The correction stands. The 
 that the no-photometry ratio nearest the boundary is 1.044 rather than 1.077, so the outer
 correction may be up to 3 per cent too large, which would move Gaia/HST from 1.000 to about
 0.97 and remain consistent with agreement.
+
+### The clean overlap: both sides quality-selected, nothing corrected
+
+Answering "can we stay within 340 arcsec, and is there enough Gaia there?" -- yes to both,
+with the precision stated honestly. HST restricted to its own flagged stars, Gaia to
+quality-flagged low-noise stars, no unflagged-star correction applied to either side:
+
+| window | HST flagged | Gaia flagged | Gaia/HST | precision |
+|---|---|---|---|---|
+| 300-340" | 16978 stars at r = 311" , 0.5257 ± 0.0074 | 17 stars at r = 318" , 0.5385 ± 0.0685 | **1.028 ± 0.132** | 13 % |
+| 300-380" | 16978 stars at r = 311" , 0.5256 ± 0.0074 | 52 stars at r = 356" , 0.4791 ± 0.0373 | **0.933 ± 0.074** | 7 % |
+
+The 300-340 window is the cleaner comparison and the reason is the effective radii:
+**311 and 318 arcsec**, essentially the same place, so the slope correction is negligible and
+nothing is being extrapolated. Its cost is that Gaia has only 17 usable stars, giving 13 per
+cent. Widening to 380 triples the Gaia sample and halves the error but moves Gaia's effective
+radius to 356 arcsec against HST's 311, so a 45-arcsec slope correction does part of the
+work.
+
+Both windows agree with unity, and both agree with the corrected all-star comparison
+(1.000 ± 0.040). Three routes, three different treatments of the unflagged stars, one answer.
+
+**Decision to propose:** fit HST out to 340 arcsec rather than 460, using flagged stars only,
+which adds one bin beyond where the published profile stops at 300 and needs no correction
+of any kind. Gaia carries 300 arcsec outwards. The two genuinely overlap at 300-340, where
+both instruments have quality-selected stars at the same effective radius.
