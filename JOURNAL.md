@@ -1935,3 +1935,44 @@ writes all four combinations:
 The titles state which treatment each uses. The self-consistent pair is the one to read: in
 the other two the model has 10-40 per cent too much rotation removed between 350 and 800
 arcsec, which is what produced the apparent wiggle at 10-20 pc.
+
+### Is the wiggle real? No -- but my "it is gone" was wrong too
+
+The user looked at the new figures and said the wiggle was still there. Correct: changing
+the rotation term reduced its amplitude but did not remove the feature, and the honest
+answer is not that it disappeared but that **it was never significant**. Quantified, in
+total second moments so that no rotation curve enters the comparison
+(`plots/outer_residual_significance.png`, `ocen plot-constraints`):
+
+| r ["] | r [pc] | stars in the annulus | after the quality flag | residual vs K1 | significance |
+|---|---|---|---|---|---|
+| 357 | 9.5 | 6888 | **53 (0.8 %)** | −11.4 ± 6.7 % | −1.7 sigma |
+| 439 | 11.7 | 10402 | **441 (4.2 %)** | −0.9 ± 3.0 % | −0.3 sigma |
+| 509 | 13.6 | 13501 | 1875 (13.9 %) | +4.7 ± 2.8 % | +1.7 |
+| 592 | 15.8 | 18206 | 4665 (25.6 %) | +4.4 ± 1.4 % | +3.1 |
+| 683 | 18.2 | 22390 | 8247 (36.8 %) | +5.3 ± 1.4 % | +3.7 |
+| 791 | 21.1 | 24885 | 12050 (48.4 %) | +3.2 ± 1.4 % | +2.3 |
+| 924 | 24.7 | 24367 | 14748 (60.5 %) | +2.1 ± 1.4 % | +1.5 |
+| 1094 | 29.2 | | | +3.9 ± 1.4 % | +2.7 |
+| 1336 | 35.7 | | | +4.7 ± 1.5 % | +3.2 |
+| 1688 | 45.1 | | | +10.0 ± 2.4 % | +4.2 |
+| 2151 | 57.4 | | | +16.8 ± 3.3 % | +5.1 |
+
+**A constant offset of +3.9 per cent fits 460-1500 arcsec perfectly: chi2 = 3.5 for 6
+degrees of freedom, p = 0.74.** There is no structure between 13 and 36 pc. The apparent
+wiggle is the two innermost annuli, at −1.7 and −0.3 sigma, and they are low for a reason
+that has nothing to do with the cluster: **inside 460 arcsec the Vasiliev & Baumgardt
+astrometric quality flag keeps 0.8-4 per cent of the stars** (53 of 6888 at 300-380
+arcsec). Gaia cannot measure a dispersion in the crowded inner region, and those points
+should not be plotted as if it could -- they are a tiny, non-randomly selected subsample.
+The quality fraction reaches 14 per cent at 500 arcsec and 80 per cent beyond 1500.
+
+So the structure in the Gaia residuals is: nothing inside 460 arcsec (no usable data), a
+flat +4 per cent offset from 13 to 36 pc, and a real rise to +10 and +17 per cent (4.2 and
+5.1 sigma) beyond 40 pc. The flat offset is a scale difference between Gaia and the
+HST-anchored model; the rise is the open question. A test now asserts the flatness
+(p > 0.05), the insignificance of the inner points and the significance of the outer rise.
+
+**Proposal, not implemented:** restrict our Gaia profile to r > 460 arcsec in everything
+downstream, and mark the inner region as "no usable Gaia data" rather than plotting two
+meaningless points. That is a data-selection change, so it waits for the user.

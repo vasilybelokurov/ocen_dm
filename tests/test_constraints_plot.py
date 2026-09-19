@@ -100,3 +100,44 @@ def test_both_streaming_treatments_render_and_differ(tmp_path):
     for name, stream in (("self.png", "self"), ("pub.png", "published")):
         p = plot_constraint_map(tmp_path / name, streaming=stream)
         assert p.exists() and p.stat().st_size > 80_000
+
+
+@pytest.mark.skipif(not (_HAS_RUNS and _HAS_MEMBERS), reason="runs or members missing")
+def test_residual_significance_figure_and_flatness(tmp_path):
+    """Between 460 and 1500 arcsec the residual is a constant offset, and inside 460 arcsec
+    Gaia keeps too few stars for the measurement to mean anything."""
+    import json
+    from scipy.stats import chi2 as chi2_dist
+    from ocen_dm.kinematics.report import _family_for
+    from ocen_dm.plotting.constraints import (KMS_PER_MASYR_KPC, _sigma_1d_kms, our_mixture_profile,
+                                              plot_residual_significance)
+    from ocen_dm.kinematics.outer_profile import load_members
+    from ocen_dm.paths import results_dir
+
+    edges = np.array([300., 380, 460, 540, 630, 730, 850, 1000, 1200, 1500, 1900, 2400.])
+    mix = our_mixture_profile(edges)
+    summary = json.loads((results_dir() / "fits" / "K1_noDM_composite" / "summary.json").read_text())
+    fam = _family_for(summary)
+    x = np.array([summary["parameters"][n]["ml"] for n in fam.names])
+    jeans, D, scales = fam.build(fam.to_dict(x))
+    r = np.asarray(mix["r_median"])
+    total = np.sqrt(0.5 * (np.asarray(mix["sigma_pmr"]) ** 2 + np.asarray(mix["mean_pmr"]) ** 2
+                           + np.asarray(mix["sigma_pmt"]) ** 2 + np.asarray(mix["mean_pmt"]) ** 2))
+    model = _sigma_1d_kms(jeans, D, r) / (KMS_PER_MASYR_KPC * D) * scales.get("GaiaEDR3", 1.0)
+    res = 100 * (total / model - 1); err = 100 * np.asarray(mix["sigma_pm_err"]) / model
+    good = (r > 460) & (r < 1500)
+    w = 1 / err[good] ** 2
+    c = np.sum(w * res[good]) / np.sum(w)
+    chi2 = np.sum(w * (res[good] - c) ** 2)
+    assert 1 - chi2_dist.cdf(chi2, good.sum() - 1) > 0.05      # flat: no structure at 13-36 pc
+    assert 2.0 < c < 6.0                                        # a few per cent offset
+    assert np.all(np.abs(res[r < 460] / err[r < 460]) < 2.5)    # the "wiggle" points are < 2.5 sigma
+    assert res[-1] / err[-1] > 3.0                              # the outermost rise is real
+    # and the reason the inner points are useless: almost nothing passes the quality flag
+    s = load_members()
+    q = s.select((s.quality_flag & 2) > 0)
+    inner_all = ((s.r_arcsec >= 300) & (s.r_arcsec < 460)).sum()
+    inner_q = ((q.r_arcsec >= 300) & (q.r_arcsec < 460)).sum()
+    assert inner_q / inner_all < 0.05
+    p = plot_residual_significance(tmp_path / "sig.png")
+    assert p.exists() and p.stat().st_size > 60_000
