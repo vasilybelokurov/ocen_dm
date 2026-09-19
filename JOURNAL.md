@@ -2019,3 +2019,46 @@ distinguishes them, and a constant instrument scale is the wrong model for it ei
 
 Tests added: HST declines below −3 per cent at its edge while Gaia exceeds +5 per cent
 where it becomes usable, with a step of more than 10 per cent between them.
+
+### Why the Gaia dispersions sit above the model beyond 500 arcsec
+
+The offset decomposes into two unrelated things (`plots/outer_offset_explained.png`).
+Worked example at 683 arcsec (18 pc), all in 1-D proper-motion dispersion:
+
+| step | value | meaning |
+|---|---|---|
+| model total second moment | 0.3889 | the Jeans prediction |
+| minus the published rotation term | 0.3617 | what the fit actually compared with |
+| times the fitted scale s_EDR3 = 1.068 | 0.3862 | |
+| published EDR3 datum | 0.3925 | **fit residual +1.6 %** -- the fit matches the data it was given |
+| our dispersion | 0.4175 | **+6.4 % above the published profile** |
+| our total second moment | 0.4374 | the mean motions add +4.8 % |
+| versus model total x scale | 0.4152 | **+5.3 %** |
+
+**Flat part, 500-1350 arcsec (13-36 pc).** Roughly +11 per cent against the unscaled model,
+of which ~6.8 per cent is the fitted instrument scale (the fit had already decided Gaia runs
+hotter than the HST-anchored model) and ~5-6 per cent is our measurement sitting above the
+published profile -- the decomposition keeps the cluster's velocity wings that a
+membership-weighted estimate truncates. The fit reproduces the published profile to 1.6 per
+cent, so this part is method and calibration, not physics, and it is flat with radius.
+
+**Rising part, beyond 1500 arcsec (40 pc).** Here our measurement *agrees* with the published
+profile (+3.1 per cent at 1688, −2.4 per cent at 2151), so it is not a measurement effect:
+both lie 10-17 per cent above the model. This is a **shape** mismatch, and the likely cause
+is now visible: the K1 model has beta_inf = +0.23, predicting sigma_T/sigma_R = 0.89 at every
+radius outside a few pc, while the measurement turns **tangential** -- 0.98, 1.03, 1.04, 1.12,
+1.08 beyond 950 arcsec. The two agree at 460-800 arcsec (0.89-0.90 both) and diverge outward.
+A radially anisotropic model declines too steeply in projection, so it must fall below data
+whose orbits are actually tangential.
+
+That matters for the whole project: the K2 dark-halo preference was driven by the outer
+excess, and the outer excess may be an anisotropy error rather than missing mass. The K1 fit
+had freedom in beta but was given only a **1-D combined** Gaia profile, which carries no
+anisotropy information; it extrapolated the radial anisotropy measured by HST at 10-20 pc
+out to 60 pc.
+
+**Proposal, not implemented:** feed the measured sigma_R and sigma_T as two separate datasets
+beyond 460 arcsec instead of the 1-D combined published profile, so beta(r) is constrained by
+the data at large radius, and refit K1 and K2. That is a change to the data the model is
+fitted to, so it waits for the user. A test now pins the disagreement (model < 0.92,
+measured > 1.0 beyond 1300 arcsec).

@@ -32,7 +32,7 @@ from . import style
 from .style import add_pc_axis
 
 __all__ = ["plot_constraint_map", "plot_outer_tracer_audit", "plot_contamination_model", "plot_annulus_fits",
-           "plot_method_comparison", "plot_residual_significance", "plot_dataset_step",
+           "plot_method_comparison", "plot_residual_significance", "plot_dataset_step", "plot_offset_explained",
            "fit_quality_table", "annulus_fits", "our_outer_profile", "our_mixture_profile", "OUTER_EDGES"]
 
 #: log-spaced annuli for our own outer measurement (arcsec)
@@ -773,6 +773,76 @@ def plot_residual_significance(path: Path | str = "plots/outer_residual_signific
         if ff < 0.2:
             axq.annotate("%.1f %%" % (100 * ff), (rr, 100 * ff), textcoords="offset points",
                          xytext=(0, 8), ha="center", fontsize=8, color=style.SERIES[2])
+    path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
+    return path
+
+
+def plot_offset_explained(path: Path | str = "plots/outer_offset_explained.png",
+                          k1: str = "K1_noDM_composite", distance_kpc: float = 5.43) -> Path:
+    """Why the Gaia points sit above the model beyond 500 arcsec.
+
+    Left: the deviation split into what each step contributes -- the fitted instrument scale,
+    our measurement against the published profile, and what is left over. Right: the model's
+    projected anisotropy against the measured one, which is where the leftover comes from at
+    large radius.
+    """
+    import json
+
+    from ..kinematics.report import _family_for
+    style.apply()
+    edges = np.array([460., 540, 630, 730, 850, 1000, 1200, 1500, 1900, 2400.])
+    mix = our_mixture_profile(edges, distance_kpc=distance_kpc)
+    pub = Table.read(processed_dir() / "kinematics" / "vasiliev2021_ocen_pm_profiles.ecsv")
+    summary = json.loads((results_dir() / "fits" / k1 / "summary.json").read_text())
+    fam = _family_for(summary)
+    x = np.array([summary["parameters"][n]["ml"] for n in fam.names])
+    jeans, D, scales = fam.build(fam.to_dict(x))
+    s_g = scales.get("GaiaEDR3", 1.0)
+    pc = distance_kpc * 1e3 / 206264.806
+    r = np.asarray(mix["r_median"])
+    ours = np.asarray(mix["sigma_pm"])
+    total = np.sqrt(0.5 * (np.asarray(mix["sigma_pmr"]) ** 2 + np.asarray(mix["mean_pmr"]) ** 2
+                           + np.asarray(mix["sigma_pmt"]) ** 2 + np.asarray(mix["mean_pmt"]) ** 2))
+    err = np.asarray(mix["sigma_pm_err"])
+    published = np.interp(r, np.asarray(pub["r"]), np.asarray(pub["sigma_pm"]))
+    model = _sigma_1d_kms(jeans, D, r) / (KMS_PER_MASYR_KPC * D)
+
+    fig, (ax, ab) = plt.subplots(1, 2, figsize=(13, 5))
+    ax.axhline(0, color=style.INK, lw=1)
+    ax.errorbar(r, 100 * (total / model - 1), yerr=100 * err / model, fmt="D", ms=6, color=style.INK,
+                ecolor=style.INK, elinewidth=1.3, lw=0, label="total: our measurement vs the unscaled model")
+    ax.errorbar(r, 100 * (total / (model * s_g) - 1), yerr=100 * err / (model * s_g), fmt="s", ms=5,
+                color=style.SERIES[0], ecolor=style.SERIES[0], elinewidth=1.2, lw=0,
+                label="after the fitted Gaia scale (%.3f)" % s_g)
+    ax.plot(r, 100 * (ours / published - 1), "^--", ms=5, color=style.SERIES[1], lw=1.2,
+            label="our measurement vs the published profile")
+    ax.plot(r, 100 * (total / ours - 1), "v:", ms=5, color=style.SERIES[2], lw=1.2,
+            label="what the mean motions add (total vs dispersion)")
+    ax.axvspan(1500, 2400, color=style.SERIES[1], alpha=0.08, lw=0)
+    ax.text(1540, 21, "shape mismatch\ngrows here", fontsize=8, color=style.SERIES[1])
+    ax.set_xscale("log"); ax.set_xlabel("R  [arcsec]"); ax.set_ylabel("contribution to the offset  [%]")
+    ax.set_title("What makes up the Gaia offset", fontsize=10.5); ax.legend(fontsize=7.5, loc="upper left")
+    add_pc_axis(ax, distance_kpc)
+
+    model_ratio = np.array([jeans.dispersions_kms(np.array([rr * pc]))["pmt"][0]
+                            / jeans.dispersions_kms(np.array([rr * pc]))["pmr"][0] for rr in r])
+    meas = np.asarray(mix["sigma_pmt"]) / np.asarray(mix["sigma_pmr"])
+    merr = meas * np.hypot(np.asarray(mix["sigma_pmt_err"]) / np.asarray(mix["sigma_pmt"]),
+                           np.asarray(mix["sigma_pmr_err"]) / np.asarray(mix["sigma_pmr"]))
+    ab.plot(r, model_ratio, "-", color=style.SERIES[0], lw=2, label=r"K1 model ($\beta_\infty$ = %.2f, radial)"
+            % summary["parameters"]["beta_inf"]["ml"])
+    ab.errorbar(r, meas, yerr=merr, fmt="D", ms=6, color=style.INK, ecolor=style.INK, elinewidth=1.3, lw=0,
+                label="measured")
+    ab.axhline(1.0, color=style.INK_SECONDARY, lw=0.9, ls="--")
+    ab.set_xscale("log"); ab.set_xlabel("R  [arcsec]"); ab.set_ylabel(r"$\sigma_T/\sigma_R$")
+    ab.set_title("The model is radial where the data are tangential", fontsize=10.5)
+    ab.legend(fontsize=8); add_pc_axis(ab, distance_kpc)
+    ab.text(0.03, 0.08, "radial orbits", transform=ab.transAxes, fontsize=8, color=style.INK_SECONDARY)
+    ab.text(0.03, 0.9, "tangential orbits", transform=ab.transAxes, fontsize=8, color=style.INK_SECONDARY)
+
+    fig.suptitle("Why the Gaia dispersions sit above the model beyond 500 arcsec", y=0.99)
+    fig.tight_layout()
     path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
     return path
