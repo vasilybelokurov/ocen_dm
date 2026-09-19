@@ -1192,15 +1192,34 @@ def plot_periphery(path: Path | str = "plots/periphery_where_the_cluster_ends.pn
     pc = lambda arcsec: np.asarray(arcsec, float) * distance_kpc * 1e3 / 206264.806
 
     fig, ax = plt.subplots(figsize=(9.4, 5.8))
+    from ..kinematics.hst_profile import hst_profile
     from .style import dataset_label, dataset_style
     hst = load_profile("hst_pm_combined")
     ax.errorbar(pc(hst.r), np.asarray(hst.value) * k, yerr=np.asarray(hst.err_lo) * k,
-                linestyle="none", lw=1, label=dataset_label("hst"),
-                **dataset_style("hst", size=4.5))
+                linestyle="none", lw=1, label="HST, published oMEGACat profile",
+                **dataset_style("hst", size=3.5, fitted=False))
+    # our own HST measurement carries the profile from 300 to 340 arcsec, where the
+    # published one stops, so that it genuinely overlaps Gaia rather than stopping short
+    ours = hst_profile(edges_arcsec=(150., 200., 250., 300., 340.))
+    ax.errorbar(pc(ours["r_median"]), np.asarray(ours["sigma_pm"]) * k,
+                yerr=np.asarray(ours["sigma_pm_err"]) * k, linestyle="-", lw=2, capsize=3,
+                zorder=6, label=dataset_label("hst") + ", ours (flagged stars)",
+                **dataset_style("hst", size=7.5))
     g = load_edr3_profile()
     ax.errorbar(pc(g["r_median"]), np.asarray(g["sigma_pm"]) * k,
                 yerr=np.asarray(g["sigma_pm_err"]) * k, linestyle="-", lw=2, capsize=3,
                 label=dataset_label("gaia_edr3"), **dataset_style("gaia_edr3", size=7))
+    # the one annulus where both surveys have quality-selected stars
+    tests = hst_gaia_overlap_tests(distance_kpc)
+    clean = tests[tests["flagged_only"]][0]
+    ax.errorbar([pc(clean["r_gaia"])], [clean["sigma_gaia"] * k],
+                yerr=[clean["sigma_gaia_err"] * k], linestyle="none", lw=1.8, capsize=4,
+                zorder=7, label="Gaia, same annulus as HST's last point (%d stars)" % clean["n_gaia"],
+                **dataset_style("gaia_edr3", size=11))
+    lo_pc, hi_pc = pc(clean["r_lower"]), pc(clean["r_upper"])
+    ax.axvspan(lo_pc, hi_pc, color=style.SERIES[2], alpha=0.22, lw=0)
+    ax.annotate("both surveys\nmeasure here", (np.sqrt(lo_pc * hi_pc), 21.0), fontsize=8,
+                ha="center", va="top", color=style.SERIES[2])
     lo_w, hi_w = periphery_pm_profile(0.8), periphery_pm_profile(1.2)
     ax.fill_between(lo_w["r_pc"], lo_w["sigma_kms"], hi_w["sigma_kms"],
                     color=style.SERIES[2], alpha=0.20, lw=0,
