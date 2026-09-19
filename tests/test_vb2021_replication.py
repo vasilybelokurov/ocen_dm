@@ -46,3 +46,26 @@ def test_released_catalogue_carries_raw_gaia_errors():
     # a scaled catalogue would show error/sqrt-density structure; a raw one does not.
     # verified against gaia_edr3.gaia_source on WSDB (median ratio 1.0000, N = 228055).
     assert "source_density" in cat.colnames, "the density column exists precisely because the scaling is external"
+
+
+def test_eta_overcorrects_the_faint_end():
+    """The authors' own validation: a correct error model makes sigma independent of G."""
+    from ocen_dm.kinematics.vb2021_replication import magnitude_consistency
+    t = magnitude_consistency()
+    inner = t["r_upper"] <= 1500
+    raw = np.asarray(t["faint_over_bright_raw"])[inner]
+    scaled = np.asarray(t["faint_over_bright_eta"])[inner]
+    assert np.all(raw > 1.05), "raw errors are underestimated for faint stars"
+    assert np.all(scaled < 1.0), "the density-only eta over-corrects them"
+
+
+def test_well_measured_stars_agree_whatever_the_error_model():
+    from ocen_dm.kinematics.vb2021_replication import low_noise_profile
+    t = low_noise_profile()
+    mid = (t["r_median"] > 450) & (t["r_median"] < 1200)
+    assert mid.sum() >= 4
+    # the error rescaling moves these by under 1 per cent...
+    assert np.all(np.asarray(t["error_model_sensitivity"])[mid] < 0.01)
+    # ...and both versions agree with the published profile to ~1 per cent
+    assert np.all(np.abs(np.asarray(t["raw_ratio"])[mid] - 1.0) < 0.015)
+    assert np.all(np.abs(np.asarray(t["eta_ratio"])[mid] - 1.0) < 0.015)
