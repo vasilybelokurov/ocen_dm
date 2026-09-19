@@ -2550,3 +2550,72 @@ shading and annotation were wrong in the same way and are fixed.
 without checking the precision those stars carry. The sparse bins turned out to be the most
 reliable in the profile, because star count and measurement quality run in opposite
 directions here -- the flag keeps only the brightest stars where crowding is worst.
+
+## 2026-09-19 -- where does the cluster stop?
+
+User: "what happens if we go to even larger distance from the cluster's centre ... at some
+stage the cluster should stop, no?"
+
+### The Gaia data stop before the cluster does
+
+The Vasiliev & Baumgardt member catalogue ends at **0.670 deg = 2413 arcsec = 63 pc**. That
+is their retrieval radius for this cluster, stated in their Section 2 ("a given radius from
+the cluster centre ... adjusted individually"), not a physical boundary.
+
+The Jacobi radius, computed with AGAMA in the McMillan (2017) Milky Way potential for
+M = 3.55e6 Msun (Baumgardt & Hilker 2018), with the cluster at R = 6.30 kpc, z = +1.42 kpc:
+
+| evaluated at | r_gal | r_J |
+|---|---|---|
+| present position | 6.46 kpc | 185 pc = 1.95 deg |
+| pericentre | 1.59 kpc | 90 pc = 0.95 deg |
+
+The orbit is eccentric (r_peri 1.59, r_apo 6.99 kpc, e = 0.63), so the pericentric value is
+the one that limits the bound cluster. **The Gaia sample stops at 0.70 r_J(peri).** Nothing
+in our fits has ever seen the boundary.
+
+### What lies beyond, and why the proper motions cannot answer it alone
+
+Two catalogues already in the project reach further. `kuzma2025_periphery` (Pristine CaHK +
+Gaia, 157481 stars to 5.1 deg) and `kuzma2026_spectroscopy` (592 line-of-sight velocities to
+3.15 deg, 157 flagged members).
+
+The Pristine membership uses the proper motions, so measuring a PM dispersion from it is
+circular. Demonstrated directly, at two fixed windows about the systemic motion:
+
+| r (pc) | N (0.8 window) | sigma (0.8) | N (1.2) | sigma (1.2) |
+|---|---|---|---|---|
+| 44 | 189 | 6.68 ± 0.25 | 189 | 6.68 ± 0.25 |
+| 70 | 23 | 6.59 ± 0.70 | 24 | 7.18 ± 0.74 |
+| 111 | 13 | 5.73 ± 0.81 | 16 | 10.15 ± 1.28 |
+| 197 | 12 | 6.52 ± 0.96 | 21 | 12.81 ± 1.40 |
+| 377 | 49 | 8.94 ± 0.64 | 77 | 12.58 ± 0.72 |
+
+At the narrow window the profile is **flat** at 6-7 km/s to 200 pc; at the wide one it rises
+to 12.8. That factor of two is the selection, not the cluster. Anyone quoting a single
+periphery PM dispersion without stating the window is quoting their own cut.
+
+### The honest probe: line-of-sight velocities, no PM selection
+
+| r (pc) | N | sigma_los (km/s) |
+|---|---|---|
+| 67 | 116 | 6.12 ± 0.48 |
+| 83 | 36 | 8.36 ± 1.07 |
+| 178 | 5 | 5.22 ± 1.80 |
+
+### Answer
+
+The cluster does **not** stop at the edge of our data, and the profile does not keep falling.
+Our outermost Gaia point is 0.231 mas/yr = 5.96 km/s at 57 pc. Beyond it the dispersion
+**flattens at 6-8 km/s** out to at least 200 pc, on both the narrow-window proper motions and
+the spectroscopy independently. The flattening sets in around 50-100 pc, which is where
+r_J(peri) = 90 pc sits.
+
+A plateau at the Jacobi radius is exactly the ambiguity this project exists to resolve:
+**potential escapers and unbound debris produce one, and so does a bound dark halo.** Neither
+can be preferred from these numbers alone, because the periphery samples have selection
+functions we have not modelled (WP6, the Kuzma 2025 footprint) and the outer bins hold 5 to
+50 stars.
+
+Code: `kinematics/periphery.py`, plot `plots/periphery_where_the_cluster_ends.png`, tests
+`tests/test_periphery.py`. No fits were run.
