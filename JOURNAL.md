@@ -2673,3 +2673,79 @@ carry weight in a bound model.
 
 Code `selection/periphery_density.py`, plot `plots/periphery_overdensity.png`, tests
 `tests/test_periphery_density.py`. No fits run.
+
+## 2026-09-19 -- Pristine through our own mixture model, and the profile extended outwards
+
+User: "use pristine and our background + cluster models with gaia stars, extend the profiles
+outwards and compare." Done, in `kinematics/pristine_profile.py`.
+
+### What was built
+
+The same cluster-plus-field decomposition we use for Gaia, applied to the Pristine periphery
+catalogue with **no proper-motion selection at all**, which removes the circularity that made
+the earlier window-based numbers meaningless:
+
+* sample: every Pristine star with [Fe/H] < -1.2, a chemical cut independent of kinematics;
+* cluster: a two-dimensional Gaussian with its axes along each star's radial direction,
+  convolved with that star's full error covariance. The correlation coefficient comes from
+  `kuzma2025_periphery_gaia_covariance`, which is **not in the same row order** as the main
+  table and has to be joined on `source_id` (a positional join silently scrambles it; there
+  is a test for this);
+* field: an empirical two-dimensional proper-motion density built from the same catalogue
+  under the same metallicity cut, beyond 3.6 deg where the star-count excess is consistent
+  with zero;
+* fitted per annulus: the cluster fraction, both dispersions and both mean motions.
+
+The depth term is omitted: at most 0.003 mas/yr, an order below the statistical errors here,
+and the tracer model it needs is only calibrated inside 66 pc.
+
+### The comparison, on identical annuli
+
+Two catalogues, two selections, two field models, the same nine bins:
+
+| r (pc) | Gaia | Pristine | Pristine / Gaia | cluster stars | field fraction |
+|---|---|---|---|---|---|
+| 9.1 | 0.4789 ± 0.0373 | 0.5048 ± 0.0286 | 1.054 ± 0.101 | 86 | 0.000 |
+| 11.2 | 0.4497 ± 0.0191 | 0.4415 ± 0.0187 | 0.982 ± 0.059 | 181 | 0.000 |
+| 13.9 | 0.4350 ± 0.0064 | 0.4465 ± 0.0126 | 1.026 ± 0.033 | 381 | 0.000 |
+| 17.3 | 0.4016 ± 0.0060 | 0.4013 ± 0.0113 | 0.999 ± 0.032 | 424 | 0.002 |
+| 21.7 | 0.3614 ± 0.0054 | 0.3569 ± 0.0101 | 0.988 ± 0.032 | 443 | 0.007 |
+| 27.0 | 0.3204 ± 0.0047 | 0.3142 ± 0.0089 | 0.981 ± 0.031 | 337 | 0.023 |
+| 34.4 | 0.2934 ± 0.0084 | 0.2870 ± 0.0122 | 0.978 ± 0.050 | 181 | 0.072 |
+| 43.7 | 0.2523 ± 0.0089 | 0.2488 ± 0.0141 | 0.986 ± 0.066 | 105 | 0.161 |
+| 56.7 | 0.2314 ± 0.0138 | 0.2240 ± 0.0206 | 0.968 ± 0.106 | 38 | 0.310 |
+
+**Weighted mean ratio 0.995 ± 0.014.** Every bin is within 5 per cent. This is the strongest
+external check the outer Gaia measurement has had: nothing is shared between the two except
+the sky.
+
+### Extended outwards
+
+| r (pc) | N | field fraction | cluster stars | sigma (km/s) | usable |
+|---|---|---|---|---|---|
+| 34 | 396 | 0.08 | 364 | 7.25 ± 0.21 | yes |
+| 55 | 87 | 0.32 | 59 | 6.00 ± 0.47 | yes |
+| 74 | 66 | 0.76 | 16 | 5.90 ± 0.81 | yes |
+| 99 | 115 | 0.96 | 4.8 | 3.80 ± 1.39 | no |
+| 136 | 214 | 0.99 | 2.0 | 0.11 ± 0.00 | no |
+| 176 | 325 | 0.99 | 2.8 | 3.32 ± 0.98 | no |
+| 235 | 551 | 0.99 | 4.2 | 4.48 ± 1.20 | no |
+
+**The profile runs out of cluster, not out of signal-to-noise.** Beyond about 100 pc the
+fitted cluster fraction falls below 5 per cent and the mixture has two to five effective
+stars to work with; the 136 pc bin is degenerate and collapses to exactly zero. Those bins
+are flagged `reliable = False` and are drawn as open symbols, never as measurements. This is
+the same truncation the star counts found, seen from the kinematic side.
+
+### What this changes
+
+1. The fixed-window reading of the same catalogue rises from 6.6 to 12.6 km/s over
+   70-380 pc. The mixture, on the same stars, does not. **The rise was the window.**
+2. Where the mixture still has cluster stars, at 74 pc, it gives 5.90 ± 0.81 km/s and the
+   spectroscopy gives 6.12 ± 0.48 at 67 pc. The plateau at 6 km/s survives both an
+   independent catalogue and an independent tracer.
+3. The 8.36 ± 1.07 km/s spectroscopic point at 83 pc is **not** confirmed by the proper
+   motions, which give 5.9 ± 0.8 just outside it. With 36 stars against 16 that is a
+   1.6 sigma difference, not a conflict, but it should not be leaned on.
+
+Plot `plots/profile_extended_pristine.png`, tests `tests/test_pristine_profile.py`. No fits.

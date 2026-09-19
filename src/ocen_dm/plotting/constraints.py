@@ -33,7 +33,7 @@ from . import style
 from .style import add_arcsec_axis, add_pc_axis
 
 __all__ = ["plot_constraint_map", "plot_outer_tracer_audit", "plot_contamination_model", "plot_annulus_fits",
-           "plot_method_comparison", "plot_residual_significance", "plot_dataset_step", "plot_offset_explained", "plot_datasets_unscaled", "plot_hst_gaia_star_by_star", "hst_gaia_excess_table", "hst_gaia_overlap_table", "plot_pm_datasets", "plot_periphery", "plot_periphery_density",
+           "plot_method_comparison", "plot_residual_significance", "plot_dataset_step", "plot_offset_explained", "plot_datasets_unscaled", "plot_hst_gaia_star_by_star", "hst_gaia_excess_table", "hst_gaia_overlap_table", "plot_pm_datasets", "plot_periphery", "plot_periphery_density", "plot_extended_profile",
            "fit_quality_table", "annulus_fits", "our_outer_profile", "our_mixture_profile", "OUTER_EDGES"]
 
 #: log-spaced annuli for our own outer measurement (arcsec)
@@ -1295,6 +1295,93 @@ def plot_periphery_density(path: Path | str = "plots/periphery_overdensity.png",
     a2.set_xlabel("r  [pc]"); a2.set_ylabel("excess surface density  [stars deg$^{-2}$]")
     a2.legend(fontsize=8, loc="upper right")
     a2.set_title("The cluster truncates near the Jacobi radius", fontsize=10)
+    add_arcsec_axis(a2, distance_kpc, unit="arcmin")
+    fig.tight_layout()
+    path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
+    return path
+
+
+def plot_extended_profile(path: Path | str = "plots/profile_extended_pristine.png",
+                          distance_kpc: float = 5.43) -> Path:
+    """The dispersion profile extended outwards with Pristine, under our own mixture model.
+
+    Left: HST, our Gaia EDR3 measurement, the Pristine mixture measurement with no
+    proper-motion selection, the same catalogue read through a fixed proper-motion window for
+    contrast, and the spectroscopic line-of-sight points. Right: Pristine over Gaia on the
+    identical annuli, which is a like-for-like test of two independent catalogues, selections
+    and field models.
+    """
+    from ..kinematics.outer_gaia import load_edr3_profile
+    from ..kinematics.periphery import (KMS_PER_MASYR_KPC, R_JACOBI_PERI_PC,
+                                        periphery_los_profile, periphery_pm_profile)
+    from ..kinematics.likelihood import load_profile
+    from ..kinematics.pristine_profile import pristine_profile
+    style.apply()
+    k = KMS_PER_MASYR_KPC * distance_kpc
+    pc = lambda a: np.asarray(a, float) * distance_kpc * 1e3 / 206264.806
+    g = load_edr3_profile()
+    edges = np.array([300., 380., 460., 582., 737., 934., 1182., 1497., 1895., 2413.])
+    matched = pristine_profile(edges_deg=tuple(edges / 3600.0), min_stars=25)
+    wide = pristine_profile()
+
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(13.4, 5.8),
+                                 gridspec_kw={"width_ratios": [1.5, 1]})
+    hst = load_profile("hst_pm_combined")
+    a1.errorbar(pc(hst.r), np.asarray(hst.value) * k, yerr=np.asarray(hst.err_lo) * k,
+                fmt="o", ms=3.5, color=style.SERIES[1], lw=0.9, label="HST")
+    a1.errorbar(pc(g["r_median"]), np.asarray(g["sigma_pm"]) * k,
+                yerr=np.asarray(g["sigma_pm_err"]) * k, fmt="D-", ms=6.5, lw=2,
+                color=style.SERIES[0], capsize=3, label="Gaia EDR3, our mixture")
+    ok = np.asarray(wide["reliable"], bool)
+    a1.errorbar(np.asarray(wide["r_pc"])[ok], np.asarray(wide["sigma_kms"])[ok],
+                yerr=np.asarray(wide["sigma_kms_err"])[ok], fmt="^-", ms=9, lw=2,
+                color=style.SERIES[2], capsize=3, zorder=6,
+                label="Pristine, same mixture, no PM cut")
+    a1.errorbar(np.asarray(wide["r_pc"])[~ok], np.asarray(wide["sigma_kms"])[~ok],
+                yerr=np.asarray(wide["sigma_kms_err"])[~ok], fmt="^", ms=8, mfc="white",
+                color=style.SERIES[2], lw=1.1, alpha=0.75,
+                label="Pristine, fewer than 10 cluster stars: not a measurement")
+    w = periphery_pm_profile(0.8)
+    a1.plot(w["r_pc"], w["sigma_kms"], ":", color=style.INK_SECONDARY, lw=1.6,
+            label="Pristine read through a fixed 0.8 mas/yr window")
+    los = periphery_los_profile()
+    a1.errorbar(los["r_pc"], los["sigma_kms"], yerr=los["sigma_kms_err"], fmt="s", ms=8,
+                color=style.SERIES_EXTRA, lw=1.6, capsize=4, zorder=7,
+                label="spectroscopic $v_{\\rm los}$")
+    a1.axvline(R_JACOBI_PERI_PC, color=style.INK_SECONDARY, lw=1.2, ls="--")
+    a1.annotate("$r_J$ pericentre", (R_JACOBI_PERI_PC * 1.05, 4.2), rotation=90, fontsize=8,
+                color=style.INK_SECONDARY)
+    a1.axvspan(100, 260, color=style.COLOR_FIELD, alpha=0.22, lw=0)
+    a1.annotate("cluster fraction below 5 %:\nthe mixture has nothing to fit",
+                (160, 17), fontsize=8, color=style.INK_SECONDARY, ha="center")
+    a1.set_xscale("log"); a1.set_yscale("log")
+    a1.set_xlim(0.5, 300); a1.set_ylim(3, 24)
+    a1.set_yticks([4, 6, 8, 10, 15, 20]); a1.set_yticklabels(["4", "6", "8", "10", "15", "20"])
+    a1.set_xlabel("r  [pc]"); a1.set_ylabel("velocity dispersion  [km/s]")
+    a1.legend(fontsize=7.6, loc="lower left")
+    a1.set_title("Profile extended outwards with Pristine", fontsize=10.5)
+    add_arcsec_axis(a1, distance_kpc, unit="arcmin")
+
+    gr = pc(g["r_median"]); ratio, rerr = [], []
+    for row in matched:
+        j = int(np.argmin(np.abs(gr - row["r_pc"])))
+        gs, ge = float(g["sigma_pm"][j]), float(g["sigma_pm_err"][j])
+        ps, pe = float(row["sigma_pm"]), float(row["sigma_pm_err"])
+        ratio.append(ps / gs); rerr.append((ps / gs) * np.hypot(pe / ps, ge / gs))
+    ratio, rerr = np.array(ratio), np.array(rerr)
+    wmean = np.sum(ratio / rerr ** 2) / np.sum(1 / rerr ** 2)
+    wsig = 1 / np.sqrt(np.sum(1 / rerr ** 2))
+    a2.axhline(1.0, color=style.INK_SECONDARY, lw=2)
+    a2.axhspan(wmean - wsig, wmean + wsig, color=style.SERIES[2], alpha=0.18, lw=0)
+    a2.axhline(wmean, color=style.SERIES[2], lw=1.6, ls="--",
+               label="weighted mean %.3f $\\pm$ %.3f" % (wmean, wsig))
+    a2.errorbar(matched["r_pc"], ratio, yerr=rerr, fmt="o", ms=7, color=style.SERIES[2],
+                lw=1.5, capsize=3)
+    a2.set_xscale("log"); a2.set_xlabel("r  [pc]")
+    a2.set_ylabel("Pristine / Gaia, identical annuli")
+    a2.set_ylim(0.78, 1.22); a2.legend(fontsize=8.5, loc="upper left")
+    a2.set_title("Two catalogues, two field models, one answer", fontsize=10.5)
     add_arcsec_axis(a2, distance_kpc, unit="arcmin")
     fig.tight_layout()
     path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
