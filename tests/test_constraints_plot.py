@@ -176,3 +176,30 @@ def test_hst_and_gaia_do_not_join_smoothly(tmp_path):
     assert hr["r_upper"][-1] < 350
     p = plot_dataset_step(tmp_path / "step.png")
     assert p.exists() and p.stat().st_size > 60_000
+
+
+@pytest.mark.skipif(not (_HAS_RUNS and _HAS_MEMBERS), reason="runs or members missing")
+def test_model_anisotropy_disagrees_with_the_data_in_the_outskirts(tmp_path):
+    """The K1 model is radial at every radius; the measurement turns tangential beyond ~1 kpc
+    of arcsec. That mismatch is where the outer excess lives."""
+    import json
+    from ocen_dm.kinematics.report import _family_for
+    from ocen_dm.paths import results_dir
+    from ocen_dm.plotting.constraints import OUTER_EDGES, our_mixture_profile, plot_offset_explained
+
+    summary = json.loads((results_dir() / "fits" / "K1_noDM_composite" / "summary.json").read_text())
+    fam = _family_for(summary)
+    x = np.array([summary["parameters"][n]["ml"] for n in fam.names])
+    jeans, D, _ = fam.build(fam.to_dict(x))
+    pc = D * 1e3 / 206264.806
+    mix = our_mixture_profile(OUTER_EDGES)
+    r = np.asarray(mix["r_median"])
+    model = np.array([jeans.dispersions_kms(np.array([rr * pc]))["pmt"][0]
+                      / jeans.dispersions_kms(np.array([rr * pc]))["pmr"][0] for rr in r])
+    meas = np.asarray(mix["sigma_pmt"]) / np.asarray(mix["sigma_pmr"])
+    inner = (r > 400) & (r < 800); outer = r > 1300
+    assert np.all(np.abs(model[inner] - meas[inner]) < 0.06)     # they agree where HST anchors the fit
+    assert np.all(model[outer] < 0.92) and np.all(meas[outer] > 1.0)
+    assert (meas[outer] - model[outer]).min() > 0.10             # and disagree by > 0.1 in the outskirts
+    p = plot_offset_explained(tmp_path / "offset.png")
+    assert p.exists() and p.stat().st_size > 60_000
