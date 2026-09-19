@@ -2372,3 +2372,60 @@ Proposed, for agreement before implementation:
 
 Until then, every outer-dispersion number in this journal before today stands 4-6 per cent
 high in the 460-1000 arcsec range.
+
+### Follow-up: is the error inflation actually the right fix?
+
+Applying their `eta` makes our numbers match theirs, but matching a curve is not evidence.
+Their own non-circular validation (their Figure 6) is that a correct error model makes the
+**error-deconvolved dispersion independent of magnitude**. Running that test on our annuli:
+
+| annulus | median eta | sigma(G>19)/sigma(G<17), raw errors | with eta |
+|---|---|---|---|
+| 460-700" | 1.129 | 1.114 ± 0.023 | 0.954 ± 0.023 |
+| 700-1000" | 1.118 | 1.135 ± 0.019 | 0.980 ± 0.018 |
+| 1000-1500" | 1.078 | 1.077 ± 0.022 | 0.951 ± 0.021 |
+| 1500-2400" | 1.045 | 0.985 ± 0.039 | 0.878 ± 0.038 |
+
+Raw errors are **under**-estimated for faint stars, as they say. But their density-only
+`eta` **over**-corrects: the ratio goes from 1.11 to 0.95, overshooting 1.00. Their own
+Figure 5 shows `eta` depends on magnitude as well as density, and they adopted the
+density-only form for simplicity; the residual shows where that costs something. So `eta` is
+a better error model than the raw one, not a correct one.
+
+Split by magnitude at 460-1000 arcsec, the whole argument becomes visible:
+
+| G | N | median error | sigma, raw | sigma, with eta |
+|---|---|---|---|---|
+| 13-16 | 1386 | 0.031 | 0.3864 | 0.3860 |
+| 16-17.5 | 2339 | 0.084 | 0.3903 | 0.3878 |
+| 17.5-19 | 13438 | 0.188 | 0.3911 | 0.3786 |
+| 19-20 | 13880 | 0.397 | 0.4127 | 0.3632 |
+| 20-21 | 6819 | 0.805 | 0.4598 | 0.2703 |
+
+For bright stars the error is a tenth of the signal and the error model is irrelevant: 0.386
+either way. For G > 19 the error exceeds the dispersion and the answer is whatever the error
+model says, swinging from 0.46 to 0.27. **The 4-6 per cent discrepancy never existed in the
+well-measured stars; it lived entirely in the faint majority, where the measurement is a
+statement about the error model rather than about the cluster.**
+
+### The measurement to trust
+
+`low_noise_profile()` keeps only stars with `err < 0.4 sigma(R)`, where an `eta` rescaling can
+move the answer by at most about 2 per cent by construction, and reports both versions:
+
+| r (arcsec) | N | theirs | ours, raw | ours, with eta | shift |
+|---|---|---|---|---|---|
+| 518 | 1101 | 0.4390 | 0.4437 (+1.1 %) | 0.4403 (+0.3 %) | 0.8 % |
+| 626 | 2027 | 0.4078 | 0.4099 (+0.5 %) | 0.4060 (-0.4 %) | 0.9 % |
+| 766 | 2420 | 0.3722 | 0.3761 (+1.1 %) | 0.3726 (+0.1 %) | 1.0 % |
+| 935 | 2045 | 0.3384 | 0.3392 (+0.2 %) | 0.3365 (-0.6 %) | 0.8 % |
+| 1152 | 1373 | 0.3060 | 0.3083 (+0.7 %) | 0.3062 (+0.1 %) | 0.7 % |
+
+Ours and theirs agree to about 1 per cent from 520 to 1150 arcsec **whichever error model is
+used**, at the cost of keeping roughly 15 per cent of the stars. Statistical errors are
+0.004-0.007 mas/yr, still far below their spline's quoted 0.002-0.003 but honest.
+
+Revised proposal, replacing yesterday's: rather than adopting `eta` (which over-corrects) or
+keeping raw errors (which under-correct), build the outer profile from the low-noise subset
+and quote the `eta`-on/off spread as a systematic. That keeps every outer point independent
+of an error model we have just shown to be imperfect.

@@ -43,7 +43,7 @@ from ..paths import processed_dir
 from .outer_profile import dispersion_ml, load_members
 
 __all__ = ["ETA_COEFFS", "KAPPA", "ETA_FLOOR", "error_inflation", "low_error_mask",
-           "published_profile", "replication_table"]
+           "published_profile", "replication_table", "magnitude_consistency", "low_noise_profile"]
 
 #: (Sigma_0 [stars/arcmin^2], zeta) for the 'clean' 5p and 6p subsets, their Table 1
 ETA_COEFFS = {"5p": (10.0, 0.04), "6p": (5.0, 0.04)}
@@ -107,3 +107,82 @@ def replication_table(edges: np.ndarray | None = None, prob_min: float = 0.9,
     return Table(rows=rows, names=("r_lower", "r_median", "r_upper", "n_stars", "n_low_error",
                                    "median_eta", "sigma_published", "sigma_raw", "raw_ratio",
                                    "sigma_eta", "eta_ratio", "sigma_eta_lowerr", "eta_lowerr_ratio"))
+
+
+def magnitude_consistency(annuli=((460., 700.), (700., 1000.), (1000., 1500.), (1500., 2400.)),
+                          g_bright: float = 17.0, g_faint: float = 19.0,
+                          prob_min: float = 0.9, distance_kpc: float = 5.43) -> Table:
+    """Is the error model right? A correct one makes the deconvolved sigma independent of G.
+
+    This is the authors' own validation (their Figure 6) and it is not circular: it never
+    refers to their profile. Measured 2026-09-19: with the raw catalogue errors faint stars
+    give 8-14 per cent more dispersion than bright ones, so the errors are underestimated;
+    with ``eta`` applied they give 2-5 per cent *less*, so the density-only ``eta``
+    over-corrects at the faint end. Neither error model is right for faint stars, which is
+    why :func:`low_noise_profile` exists.
+    """
+    cat = Table.read(processed_dir() / "tails" / "vasiliev2021_ocen_members.ecsv")
+    s = load_members(exact=True, distance_kpc=distance_kpc)
+    qf = np.asarray(cat["quality_flag"], int)
+    eta = error_inflation(np.asarray(cat["source_density"], float), (qf & 1) > 0)
+    clean = (qf & 2) > 0
+    ones = np.ones_like(eta)
+
+    def sig(m, sc):
+        a = dispersion_ml(s.mu_r[m], s.err_r[m] * sc[m]); b = dispersion_ml(s.mu_t[m], s.err_t[m] * sc[m])
+        return float(np.sqrt(0.5 * (a[0] ** 2 + b[0] ** 2))), float(0.5 * np.hypot(a[1], b[1]))
+
+    rows = []
+    for lo, hi in annuli:
+        base = clean & (s.prob > prob_min) & (s.r_arcsec >= lo) & (s.r_arcsec < hi)
+        b, f = base & (s.g_mag < g_bright), base & (s.g_mag > g_faint)
+        if b.sum() < 30 or f.sum() < 30:
+            continue
+        out = []
+        for sc in (ones, eta):
+            sb, eb = sig(b, sc); sf, ef = sig(f, sc)
+            out += [sf / sb, (sf / sb) * float(np.hypot(eb / sb, ef / sf))]
+        rows.append((lo, hi, int(b.sum()), int(f.sum()), float(np.median(eta[base])), *out))
+    return Table(rows=rows, names=("r_lower", "r_upper", "n_bright", "n_faint", "median_eta",
+                                   "faint_over_bright_raw", "faint_over_bright_raw_err",
+                                   "faint_over_bright_eta", "faint_over_bright_eta_err"))
+
+
+def low_noise_profile(edges: np.ndarray | None = None, err_max_frac: float = 0.4,
+                      prob_min: float = 0.9, distance_kpc: float = 5.43) -> Table:
+    """Dispersion from stars whose errors are small next to the signal, where the error model
+    cannot matter.
+
+    With ``err < err_max_frac * sigma(R)`` an error rescaling by ``eta`` can move the
+    deconvolved dispersion by at most ``err_max_frac**2 * (eta**2 - 1) / 2``, about 2 per cent
+    for ``err_max_frac = 0.4`` and ``eta = 1.13``. The ``sigma_raw`` and ``sigma_eta`` columns
+    bracket it explicitly. Measured 2026-09-19: the two differ by under 1 per cent and both
+    agree with the published profile to about 1 per cent from 520 to 1150 arcsec, so the
+    4-6 per cent discrepancy never lived in the well-measured stars.
+    """
+    edges = np.geomspace(300.0, 2400.0, 11) if edges is None else np.asarray(edges, float)
+    rp, sp = published_profile()
+    cat = Table.read(processed_dir() / "tails" / "vasiliev2021_ocen_members.ecsv")
+    s = load_members(exact=True, distance_kpc=distance_kpc)
+    qf = np.asarray(cat["quality_flag"], int)
+    eta = error_inflation(np.asarray(cat["source_density"], float), (qf & 1) > 0)
+    clean = (qf & 2) > 0
+    ones = np.ones_like(eta)
+    err = 0.5 * (s.err_r + s.err_t)
+    keep = err < err_max_frac * np.interp(s.r_arcsec, rp, sp)
+
+    def sig(m, sc):
+        a = dispersion_ml(s.mu_r[m], s.err_r[m] * sc[m]); b = dispersion_ml(s.mu_t[m], s.err_t[m] * sc[m])
+        return float(np.sqrt(0.5 * (a[0] ** 2 + b[0] ** 2))), float(0.5 * np.hypot(a[1], b[1]))
+
+    rows = []
+    for lo, hi in zip(edges[:-1], edges[1:]):
+        m = clean & (s.prob > prob_min) & (s.r_arcsec >= lo) & (s.r_arcsec < hi) & keep
+        if m.sum() < 30:
+            continue
+        rm = float(np.median(s.r_arcsec[m])); pv = float(np.interp(rm, rp, sp))
+        a, ea = sig(m, ones); b, _ = sig(m, eta)
+        rows.append((lo, rm, hi, int(m.sum()), pv, a, ea, a / pv, b, b / pv, abs(b / a - 1.0)))
+    return Table(rows=rows, names=("r_lower", "r_median", "r_upper", "n_stars", "sigma_published",
+                                   "sigma_raw", "sigma_err", "raw_ratio", "sigma_eta", "eta_ratio",
+                                   "error_model_sensitivity"))
