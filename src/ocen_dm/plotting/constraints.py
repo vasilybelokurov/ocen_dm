@@ -33,7 +33,7 @@ from . import style
 from .style import add_arcsec_axis, add_pc_axis
 
 __all__ = ["plot_constraint_map", "plot_outer_tracer_audit", "plot_contamination_model", "plot_annulus_fits",
-           "plot_method_comparison", "plot_residual_significance", "plot_dataset_step", "plot_offset_explained", "plot_datasets_unscaled", "plot_hst_gaia_star_by_star", "hst_gaia_excess_table", "hst_gaia_overlap_table", "plot_pm_datasets", "plot_periphery",
+           "plot_method_comparison", "plot_residual_significance", "plot_dataset_step", "plot_offset_explained", "plot_datasets_unscaled", "plot_hst_gaia_star_by_star", "hst_gaia_excess_table", "hst_gaia_overlap_table", "plot_pm_datasets", "plot_periphery", "plot_periphery_density",
            "fit_quality_table", "annulus_fits", "our_outer_profile", "our_mixture_profile", "OUTER_EDGES"]
 
 #: log-spaced annuli for our own outer measurement (arcsec)
@@ -1222,6 +1222,80 @@ def plot_periphery(path: Path | str = "plots/periphery_where_the_cluster_ends.pn
     ax.set_title("Where does $\\omega$ Cen stop? The dispersion flattens near the Jacobi radius",
                  fontsize=11)
     add_arcsec_axis(ax, distance_kpc)
+    fig.tight_layout()
+    path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
+    return path
+
+
+def plot_periphery_density(path: Path | str = "plots/periphery_overdensity.png",
+                           distance_kpc: float = 5.43) -> Path:
+    """Are the stars measured in the periphery actually there? A star-count test.
+
+    Left: the sky distribution of cluster-like stars, selected on proper motion and CaHK
+    metallicity, with the spectroscopic members overplotted and the preferred axis of the
+    outermost candidates drawn. Right: their background-subtracted surface density against
+    radius, with the background measured from eight control windows in proper-motion space.
+    """
+    from ..kinematics.periphery import (GAIA_EDGE_DEG, R_JACOBI_PERI_PC, periphery_los_profile)
+    from ..selection.periphery_density import (TAIL_AXIS_PA_DEG, along_across, axial_rayleigh,
+                                               candidate_masks, density_profile, load_periphery)
+    style.apply()
+    t, r, th = load_periphery()
+    sig, _ = candidate_masks(t)
+    prof = density_profile()
+    rj_deg = R_JACOBI_PERI_PC / (distance_kpc * 1e3) * 180 / np.pi
+
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(13.2, 5.9))
+    x = (np.asarray(t["ra"], float) - OCEN_RA) * np.cos(np.radians(OCEN_DEC))
+    y = np.asarray(t["dec"], float) - OCEN_DEC
+    far = r > 5.2
+    a1.scatter(x[sig & ~far], y[sig & ~far], s=14, color=style.SERIES[0], alpha=0.85,
+               label="cluster-like: PM within 0.8 mas/yr and [Fe/H] < $-$1.2")
+    spec = Table.read(processed_dir() / "tails" / "kuzma2026_spectroscopy.ecsv")
+    sx = (np.asarray(spec["ra"], float) - OCEN_RA) * np.cos(np.radians(OCEN_DEC))
+    sy = np.asarray(spec["dec"], float) - OCEN_DEC
+    sm = np.asarray(spec["member_flag"]) == "True"
+    a1.scatter(sx[sm], sy[sm], s=34, facecolors="none", edgecolors=style.SERIES[2], lw=1.4,
+               label="spectroscopic members")
+    for rad, lab, ls in ((GAIA_EDGE_DEG, "Gaia edge", "-"), (rj_deg, "$r_J$ pericentre", "--")):
+        a1.add_patch(plt.Circle((0, 0), rad, fill=False, color=style.INK_SECONDARY, lw=1.3, ls=ls))
+        a1.annotate(lab, (0, rad), fontsize=8, color=style.INK_SECONDARY, ha="center", va="bottom")
+    ang = np.radians(TAIL_AXIS_PA_DEG)
+    a1.plot([-5.2 * np.cos(ang), 5.2 * np.cos(ang)], [-5.2 * np.sin(ang), 5.2 * np.sin(ang)],
+            color=style.SERIES[1], lw=1.6, ls="-.", alpha=0.8,
+            label="preferred axis of the outer candidates (PA %.0f$^\\circ$)" % TAIL_AXIS_PA_DEG)
+    a1.set_xlim(5.4, -5.4); a1.set_ylim(-5.4, 5.4); a1.set_aspect("equal")
+    a1.set_xlabel(r"$\Delta\alpha\cos\delta$  [deg]"); a1.set_ylabel(r"$\Delta\delta$  [deg]")
+    a1.legend(fontsize=7.6, loc="upper left"); a1.set_title("Where the candidates are", fontsize=10)
+
+    ok = np.asarray(prof["excess"]) > 0
+    a2.errorbar(np.asarray(prof["r_pc"])[ok], np.asarray(prof["excess"])[ok],
+                yerr=np.asarray(prof["excess_err"])[ok], fmt="o-", ms=7, lw=1.8,
+                color=style.SERIES[0], capsize=3, label="excess over the control windows")
+    for row in prof:
+        if row["significance"] > 1.5:
+            a2.annotate("%.1f$\\sigma$" % row["significance"], (row["r_pc"], row["excess"]),
+                        textcoords="offset points", xytext=(6, 8), fontsize=8, color=style.SERIES[0])
+    a2.axhline(0, color=style.INK_SECONDARY, lw=1)
+    for i, row in enumerate(periphery_los_profile()):
+        a2.axvline(row["r_pc"], color=style.SERIES[2], lw=1.1, ls=":", alpha=0.9)
+        a2.annotate("%d spec.\nstars" % row["n_stars"], (row["r_pc"] * 0.97, (150, 40, 150)[i % 3]),
+                    fontsize=7.5, color=style.SERIES[2], ha="right", rotation=0)
+    a2.axvline(R_JACOBI_PERI_PC, color=style.INK_SECONDARY, lw=1.3, ls="--")
+    a2.annotate("$r_J$ pericentre", (R_JACOBI_PERI_PC * 1.04, 0.8), rotation=90, fontsize=8,
+                color=style.INK_SECONDARY)
+    aa = along_across()
+    a2.annotate("beyond 133 pc the circular average is empty,\nbut along PA %.0f$^\\circ$ the excess is "
+                "%.2f $\\pm$ %.2f /deg$^2$ (%.1f$\\sigma$)\nagainst %.2f across it"
+                % (TAIL_AXIS_PA_DEG, aa["excess"][0], aa["excess_err"][0], aa["significance"][0],
+                   aa["excess"][1]), (0.97, 0.62), xycoords="axes fraction", ha="right",
+                fontsize=8, color=style.SERIES[1])
+    a2.set_xscale("log"); a2.set_yscale("log"); a2.set_ylim(0.05, 300); a2.set_xlim(45, 520)
+    a2.set_xlabel("r  [pc]"); a2.set_ylabel("excess surface density  [stars deg$^{-2}$]")
+    a2.legend(fontsize=8, loc="upper right")
+    a2.set_title("The cluster truncates near the Jacobi radius", fontsize=10)
+    add_arcsec_axis(a2, distance_kpc, unit="arcmin")
     fig.tight_layout()
     path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)

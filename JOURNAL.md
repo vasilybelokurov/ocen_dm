@@ -2619,3 +2619,57 @@ functions we have not modelled (WP6, the Kuzma 2025 footprint) and the outer bin
 
 Code: `kinematics/periphery.py`, plot `plots/periphery_where_the_cluster_ends.png`, tests
 `tests/test_periphery.py`. No fits were run.
+
+### Follow-up: is there actually an overdensity out there?
+
+User: "have we tried detecting an overdensity of cluster-like stars at radii corresponding to
+the green points (spectroscopic)?" We had not. The project measured star counts against the
+MGE out to 42 arcmin (JOURNAL, light profile validation) and stopped; there was never a
+background-subtracted excess test at the radii the spectroscopy reaches.
+
+**Method** (`selection/periphery_density.py`). Pristine periphery catalogue, G0 < 16, uniform
+coverage: the all-star surface density varies by only 6 per cent between 0.67 and 5.1 deg
+(1785 to 2016 per square degree), so counts divided by annulus area need no footprint
+correction. Cluster-like means both a proper motion within 0.8 mas/yr of systemic **and**
+[Fe/H] < -1.2, the field median being -0.26 against -1.49 for the cluster's inner stars. The
+background is measured, not assumed: the identical selection is repeated in **eight control
+windows** of the same radius placed at the same distance from the field's own proper-motion
+centroid.
+
+| annulus | r (pc) | N | density | background | excess | significance |
+|---|---|---|---|---|---|---|
+| 0.50-0.70° | 57 | 59 | 78.25 | 0.17 | 78.1 ± 10.2 | **7.7σ** |
+| 0.70-0.90° | 76 | 16 | 15.92 | 0.00 | 15.9 ± 4.0 | **4.0σ** |
+| 0.90-1.20° | 100 | 5 | 2.53 | 0.00 | 2.5 ± 1.1 | **2.2σ** |
+| 1.20-1.60° | 133 | 3 | 0.85 | 0.25 | 0.60 ± 0.51 | 1.2σ |
+| 1.60-2.10° | 175 | 3 | 0.52 | 0.30 | 0.22 ± 0.31 | 0.7σ |
+| 2.10-2.80° | 232 | 5 | 0.46 | 0.23 | 0.23 ± 0.23 | 1.0σ |
+| 2.80-3.60° | 303 | 6 | 0.37 | 0.19 | 0.19 ± 0.16 | 1.2σ |
+| 3.60-4.40° | 379 | 4 | 0.20 | 0.32 | -0.12 ± 0.13 | -0.9σ |
+| 4.40-5.10° | 450 | 5 | 0.24 | 0.20 | 0.04 ± 0.11 | 0.3σ |
+
+**Answer.** Yes, and it lands where it matters. The two spectroscopic points that carry the
+kinematic plateau sit on a 7.7σ excess at 57 pc and a 4.0σ excess at 76 pc, with 2.2σ still
+present at 100 pc. Those stars are omega Cen's. The third spectroscopic point (178 pc, 5
+stars) has **no** support in a circular average.
+
+The density falls as r^-6 between 57 and 100 pc, so the stellar component **truncates**, and
+it truncates right where r_J(peri) = 90 pc sits.
+
+**But a circular average dilutes a tail.** Beyond 1.6 deg the 23 surviving candidates are not
+isotropic: an axial Rayleigh test gives a preferred axis at position angle 148° with
+p = 0.016, and the along-axis excess is 0.34 ± 0.16 per square degree against -0.02 ± 0.10
+across it (2.1σ). The spectroscopic members beyond 1.2 deg lie on that same axis, at position
+angles -32°, -24°, -19°, 149°, 149° -- a bipolar arrangement. That is what tidal tails look
+like. The axis was chosen after seeing the data and the result is 2σ, so it is a lead, not a
+detection, and the proper test needs the Kuzma selection function (WP6).
+
+**Consequence for the dark-matter question.** The stellar tracer truncates at the Jacobi
+radius while the velocity dispersion flattens at 6-8 km/s across the same range. A truncated
+tracer with a flat dispersion is precisely the configuration in which the mass inside is
+degenerate with what the tracer is doing, and it is also what unbound debris produces. The
+two spectroscopic points with real density support (57 and 76 pc) are the only ones that can
+carry weight in a bound model.
+
+Code `selection/periphery_density.py`, plot `plots/periphery_overdensity.png`, tests
+`tests/test_periphery_density.py`. No fits run.
