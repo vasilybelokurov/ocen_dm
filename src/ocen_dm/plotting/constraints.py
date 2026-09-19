@@ -33,7 +33,7 @@ from . import style
 from .style import add_arcsec_axis, add_pc_axis
 
 __all__ = ["plot_constraint_map", "plot_outer_tracer_audit", "plot_contamination_model", "plot_annulus_fits",
-           "plot_method_comparison", "plot_residual_significance", "plot_dataset_step", "plot_offset_explained", "plot_datasets_unscaled", "plot_hst_gaia_star_by_star", "hst_gaia_excess_table", "hst_gaia_overlap_table", "plot_pm_datasets", "plot_periphery", "plot_periphery_density", "plot_extended_profile", "plot_master_datasets", "plot_hst_gaia_overlap", "hst_gaia_overlap_profile",
+           "plot_method_comparison", "plot_residual_significance", "plot_dataset_step", "plot_offset_explained", "plot_datasets_unscaled", "plot_hst_gaia_star_by_star", "hst_gaia_excess_table", "hst_gaia_overlap_table", "plot_pm_datasets", "plot_periphery", "plot_periphery_density", "plot_extended_profile", "plot_master_datasets", "plot_hst_gaia_overlap", "hst_gaia_overlap_profile", "hst_gaia_overlap_tests",
            "fit_quality_table", "annulus_fits", "our_outer_profile", "our_mixture_profile", "OUTER_EDGES"]
 
 #: log-spaced annuli for our own outer measurement (arcsec)
@@ -1556,83 +1556,130 @@ def hst_gaia_overlap_profile(edges_arcsec=(300.0, 380.0, 460.0)) -> Table:
                                    "f_unflagged"))
 
 
+def hst_gaia_overlap_tests(distance_kpc: float = 5.43) -> Table:
+    """Three routes to the same comparison, differing in how HST's unflagged stars are used.
+
+    1. ``300-340", both flagged`` -- HST's own quality flag and Gaia's, nothing corrected.
+       The two samples land at 311 and 318 arcsec, so the radius correction is negligible.
+    2. ``300-380", both flagged`` -- triples the Gaia sample; HST still flagged-only, so its
+       effective radius stays at 311 arcsec and a 45-arcsec slope correction does part of
+       the work.
+    3. ``300-460", HST corrected`` -- uses HST's unflagged stars with the
+       ``1 + f_unflagged (k - 1)`` correction, the only route that reaches 460 arcsec.
+    """
+    from ..kinematics.hst_profile import hst_profile
+    from ..kinematics.outer_gaia import load_edr3_profile
+    from ..kinematics.outer_profile import dispersion_2d, load_members
+    from ..kinematics.vb2021_replication import published_profile
+    from ..selection.field_template import field_density_2d
+    rp, sp = published_profile(); keep = rp > 0
+    grid = np.gradient(np.log(sp[keep]), np.log(rp[keep]))
+    slope = lambda r: float(np.interp(r, rp[keep], grid))
+
+    cat = Table.read(processed_dir() / "tails" / "vasiliev2021_ocen_members.ecsv")
+    s = load_members(exact=True, distance_kpc=distance_kpc)
+    qf = np.asarray(cat["quality_flag"], int)
+    err = 0.5 * (s.err_r + s.err_t)
+    usable = ((qf & 2) > 0) & (err < 0.4 * np.interp(s.r_arcsec, rp, sp))
+    dens = field_density_2d()
+
+    def gaia(lo, hi):
+        m = usable & (s.r_arcsec >= lo) & (s.r_arcsec < hi)
+        o = dispersion_2d(s, m, dens, depth_var=0.0, field_at=s.absolute_pm)
+        return (int(m.sum()), float(np.median(s.r_arcsec[m])),
+                float(np.sqrt(0.5 * (o["sigma_r"] ** 2 + o["sigma_t"] ** 2))),
+                float(0.5 * np.hypot(o["sigma_r_err"], o["sigma_t_err"])))
+
+    rows = []
+    for label, lo, hi, flag_only in (("300-340\"\nboth flagged", 300., 340., True),
+                                     ("300-380\"\nboth flagged", 300., 380., True),
+                                     ("300-460\"\nHST corrected", 300., 460., False)):
+        h = hst_profile(edges_arcsec=(lo, hi), require_flag=flag_only,
+                        correct_unflagged=not flag_only, min_stars=50)[0]
+        ng, rg, sg, eg = gaia(lo, hi)
+        mid = float(np.sqrt(lo * hi)); sl = slope(mid)
+        hc = float(h["sigma_pm"]) * (mid / float(h["r_median"])) ** sl
+        gc = sg * (mid / rg) ** sl
+        ratio = gc / hc
+        rerr = ratio * float(np.hypot(eg / sg, h["sigma_pm_err"] / h["sigma_pm"]))
+        rows.append((label, lo, hi, int(h["n_stars"]), float(h["r_median"]),
+                     float(h["sigma_pm"]), float(h["sigma_pm_err"]), ng, rg, sg, eg,
+                     ratio, rerr, bool(flag_only)))
+    return Table(rows=rows, names=("label", "r_lower", "r_upper", "n_hst", "r_hst", "sigma_hst",
+                                   "sigma_hst_err", "n_gaia", "r_gaia", "sigma_gaia",
+                                   "sigma_gaia_err", "ratio", "ratio_err", "flagged_only"))
+
+
 def plot_hst_gaia_overlap(path: Path | str = "plots/hst_gaia_overlap.png",
                           distance_kpc: float = 5.43) -> Path:
-    """The overlap between HST and Gaia EDR3, which exists once HST is measured, not read.
+    """The HST/Gaia overlap, built from each survey's own quality selection.
 
-    The published oMEGACat profile stops at 300 arcsec, but the catalogue carries proper
-    motions to 466. Measuring HST ourselves over the same annuli Gaia uses produces a genuine
-    two-bin overlap at 300-460 arcsec, where the two instruments can finally be compared on
-    the same stars' radii rather than across a gap.
+    Left: HST measured from flagged stars alone, which reaches 340 arcsec, against Gaia,
+    which starts at 300. The extension to 466 arcsec using HST's rejected stars is drawn
+    faintly as a cross-check, not as a measurement. Right: the comparison by three routes
+    that treat those rejected stars differently.
     """
     from ..kinematics.hst_profile import hst_profile
     from ..kinematics.likelihood import load_profile
     from ..kinematics.outer_gaia import load_edr3_profile
-    from ..kinematics.periphery import KMS_PER_MASYR_KPC
     from .style import dataset_label, dataset_style
     style.apply()
-    k = KMS_PER_MASYR_KPC * distance_kpc
-    fine = hst_profile(edges_arcsec=(150., 200., 250., 300., 340., 380., 420., 466.))
+    flagged = hst_profile(edges_arcsec=(150., 200., 250., 300., 340.), require_flag=True,
+                          correct_unflagged=False)
+    extended = hst_profile(edges_arcsec=(340., 380., 420., 466.), correct_unflagged=True)
     g = load_edr3_profile()
     pub = load_profile("hst_pm_combined")
-    ov = hst_gaia_overlap_profile()
+    tests = hst_gaia_overlap_tests(distance_kpc)
 
-    fig, (a1, a2) = plt.subplots(1, 2, figsize=(13.2, 5.6),
-                                 gridspec_kw={"width_ratios": [1.6, 1]})
-    a1.axvspan(300, 460, color=style.SERIES[2], alpha=0.13, lw=0)
-    a1.annotate("the overlap:\n300-460 arcsec", (372, 0.30), fontsize=9.5, ha="center",
-                color=style.SERIES[2])
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(13.4, 5.7),
+                                 gridspec_kw={"width_ratios": [1.55, 1]})
+    a1.axvspan(300, 340, color=style.SERIES[2], alpha=0.18, lw=0)
+    a1.annotate("the overlap\n300-340\"", (319, 0.745), fontsize=9.5, ha="center",
+                va="top", color=style.SERIES[2])
     a1.errorbar(pub.r, np.asarray(pub.value), yerr=np.asarray(pub.err_lo), linestyle="none",
-                lw=0.9, label="HST, published oMEGACat profile (stops at 300\")",
+                lw=0.9, label="HST, published oMEGACat profile (ends at 300\")",
                 **dataset_style("hst", size=4.0, fitted=False))
-    fine_raw = hst_profile(edges_arcsec=(150., 200., 250., 300., 340., 380., 420., 466.),
-                           correct_unflagged=False)
-    a1.plot(fine_raw["r_median"], fine_raw["sigma_pm"], ls=":", lw=1.4, color=style.SERIES[1],
-            alpha=0.6, label="HST, ours, before the unflagged-star correction")
-    a1.errorbar(fine["r_median"], fine["sigma_pm"], yerr=fine["sigma_pm_err"], linestyle="-",
-                lw=1.8, capsize=3, zorder=6, label="HST, our measurement (to 466\")",
-                **dataset_style("hst", size=8))
-    a1.errorbar(g["r_median"][:4], g["sigma_pm"][:4], yerr=g["sigma_pm_err"][:4], linestyle="-",
-                lw=1.8, capsize=3, zorder=6, label=dataset_label("gaia_edr3"),
-                **dataset_style("gaia_edr3", size=8))
+    a1.errorbar(flagged["r_median"], flagged["sigma_pm"], yerr=flagged["sigma_pm_err"],
+                linestyle="-", lw=2, capsize=3, zorder=6,
+                label="HST, ours, flagged stars only (to 340\")",
+                **dataset_style("hst", size=8.5))
+    a1.errorbar(extended["r_median"], extended["sigma_pm"], yerr=extended["sigma_pm_err"],
+                linestyle=":", lw=1.4, capsize=3,
+                label="HST, rejected stars with the 8 % correction (cross-check only)",
+                **dataset_style("hst", size=7, fitted=False))
+    a1.errorbar(g["r_median"][:4], g["sigma_pm"][:4], yerr=g["sigma_pm_err"][:4],
+                linestyle="-", lw=2, capsize=3, zorder=6, label=dataset_label("gaia_edr3"),
+                **dataset_style("gaia_edr3", size=8.5))
     a1.axvline(340, color=style.INK_SECONDARY, lw=1, ls=":")
-    a1.annotate("HST quality flag ends", (346, 0.62), rotation=90, fontsize=7.5,
+    a1.annotate("HST quality flag ends", (347, 0.70), rotation=90, fontsize=7.5,
                 color=style.INK_SECONDARY, va="top")
     a1.set_xscale("log"); a1.set_yscale("log")
-    a1.set_xlim(140, 700); a1.set_ylim(0.28, 0.80)
+    a1.set_xlim(140, 700); a1.set_ylim(0.30, 0.78)
     a1.set_yticks([0.3, 0.4, 0.5, 0.6, 0.7]); a1.set_yticklabels(["0.3", "0.4", "0.5", "0.6", "0.7"])
     a1.set_xlabel("R  [arcsec]"); a1.set_ylabel("1-D PM dispersion  [mas/yr]")
-    a1.legend(fontsize=8.2, loc="lower left"); add_pc_axis(a1, distance_kpc)
-    a1.set_title("HST reaches 466 arcsec; only its published profile stopped at 300",
-                 fontsize=10.5)
+    a1.legend(fontsize=8.0, loc="lower left"); add_pc_axis(a1, distance_kpc)
+    a1.set_title("Each survey's own quality selection", fontsize=10.5)
 
+    x = np.arange(len(tests))
     a2.axhline(1.0, color=style.INK_SECONDARY, lw=2)
-    x = np.arange(len(ov))
-    a2.errorbar(x - 0.10, ov["ratio_raw"], yerr=ov["ratio_err"], fmt="o", ms=8, mfc="white",
-                color=style.INK_SECONDARY, lw=1.4, capsize=4,
-                label="before correcting HST's unflagged stars")
-    a2.errorbar(x + 0.10, ov["ratio"], yerr=ov["ratio_err"], linestyle="none", lw=1.8,
-                capsize=4, zorder=6, label="after, and at a common radius",
-                **dataset_style("gaia_edr3", size=10))
-    w = np.sum(np.asarray(ov["ratio"]) / np.asarray(ov["ratio_err"]) ** 2) / \
-        np.sum(1 / np.asarray(ov["ratio_err"]) ** 2)
-    we = 1 / np.sqrt(np.sum(1 / np.asarray(ov["ratio_err"]) ** 2))
-    a2.axhspan(w - we, w + we, color=style.SERIES[0], alpha=0.15, lw=0)
-    a2.axhline(w, color=style.SERIES[0], lw=1.6, ls="--",
-               label="weighted mean %.3f $\\pm$ %.3f (%.1f$\\sigma$)" % (w, we, abs(w - 1) / we))
-    for i, row in enumerate(ov):
-        a2.annotate("%d HST\n%d Gaia" % (row["n_hst"], row["n_gaia"]), (i, 0.80),
-                    fontsize=8, ha="center", color=style.INK_SECONDARY)
-    a2.set_xticks(x)
-    a2.set_xticklabels(["%.0f-%.0f\"" % (r["r_lower"], r["r_upper"]) for r in ov])
-    a2.set_xlim(-0.5, len(ov) - 0.5); a2.set_ylim(0.75, 1.15)
-    a2.set_ylabel("Gaia EDR3 / HST"); a2.legend(fontsize=8.2, loc="upper left")
-    a2.set_title("The two instruments in the overlap", fontsize=10.5)
-    a2.annotate("stars failing HST's own astrometry flag give a dispersion\n"
-                "7.7 $\\pm$ 1.1 per cent too high; outside 340\" every star is one",
-                (0.5, 0.055), xycoords="axes fraction", ha="center", fontsize=7.8,
-                color=style.INK_SECONDARY)
+    for i, row in enumerate(tests):
+        st = dataset_style("gaia_edr3", size=12, fitted=bool(row["flagged_only"]))
+        a2.errorbar([i], [row["ratio"]], yerr=[row["ratio_err"]], linestyle="none", lw=1.8,
+                    capsize=5, zorder=6, **st)
+        a2.annotate("%.3f $\\pm$ %.3f" % (row["ratio"], row["ratio_err"]), (i, row["ratio"]),
+                    textcoords="offset points", xytext=(0, 16), ha="center", fontsize=8.5,
+                    color=style.SERIES[0])
+        a2.annotate("%d HST\n%d Gaia\nr = %.0f\" / %.0f\"" % (row["n_hst"], row["n_gaia"],
+                                                                row["r_hst"], row["r_gaia"]),
+                    (i, 0.775), ha="center", fontsize=7.8, color=style.INK_SECONDARY)
+    a2.set_xticks(x); a2.set_xticklabels(list(tests["label"]), fontsize=8.5)
+    a2.set_xlim(-0.55, len(tests) - 0.45); a2.set_ylim(0.74, 1.24)
+    a2.set_ylabel("Gaia EDR3 / HST")
+    a2.set_title("Three routes, three uses of the rejected stars", fontsize=10.5)
+    a2.annotate("filled: no correction on either side", (0.5, 0.955), xycoords="axes fraction",
+                ha="center", fontsize=8, color=style.INK_SECONDARY)
     fig.tight_layout()
     path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
     return path
+

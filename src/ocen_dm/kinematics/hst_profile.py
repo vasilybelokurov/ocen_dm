@@ -142,14 +142,20 @@ def unflagged_bias(edges_arcsec=(150.0, 200.0, 250.0, 300.0, 340.0)) -> tuple[fl
     return w, float(1 / np.sqrt(np.sum(1 / e ** 2)))
 
 
-def hst_profile(edges_arcsec=(300.0, 380.0, 460.0), require_flag: bool = False,
+def hst_profile(edges_arcsec=(300.0, 340.0), require_flag: bool = True,
                 distance_kpc: float = 5.43, min_stars: int = 100,
-                correct_unflagged: bool = True) -> Table:
+                correct_unflagged: bool = False) -> Table:
     """Cluster dispersion per annulus from the mixture fit, with no proper-motion window.
 
-    ``correct_unflagged`` divides each bin by ``1 + f_unflagged * (ratio - 1)`` using
-    :data:`UNFLAGGED_BIAS`, because stars failing the catalogue's astrometry flag carry
-    underestimated errors; the ratio's uncertainty is added to the bin's error.
+    **The default is flagged stars only.** If a star's astrometry is not trusted, the answer
+    is to leave it out, not to model it: inside 340 arcsec there are tens of thousands of
+    flagged stars and nothing is gained by adding the rest.
+
+    ``correct_unflagged`` exists for one case only. Beyond 340 arcsec the catalogue contains
+    **zero** flagged stars, so a flagged dispersion cannot be computed there at all; the
+    option divides each bin by ``1 + f_unflagged * (k - 1)`` with ``k`` from
+    :data:`UNFLAGGED_BIAS` and carries the ratio's uncertainty. Those points are a
+    cross-check, never a measurement, and never enter a fit.
     """
     from ..selection.field_template import field_density_2d
     s = load_hst_sample(require_flag=require_flag)
