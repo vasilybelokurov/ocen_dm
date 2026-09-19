@@ -16,8 +16,12 @@ right, so this profile avoids depending on one:
 * the value quoted is the **midpoint** of the raw-error and inflated-error fits, and **half
   their separation is carried as a systematic** added in quadrature to the statistical error.
   The magnitude test shows the truth lies between the two;
-* **inside 460 arcsec nothing is measured**: the quality flag leaves too few stars, and HST
-  covers that range with astrometry the two instruments agree on to 8 +- 7 per cent;
+* **the inner edge is 300 arcsec**, where the quality flag first leaves anything at all: it
+  passes 5 stars inside 300, then 53 in 300-380 and 441 in 380-460. Those are few but they
+  are not nothing, and they are the *cleanest* stars in the whole Gaia sample -- errors of
+  0.025-0.044 mas/yr against a dispersion near 0.47, a ratio of 5-9 per cent, so the error
+  model is irrelevant there by a wide margin. They also fill the gap between HST's last
+  point at 311 arcsec and the bulk of the Gaia sample;
 * contamination is the two-dimensional empirical field template, and the fitted mean radial
   and tangential motions absorb rotation, which is returned as ``streaming2`` so the Jeans
   model can be compared with the full second moment.
@@ -38,9 +42,10 @@ from .vb2021_replication import error_inflation, published_profile
 __all__ = ["PRODUCT", "R_MIN_ARCSEC", "DEFAULT_EDGES", "build_edr3_profile", "load_edr3_profile"]
 
 PRODUCT = "ocen_pm_dispersion_edr3_ours"
-#: inside this radius the quality-flagged Gaia sample is too thin to measure anything
-R_MIN_ARCSEC = 460.0
-DEFAULT_EDGES = np.geomspace(R_MIN_ARCSEC, 2400.0, 8)
+#: inside this radius the quality flag passes 5 stars in total: nothing to measure
+R_MIN_ARCSEC = 300.0
+#: two narrow bins carry the sparse but very precise 300-460 arcsec stars, then log spacing
+DEFAULT_EDGES = np.concatenate([[R_MIN_ARCSEC, 380.0], np.geomspace(460.0, 2400.0, 8)])
 QUALITY_BIT = 2
 
 
@@ -72,7 +77,7 @@ def build_edr3_profile(edges: np.ndarray | None = None, err_max_frac: float = 0.
     rows = []
     for lo, hi in zip(edges[:-1], edges[1:]):
         m = keep & (base.r_arcsec >= lo) & (base.r_arcsec < hi)
-        if m.sum() < 30:
+        if m.sum() < 25:
             continue
         r_pc = base.r_arcsec[m] * distance_kpc * 1e3 / 206264.806
         sd = depth_dispersion(tracer, r_pc, float(np.hypot(*base.mu_sys)), distance_kpc)

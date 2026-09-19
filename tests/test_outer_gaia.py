@@ -12,11 +12,17 @@ pytestmark = pytest.mark.skipif(not _HAS, reason="product not built")
 
 
 def test_starts_where_gaia_becomes_usable():
+    """300 arcsec: the quality flag passes 5 stars inside it, 53 then 441 just outside."""
     from ocen_dm.kinematics.outer_gaia import R_MIN_ARCSEC, load_edr3_profile
     t = load_edr3_profile()
     assert t["r_lower"].min() >= R_MIN_ARCSEC
-    assert R_MIN_ARCSEC >= 460.0, "inside this the quality flag leaves too few stars"
-    assert len(t) >= 6 and np.all(t["n_stars"] > 500)
+    assert R_MIN_ARCSEC == 300.0
+    assert len(t) >= 8 and np.all(t["n_stars"] >= 25)
+    # the two sparse inner bins are the most error-model-independent of all: bright stars
+    inner = t["r_median"] < 460
+    assert inner.sum() == 2
+    assert np.all(np.asarray(t["sigma_sys"])[inner] < 0.001)
+    assert np.all(np.asarray(t["median_g"])[inner] < 16.0)
 
 
 def test_error_model_barely_moves_it():
@@ -44,7 +50,7 @@ def test_registered_and_excludes_the_published_spline():
     from ocen_dm.kinematics.likelihood import KinematicData, load_profile
     p = load_profile("gaia_edr3_ours")
     assert p.instrument == "GaiaEDR3" and p.kind == "pmc"
-    assert p.r.min() > 460 and p.streaming2 is not None
+    assert p.r.min() > 300 and p.streaming2 is not None
     with pytest.raises(ValueError):
         KinematicData.load(["gaia_edr3_ours", "gaia_edr3_pm"])
 

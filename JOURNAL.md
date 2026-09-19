@@ -2503,3 +2503,47 @@ reference runs took 8158 s and 14251 s, not the hour I quoted to the user.
 
 Gaia DR2 was left untouched, although four of its nine points also sit inside 380 arcsec and
 are open to the same objection. That was not part of the agreed scope.
+
+### Correction: 300-460 arcsec is usable, and I had thrown it away
+
+The user: "you say 'no usable data here' but then quote less than 500 stars. 500 stars is a
+lot!!!" Correct, and the label was conflating two different regions. Counts:
+
+| annulus | in the EDR3 catalogue | passing the quality flag | flagged + err < 0.4 sigma | median error |
+|---|---|---|---|---|
+| 100-200" | 2528 | 0 | 0 | -- |
+| 200-300" | 5171 | 5 | 5 | 0.024 |
+| 300-340" | 3169 | 17 | 17 | 0.026 |
+| 340-380" | 3719 | 36 | 35 | 0.025 |
+| 380-420" | 4659 | 116 | 80 | 0.032 |
+| 420-460" | 5743 | 325 | 196 | 0.044 |
+| 460-520" | 9971 | 1249 | 581 | 0.090 |
+
+Inside 300 arcsec there really is nothing: five stars. But 300-460 arcsec holds 494 flagged
+stars, 328 of them in the low-noise subset, and those are the **cleanest stars in the entire
+Gaia sample** -- errors of 0.025 to 0.044 mas/yr against a dispersion near 0.47, a ratio of
+5 to 9 per cent. Where the rest of the profile has to argue about error models, here the
+error is negligible by a wide margin. They also fill the gap between HST's last point at 311
+arcsec and the bulk of the Gaia sample, which is exactly the range where the old step between
+datasets appeared.
+
+The inner edge is now **300 arcsec**, with two narrow bins carrying that range:
+
+| r (arcsec) | N | sigma | stat | sys | median G |
+|---|---|---|---|---|---|
+| 356 | 52 | 0.4789 | 0.0373 | 0.0001 | 13.9 |
+| 437 | 276 | 0.4497 | 0.0191 | 0.0007 | 15.1 |
+
+The error-model systematic on these is 0.02 and 0.15 per cent, ten times smaller than
+anywhere else in the profile. The 356 arcsec point also reproduces the instrument test
+independently: 0.479 +- 0.037 against HST's 0.524 +- 0.002 in the same range is a ratio of
+0.91 +- 0.07, matching the 0.92 +- 0.07 found from the annulus comparison.
+
+The profile now has nine points from 300 to 2400 arcsec and the likelihood 127. Both fits
+were stopped about half an hour in and relaunched on the corrected dataset. The plot's
+shading and annotation were wrong in the same way and are fixed.
+
+**Lesson for the record:** "too few stars to be worth using" was asserted from a count
+without checking the precision those stars carry. The sparse bins turned out to be the most
+reliable in the profile, because star count and measurement quality run in opposite
+directions here -- the flag keeps only the brightest stars where crowding is worst.
