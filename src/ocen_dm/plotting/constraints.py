@@ -32,7 +32,7 @@ from . import style
 from .style import add_pc_axis
 
 __all__ = ["plot_constraint_map", "plot_outer_tracer_audit", "plot_contamination_model", "plot_annulus_fits",
-           "plot_method_comparison",
+           "plot_method_comparison", "plot_residual_significance",
            "fit_quality_table", "annulus_fits", "our_outer_profile", "our_mixture_profile", "OUTER_EDGES"]
 
 #: log-spaced annuli for our own outer measurement (arcsec)
@@ -635,6 +635,82 @@ def plot_method_comparison(path: Path | str = "plots/outer_method_comparison.png
 
     fig.suptitle("Membership cut versus cluster + background decomposition, Gaia EDR3 outskirts", y=0.995)
     fig.tight_layout()
+    path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
+    return path
+
+
+def plot_residual_significance(path: Path | str = "plots/outer_residual_significance.png",
+                               k1: str = "K1_noDM_composite", edges: np.ndarray | None = None,
+                               distance_kpc: float = 5.43) -> Path:
+    """Is the apparent wiggle in the Gaia residuals real?
+
+    Top: the deviation of our Gaia measurement from the no-dark-matter model, in total
+    second moments so that no rotation curve enters the comparison, with the constant-offset
+    fit over the range where Gaia is reliable. Bottom: the fraction of catalogue stars that
+    survive the astrometric quality flag, which is what makes the innermost annuli useless.
+    """
+    import json
+
+    from scipy.stats import chi2 as chi2_dist
+
+    from ..kinematics.report import _family_for
+    style.apply()
+    edges = np.array([300., 380, 460, 540, 630, 730, 850, 1000, 1200, 1500, 1900, 2400.]) if edges is None else edges
+    mix = our_mixture_profile(edges, distance_kpc=distance_kpc)
+    s = load_members(exact=True, distance_kpc=distance_kpc)
+    q = s.select((s.quality_flag & QUALITY_BIT) > 0)
+
+    summary = json.loads((results_dir() / "fits" / k1 / "summary.json").read_text())
+    fam = _family_for(summary)
+    x = np.array([summary["parameters"][n]["ml"] for n in fam.names])
+    jeans, D, scales = fam.build(fam.to_dict(x))
+    r = np.asarray(mix["r_median"])
+    total = np.sqrt(0.5 * (np.asarray(mix["sigma_pmr"]) ** 2 + np.asarray(mix["mean_pmr"]) ** 2
+                           + np.asarray(mix["sigma_pmt"]) ** 2 + np.asarray(mix["mean_pmt"]) ** 2))
+    model = _sigma_1d_kms(jeans, D, r) / (KMS_PER_MASYR_KPC * D) * scales.get("GaiaEDR3", 1.0)
+    res = 100 * (total / model - 1); rerr = 100 * np.asarray(mix["sigma_pm_err"]) / model
+
+    fig, (ax, axq) = plt.subplots(2, 1, figsize=(9.5, 7.4), sharex=True,
+                                  gridspec_kw={"height_ratios": [2.4, 1], "hspace": 0.08})
+    good = (r > 460) & (r < 1500)
+    w = 1 / rerr[good] ** 2
+    c = float(np.sum(w * res[good]) / np.sum(w))
+    chi2 = float(np.sum(w * (res[good] - c) ** 2)); dof = int(good.sum() - 1)
+    ax.axhspan(c - 1, c + 1, color=style.SERIES[0], alpha=0.15, lw=0)
+    ax.axhline(c, color=style.SERIES[0], lw=2,
+               label=r"constant %+.1f %% over 460$-$1500 arcsec: $\chi^2$ = %.1f / %d, p = %.2f"
+                     % (c, chi2, dof, 1 - chi2_dist.cdf(chi2, dof)))
+    ax.axhline(0, color=style.INK, lw=1)
+    ax.errorbar(r, res, yerr=rerr, fmt="D", ms=6, color=style.INK, ecolor=style.INK, elinewidth=1.4, lw=0,
+                label="our Gaia measurement (total second moment)")
+    for i in np.flatnonzero(~good):
+        ax.annotate("%.1f$\sigma$" % (res[i] / rerr[i]), (r[i], res[i]), textcoords="offset points",
+                    xytext=(0, 12 if res[i] > 0 else -18), ha="center", fontsize=8, color=style.SERIES[1])
+    ax.axvspan(edges[0], 460, color=style.COLOR_FIELD, alpha=0.3, lw=0)
+    ax.axvspan(1500, edges[-1], color=style.SERIES[1], alpha=0.08, lw=0)
+    ax.text(330, ax.get_ylim()[1] * 0.75, "Gaia unusable here\n(< 15 % of stars pass\nthe quality flag)",
+            fontsize=8, color=style.INK_SECONDARY)
+    ax.text(1560, 12, "genuine rise\n(4-5 sigma)", fontsize=8, color=style.SERIES[1])
+    ax.set_ylabel("deviation from the no-DM model  [%]")
+    ax.set_xscale("log"); ax.legend(fontsize=8.5, loc="lower right")
+    ax.set_title("Is the wiggle real? Residuals with their errors", fontsize=11)
+    add_pc_axis(ax, distance_kpc)
+
+    frac = []
+    for lo, hi in zip(edges[:-1], edges[1:]):
+        a = ((s.r_arcsec >= lo) & (s.r_arcsec < hi)).sum()
+        b = ((q.r_arcsec >= lo) & (q.r_arcsec < hi)).sum()
+        frac.append(b / max(a, 1))
+    axq.step(r, 100 * np.array(frac), where="mid", color=style.SERIES[2], lw=2)
+    axq.axhline(15, color=style.INK_SECONDARY, lw=0.8, ls="--")
+    axq.axvspan(edges[0], 460, color=style.COLOR_FIELD, alpha=0.3, lw=0)
+    axq.set_xscale("log"); axq.set_xlabel("R  [arcsec]")
+    axq.set_ylabel("stars passing the\nquality flag  [%]")
+    for i, (rr, ff) in enumerate(zip(r, frac)):
+        if ff < 0.2:
+            axq.annotate("%.1f %%" % (100 * ff), (rr, 100 * ff), textcoords="offset points",
+                         xytext=(0, 8), ha="center", fontsize=8, color=style.SERIES[2])
     path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
     return path
