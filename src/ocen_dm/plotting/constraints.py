@@ -1457,12 +1457,12 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
     from ..kinematics.hst_profile import hst_profile
     rp, sp = published_profile()
     a1.plot(pc(rp[rp > 0]), sp[rp > 0] * k, color=style.SERIES[0], lw=1.4, ls="--", alpha=0.5,
-            label="Gaia EDR3 published spline [context only]")
+            label="Gaia EDR3, published spline")
     hst_ours = hst_profile(edges_arcsec=tuple(np.concatenate(
         [np.geomspace(3.0, 150.0, 11), [200., 250., 300., 340., 360.]])), min_stars=40)
     a1.errorbar(pc(hst_ours["r_median"]), np.asarray(hst_ours["sigma_pm"]) * k,
                 yerr=np.asarray(hst_ours["sigma_pm_err"]) * k, linestyle="-", lw=1.6,
-                label="HST, ours to 360\" [context only, not yet in the likelihood]",
+                label="HST, our measurement (to 360\")",
                 **dataset_style("hst", size=6.5, fitted=False))
     a1.axvspan(pc(300.0), pc(360.0), color=style.SERIES[2], alpha=0.22, lw=0)
     a1.annotate("HST and Gaia\nboth measure here", (pc(328.0), 25.0), fontsize=8,
@@ -1488,7 +1488,7 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
         for col, comp in (("sigma_pmr", "radial"), ("sigma_pmt", "tangential")):
             st = dataset_style("gaia_edr3", comp, size=5.5)
             a1.plot(pc(g["r_median"]), np.asarray(g[col]) * k, ls=":", lw=1.0, **st,
-                    label="Gaia EDR3 (ours), %s component [measured; only the combination is fitted]" % comp)
+                    label="Gaia EDR3 (ours), %s component" % comp)
 
     a1.axvspan(0.03, 200 * distance_kpc * 1e3 / 206264.806, color=style.SERIES[0],
                alpha=0.05, lw=0)
@@ -1502,7 +1502,7 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
     a1.set_yticks([4, 5, 6, 8, 10, 15, 20]); a1.set_yticklabels(["4", "5", "6", "8", "10", "15", "20"])
     a1.set_ylabel("velocity dispersion  [km/s]")
     a1.legend(fontsize=7.6, loc="lower left", framealpha=0.93)
-    a1.set_title("$\\omega$ Cen: every dataset in the likelihood", fontsize=12)
+    a1.set_title("$\\omega$ Cen: the kinematic data", fontsize=12)
     add_arcsec_axis(a1, distance_kpc)
 
     # --- anisotropy ----------------------------------------------------------------
@@ -1518,7 +1518,7 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
     st = dataset_style("pristine", "combined", size=7.0, fitted=False)
     a3.plot(np.asarray(pr["r_pc"])[ok],
             np.asarray(pr["sigma_pmt"])[ok] / np.asarray(pr["sigma_pmr"])[ok],
-            ls="none", label="Pristine [context only]", **st)
+            ls="none", label="Pristine periphery", **st)
     a3.axhline(1.0, color=style.INK_SECONDARY, lw=1.5)
     a3.annotate("tangentially biased", (75, 1.22), fontsize=8, color=style.INK_SECONDARY, ha="right")
     a3.annotate("radially biased", (75, 0.755), fontsize=8, color=style.INK_SECONDARY, ha="right")
@@ -1538,7 +1538,7 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
     a2.axvline(R_JACOBI_PERI_PC, color=style.INK_SECONDARY, lw=1.2, ls=":")
     a2.set_ylim(0.3, len(spans) + 0.7); a2.set_yticks([])
     a2.set_xscale("log"); a2.set_xlabel("r  [pc]"); a2.set_xlim(0.03, 300)
-    a2.set_title("radial coverage and weight: %d points in total" % sum(s[3] for s in spans),
+    a2.set_title("what the likelihood receives: %d points" % sum(s[3] for s in spans),
                  fontsize=10)
     fig.tight_layout()
     path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
