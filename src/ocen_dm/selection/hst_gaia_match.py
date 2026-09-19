@@ -6,11 +6,15 @@ conversion needs a distance), but two PM catalogues have no such licence. This m
 the comparison directly: positional match, then the per-star difference and the dispersion
 each instrument reports **from the same stars**.
 
-Result (2026-09-19): inside 460 arcsec Gaia's proper motions carry ~1 mas/yr of scatter that
-its formal errors do not describe, and the dispersion it reports from the same stars is
-18-24 per cent higher than HST's. That is crowding, it is why the Vasiliev & Baumgardt
-quality flag removes essentially every Gaia star inside 300 arcsec, and it is why the
-published EDR3 profile inside ~400 arcsec is a smooth extrapolation rather than a measurement.
+Result (2026-09-19, after the match was corrected twice -- see JOURNAL): on identical stars
+the **unflagged** Gaia catalogue carries 0.44-0.90 mas/yr of proper-motion scatter that its
+quoted errors do not describe, growing inwards, and reports a dispersion 25-43 per cent
+higher than HST. Applying the Vasiliev & Baumgardt astrometric quality flag removes those
+stars: in the one annulus where both catalogues are usable (300-380 arcsec) flagged Gaia
+gives 0.482 +- 0.034 against HST's 0.524 +- 0.002 mas/yr, a ratio of 0.92 +- 0.07. The two
+instruments agree; the flag is what makes them agree, and it passes no star inside 200
+arcsec, so the published EDR3 profile there is extrapolation rather than measurement.
+
 """
 
 from __future__ import annotations
@@ -29,13 +33,17 @@ OCEN_RA, OCEN_DEC = 201.696833, -47.476583
 PRODUCT = "hst_gaia_pm_match"
 
 
-def build_match(tolerance_arcsec: float = 0.3) -> Path:
+def build_match(tolerance_arcsec: float = 0.06) -> Path:
     """Match the two catalogues and write the per-star comparison product."""
     from scipy.spatial import cKDTree
 
     hst = Table.read(raw_dir() / "omegacat_vi_kinematics" / "catalog_and_selections.fits")
-    hx = -0.04 * (np.asarray(hst["x"], float) - 15000.0)      # arcsec, the authors' convention
-    hy = 0.04 * (np.asarray(hst["y"], float) - 15000.0)
+    # match on the catalogue's own sky coordinates. The pixel-based x, y are good enough for
+    # plots but not for a 0.05 arcsec match: using them the separations peaked at 0.18 arcsec
+    # and the match rate fell from 93 to 1 per cent between the centre and 460 arcsec, so most
+    # "matches" beyond the core were neighbouring stars (2026-09-19).
+    hx = (np.asarray(hst["RA"], float) - OCEN_RA) * np.cos(np.radians(OCEN_DEC)) * 3600.0
+    hy = (np.asarray(hst["DEC"], float) - OCEN_DEC) * 3600.0
     ha = np.asarray(hst["pmra_corrected"], float); hd = np.asarray(hst["pmdec_corrected"], float)
     hea = np.asarray(hst["pmra_corrected_err"], float); hed = np.asarray(hst["pmdec_corrected_err"], float)
     finite = np.isfinite(hx) & np.isfinite(hy) & np.isfinite(ha) & np.isfinite(hd)
@@ -45,7 +53,14 @@ def build_match(tolerance_arcsec: float = 0.3) -> Path:
     gaia = Table.read(processed_dir() / "tails" / "vasiliev2021_ocen_members.ecsv")
     gx = (np.asarray(gaia["ra"], float) - OCEN_RA) * np.cos(np.radians(OCEN_DEC)) * 3600.0
     gy = (np.asarray(gaia["dec"], float) - OCEN_DEC) * 3600.0
-    dist, j = tree.query(np.column_stack([gx, gy]), distance_upper_bound=tolerance_arcsec)
+    # the two catalogues are at different epochs, so the cluster's systemic proper motion
+    # displaces them by ~0.10 arcsec (7.5 mas/yr over ~13 years). Measure that offset from a
+    # generous first pass and remove it, then match tightly.
+    d0, j0 = tree.query(np.column_stack([gx, gy]), distance_upper_bound=0.4)
+    ok0 = np.isfinite(d0)
+    off_x = float(np.median(gx[ok0] - hx[finite][j0[ok0]]))
+    off_y = float(np.median(gy[ok0] - hy[finite][j0[ok0]]))
+    dist, j = tree.query(np.column_stack([gx - off_x, gy - off_y]), distance_upper_bound=tolerance_arcsec)
     ok = np.isfinite(dist)
     gi = np.flatnonzero(ok); hi = idx_h[j[ok]]
 
@@ -62,6 +77,7 @@ def build_match(tolerance_arcsec: float = 0.3) -> Path:
     })
     t.meta.update({
         "product": PRODUCT, "tolerance_arcsec": tolerance_arcsec, "n_matched": int(len(t)),
+        "epoch_offset_arcsec": [off_x, off_y],
         "built_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "note": "HST proper motions are locally corrected (relative): only differences and dispersions "
                 "are comparable, never the zero point.",

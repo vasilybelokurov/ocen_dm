@@ -2175,3 +2175,95 @@ conservative) selection and larger quoted errors rather than better data.
 measurement rather than the published smooth profile, and drop the Gaia DR2 profile or
 restrict it likewise. With that, "PM datasets must agree" becomes testable rather than
 assumed, since HST and Gaia would no longer be asked to describe the same radii.
+
+### Correction: the match above was wrong, and so were its numbers
+
+Everything in the two tables above is **withdrawn**. The cross-match that produced them was
+broken in two independent ways, and both broke it in the direction of manufacturing
+disagreement.
+
+1. **Pixel coordinates.** The oMEGACat `x, y` columns were used as if they were sky offsets
+   in arcsec. Symptom: the separation distribution peaked at 0.18 arcsec against a 0.3
+   arcsec tolerance, and the match rate collapsed from 93 per cent at the centre to 1 per
+   cent at 460 arcsec. Most "matches" outside the core were therefore *different stars*,
+   and the difference between two unrelated cluster members is the cluster dispersion
+   itself, not a measurement error.
+2. **Epoch.** Matching on RA/Dec instead left a uniform 0.101 arcsec displacement between
+   the catalogues -- the cluster's own systemic proper motion, 7.5 mas/yr over the ~13 yr
+   between the HST and Gaia epochs. It is now measured from a generous first pass,
+   (-0.0447, -0.0901) arcsec, removed, and the tolerance tightened to 0.06 arcsec.
+
+The match now has **8064 pairs with a median separation of 0.005 arcsec**, a hundred times
+inside the tolerance. `tests/test_hst_gaia_match.py` pins that first, before any physics.
+
+### What the corrected match says
+
+Same stars, HST high-quality astrometry, P > 0.9, G < 17, unflagged Gaia. Differences are
+taken about their own median in each annulus, since the HST astrometry is relative.
+
+| annulus | N | HST | Gaia | Gaia / HST | Gaia scatter beyond its errors | quoted |
+|---|---|---|---|---|---|---|
+| 0-100" | 68 | 0.654 | 0.934 | 1.43 ± 0.17 | 0.90 | 0.25 |
+| 100-200" | 660 | 0.588 | 0.840 | 1.43 ± 0.06 | 0.79 | 0.20 |
+| 200-300" | 1178 | 0.535 | 0.708 | 1.32 ± 0.04 | 0.59 | 0.15 |
+| 300-460" | 52 | 0.466 | 0.584 | 1.25 ± 0.17 | 0.44 | 0.12 |
+
+The qualitative conclusion survives, at about half the amplitude: the per-star difference is
+0.65 mas/yr rms where the quoted errors allow 0.17, a factor 3.8 rather than the 5-7 claimed
+above, and the undeclared scatter **falls monotonically outwards** exactly as crowding
+should. The earlier inflation came from the bad pairs.
+
+### The decisive test: the one annulus where both catalogues are usable
+
+HST's high-quality astrometry ends at 380 arcsec (8145 stars have proper motions at
+380-460 arcsec, **none** of them high-quality), and Gaia's quality flag passes no star
+inside 300 arcsec. The entire overlap is **300-380 arcsec**. There, in the same annulus:
+
+| sample | N | sigma (mas/yr) | ratio to HST |
+|---|---|---|---|
+| HST, high-quality astrometry | 15629 | 0.5238 ± 0.0021 | 1 |
+| **Gaia, quality flag** | **51** | **0.482 ± 0.034** | **0.92 ± 0.07** |
+| Gaia, P > 0.99 and G < 17 | 1871 | 0.5315 ± 0.0065 | 1.015 ± 0.013 |
+| Gaia, G < 16 | 1124 | 0.5385 ± 0.0083 | 1.028 ± 0.016 |
+| Gaia, G < 17 | 2022 | 0.5671 ± 0.0068 | 1.083 ± 0.014 |
+| Gaia, no quality cut | 5714 | 0.6785 ± 0.0055 | 1.295 ± 0.012 |
+
+**The two instruments agree once the astrometric quality flag is applied.** They disagree by
+30 per cent without it. The disagreement is entirely carried by the stars the flag rejects,
+which is what the flag exists for. No star-by-star test can probe this directly, because
+zero quality-flagged Gaia stars have an HST counterpart -- the flag and HST's usable
+footprint are almost disjoint.
+
+The figure `plots/hst_gaia_star_by_star.png` now shows all four pieces: the per-star
+difference against the quoted errors, the undeclared scatter falling outwards, the
+dispersion from identical stars with the flagged point overlaid, and the quality-flag
+survival fraction.
+
+### Residual crowding inside the flagged sample
+
+A faint star is measured worse in a crowded field, so a brightness trend in the dispersion
+at fixed radius is a crowding signature. Ratio of sigma(G > 19) to sigma(G < 17), both with
+P > 0.9:
+
+| annulus | quality-flagged | no quality cut |
+|---|---|---|
+| 460-700" | 1.114 ± 0.023 | 1.417 ± 0.017 |
+| 700-1000" | 1.135 ± 0.019 | 1.284 ± 0.017 |
+| 1000-1500" | 1.077 ± 0.022 | 1.101 ± 0.020 |
+| 1500-2400" | 0.985 ± 0.039 | -- |
+
+The flag removes most of the trend but not all of it at 460-1000 arcsec, where about 10 per
+cent in sigma remains between the faint and bright ends and vanishes beyond 1500 arcsec.
+Mass segregation predicts a trend of the same sign, so this is an upper limit on residual
+crowding rather than a detection of it; either way it is a 10 per cent effect where the
+unflagged catalogue has a 30-40 per cent one.
+
+### Consequence for the modelling
+
+Unchanged from the proposal above, and now on firmer ground: Gaia EDR3 should enter the
+likelihood only where its quality-flagged sample exists in quantity (r > 460 arcsec), from
+our own binned measurement, and HST should carry everything inside. The published EDR3
+profile inside ~400 arcsec remains an inward continuation over a region containing at most
+53 usable stars. The earlier "HST and Gaia disagree" framing was too strong: **with the flag
+applied they agree to 8 ± 7 per cent, and the apparent step between the datasets came from
+comparing flagged Gaia at large radius with a profile extrapolated inwards.**
