@@ -1976,3 +1976,46 @@ HST-anchored model; the rise is the open question. A test now asserts the flatne
 **Proposal, not implemented:** restrict our Gaia profile to r > 460 arcsec in everything
 downstream, and mark the inner region as "no usable Gaia data" rather than plotting two
 meaningless points. That is a data-selection change, so it waits for the user.
+
+### Corrected again: the feature is a STEP between HST and Gaia, not a bump inside Gaia
+
+The user pushed back: the eye-catching feature is the bump after the dip, and the dip lines
+up with the other measurements -- "are you fudging?". They were right about the alignment,
+and my flatness test was too narrow to see what matters. Redone with the fitted Gaia scale
+**removed**, so both datasets are compared with the same unscaled model
+(`plots/hst_gaia_step.png`):
+
+| dataset | r ["] | deviation from the same model |
+|---|---|---|
+| HST | 160 | −1.0 % |
+| HST | 252 | −3.2 % |
+| HST | 311 (last bin, edge 346) | **−5.3 %** |
+| Gaia | 357 (53 usable stars) | −5.4 ± 7.1 % |
+| Gaia | 439 (441 stars) | +5.8 ± 3.2 % |
+| Gaia | 509 (1875 stars) | **+11.8 ± 3.0 %** |
+| Gaia | 592-1336 | +9 to +12.5 % |
+| Gaia | 1688, 2151 | +17.4, +24.7 % |
+
+So: **HST declines monotonically to −5.3 per cent of the model at its outer edge, and Gaia
+sits at +10 to +12 per cent as soon as it has enough stars to measure anything.** The
+Gaia point at 357 arcsec (−5.4 %) continues the HST trend exactly, as the user said -- it
+is not an outlier, it is the last point where the two agree.
+
+Is there a bump *within* the Gaia data? No: 460-730 arcsec gives +4.87 ± 0.94 per cent and
+730-1500 gives +3.43 ± 0.71 (scaled units), a difference of **1.2 sigma**; each of the
+"bump" points is 0.3-1.0 sigma from the plateau. My earlier p = 0.74 test was correct but
+answered the wrong question -- it can only see structure inside one dataset, never a step
+between two.
+
+**The step is the real feature**, and it falls exactly in the gap where neither instrument
+works: HST's outermost bin ends at 346 arcsec, and Gaia's quality-flagged sample only
+passes 15 per cent of stars by ~500 arcsec. Between 346 and 500 arcsec there is no reliable
+measurement from either, and the K1 fit bridges it with a single constant, s_EDR3 = 1.068 --
+which is why the residuals look like a dip followed by a bump. Three readings remain open:
+a Gaia crowding systematic that persists to 500 arcsec, an HST systematic at its own edge
+(its last bin spans 300-346 arcsec with 18,485 stars against 60,000-79,000 in the previous
+ones), or a genuine feature in the cluster at 9-13 pc. Nothing in the present data
+distinguishes them, and a constant instrument scale is the wrong model for it either way.
+
+Tests added: HST declines below −3 per cent at its edge while Gaia exceeds +5 per cent
+where it becomes usable, with a step of more than 10 per cent between them.
