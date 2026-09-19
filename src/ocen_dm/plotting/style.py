@@ -95,3 +95,61 @@ def add_arcsec_axis(ax, distance_kpc: float, per_unit_pc: float = 1.0, label: st
                    color=INK_SECONDARY, fontsize=9)
     sec.tick_params(colors=INK_SECONDARY, labelsize=8)
     return sec
+
+
+# --------------------------------------------------------------------- datasets ---
+# One symbol and one colour per dataset, used identically in every figure. The
+# component is carried by the marker fill, never by a different symbol, so a radial
+# and a tangential measurement of the same stars are visibly the same measurement:
+#   full  = the scalar quantity (combined PM dispersion, or a line-of-sight one)
+#   left  = radial component
+#   right = tangential component
+DATASET_STYLE = {
+    "hst":       {"color": SERIES[1], "marker": "o", "label": "HST (oMEGACat)"},
+    "muse":      {"color": SERIES_EXTRA, "marker": "s", "label": "MUSE, line of sight"},
+    "gaia_dr2":  {"color": INK, "marker": "P", "label": "Gaia DR2 (published)"},
+    "gaia_edr3": {"color": SERIES[0], "marker": "D", "label": "Gaia EDR3 (our measurement)"},
+    "pristine":  {"color": SERIES[2], "marker": "v", "label": "Pristine periphery"},
+    "spectro":   {"color": INK_SECONDARY, "marker": "*", "label": "periphery spectroscopy"},
+}
+
+#: dataset key of the likelihood -> (style key, component)
+DATASET_KEY_MAP = {
+    "hst_pm_radial": ("hst", "radial"),
+    "hst_pm_tangential": ("hst", "tangential"),
+    "hst_pm_combined": ("hst", "combined"),
+    "muse_los_dispersion": ("muse", "combined"),
+    "gaia_dr2_pm": ("gaia_dr2", "combined"),
+    "gaia_edr3_pm": ("gaia_edr3", "combined"),
+    "gaia_edr3_ours": ("gaia_edr3", "combined"),
+}
+
+_FILL = {"combined": "full", "radial": "left", "tangential": "right"}
+
+
+def dataset_style(key: str, component: str = "combined", size: float = 6.5,
+                  fitted: bool = True) -> dict:
+    """Marker keyword arguments for one dataset and component.
+
+    ``fitted=False`` keeps the same symbol and colour and lightens the mark, so that data
+    shown for context are never mistaken for a different instrument.
+    """
+    if key in DATASET_KEY_MAP:
+        key, component = DATASET_KEY_MAP[key]
+    spec = DATASET_STYLE[key]
+    kw = {"color": spec["color"], "marker": spec["marker"], "markersize": size,
+          "fillstyle": _FILL[component], "markerfacecoloralt": SURFACE,
+          "markeredgewidth": 1.2, "alpha": 1.0 if fitted else 0.55}
+    if not fitted:
+        kw["markeredgewidth"] = 1.0
+    return kw
+
+
+def dataset_label(key: str, component: str = "combined", fitted: bool = True) -> str:
+    """Legend text matching :func:`dataset_style`."""
+    if key in DATASET_KEY_MAP:
+        key, component = DATASET_KEY_MAP[key]
+    text = DATASET_STYLE[key]["label"]
+    if component != "combined":
+        text += ", %s" % component
+    return text if fitted else "%s [not fitted]" % text

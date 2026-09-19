@@ -2839,3 +2839,36 @@ Also withdrawn: the claim that Gaia DR2's four points inside 380 arcsec sit in a
 no data. They sit in a region where **EDR3** has almost none, but DR2 has its own, brighter
 selection and we hold no star list for it, so nothing can be said about its usability from
 here. The annotation was removed from the figure.
+
+### One symbol per dataset, fill for the component
+
+User: "use consistent symbols and colors for the datasets, radial and tangential measurements
+should use the same symbol." Implemented as a single table in `plotting/style.py` rather than
+per-figure choices, so the figures cannot drift apart.
+
+| dataset | colour | symbol |
+|---|---|---|
+| HST (oMEGACat) | orange, SERIES[1] | circle |
+| MUSE, line of sight | amber, SERIES_EXTRA | square |
+| Gaia DR2 (published) | ink | plus |
+| Gaia EDR3 (our measurement) | blue, SERIES[0] | diamond |
+| Pristine periphery | green, SERIES[2] | down triangle |
+| periphery spectroscopy | secondary ink | star |
+
+The **component is the marker fill, never a different symbol**: `full` for a scalar quantity
+(a combined proper-motion dispersion, or a line-of-sight one), `left` for radial, `right` for
+tangential, via matplotlib's half-filled markers. So HST radial and HST tangential are two
+halves of the same orange circle, and the Gaia radial and tangential components are two
+halves of the same blue diamond. Data shown for context keep their symbol and colour and are
+lightened, so nothing that is merely unfitted can be mistaken for a different instrument.
+
+`dataset_style(key, component, fitted=)` returns the marker keywords and
+`dataset_label(...)` the matching legend text; `DATASET_KEY_MAP` translates a likelihood
+dataset key straight into the pair. Five tests pin the invariants: components share symbol
+and colour and differ only in fill, every dataset's (colour, symbol) pair is unique, an
+unfitted mark keeps its identity, and every key in `DATASETS` and in `DEFAULT_DATASETS` has
+an agreed symbol.
+
+Applied to `master_datasets.png`, `profile_extended_pristine.png` and
+`periphery_where_the_cluster_ends.png`. The older figures still use their own colours and
+will be migrated when next touched.

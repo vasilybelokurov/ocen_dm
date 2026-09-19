@@ -1192,23 +1192,25 @@ def plot_periphery(path: Path | str = "plots/periphery_where_the_cluster_ends.pn
     pc = lambda arcsec: np.asarray(arcsec, float) * distance_kpc * 1e3 / 206264.806
 
     fig, ax = plt.subplots(figsize=(9.4, 5.8))
+    from .style import dataset_label, dataset_style
     hst = load_profile("hst_pm_combined")
     ax.errorbar(pc(hst.r), np.asarray(hst.value) * k, yerr=np.asarray(hst.err_lo) * k,
-                fmt="o", ms=4, color=style.SERIES[1], lw=1, label="HST proper motions")
+                linestyle="none", lw=1, label=dataset_label("hst"),
+                **dataset_style("hst", size=4.5))
     g = load_edr3_profile()
     ax.errorbar(pc(g["r_median"]), np.asarray(g["sigma_pm"]) * k,
-                yerr=np.asarray(g["sigma_pm_err"]) * k, fmt="D-", ms=7, lw=2,
-                color=style.SERIES[0], capsize=3, label="Gaia EDR3, our measurement")
+                yerr=np.asarray(g["sigma_pm_err"]) * k, linestyle="-", lw=2, capsize=3,
+                label=dataset_label("gaia_edr3"), **dataset_style("gaia_edr3", size=7))
     lo_w, hi_w = periphery_pm_profile(0.8), periphery_pm_profile(1.2)
     ax.fill_between(lo_w["r_pc"], lo_w["sigma_kms"], hi_w["sigma_kms"],
-                    color=style.COLOR_FIELD, alpha=0.55, lw=0,
-                    label="Pristine periphery PMs, between 0.8 and 1.2 mas/yr windows")
+                    color=style.SERIES[2], alpha=0.20, lw=0,
+                    label="Pristine, between 0.8 and 1.2 mas/yr windows")
     ax.plot(lo_w["r_pc"], lo_w["sigma_kms"], color=style.INK_SECONDARY, lw=1.2, ls=":")
     ax.plot(hi_w["r_pc"], hi_w["sigma_kms"], color=style.INK_SECONDARY, lw=1.2, ls=":")
     los = periphery_los_profile()
-    ax.errorbar(los["r_pc"], los["sigma_kms"], yerr=los["sigma_kms_err"], fmt="s", ms=9,
-                color=style.SERIES[2], lw=1.8, capsize=4, zorder=6,
-                label="spectroscopic $v_{\\rm los}$, no PM selection")
+    ax.errorbar(los["r_pc"], los["sigma_kms"], yerr=los["sigma_kms_err"], linestyle="none",
+                lw=1.8, capsize=4, zorder=6, label=dataset_label("spectro", fitted=False),
+                **dataset_style("spectro", size=13, fitted=False))
     for x_, lab, ls in ((pc(GAIA_EDGE_DEG * 3600), "Gaia catalogue edge", "-"),
                         (R_JACOBI_PERI_PC, "$r_J$ at pericentre", "--"),
                         (R_JACOBI_NOW_PC, "$r_J$ now", ":")):
@@ -1327,28 +1329,30 @@ def plot_extended_profile(path: Path | str = "plots/profile_extended_pristine.pn
 
     fig, (a1, a2) = plt.subplots(1, 2, figsize=(13.4, 5.8),
                                  gridspec_kw={"width_ratios": [1.5, 1]})
+    from .style import dataset_label, dataset_style
     hst = load_profile("hst_pm_combined")
     a1.errorbar(pc(hst.r), np.asarray(hst.value) * k, yerr=np.asarray(hst.err_lo) * k,
-                fmt="o", ms=3.5, color=style.SERIES[1], lw=0.9, label="HST")
+                linestyle="none", lw=0.9, label=dataset_label("hst"),
+                **dataset_style("hst", size=4.0))
     a1.errorbar(pc(g["r_median"]), np.asarray(g["sigma_pm"]) * k,
-                yerr=np.asarray(g["sigma_pm_err"]) * k, fmt="D-", ms=6.5, lw=2,
-                color=style.SERIES[0], capsize=3, label="Gaia EDR3, our mixture")
+                yerr=np.asarray(g["sigma_pm_err"]) * k, linestyle="-", lw=2, capsize=3,
+                label=dataset_label("gaia_edr3"), **dataset_style("gaia_edr3", size=6.5))
     ok = np.asarray(wide["reliable"], bool)
     a1.errorbar(np.asarray(wide["r_pc"])[ok], np.asarray(wide["sigma_kms"])[ok],
-                yerr=np.asarray(wide["sigma_kms_err"])[ok], fmt="^-", ms=9, lw=2,
-                color=style.SERIES[2], capsize=3, zorder=6,
-                label="Pristine, same mixture, no PM cut")
+                yerr=np.asarray(wide["sigma_kms_err"])[ok], linestyle="-", lw=2, capsize=3,
+                zorder=6, label=dataset_label("pristine") + ", same mixture, no PM cut",
+                **dataset_style("pristine", size=9))
     a1.errorbar(np.asarray(wide["r_pc"])[~ok], np.asarray(wide["sigma_kms"])[~ok],
-                yerr=np.asarray(wide["sigma_kms_err"])[~ok], fmt="^", ms=8, mfc="white",
-                color=style.SERIES[2], lw=1.1, alpha=0.75,
-                label="Pristine, fewer than 10 cluster stars: not a measurement")
+                yerr=np.asarray(wide["sigma_kms_err"])[~ok], linestyle="none", lw=1.1,
+                label="Pristine, fewer than 10 cluster stars: not a measurement",
+                **dataset_style("pristine", size=8, fitted=False))
     w = periphery_pm_profile(0.8)
-    a1.plot(w["r_pc"], w["sigma_kms"], ":", color=style.INK_SECONDARY, lw=1.6,
+    a1.plot(w["r_pc"], w["sigma_kms"], ":", color=style.SERIES[2], lw=1.6, alpha=0.8,
             label="Pristine read through a fixed 0.8 mas/yr window")
     los = periphery_los_profile()
-    a1.errorbar(los["r_pc"], los["sigma_kms"], yerr=los["sigma_kms_err"], fmt="s", ms=8,
-                color=style.SERIES_EXTRA, lw=1.6, capsize=4, zorder=7,
-                label="spectroscopic $v_{\\rm los}$")
+    a1.errorbar(los["r_pc"], los["sigma_kms"], yerr=los["sigma_kms_err"], linestyle="none",
+                lw=1.6, capsize=4, zorder=7, label=dataset_label("spectro", fitted=False),
+                **dataset_style("spectro", size=13, fitted=False))
     a1.axvline(R_JACOBI_PERI_PC, color=style.INK_SECONDARY, lw=1.2, ls="--")
     a1.annotate("$r_J$ pericentre", (R_JACOBI_PERI_PC * 1.05, 4.2), rotation=90, fontsize=8,
                 color=style.INK_SECONDARY)
@@ -1376,8 +1380,8 @@ def plot_extended_profile(path: Path | str = "plots/profile_extended_pristine.pn
     a2.axhspan(wmean - wsig, wmean + wsig, color=style.SERIES[2], alpha=0.18, lw=0)
     a2.axhline(wmean, color=style.SERIES[2], lw=1.6, ls="--",
                label="weighted mean %.3f $\\pm$ %.3f" % (wmean, wsig))
-    a2.errorbar(matched["r_pc"], ratio, yerr=rerr, fmt="o", ms=7, color=style.SERIES[2],
-                lw=1.5, capsize=3)
+    a2.errorbar(matched["r_pc"], ratio, yerr=rerr, linestyle="none", lw=1.5, capsize=3,
+                **dataset_style("pristine", size=8))
     a2.set_xscale("log"); a2.set_xlabel("r  [pc]")
     a2.set_ylabel("Pristine / Gaia, identical annuli")
     a2.set_ylim(0.78, 1.22); a2.legend(fontsize=8.5, loc="upper left")
@@ -1389,26 +1393,20 @@ def plot_extended_profile(path: Path | str = "plots/profile_extended_pristine.pn
     return path
 
 
-#: how each dataset key is drawn in the master figure
-_MASTER_STYLE = {
-    "hst_pm_radial":       ("HST, radial PM",        "o", 4.0, 1),
-    "hst_pm_tangential":   ("HST, tangential PM",    "^", 4.5, 5),
-    "muse_los_dispersion": ("MUSE, line of sight",   "s", 4.5, 3),
-    "gaia_dr2_pm":         ("Gaia DR2 PM (published)", "P", 7.0, 4),
-    "gaia_edr3_ours":      ("Gaia EDR3 PM (our measurement)", "D", 7.0, 0),
-}
-
-
 def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
                          datasets: str | None = None, distance_kpc: float = 5.43) -> Path:
     """Everything the likelihood is shown, in one figure, in km/s.
 
-    Top: every dataset in the default likelihood, converted to km/s at the fitted distance so
-    proper motions and line-of-sight velocities share an axis, with the data that exist but
-    are deliberately not fitted drawn faintly behind. Our Gaia measurement is drawn both as
-    the combination the likelihood receives and as the separate radial and tangential
-    components it is built from. Middle: the anisotropy those components imply. Bottom: what
-    each dataset covers and how many points it contributes.
+    One symbol and one colour per dataset throughout (:data:`ocen_dm.plotting.style.
+    DATASET_STYLE`); the radial and tangential components of the same stars share that
+    symbol and are told apart by the marker fill, left for radial and right for tangential,
+    so they read as one measurement split rather than as two instruments. Data shown for
+    context but not fitted keep their symbol and are lightened.
+
+    Top: every dataset in the default likelihood, converted to km/s at the fitted distance
+    so proper motions and line-of-sight velocities share an axis. Middle: the anisotropy
+    implied by the components. Bottom: what each dataset covers and how many points it
+    contributes.
     """
     from ..cli import DEFAULT_DATASETS
     from ..kinematics.likelihood import load_profile
@@ -1417,55 +1415,55 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
                                         periphery_los_profile)
     from ..kinematics.pristine_profile import pristine_profile
     from ..kinematics.vb2021_replication import published_profile
+    from .style import dataset_label, dataset_style
     style.apply()
     keys = (datasets or DEFAULT_DATASETS).split(",")
     k = KMS_PER_MASYR_KPC * distance_kpc
     pc = lambda a: np.asarray(a, float) * distance_kpc * 1e3 / 206264.806
     g = load_edr3_profile()
     pr = pristine_profile()
-    pr_ok = np.asarray(pr["reliable"], bool)
+    ok = np.asarray(pr["reliable"], bool)
 
-    fig, (a1, a3, a2) = plt.subplots(3, 1, figsize=(10.4, 11.4), sharex=True,
+    def draw(ax, x, y, yerr, key, component="combined", fitted=True, size=6.5, ls="none", **kw):
+        st = dataset_style(key, component, size=size, fitted=fitted)
+        return ax.errorbar(x, y, yerr=yerr, linestyle=ls, lw=1.4, capsize=2,
+                           label=dataset_label(key, component, fitted), zorder=5 if fitted else 3,
+                           **st, **kw)
+
+    fig, (a1, a3, a2) = plt.subplots(3, 1, figsize=(10.6, 11.6), sharex=True,
                                      gridspec_kw={"height_ratios": [2.5, 1.15, 1.0]})
 
-    # --- context: real data that is deliberately NOT in the likelihood -------------
+    # --- context: real data that exists but is not fitted --------------------------
     rp, sp = published_profile()
-    a1.plot(pc(rp[rp > 0]), sp[rp > 0] * k, color=style.INK_SECONDARY, lw=1.4, ls="--",
-            alpha=0.55, label="not fitted: published EDR3 spline (inner part is extrapolation)")
-    a1.errorbar(np.asarray(pr["r_pc"])[pr_ok], np.asarray(pr["sigma_kms"])[pr_ok],
-                yerr=np.asarray(pr["sigma_kms_err"])[pr_ok], fmt="v", ms=8, mfc="white",
-                color=style.SERIES[2], lw=1.3, alpha=0.9,
-                label="not fitted: Pristine PM, same mixture")
+    a1.plot(pc(rp[rp > 0]), sp[rp > 0] * k, color=style.SERIES[0], lw=1.4, ls="--", alpha=0.5,
+            label="Gaia EDR3 published spline [not fitted]")
+    draw(a1, np.asarray(pr["r_pc"])[ok], np.asarray(pr["sigma_kms"])[ok],
+         np.asarray(pr["sigma_kms_err"])[ok], "pristine", fitted=False, size=8)
     los = periphery_los_profile()
-    a1.errorbar(los["r_pc"], los["sigma_kms"], yerr=los["sigma_kms_err"], fmt="*", ms=13,
-                mfc="white", color=style.SERIES_EXTRA, lw=1.3, alpha=0.9,
-                label="not fitted: periphery spectroscopy")
+    draw(a1, los["r_pc"], los["sigma_kms"], los["sigma_kms_err"], "spectro", fitted=False, size=13)
 
     # --- the likelihood's own data -------------------------------------------------
     spans = []
     for key in keys:
         p = load_profile(key)
-        label, marker, ms, ci = _MASTER_STYLE.get(key, (key, "o", 5.0, 2))
         scale = 1.0 if p.kind == "los" else k
-        colour = (style.SERIES + (style.SERIES_EXTRA, style.INK, style.SERIES[1]))[ci]
-        face = "white" if key == "hst_pm_tangential" else colour
-        a1.errorbar(pc(p.r), np.asarray(p.value) * scale,
-                    yerr=[np.asarray(p.err_lo) * scale, np.asarray(p.err_hi) * scale],
-                    fmt=marker, ms=ms, color=colour, mfc=face, lw=1.2, capsize=2,
-                    zorder=5, label=label)
-        spans.append((label, pc(p.r).min(), pc(p.r).max(), len(p.r), colour, p.kind))
+        draw(a1, pc(p.r), np.asarray(p.value) * scale,
+             [np.asarray(p.err_lo) * scale, np.asarray(p.err_hi) * scale], key,
+             size=4.5 if p.instrument in ("HST", "MUSE") else 7.0)
+        st = dataset_style(key)
+        spans.append((dataset_label(key), pc(p.r).min(), pc(p.r).max(), len(p.r), st["color"]))
 
-    # our Gaia measurement, split into the components the likelihood does not see
+    # our Gaia measurement, split into the components the likelihood does not receive
     if "gaia_edr3_ours" in keys:
-        for col, mark, lab in (("sigma_pmr", "<", "radial"), ("sigma_pmt", ">", "tangential")):
-            a1.plot(pc(g["r_median"]), np.asarray(g[col]) * k, mark + ":", ms=5.5, lw=1.0,
-                    color=style.SERIES[0], mfc="white", alpha=0.85,
-                    label="Gaia EDR3, %s component (measured, NOT fitted separately)" % lab)
+        for col, comp in (("sigma_pmr", "radial"), ("sigma_pmt", "tangential")):
+            st = dataset_style("gaia_edr3", comp, size=5.5)
+            a1.plot(pc(g["r_median"]), np.asarray(g[col]) * k, ls=":", lw=1.0, **st,
+                    label="Gaia EDR3 (our measurement), %s [measured, not fitted apart]" % comp)
 
-    a1.axvspan(0.03, 300 * distance_kpc * 1e3 / 206264.806, color=style.SERIES[1],
-               alpha=0.045, lw=0)
-    a1.annotate("no Gaia EDR3 passes the quality flag\ninside 200 arcsec; 5 stars at 200-300",
-                (0.9, 4.3), fontsize=8, color=style.SERIES[1], ha="center")
+    a1.axvspan(0.03, 200 * distance_kpc * 1e3 / 206264.806, color=style.SERIES[0],
+               alpha=0.05, lw=0)
+    a1.annotate("no Gaia EDR3 star passes\nthe quality flag here", (0.55, 24.0), fontsize=8.5,
+                color=style.SERIES[0], ha="center", va="top")
     a1.axvline(R_JACOBI_PERI_PC, color=style.INK_SECONDARY, lw=1.2, ls=":")
     a1.annotate("$r_J$ pericentre", (R_JACOBI_PERI_PC * 1.05, 4.3), rotation=90, fontsize=8,
                 color=style.INK_SECONDARY)
@@ -1479,29 +1477,28 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
 
     # --- anisotropy ----------------------------------------------------------------
     hr, ht = load_profile("hst_pm_radial"), load_profile("hst_pm_tangential")
-    ratio_h = np.asarray(ht.value) / np.asarray(hr.value)
-    err_h = ratio_h * np.hypot(np.asarray(ht.err_lo) / np.asarray(ht.value),
-                               np.asarray(hr.err_lo) / np.asarray(hr.value))
-    a3.errorbar(pc(hr.r), ratio_h, yerr=err_h, fmt="o", ms=3.5, color=style.SERIES[1],
-                lw=0.9, label="HST (fitted as two datasets)")
-    rg = np.asarray(g["sigma_pmt"]) / np.asarray(g["sigma_pmr"])
-    a3.plot(pc(g["r_median"]), rg, "D-", ms=6.5, lw=1.8, color=style.SERIES[0],
-            label="Gaia EDR3, ours (fitted only as the combination)")
-    rp2 = np.asarray(pr["sigma_pmt"])[pr_ok] / np.asarray(pr["sigma_pmr"])[pr_ok]
-    a3.plot(np.asarray(pr["r_pc"])[pr_ok], rp2, "v", ms=7, mfc="white",
-            color=style.SERIES[2], label="Pristine (not fitted)")
+    rh = np.asarray(ht.value) / np.asarray(hr.value)
+    eh = rh * np.hypot(np.asarray(ht.err_lo) / np.asarray(ht.value),
+                       np.asarray(hr.err_lo) / np.asarray(hr.value))
+    st = dataset_style("hst", "combined", size=4.0)
+    a3.errorbar(pc(hr.r), rh, yerr=eh, linestyle="none", lw=0.9, label="HST", **st)
+    st = dataset_style("gaia_edr3", "combined", size=6.5)
+    a3.plot(pc(g["r_median"]), np.asarray(g["sigma_pmt"]) / np.asarray(g["sigma_pmr"]),
+            ls="-", lw=1.8, label="Gaia EDR3, ours", **st)
+    st = dataset_style("pristine", "combined", size=7.0, fitted=False)
+    a3.plot(np.asarray(pr["r_pc"])[ok],
+            np.asarray(pr["sigma_pmt"])[ok] / np.asarray(pr["sigma_pmr"])[ok],
+            ls="none", label="Pristine [not fitted]", **st)
     a3.axhline(1.0, color=style.INK_SECONDARY, lw=1.5)
-    a3.annotate("tangentially biased", (170, 1.15), fontsize=8, color=style.INK_SECONDARY,
-                ha="right")
-    a3.annotate("radially biased", (170, 0.77), fontsize=8, color=style.INK_SECONDARY,
-                ha="right")
+    a3.annotate("tangentially biased", (75, 1.22), fontsize=8, color=style.INK_SECONDARY, ha="right")
+    a3.annotate("radially biased", (75, 0.755), fontsize=8, color=style.INK_SECONDARY, ha="right")
     a3.axvline(R_JACOBI_PERI_PC, color=style.INK_SECONDARY, lw=1.2, ls=":")
     a3.set_xscale("log"); a3.set_ylim(0.72, 1.28)
     a3.set_ylabel(r"$\sigma_T / \sigma_R$")
-    a3.legend(fontsize=8, loc="upper left", ncol=1, framealpha=0.93)
+    a3.legend(fontsize=8, loc="upper left", ncol=3, framealpha=0.93)
 
     # --- coverage ------------------------------------------------------------------
-    for i, (label, lo, hi, n, colour, kind) in enumerate(spans):
+    for i, (label, lo, hi, n, colour) in enumerate(spans):
         y = len(spans) - i
         a2.plot([lo, hi], [y, y], lw=7, color=colour, solid_capstyle="round", alpha=0.9)
         a2.annotate("%d points" % n, (hi, y), textcoords="offset points", xytext=(9, -3),
@@ -1511,8 +1508,8 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
     a2.axvline(R_JACOBI_PERI_PC, color=style.INK_SECONDARY, lw=1.2, ls=":")
     a2.set_ylim(0.3, len(spans) + 0.7); a2.set_yticks([])
     a2.set_xscale("log"); a2.set_xlabel("r  [pc]"); a2.set_xlim(0.03, 300)
-    total = sum(s[3] for s in spans)
-    a2.set_title("radial coverage and weight: %d points in total" % total, fontsize=10)
+    a2.set_title("radial coverage and weight: %d points in total" % sum(s[3] for s in spans),
+                 fontsize=10)
     fig.tight_layout()
     path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
