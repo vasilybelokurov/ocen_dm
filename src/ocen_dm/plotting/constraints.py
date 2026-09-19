@@ -33,7 +33,7 @@ from . import style
 from .style import add_pc_axis
 
 __all__ = ["plot_constraint_map", "plot_outer_tracer_audit", "plot_contamination_model", "plot_annulus_fits",
-           "plot_method_comparison", "plot_residual_significance", "plot_dataset_step", "plot_offset_explained", "plot_datasets_unscaled", "plot_hst_gaia_star_by_star", "hst_gaia_excess_table", "hst_gaia_overlap_table",
+           "plot_method_comparison", "plot_residual_significance", "plot_dataset_step", "plot_offset_explained", "plot_datasets_unscaled", "plot_hst_gaia_star_by_star", "hst_gaia_excess_table", "hst_gaia_overlap_table", "plot_pm_datasets",
            "fit_quality_table", "annulus_fits", "our_outer_profile", "our_mixture_profile", "OUTER_EDGES"]
 
 #: log-spaced annuli for our own outer measurement (arcsec)
@@ -1081,6 +1081,89 @@ def plot_hst_gaia_star_by_star(path: Path | str = "plots/hst_gaia_star_by_star.p
     a4.text(115, 40, "no star passes\ninside 200 arcsec", fontsize=8, color=style.SERIES[2])
     a4.text(330, 8, "only overlap\nwith usable HST", fontsize=7.5, color=style.SERIES[2], ha="center")
     add_pc_axis(a4, distance_kpc)
+    fig.tight_layout()
+    path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
+    return path
+
+
+def plot_pm_datasets(path: Path | str = "plots/pm_datasets_edr3_rebuild.png",
+                     distance_kpc: float = 5.43) -> Path:
+    """Every proper-motion dispersion measurement on one axis, and what changed.
+
+    Top: HST and Gaia DR2 as published, the published Gaia EDR3 spline with its confidence
+    band, our first (old) EDR3 measurement which deconvolved the raw catalogue errors, and
+    our new one built from stars whose errors are small next to the signal. The starred pair
+    is the 300-380 arcsec annulus, the only place where HST's high-quality astrometry and
+    Gaia's quality flag both have usable stars, so it is the one direct instrument test.
+    Bottom: the same, divided by the published EDR3 spline.
+    """
+    from ..kinematics.likelihood import load_profile
+    from ..kinematics.outer_gaia import load_edr3_profile
+    from ..kinematics.vb2021_replication import published_profile
+    style.apply()
+    rp, sp = published_profile()
+    t = Table.read(processed_dir() / "kinematics" / "vasiliev2021_ocen_pm_profiles.ecsv")
+    lo_b, hi_b = np.asarray(t["sigma_pm_p16"], float), np.asarray(t["sigma_pm_p84"], float)
+    old = our_mixture_profile()
+    new = load_edr3_profile()
+    ov = hst_gaia_overlap_table()
+    hst, dr2 = load_profile("hst_pm_combined"), load_profile("gaia_dr2_pm")
+
+    fig, (a1, a2) = plt.subplots(2, 1, figsize=(9.6, 8.4), sharex=True,
+                                 gridspec_kw={"height_ratios": [2.3, 1]})
+    a1.fill_between(rp[rp > 0], lo_b[rp > 0], hi_b[rp > 0], color=style.INK_SECONDARY, alpha=0.18, lw=0)
+    a1.plot(rp[rp > 0], sp[rp > 0], color=style.INK_SECONDARY, lw=2,
+            label="Gaia EDR3, published spline (Vasiliev & Baumgardt 2021)")
+    a1.axvspan(0.5, 460, color=style.SERIES[1], alpha=0.06, lw=0)
+    a1.errorbar(hst.r, hst.value, yerr=[hst.err_lo, hst.err_hi], fmt="o", ms=4,
+                color=style.SERIES[1], lw=1, label="HST (oMEGACat)")
+    a1.errorbar(dr2.r, dr2.value, yerr=[dr2.err_lo, dr2.err_hi], fmt="s", ms=5,
+                color=style.SERIES_EXTRA, lw=1, label="Gaia DR2 (Baumgardt+ 2019)")
+    a1.errorbar(old["r_median"], old["sigma_pm"], yerr=old["sigma_pm_err"], fmt="v--", ms=6,
+                color=style.COLOR_FIELD, lw=1.3, label="ours, old: all quality stars, raw catalogue errors")
+    a1.errorbar(new["r_median"], new["sigma_pm"], yerr=new["sigma_pm_err"], fmt="D-", ms=7,
+                color=style.SERIES[0], lw=2, capsize=3, zorder=5,
+                label="ours, new: err < 0.4$\\sigma$, error-model independent, R > 460\"")
+    row_h = ov[ov["sample"] == "HST, high-quality astrometry"][0]
+    row_g = ov[ov["sample"] == "Gaia, quality flag"][0]
+    a1.errorbar([335.0], [row_h["sigma"]], yerr=[row_h["sigma_err"]], fmt="*", ms=19,
+                color=style.SERIES[1], zorder=6, label="HST, quality cut, 300-380\"  (N = %d)" % row_h["n_stars"])
+    a1.errorbar([355.0], [row_g["sigma"]], yerr=[row_g["sigma_err"]], fmt="*", ms=19,
+                color=style.SERIES[2], zorder=6, capsize=3,
+                label="Gaia EDR3, quality cut, same annulus  (N = %d)" % row_g["n_stars"])
+    a1.annotate("same stars' quality standard,\nGaia/HST = %.2f $\\pm$ %.2f" % (row_g["ratio"], row_g["ratio_err"]),
+                (355.0, row_g["sigma"]), textcoords="offset points", xytext=(16, -52), fontsize=8,
+                color=style.SERIES[2])
+    a1.text(175, 0.80, "no usable Gaia EDR3 here:\nthe quality flag passes\nfewer than 500 stars",
+            fontsize=8.5, color=style.SERIES[1], ha="center")
+    a1.set_xscale("log"); a1.set_yscale("log")
+    a1.set_ylabel("1-D PM dispersion  [mas/yr]")
+    a1.set_ylim(0.18, 0.95)
+    a1.legend(fontsize=7.6, loc="lower left", framealpha=0.95, borderpad=0.6)
+    a1.set_title("Proper-motion dispersion of $\\omega$ Cen: what enters the fits", fontsize=11)
+    add_pc_axis(a1, distance_kpc)
+
+    def ratio(r, v, e):
+        ref = np.interp(r, rp, sp)
+        return np.asarray(v) / ref, np.asarray(e) / ref
+
+    a2.axhline(1.0, color=style.INK_SECONDARY, lw=2)
+    a2.fill_between(rp[rp > 0], lo_b[rp > 0] / sp[rp > 0], hi_b[rp > 0] / sp[rp > 0],
+                    color=style.INK_SECONDARY, alpha=0.18, lw=0)
+    for r_, v_, e_, fmt, col, lab in (
+            (hst.r, hst.value, hst.err_lo, "o", style.SERIES[1], "HST"),
+            (dr2.r, dr2.value, dr2.err_lo, "s", style.SERIES_EXTRA, "Gaia DR2"),
+            (old["r_median"], old["sigma_pm"], old["sigma_pm_err"], "v--", style.COLOR_FIELD, "ours, old"),
+            (new["r_median"], new["sigma_pm"], new["sigma_pm_err"], "D-", style.SERIES[0], "ours, new")):
+        y, ye = ratio(np.asarray(r_, float), v_, e_)
+        a2.errorbar(r_, y, yerr=ye, fmt=fmt, ms=5 if fmt[0] != "D" else 7, color=col,
+                    lw=1.8 if fmt[0] == "D" else 1.0, label=lab, zorder=5 if fmt[0] == "D" else 3)
+    a2.axvspan(0.5, 460, color=style.SERIES[1], alpha=0.06, lw=0)
+    a2.set_xscale("log"); a2.set_xlabel("R  [arcsec]")
+    a2.set_ylabel("ratio to published\nEDR3 spline")
+    a2.set_ylim(0.80, 1.30); a2.set_xlim(100, 2700)
+    a2.legend(fontsize=8, ncol=4, loc="lower left", framealpha=0.95)
     fig.tight_layout()
     path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)

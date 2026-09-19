@@ -208,6 +208,31 @@ def _vasiliev2021(r_min_arcsec: float = 0.0, n_max: int | None = 8) -> BinnedPro
     )
 
 
+def _edr3_ours() -> BinnedProfile:
+    """Our own Gaia EDR3 dispersion profile, measured beyond 460 arcsec.
+
+    Replaces ``gaia_edr3_pm`` (a 2-5 node spline whose inner points are an inward
+    continuation over a region with no usable Gaia star). Built from quality-flagged stars
+    whose errors are small next to the signal, so the answer does not depend on the error
+    model; see :mod:`ocen_dm.kinematics.outer_gaia`. Bins are independent, the quoted error
+    already carries the error-model systematic, and rotation is returned as ``streaming2``.
+    """
+    from .outer_gaia import load_edr3_profile
+    t = load_edr3_profile()
+    err = np.asarray(t["sigma_pm_err"], float)
+    return BinnedProfile(
+        name="gaia_edr3_ours", kind="pmc", r=np.asarray(t["r_median"], float),
+        r_lower=np.asarray(t["r_lower"], float), r_upper=np.asarray(t["r_upper"], float),
+        value=np.asarray(t["sigma_pm"], float), err_lo=err, err_hi=err, instrument="GaiaEDR3",
+        shares_stars_with=("gaia_dr2_pm", "gaia_edr3_pm"),
+        note="our measurement: quality-flagged EDR3 stars with err < 0.4 sigma(R), 2-D empirical "
+             "field template, exact perspective and depth removal, independent annuli; the value "
+             "is the midpoint of the raw-error and density-inflated-error fits and half their "
+             "separation is included in the error as a systematic",
+        streaming2=np.asarray(t["streaming2"], float),
+    )
+
+
 DATASETS: dict[str, Any] = {
     "hst_pm_radial": lambda: _omegacat("pm_radial", "sigma_pmr", "pmr", ("hst_pm_tangential", "hst_pm_combined")),
     "hst_pm_tangential": lambda: _omegacat("pm_tangential", "sigma_pmt", "pmt", ("hst_pm_radial", "hst_pm_combined")),
@@ -215,10 +240,12 @@ DATASETS: dict[str, Any] = {
     "muse_los_dispersion": lambda: _omegacat("los_dispersion", "sigma_los", "los", ()),
     "gaia_dr2_pm": _baumgardt2019,
     "gaia_edr3_pm": _vasiliev2021,
+    "gaia_edr3_ours": _edr3_ours,
 }
 
 #: combinations that would count the same stars twice
-_FORBIDDEN_TOGETHER = (("hst_pm_combined", "hst_pm_radial"), ("hst_pm_combined", "hst_pm_tangential"))
+_FORBIDDEN_TOGETHER = (("hst_pm_combined", "hst_pm_radial"), ("hst_pm_combined", "hst_pm_tangential"),
+                       ("gaia_edr3_ours", "gaia_edr3_pm"))
 
 
 def load_profile(name: str, **kwargs: Any) -> BinnedProfile:
