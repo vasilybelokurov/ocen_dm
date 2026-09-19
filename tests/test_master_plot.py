@@ -39,3 +39,27 @@ def test_master_plot_follows_a_custom_dataset_list(tmp_path):
     out = plot_master_datasets(tmp_path / "m2.png",
                                datasets="hst_pm_combined,muse_los_dispersion,gaia_edr3_pm")
     assert out.exists()
+
+
+def test_master_plot_shows_the_components_the_fit_does_not_use():
+    """Our Gaia measurement is fitted as a combination but measured as R and T."""
+    from ocen_dm.kinematics.outer_gaia import load_edr3_profile
+    from ocen_dm.kinematics.likelihood import load_profile
+    g = load_edr3_profile()
+    assert {"sigma_pmr", "sigma_pmt"} <= set(g.colnames)
+    combined = np.sqrt(0.5 * (np.asarray(g["sigma_pmr"]) ** 2 + np.asarray(g["sigma_pmt"]) ** 2))
+    assert np.allclose(combined, np.asarray(g["sigma_pm"]), rtol=1e-6)
+    assert load_profile("gaia_edr3_ours").kind == "pmc", "still fitted as the combination"
+    # the anisotropy is a real signal, not noise: radial inside, tangential outside
+    ratio = np.asarray(g["sigma_pmt"]) / np.asarray(g["sigma_pmr"])
+    assert ratio[:4].mean() < 0.95 and ratio[-3:].mean() > 1.05
+
+
+def test_usable_edr3_exists_between_300_and_380_arcsec():
+    """The inner edge is set by where stars exist, and the innermost bin uses them."""
+    from ocen_dm.kinematics.outer_gaia import load_edr3_profile
+    g = load_edr3_profile()
+    first = g[0]
+    assert 300 <= first["r_lower"] < 380
+    assert first["n_stars"] >= 40, "these are real stars, not an extrapolation"
+    assert first["sigma_pm_err"] / first["sigma_pm"] < 0.12

@@ -1405,8 +1405,10 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
 
     Top: every dataset in the default likelihood, converted to km/s at the fitted distance so
     proper motions and line-of-sight velocities share an axis, with the data that exist but
-    are deliberately not fitted drawn faintly behind. Bottom: what each dataset covers and how
-    many points it contributes, which is what actually decides where the model is constrained.
+    are deliberately not fitted drawn faintly behind. Our Gaia measurement is drawn both as
+    the combination the likelihood receives and as the separate radial and tangential
+    components it is built from. Middle: the anisotropy those components imply. Bottom: what
+    each dataset covers and how many points it contributes.
     """
     from ..cli import DEFAULT_DATASETS
     from ..kinematics.likelihood import load_profile
@@ -1419,18 +1421,19 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
     keys = (datasets or DEFAULT_DATASETS).split(",")
     k = KMS_PER_MASYR_KPC * distance_kpc
     pc = lambda a: np.asarray(a, float) * distance_kpc * 1e3 / 206264.806
+    g = load_edr3_profile()
+    pr = pristine_profile()
+    pr_ok = np.asarray(pr["reliable"], bool)
 
-    fig, (a1, a2) = plt.subplots(2, 1, figsize=(10.4, 9.0), sharex=True,
-                                 gridspec_kw={"height_ratios": [2.6, 1]})
+    fig, (a1, a3, a2) = plt.subplots(3, 1, figsize=(10.4, 11.4), sharex=True,
+                                     gridspec_kw={"height_ratios": [2.5, 1.15, 1.0]})
 
     # --- context: real data that is deliberately NOT in the likelihood -------------
     rp, sp = published_profile()
     a1.plot(pc(rp[rp > 0]), sp[rp > 0] * k, color=style.INK_SECONDARY, lw=1.4, ls="--",
-            alpha=0.6, label="not fitted: published EDR3 spline (inner part is extrapolation)")
-    pr = pristine_profile()
-    ok = np.asarray(pr["reliable"], bool)
-    a1.errorbar(np.asarray(pr["r_pc"])[ok], np.asarray(pr["sigma_kms"])[ok],
-                yerr=np.asarray(pr["sigma_kms_err"])[ok], fmt="v", ms=8, mfc="white",
+            alpha=0.55, label="not fitted: published EDR3 spline (inner part is extrapolation)")
+    a1.errorbar(np.asarray(pr["r_pc"])[pr_ok], np.asarray(pr["sigma_kms"])[pr_ok],
+                yerr=np.asarray(pr["sigma_kms_err"])[pr_ok], fmt="v", ms=8, mfc="white",
                 color=style.SERIES[2], lw=1.3, alpha=0.9,
                 label="not fitted: Pristine PM, same mixture")
     los = periphery_los_profile()
@@ -1452,29 +1455,50 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
                     zorder=5, label=label)
         spans.append((label, pc(p.r).min(), pc(p.r).max(), len(p.r), colour, p.kind))
 
+    # our Gaia measurement, split into the components the likelihood does not see
+    if "gaia_edr3_ours" in keys:
+        for col, mark, lab in (("sigma_pmr", "<", "radial"), ("sigma_pmt", ">", "tangential")):
+            a1.plot(pc(g["r_median"]), np.asarray(g[col]) * k, mark + ":", ms=5.5, lw=1.0,
+                    color=style.SERIES[0], mfc="white", alpha=0.85,
+                    label="Gaia EDR3, %s component (measured, NOT fitted separately)" % lab)
+
+    a1.axvspan(0.03, 300 * distance_kpc * 1e3 / 206264.806, color=style.SERIES[1],
+               alpha=0.045, lw=0)
+    a1.annotate("no Gaia EDR3 passes the quality flag\ninside 200 arcsec; 5 stars at 200-300",
+                (0.9, 4.3), fontsize=8, color=style.SERIES[1], ha="center")
     a1.axvline(R_JACOBI_PERI_PC, color=style.INK_SECONDARY, lw=1.2, ls=":")
     a1.annotate("$r_J$ pericentre", (R_JACOBI_PERI_PC * 1.05, 4.3), rotation=90, fontsize=8,
                 color=style.INK_SECONDARY)
-    # the region where Gaia's quality flag passes almost nothing: our EDR3 points start here
-    a1.axvspan(0.03, 300 * distance_kpc * 1e3 / 206264.806, color=style.SERIES[1],
-               alpha=0.045, lw=0)
-    a1.annotate("no usable Gaia EDR3:\nHST and MUSE only", (1.1, 4.3), fontsize=8,
-                color=style.SERIES[1], ha="center")
-    dr2 = load_profile("gaia_dr2_pm")
-    inner = np.asarray(dr2.r, float) < 380.0
-    if inner.any():
-        a1.annotate("Gaia DR2 still contributes %d points inside 380 arcsec,\n"
-                    "the range whose EDR3 equivalent was removed" % inner.sum(),
-                    (pc(dr2.r[inner]).mean(), np.asarray(dr2.value)[inner].mean() * k),
-                    textcoords="offset points", xytext=(18, 26), fontsize=7.8,
-                    color=style.INK, arrowprops=dict(arrowstyle="->", color=style.INK, lw=0.9))
     a1.set_xscale("log"); a1.set_yscale("log")
     a1.set_ylim(3.2, 26); a1.set_xlim(0.03, 300)
     a1.set_yticks([4, 5, 6, 8, 10, 15, 20]); a1.set_yticklabels(["4", "5", "6", "8", "10", "15", "20"])
-    a1.set_ylabel("velocity dispersion  [km/s]   (PM scaled at D = %.2f kpc)" % distance_kpc)
-    a1.legend(fontsize=8, loc="lower left", ncol=1, framealpha=0.93)
+    a1.set_ylabel("velocity dispersion  [km/s]")
+    a1.legend(fontsize=7.6, loc="lower left", framealpha=0.93)
     a1.set_title("$\\omega$ Cen: every dataset in the likelihood", fontsize=12)
     add_arcsec_axis(a1, distance_kpc)
+
+    # --- anisotropy ----------------------------------------------------------------
+    hr, ht = load_profile("hst_pm_radial"), load_profile("hst_pm_tangential")
+    ratio_h = np.asarray(ht.value) / np.asarray(hr.value)
+    err_h = ratio_h * np.hypot(np.asarray(ht.err_lo) / np.asarray(ht.value),
+                               np.asarray(hr.err_lo) / np.asarray(hr.value))
+    a3.errorbar(pc(hr.r), ratio_h, yerr=err_h, fmt="o", ms=3.5, color=style.SERIES[1],
+                lw=0.9, label="HST (fitted as two datasets)")
+    rg = np.asarray(g["sigma_pmt"]) / np.asarray(g["sigma_pmr"])
+    a3.plot(pc(g["r_median"]), rg, "D-", ms=6.5, lw=1.8, color=style.SERIES[0],
+            label="Gaia EDR3, ours (fitted only as the combination)")
+    rp2 = np.asarray(pr["sigma_pmt"])[pr_ok] / np.asarray(pr["sigma_pmr"])[pr_ok]
+    a3.plot(np.asarray(pr["r_pc"])[pr_ok], rp2, "v", ms=7, mfc="white",
+            color=style.SERIES[2], label="Pristine (not fitted)")
+    a3.axhline(1.0, color=style.INK_SECONDARY, lw=1.5)
+    a3.annotate("tangentially biased", (170, 1.15), fontsize=8, color=style.INK_SECONDARY,
+                ha="right")
+    a3.annotate("radially biased", (170, 0.77), fontsize=8, color=style.INK_SECONDARY,
+                ha="right")
+    a3.axvline(R_JACOBI_PERI_PC, color=style.INK_SECONDARY, lw=1.2, ls=":")
+    a3.set_xscale("log"); a3.set_ylim(0.72, 1.28)
+    a3.set_ylabel(r"$\sigma_T / \sigma_R$")
+    a3.legend(fontsize=8, loc="upper left", ncol=1, framealpha=0.93)
 
     # --- coverage ------------------------------------------------------------------
     for i, (label, lo, hi, n, colour, kind) in enumerate(spans):
@@ -1486,8 +1510,7 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
                     color=colour, ha="right", va="center")
     a2.axvline(R_JACOBI_PERI_PC, color=style.INK_SECONDARY, lw=1.2, ls=":")
     a2.set_ylim(0.3, len(spans) + 0.7); a2.set_yticks([])
-    a2.set_xscale("log"); a2.set_xlabel("r  [pc]")
-    a2.set_xlim(0.03, 300)
+    a2.set_xscale("log"); a2.set_xlabel("r  [pc]"); a2.set_xlim(0.03, 300)
     total = sum(s[3] for s in spans)
     a2.set_title("radial coverage and weight: %d points in total" % total, fontsize=10)
     fig.tight_layout()
