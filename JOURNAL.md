@@ -2872,3 +2872,86 @@ an agreed symbol.
 Applied to `master_datasets.png`, `profile_extended_pristine.png` and
 `periphery_where_the_cluster_ends.png`. The older figures still use their own colours and
 will be migrated when next touched.
+
+## 2026-09-19 -- the HST/Gaia overlap, and why our HST measurement was wrong
+
+User, twice: "we need an overlap between HST and Gaia EDR3 measurements!!!! you keep showing
+me that they dont overlap, why???" The answer is that there was never a gap in the data,
+only in the product we were reading.
+
+### There was no gap
+
+| | reaches |
+|---|---|
+| published oMEGACat PM profile | 300 arcsec |
+| oMEGACat astrometry quality flag | ~340 arcsec (66 stars at 340-380, **0** beyond 380) |
+| **the oMEGACat catalogue itself** | **466 arcsec**, 23730 stars at 340-380 and 7725 at 380-420 |
+
+We had been feeding the likelihood the published profile, so HST stopped at 300 arcsec while
+our Gaia measurement started at 356. Measuring HST ourselves in Gaia's own annuli
+(`kinematics/hst_profile.py`) produces a genuine **two-bin overlap at 300-460 arcsec**.
+
+Taking the unflagged stars raw does not work: their error-deconvolved dispersion *rises*
+outwards (0.80, 0.88, 1.78 mas/yr at 340-380, 380-420, 420-466), which no cluster does. HST
+proper motions are relative to the cluster, so members sit at the origin and field stars sit
+7.5 mas/yr away; only 1-2 per cent of stars lie beyond 3 mas/yr but in a raw variance they
+dominate. The same cluster-plus-field mixture used everywhere else, with the same empirical
+Gaia DR3 field template scored in absolute proper motion, handles it.
+
+### The user caught the remaining error
+
+"the published omegacat catalog agrees almost perfectly with our measured Gaia profile, why?
+maybe we need to rethink our HST measurements?" Correct. Checked directly:
+
+| our HST measurement | vs the published oMEGACat profile |
+|---|---|
+| flagged stars only | 1.1 to 2.3 per cent high |
+| all stars, uncorrected | 4.7 to 6.1 per cent high |
+
+So our method reproduces theirs when given the same stars, and the excess comes entirely from
+the stars oMEGACat rejects. Running the same mixture on each subset where both exist:
+
+| annulus | sigma flagged | sigma unflagged | unflagged / flagged |
+|---|---|---|---|
+| 150-200" | 0.6268 ± 0.0089 | 0.6846 ± 0.0097 | 1.092 ± 0.022 |
+| 200-250" | 0.5852 ± 0.0083 | 0.6367 ± 0.0090 | 1.088 ± 0.022 |
+| 250-300" | 0.5511 ± 0.0078 | 0.5945 ± 0.0084 | 1.079 ± 0.022 |
+| 300-340" | 0.5257 ± 0.0074 | 0.5531 ± 0.0078 | 1.052 ± 0.021 |
+
+**Weighted mean 1.077 ± 0.011.** The unflagged stars' errors are underestimated by about
+8 per cent -- the same pathology as unflagged Gaia, at a fifth of the amplitude. Outside 340
+arcsec every HST star is unflagged, so the raw outer points carry the full bias.
+`hst_profile` now divides each bin by `1 + f_unflagged * (ratio - 1)` and carries the
+ratio's uncertainty as a per-bin systematic.
+
+### The overlap, after the correction
+
+| annulus | HST (r) | Gaia (r) | Gaia/HST before | after, radius-matched |
+|---|---|---|---|---|
+| 300-380" | 0.5042 (323") | 0.4789 (356") | 0.950 | 0.966 ± 0.077 |
+| 380-460" | 0.4548 (397") | 0.4497 (437") | 0.989 | 1.013 ± 0.047 |
+
+**Weighted mean Gaia/HST = 1.000 ± 0.040.** The instruments agree exactly. (The two samples
+sit at different radii inside one annulus -- HST's coverage falls outwards, Gaia's flag
+passes more stars outwards -- so both are moved to the annulus midpoint on the local slope
+before the ratio is formed.)
+
+### What this revises
+
+Every earlier statement in this journal that HST and Gaia disagree by 7-9 per cent was
+measuring HST's rejected stars, not the instruments. The correct statement is that the two
+agree to 0 ± 4 per cent once each catalogue's own quality flag is respected, and that both
+published profiles are reproduced by our pipeline to 1-3 per cent.
+
+A residual 1-2 per cent offset between our flagged measurement and the published oMEGACat
+profile remains, from method (our per-annulus mixture against their Voronoi-binned MCMC). It
+is a floor on any instrument comparison and is not worth chasing further.
+
+Code `kinematics/hst_profile.py` (with `unflagged_bias()` to remeasure the correction),
+figure `plots/hst_gaia_overlap.png`, seven tests in `tests/test_hst_profile.py`. Also fixed
+`tests/test_master_plot.py`, which still referenced a style table removed when the master
+figure moved to the shared `DATASET_STYLE`.
+
+**Not implemented, awaiting agreement:** extending the fitted HST dataset from 300 to 460
+arcsec using this measurement, which would give the likelihood a real instrument overlap
+instead of two profiles meeting at a point.

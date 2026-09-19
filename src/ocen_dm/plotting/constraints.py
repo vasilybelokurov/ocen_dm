@@ -33,7 +33,7 @@ from . import style
 from .style import add_arcsec_axis, add_pc_axis
 
 __all__ = ["plot_constraint_map", "plot_outer_tracer_audit", "plot_contamination_model", "plot_annulus_fits",
-           "plot_method_comparison", "plot_residual_significance", "plot_dataset_step", "plot_offset_explained", "plot_datasets_unscaled", "plot_hst_gaia_star_by_star", "hst_gaia_excess_table", "hst_gaia_overlap_table", "plot_pm_datasets", "plot_periphery", "plot_periphery_density", "plot_extended_profile", "plot_master_datasets",
+           "plot_method_comparison", "plot_residual_significance", "plot_dataset_step", "plot_offset_explained", "plot_datasets_unscaled", "plot_hst_gaia_star_by_star", "hst_gaia_excess_table", "hst_gaia_overlap_table", "plot_pm_datasets", "plot_periphery", "plot_periphery_density", "plot_extended_profile", "plot_master_datasets", "plot_hst_gaia_overlap", "hst_gaia_overlap_profile",
            "fit_quality_table", "annulus_fits", "our_outer_profile", "our_mixture_profile", "OUTER_EDGES"]
 
 #: log-spaced annuli for our own outer measurement (arcsec)
@@ -1510,6 +1510,128 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
     a2.set_xscale("log"); a2.set_xlabel("r  [pc]"); a2.set_xlim(0.03, 300)
     a2.set_title("radial coverage and weight: %d points in total" % sum(s[3] for s in spans),
                  fontsize=10)
+    fig.tight_layout()
+    path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
+    return path
+
+
+def hst_gaia_overlap_profile(edges_arcsec=(300.0, 380.0, 460.0)) -> Table:
+    """HST and Gaia EDR3 on identical annuli, corrected to a common effective radius.
+
+    Inside one annulus the two samples do not sit at the same radius: HST's coverage falls
+    outwards while Gaia's quality flag passes more stars outwards, so their median radii
+    differ by 30-40 arcsec. Both are moved to the annulus's geometric midpoint using the
+    local logarithmic slope of the profile before the ratio is formed.
+    """
+    from ..kinematics.hst_profile import hst_profile
+    from ..kinematics.outer_gaia import load_edr3_profile
+    from ..kinematics.vb2021_replication import published_profile
+    h = hst_profile(edges_arcsec=edges_arcsec)
+    h_raw = hst_profile(edges_arcsec=edges_arcsec, correct_unflagged=False)
+    g = load_edr3_profile()
+    rp, sp = published_profile()
+    keep = rp > 0
+    slope_grid = np.gradient(np.log(sp[keep]), np.log(rp[keep]))
+    rows = []
+    for hr in h:
+        j = int(np.argmin(np.abs(np.asarray(g["r_lower"]) - hr["r_lower"])))
+        gr = g[j]
+        mid = float(np.sqrt(hr["r_lower"] * hr["r_upper"]))
+        sl = float(np.interp(mid, rp[keep], slope_grid))
+        hc = float(hr["sigma_pm"]) * (mid / float(hr["r_median"])) ** sl
+        gc = float(gr["sigma_pm"]) * (mid / float(gr["r_median"])) ** sl
+        ratio = gc / hc
+        err = ratio * float(np.hypot(gr["sigma_pm_err"] / gr["sigma_pm"],
+                                     hr["sigma_pm_err"] / hr["sigma_pm"]))
+        raw_h = float(h_raw["sigma_pm"][list(h["r_lower"]).index(hr["r_lower"])])
+        rows.append((hr["r_lower"], hr["r_upper"], mid, hr["r_median"], gr["r_median"], sl,
+                     hr["sigma_pm"], hr["sigma_pm_err"], gr["sigma_pm"], gr["sigma_pm_err"],
+                     hc, gc, float(gr["sigma_pm"] / raw_h), ratio, err,
+                     int(hr["n_stars"]), int(gr["n_stars"]), raw_h, float(hr["f_unflagged"])))
+    return Table(rows=rows, names=("r_lower", "r_upper", "r_mid", "r_hst", "r_gaia", "slope",
+                                   "sigma_hst", "sigma_hst_err", "sigma_gaia", "sigma_gaia_err",
+                                   "sigma_hst_mid", "sigma_gaia_mid", "ratio_raw", "ratio",
+                                   "ratio_err", "n_hst", "n_gaia", "sigma_hst_raw",
+                                   "f_unflagged"))
+
+
+def plot_hst_gaia_overlap(path: Path | str = "plots/hst_gaia_overlap.png",
+                          distance_kpc: float = 5.43) -> Path:
+    """The overlap between HST and Gaia EDR3, which exists once HST is measured, not read.
+
+    The published oMEGACat profile stops at 300 arcsec, but the catalogue carries proper
+    motions to 466. Measuring HST ourselves over the same annuli Gaia uses produces a genuine
+    two-bin overlap at 300-460 arcsec, where the two instruments can finally be compared on
+    the same stars' radii rather than across a gap.
+    """
+    from ..kinematics.hst_profile import hst_profile
+    from ..kinematics.likelihood import load_profile
+    from ..kinematics.outer_gaia import load_edr3_profile
+    from ..kinematics.periphery import KMS_PER_MASYR_KPC
+    from .style import dataset_label, dataset_style
+    style.apply()
+    k = KMS_PER_MASYR_KPC * distance_kpc
+    fine = hst_profile(edges_arcsec=(150., 200., 250., 300., 340., 380., 420., 466.))
+    g = load_edr3_profile()
+    pub = load_profile("hst_pm_combined")
+    ov = hst_gaia_overlap_profile()
+
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(13.2, 5.6),
+                                 gridspec_kw={"width_ratios": [1.6, 1]})
+    a1.axvspan(300, 460, color=style.SERIES[2], alpha=0.13, lw=0)
+    a1.annotate("the overlap:\n300-460 arcsec", (372, 0.30), fontsize=9.5, ha="center",
+                color=style.SERIES[2])
+    a1.errorbar(pub.r, np.asarray(pub.value), yerr=np.asarray(pub.err_lo), linestyle="none",
+                lw=0.9, label="HST, published oMEGACat profile (stops at 300\")",
+                **dataset_style("hst", size=4.0, fitted=False))
+    fine_raw = hst_profile(edges_arcsec=(150., 200., 250., 300., 340., 380., 420., 466.),
+                           correct_unflagged=False)
+    a1.plot(fine_raw["r_median"], fine_raw["sigma_pm"], ls=":", lw=1.4, color=style.SERIES[1],
+            alpha=0.6, label="HST, ours, before the unflagged-star correction")
+    a1.errorbar(fine["r_median"], fine["sigma_pm"], yerr=fine["sigma_pm_err"], linestyle="-",
+                lw=1.8, capsize=3, zorder=6, label="HST, our measurement (to 466\")",
+                **dataset_style("hst", size=8))
+    a1.errorbar(g["r_median"][:4], g["sigma_pm"][:4], yerr=g["sigma_pm_err"][:4], linestyle="-",
+                lw=1.8, capsize=3, zorder=6, label=dataset_label("gaia_edr3"),
+                **dataset_style("gaia_edr3", size=8))
+    a1.axvline(340, color=style.INK_SECONDARY, lw=1, ls=":")
+    a1.annotate("HST quality flag ends", (346, 0.62), rotation=90, fontsize=7.5,
+                color=style.INK_SECONDARY, va="top")
+    a1.set_xscale("log"); a1.set_yscale("log")
+    a1.set_xlim(140, 700); a1.set_ylim(0.28, 0.80)
+    a1.set_yticks([0.3, 0.4, 0.5, 0.6, 0.7]); a1.set_yticklabels(["0.3", "0.4", "0.5", "0.6", "0.7"])
+    a1.set_xlabel("R  [arcsec]"); a1.set_ylabel("1-D PM dispersion  [mas/yr]")
+    a1.legend(fontsize=8.2, loc="lower left"); add_pc_axis(a1, distance_kpc)
+    a1.set_title("HST reaches 466 arcsec; only its published profile stopped at 300",
+                 fontsize=10.5)
+
+    a2.axhline(1.0, color=style.INK_SECONDARY, lw=2)
+    x = np.arange(len(ov))
+    a2.errorbar(x - 0.10, ov["ratio_raw"], yerr=ov["ratio_err"], fmt="o", ms=8, mfc="white",
+                color=style.INK_SECONDARY, lw=1.4, capsize=4,
+                label="before correcting HST's unflagged stars")
+    a2.errorbar(x + 0.10, ov["ratio"], yerr=ov["ratio_err"], linestyle="none", lw=1.8,
+                capsize=4, zorder=6, label="after, and at a common radius",
+                **dataset_style("gaia_edr3", size=10))
+    w = np.sum(np.asarray(ov["ratio"]) / np.asarray(ov["ratio_err"]) ** 2) / \
+        np.sum(1 / np.asarray(ov["ratio_err"]) ** 2)
+    we = 1 / np.sqrt(np.sum(1 / np.asarray(ov["ratio_err"]) ** 2))
+    a2.axhspan(w - we, w + we, color=style.SERIES[0], alpha=0.15, lw=0)
+    a2.axhline(w, color=style.SERIES[0], lw=1.6, ls="--",
+               label="weighted mean %.3f $\\pm$ %.3f (%.1f$\\sigma$)" % (w, we, abs(w - 1) / we))
+    for i, row in enumerate(ov):
+        a2.annotate("%d HST\n%d Gaia" % (row["n_hst"], row["n_gaia"]), (i, 0.80),
+                    fontsize=8, ha="center", color=style.INK_SECONDARY)
+    a2.set_xticks(x)
+    a2.set_xticklabels(["%.0f-%.0f\"" % (r["r_lower"], r["r_upper"]) for r in ov])
+    a2.set_xlim(-0.5, len(ov) - 0.5); a2.set_ylim(0.75, 1.15)
+    a2.set_ylabel("Gaia EDR3 / HST"); a2.legend(fontsize=8.2, loc="upper left")
+    a2.set_title("The two instruments in the overlap", fontsize=10.5)
+    a2.annotate("stars failing HST's own astrometry flag give a dispersion\n"
+                "7.7 $\\pm$ 1.1 per cent too high; outside 340\" every star is one",
+                (0.5, 0.055), xycoords="axes fraction", ha="center", fontsize=7.8,
+                color=style.INK_SECONDARY)
     fig.tight_layout()
     path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
