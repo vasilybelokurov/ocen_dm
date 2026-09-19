@@ -32,7 +32,7 @@ from . import style
 from .style import add_pc_axis
 
 __all__ = ["plot_constraint_map", "plot_outer_tracer_audit", "plot_contamination_model", "plot_annulus_fits",
-           "plot_method_comparison", "plot_residual_significance", "plot_dataset_step", "plot_offset_explained",
+           "plot_method_comparison", "plot_residual_significance", "plot_dataset_step", "plot_offset_explained", "plot_datasets_unscaled",
            "fit_quality_table", "annulus_fits", "our_outer_profile", "our_mixture_profile", "OUTER_EDGES"]
 
 #: log-spaced annuli for our own outer measurement (arcsec)
@@ -843,6 +843,81 @@ def plot_offset_explained(path: Path | str = "plots/outer_offset_explained.png",
 
     fig.suptitle("Why the Gaia dispersions sit above the model beyond 500 arcsec", y=0.99)
     fig.tight_layout()
+    path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
+    return path
+
+
+def plot_datasets_unscaled(path: Path | str = "plots/datasets_unscaled.png", model_x: str | None = None,
+                           distance_kpc: float = 5.43) -> Path:
+    """Every dataset against one model, with no per-instrument rescaling anywhere.
+
+    The reference is a K1 (no dark matter) model fitted with the instrument nuisances
+    removed, so each dataset's disagreement is visible instead of being absorbed. Upper
+    panel: the dispersions themselves; lower: the deviation of each dataset from the same
+    model, in per cent.
+    """
+    import numpy as np
+
+    from ..kinematics import FitProblem, KinematicData, NoDarkMatterModel
+    style.apply()
+    fam = NoDarkMatterModel(tracer="composite", instruments=())
+    x = np.load(model_x or (results_dir() / "fits" / "K1_noscale_ml_x.npy"))
+    jeans, D, _ = fam.build(fam.to_dict(x))
+    data = _datasets_in_kms(D, contamination_modelled=True)
+    # also show the published EDR3 profile -- that is the version the fits were given
+    from ..kinematics.likelihood import load_profile
+    pub = load_profile("gaia_edr3_pm", r_min_arcsec=300.0, n_max=None)
+    keep = np.linspace(0, pub.n - 1, 14).astype(int)
+    k = KMS_PER_MASYR_KPC * D
+    data.append(dict(name="Gaia EDR3, published profile (what the fits were given)", r=pub.r[keep],
+                     sigma=pub.value[keep] * k, err=0.5 * (pub.err_lo + pub.err_hi)[keep] * k, n=None,
+                     kind="pm", color=style.SERIES_EXTRA, marker="v", streaming2=pub.streaming2[keep] * k**2))
+    R = np.geomspace(2.0, 2400.0, 220)
+
+    fig, (ax, axr, axg) = plt.subplots(3, 1, figsize=(9.5, 10.2), sharex=True,
+                                       gridspec_kw={"height_ratios": [2.2, 1.6, 1.1], "hspace": 0.07})
+    for kind, ls, lab in (("pm", "-", "proper motion"), ("los", "--", "line of sight")):
+        ax.plot(R, _sigma_1d_kms(jeans, D, R, kind), color=style.SERIES[0], lw=2, ls=ls, alpha=0.9,
+                label="K1 no dark matter, no instrument scales, %s" % lab)
+    for d in data:
+        ax.errorbar(d["r"], d["sigma"], yerr=d["err"], fmt=d["marker"], ms=4.5, color=d["color"],
+                    ecolor=d["color"], elinewidth=1, capsize=0, lw=0, label=d["name"], zorder=5)
+    ax.set_yscale("log"); ax.set_ylabel("1-D velocity dispersion  [km/s]")
+    ax.legend(fontsize=7.5, ncol=2, loc="lower left"); ax.tick_params(labelbottom=False)
+    ax.set_title("Every dataset against the same model, no rescaling anywhere", fontsize=11)
+    add_pc_axis(ax, D)
+
+    axr.axhline(0, color=style.INK, lw=1)
+    for d in data:
+        model = _sigma_1d_kms(jeans, D, d["r"], d["kind"])
+        if d.get("streaming2") is not None:
+            model = np.sqrt(np.maximum(model**2 - d["streaming2"], 1e-6))
+        elif "Gaia" in d["name"]:
+            from ..kinematics.likelihood import pm_rotation_curve
+            rot = pm_rotation_curve(d["r"]) * KMS_PER_MASYR_KPC * D
+            model = np.sqrt(np.maximum(model**2 - 0.5 * rot**2, 1e-6))
+        axr.errorbar(d["r"], 100 * (d["sigma"] / model - 1), yerr=100 * d["err"] / model, fmt=d["marker"],
+                     ms=4.5, color=d["color"], ecolor=d["color"], elinewidth=1, capsize=0, lw=0, label=d["name"])
+    axr.axvspan(346, 500, color=style.SERIES[1], alpha=0.10, lw=0)
+    axr.text(352, 17, "no reliable data", fontsize=7.5, color=style.SERIES[1])
+    axr.set_ylabel("deviation from the model  [%]")
+    axr.set_xscale("log"); axr.set_ylim(-25, 30); axr.legend(fontsize=7.5, ncol=2, loc="upper left")
+    axr.tick_params(labelbottom=False)
+
+    # do the two Gaia releases agree with each other?
+    dr2 = Table.read(processed_dir() / "kinematics" / "baumgardt2019_ocen_pm_dispersion.ecsv")
+    pubp = Table.read(processed_dir() / "kinematics" / "vasiliev2021_ocen_pm_profiles.ecsv")
+    rr = np.asarray(dr2["r"]); d = np.asarray(dr2["sigma_pm"])
+    de = 0.5 * (np.asarray(dr2["sigma_pm_err_lo"]) + np.asarray(dr2["sigma_pm_err_hi"]))
+    e3 = np.interp(rr, np.asarray(pubp["r"]), np.asarray(pubp["sigma_pm"]))
+    axg.errorbar(rr, 100 * (e3 / d - 1), yerr=100 * e3 / d * de / d, fmt="o", ms=5, color=style.SERIES[2],
+                 ecolor=style.SERIES[2], elinewidth=1.2, lw=0, label="EDR3 (published) / DR2 (Baumgardt+ 2019)")
+    axg.axhline(0, color=style.INK, lw=1)
+    axg.set_xscale("log"); axg.set_xlabel("R  [arcsec]"); axg.set_ylabel("EDR3 vs DR2  [%]")
+    axg.legend(fontsize=8, loc="upper left"); axg.set_ylim(-18, 18)
+    axg.text(0.55, 0.08, "the two Gaia releases disagree with a radial trend, not a constant",
+             transform=axg.transAxes, fontsize=8, color=style.INK_SECONDARY, ha="center")
     path = Path(path); path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=150, bbox_inches="tight"); plt.close(fig)
     return path
