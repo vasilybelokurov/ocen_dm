@@ -2267,3 +2267,108 @@ profile inside ~400 arcsec remains an inward continuation over a region containi
 53 usable stars. The earlier "HST and Gaia disagree" framing was too strong: **with the flag
 applied they agree to 8 ± 7 per cent, and the apparent step between the datasets came from
 comparing flagged Gaia at large radius with a profile extrapolated inwards.**
+
+## 2026-09-19 (later) -- what exactly we were comparing, and why we disagreed
+
+The question was whether our own outer PM dispersion and the published Gaia EDR3 profile are
+apples to apples. They were not. The difference is now understood and reproduced.
+
+### The two sides
+
+**Theirs.** Vasiliev & Baumgardt (2021), *Gaia EDR3 view on Galactic globular clusters*,
+MNRAS 505, 5978, https://arxiv.org/abs/2102.09568. The file is `profiles/NGC_5139_oCen.txt`
+inside their cluster archive: 101 rows on a uniform 24 arcsec grid from 0 to 2400 arcsec,
+five percentiles of the PM dispersion and five of the PM rotation. Their method, from their
+Section 2:
+
+* all EDR3 sources in the field, a 'clean' subset defined by eight quality cuts (G > 13,
+  RUWE < 1.15, astrometric excess noise, IPD harmonic amplitude and multi-peak, visibility
+  periods, BP/RP excess, duplicated source) -- this is the bit-2 quality flag in their
+  catalogue;
+* a mixture model fitted by MCMC: cluster surface density a **Plummer** profile with free
+  scale radius, field **two Gaussians**, membership probabilities marginalised;
+* the intrinsic PM dispersion a **cubic spline in radius with 2-5 nodes**, isotropic by
+  construction ("we used isotropic PM dispersion in the mixture model"); anisotropy is a
+  separate post-processing step (their Section 6);
+* rotation a **fixed functional form** with one free amplitude,
+  `mu_t(R) = mu_rot * 2 (R/R0) / (1 + (R/R0)^2)`, `R0` the Plummer scale radius;
+* the radial PM component **fixed** to perspective expansion, no free parameter.
+
+**Ours.** Independent maximum-likelihood fits in ten log-spaced annuli from 300 to 2400
+arcsec, on the same catalogue and the same quality flag, with free mean and dispersion in
+the radial and tangential directions separately, per-star error covariance deconvolved,
+exact perspective removal, the line-of-sight depth term removed, and contamination handled
+either by a membership cut or by an empirical two-dimensional field template.
+
+### Not apples to apples: four structural differences
+
+1. Their profile is a 2-5 node spline spanning 0 to 2400 arcsec. It borrows strength across
+   all radii, which is why its quoted uncertainty falls to **0.002 mas/yr (0.5 per cent) at
+   1050 arcsec** while ours is 1.4 per cent from 19000 stars in one annulus. That number is
+   the posterior width of a stiff global model, not the precision of a local measurement.
+2. Their dispersion is isotropic; ours is fitted as sigma_R and sigma_T.
+3. Their rotation is one amplitude on a fixed shape; ours is a free mean per annulus. This
+   one turns out not to matter: our fitted mean tangential motion tracks their rotation
+   profile closely (0.226 vs 0.250 at 435 arcsec, 0.159 vs 0.177 at 773, 0.037 vs 0.036 at
+   1722), so both remove the same streaming.
+4. Their inner points are not measurements. Five of the eight points our likelihood takes
+   sit inside 380 arcsec, where their own quality flag passes no star inside 200 and 53
+   inside 380.
+
+### The real cause of the 4-6 per cent offset: we were using raw errors
+
+Their readme lists a `source density` column "used to determine parallax/PM uncertainty
+scaling factors". Their Section 3 and Table 1 give it: `eta = (1 + Sigma/Sigma_0)^zeta` with
+`zeta = 0.04` and `Sigma_0 = 10` (5-parameter) or `5` (6-parameter) for the clean subset,
+reaching `eta ~ 1.1-1.15` in the densest regions. They state they apply the parallax
+prescription to the proper motions as well.
+
+**The released catalogue carries the raw, unscaled Gaia errors.** Verified directly:
+`gaia_edr3.gaia_source` on WSDB joined to all 228055 members gives a median
+`catalogue / raw` ratio of **1.0000** (1st to 99th percentile 0.9992 to 1.0009). The scaling
+is theirs to apply at fit time, and we were not applying it.
+
+Applying it in our annuli (`kinematics/vb2021_replication.py`, tests in
+`tests/test_vb2021_replication.py`):
+
+| r (arcsec) | theirs | ours, raw errors | ours, with eta | median eta |
+|---|---|---|---|---|
+| 347 | 0.4869 | 0.5032 (+3.4 %) | 0.5024 (+3.2 %) | 1.116 |
+| 435 | 0.4633 | 0.4655 (+0.5 %) | 0.4568 (-1.4 %) | 1.126 |
+| 521 | 0.4380 | 0.4601 (+5.0 %) | 0.4446 (+1.5 %) | 1.129 |
+| 635 | 0.4054 | 0.4239 (+4.6 %) | 0.4030 (-0.6 %) | 1.129 |
+| 773 | 0.3707 | 0.3932 (+6.1 %) | 0.3707 (+0.0 %) | 1.124 |
+| 941 | 0.3375 | 0.3535 (+4.8 %) | 0.3342 (-1.0 %) | 1.103 |
+| 1152 | 0.3061 | 0.3133 (+2.4 %) | 0.2980 (-2.6 %) | 1.080 |
+| 1408 | 0.2766 | 0.2805 (+1.4 %) | 0.2701 (-2.4 %) | 1.059 |
+| 1722 | 0.2501 | 0.2454 (-1.9 %) | 0.2381 (-4.8 %) | 1.044 |
+| 2122 | 0.2314 | 0.2195 (-5.1 %) | 0.2132 (-7.8 %) | 1.038 |
+
+One documented factor removes the entire discrepancy between 455 and 1000 arcsec. Their
+second prescription -- use only stars with `err < 0.2 sigma(R) / (eta - 0.9)` to constrain
+the dispersion, which drops about half the sample beyond 700 arcsec -- changes the answer by
+under 1 per cent.
+
+**So we can replicate their procedure, and when we do we agree with them to about 2 per cent
+out to 1400 arcsec.** Beyond that we fall below them (-6 per cent at 2122 arcsec), where the
+field fraction is 0.88 and their spline has few nodes; that one is not resolved and may
+belong to either side.
+
+### Consequence, and a proposal (not implemented)
+
+**Our own outer dispersion measurement is biased high by 4-6 per cent between 460 and 1000
+arcsec** because it deconvolves raw Gaia errors. A 5 per cent dispersion bias at large radius
+propagates to roughly 10 per cent in enclosed mass, in exactly the region where the dark
+halo is supposed to show itself. Both `our_outer_profile` and `our_mixture_profile` are
+affected, and so is anything plotted from them.
+
+Proposed, for agreement before implementation:
+
+1. apply `eta` in `load_members` (or as an explicit option consumed by both profile
+   builders), with the raw behaviour kept for comparison;
+2. keep the low-error selection off by default, since it changes < 1 per cent and costs half
+   the sample;
+3. rebuild the outer profile products and the plots that use them.
+
+Until then, every outer-dispersion number in this journal before today stands 4-6 per cent
+high in the 460-1000 arcsec range.
