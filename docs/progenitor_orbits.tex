@@ -388,6 +388,84 @@ history is a one-parameter family at fixed $\eta$; the oCen\_bar journal notes t
 low-$\Ob$ requirement is tied to this slowdown law, since $\Ob=35$ today implies an
 implausible $\Omega_1=110$\,\kmskpc.
 
+
+\subsection{Which pattern speeds put today's orbit in resonance?}
+\label{sec:resonances}
+A different question from ``which $\Ob$ carries \ocen\ from GSE to its present $(E,\Lz)$'' is
+``for which $\Ob$ is the \emph{present} orbit resonant''. From AGAMA's action finder in the
+axisymmetrised Hunter et al.\ (2024) potential (1000 error samples;
+\texttt{tails/resonances.py}) the present orbit has
+$\Omega_r=69.7$, $\Omega_z=63.1$, $\Omega_\phi=-44.3$\,\kmskpc\ (retrograde; McMillan 2017
+gives 70.2, 62.8, $-44.0$), with actions $J_r=242$, $J_z=120$, $\Lz=-533$\,kpc\,\kms. A
+resonance with a prograde bar requires
+\begin{equation}
+l\,\Omega_r + n\,\Omega_z + m\,(\Omega_\phi-\Ob)=0
+\quad\Longrightarrow\quad
+\Ob=\Omega_\phi+\frac{l\,\Omega_r+n\,\Omega_z}{m},
+\end{equation}
+and because $\Omega_\phi<0$ only combinations with enough radial or vertical frequency give a
+positive $\Ob$ (Table~\ref{tab:res}). The sample spread is $\pm0.1$\,\kmskpc; the potential
+difference $\pm0.5$.
+
+\begin{table}[h]\centering
+\caption{Bar pattern speeds for which \ocen's present orbit is resonant.}
+\label{tab:res}
+\begin{tabular}{lcl}\toprule
+resonance $(l,n,m)$ & $\Ob$ [\kmskpc] & comment\\\midrule
+corotation $(0,0,1)$ & $-44.3$ & impossible for a retrograde orbit\\
+OLR-type $(1,0,2)$ & $-9.5$ & impossible\\
+$(3,0,4)$ & 8.0 & far too slow\\
+vertical $(0,1,1)$ & 18.7 & \\
+$(1,1,2)$ & 22.1 & \\
+\textbf{retrograde 1:1} $(1,0,1)$ & \textbf{25.4} & the Dillamore et al.\ (2026) resonance\\
+$(5,0,4)$ & 42.8 & high order, weak\\
+$(4,0,3)$ & 48.6 & \\
+$(3,0,2)$ & 60.3 & \\
+$(1,1,1)$ & 88.5 & \\
+\bottomrule\end{tabular}
+\end{table}
+
+With a bar at the mainstream 33--41\,\kmskpc\ the present orbit is in no low-order
+resonance (the nearest is the weak 5:4 at 43). The only strong resonance it can occupy is the
+retrograde 1:1 at $\Ob=25.4$, which is why the migration scenario needs that pattern speed and,
+equally, why a fast bar merely perturbs today's orbit (Sec.~\ref{sec:c2bar}).
+
+\subsection{Class 2 in the barred potential}
+\label{sec:c2bar}
+The three class-2 histories were re-integrated in Hunter et al.\ (2024) --- axisymmetrised,
+and with the growing, decelerating bar ending at the mainstream 37.5\,\kmskpc\ (Hunter's
+value) and at 24 --- with 20 error samples each (\texttt{tails/class2\_barred.py},
+Fig.~\ref{fig:c2bar}). The bar is 8\,Gyr old; before that the potential is axisymmetric.
+
+\begin{table}[h]\centering
+\caption{Class 2 in the barred potential (kpc; medians over samples and over the three
+histories' ranges).}
+\begin{tabular}{lccc}\toprule
+& last Gyr peri / apo & 5--6\,Gyr ago peri / apo & apocentre before infall\\\midrule
+axisymmetric & 1.7 / 7.0--7.3 & 1.9--3.4 / 7--18 & 73--94\\
+bar, $\Ob=37.5$ & 1.9 / 7.0--7.3 & 1.8--3.1 / 8--19 & 80--99\\
+bar, $\Ob=24$ & 0.85--1.07 / 10--12 & 0.9--2.1 / 12--26 & 95--112\\
+\bottomrule\end{tabular}
+\end{table}
+
+With the fast bar nothing changes beyond the sample scatter: the class-2 picks stand. With
+the slow bar the last $\sim$2.5\,Gyr become class-3-like (pericentre 1\,kpc, apocentre
+10--12), because the retrograde 1:1 resonance sits at exactly this pattern speed for today's
+orbit; the infall apocentre rises by $\sim$20\% but stays inside the 50--150\,kpc selection
+band, so the same $(M_{\rm inf},\tau)$ picks remain valid. Under the slow bar the pericentres
+differ from the axisymmetric case all the way back to infall; that is not the bar acting
+9\,Gyr ago but a property of back-integration --- the whole inferred past is conditioned on
+today's state, so a resonant kick in the last 2.5\,Gyr re-routes the entire earlier
+trajectory.
+
+\begin{figure}[h]\centering
+\includegraphics[width=\textwidth]{class2_barred.png}
+\caption{Class 2 in the Hunter et al.\ (2024) potential: axisymmetric (solid), bar ending at
+37.5 (dashed) and at 24\,\kmskpc\ (dotted). Top: one sample's radius. Bottom: per-Gyr
+pericentre (blue) and apocentre (red), median over 20 samples; the bar forms 8\,Gyr ago.}
+\label{fig:c2bar}
+\end{figure}
+
 \section{Comparison between the classes}
 
 \begin{figure}[p]\centering

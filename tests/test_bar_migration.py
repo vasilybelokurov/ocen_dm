@@ -40,3 +40,12 @@ def test_short_backward_integration_runs_and_migrates():
     assert np.median(run.Lz[-1]) < -450 and np.median(run.Lz[0]) > np.median(run.Lz[-1]) + 300
     assert np.median(run.E[0]) > np.median(run.E[-1])
     assert 0.0 <= run.frac_inside <= 1.0
+
+
+def test_present_orbit_resonances():
+    from ocen_dm.tails.resonances import resonance_table
+    t = resonance_table(n_samples=50)
+    assert abs(t.meta["Omega_r"] - 69.7) < 1.5 and abs(t.meta["Omega_z"] - 63.1) < 1.5 and abs(t.meta["Omega_phi"] + 44.3) < 1.0
+    r11 = t[t["resonance"] == "retrograde 1:1 (1,0,1)"][0]
+    assert abs(r11["omega_b"] - 25.4) < 0.5                     # the Dillamore+2026 resonance
+    assert not t[t["resonance"] == "corotation"][0]["physical"]  # retrograde orbit: corotation impossible
