@@ -157,6 +157,25 @@ Dillamore, Zhang & Belokurov 2026 (arXiv:2606.12516), following the authors' own
 slightly prograde to zero L_z — not retrograde. The earlier
 static guess (L_z = −300) was wrong in sign and is kept only as `class3_gse_debris_orbit`.
 
+### Does a massive remnant migrate like a test particle? (friction test, `tails/friction_test.py`)
+
+Class-3 back-integration with Chandrasekhar friction for a constant bound mass (100 samples,
+vectorised leapfrog in the time-dependent AGAMA potential; nucleus-mass drift 11 kpc km/s/Gyr
+matches the paper's 9.6). Fraction inside GSE 8 Gyr ago:
+
+| Ω_b,0 | 20 | 21 | 22 | 22.5 | 23 | 24 | 25 | 26 | 27 |
+|---|---|---|---|---|---|---|---|---|---|
+| test particle | 0.44 | 0.38 | 0.58 | 0.85 | 0.01 | 0.89 | 0.79 | 0.18 | 0.00 |
+| M = 10⁷ | 0.92 | 0.99 | 0.05 | 0.59 | 0.99 | 1.00 | 0.89 | 0.28 | 0.00 |
+| M = 10⁸ | 0.00 | 0.20 | 0.14 | 0.33 | 0.23 | 0.00 | 0.00 | 0.00 | 0.00 |
+| M = 10⁹ | — | — | — | — | — | 0.00 (apo 74 kpc) | — | — | — |
+
+Threshold between 10⁷ and 10⁸ M☉: below it the system migrates like a particle (endpoint
+shifted by ΔE ≈ +0.13×10⁵, ΔL_z ≈ +240); at 10⁸ the resonance never captures it. **Class 3 is
+self-consistent only for a nucleus that had lost all but ≲10⁷⁻⁸ M☉ of its envelope before the
+bar slowed (~2.5 Gyr ago).** Figure `plots/friction_test_elz.png`; tables
+`results/tails/friction_test.ecsv`, `friction_test_grid.ecsv`.
+
 ### What is still not modelled
 
 * Anything before the bar formed (> 8 Gyr ago): GSE's own infall and disruption (Naidu et al.
