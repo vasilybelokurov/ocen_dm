@@ -64,7 +64,7 @@ def figure(path="plots/truncated_equilibrium.png"):
     for rj, c in ((35, "C6"), (70, "C0")):
         for r in (3, 10, 20):
             ax[0].axvline(r / rj, color=c, lw=0.6, ls=":")
-    ax[0].text(20 / 35 + 0.01, 0.9, "3, 10, 20 pc at $r_J$ = 35 (pink) / 70 (blue)", fontsize=7)
+    ax[0].text(0.62, 0.55, "dotted: 3, 10, 20 pc\nat $r_J$ = 35 (pink) / 70 pc (blue)", fontsize=7)
     ax[0].set_xlabel(r"$x = r / r_J$"); ax[0].set_ylabel("fraction of the initial density retained"); ax[0].legend(fontsize=7); ax[0].grid(alpha=0.3)
     r = np.linspace(5, 100, 200)
     for (M, rp, vp, lab, c) in ((1.36e10, 1570.0, 387.0, "class 1-2 pericentre 1.57 kpc", "C0"), (2.22e9, 420.0, 507.0, "class 3 pericentre 0.42 kpc", "C6")):
@@ -74,6 +74,6 @@ def figure(path="plots/truncated_equilibrium.png"):
     for n, lab in ((1 / 114, "unity after 114 passages (class 1, 10 Gyr)"), (1 / 66, "unity after 66 passages (class 3, 8 Gyr)")):
         ax[1].axhline(n, color="grey", lw=0.8, ls=":"); ax[1].text(6, n * 1.2, lab, fontsize=7, color="grey")
     ax[1].set_yscale("log"); ax[1].set_ylim(1e-6, 1); ax[1].set_xlabel("radius around the nucleus [pc]")
-    ax[1].set_ylabel(r"$\Delta E/|E|$ per pericentre passage (solid: with adiabatic correction; dashed: impulsive)")
+    ax[1].set_ylabel(r"$\Delta E/|E|$ per pericentre passage"); ax[1].set_title("solid: with adiabatic correction; dashed: impulsive", fontsize=9)
     ax[1].legend(fontsize=7, loc="lower right"); ax[1].grid(alpha=0.3)
     fig.tight_layout(); fig.savefig(path, dpi=150); plt.close(fig)
