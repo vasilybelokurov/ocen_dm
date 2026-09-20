@@ -269,7 +269,8 @@ def class2_friction_backwards_fast(m_sat_msun: float, r_half_kpc: float,
         ts[i] = t; X[i] = x; V[i] = v
     R = np.hypot(X[:, 0], X[:, 1]); phi = np.arctan2(X[:, 1], X[:, 0])
     vR = V[:, 0] * np.cos(phi) + V[:, 1] * np.sin(phi)
-    vT = -V[:, 0] * np.sin(phi) + V[:, 1] * np.cos(phi)
+    # right-handed (astropy) frame has disc rotation with v_phi < 0; store prograde-positive like galpy
+    vT = -(-V[:, 0] * np.sin(phi) + V[:, 1] * np.cos(phi))
     return OrbitSummary("class2fast M=%.1e" % m_sat_msun, potential, ts, R, X[:, 2],
                         np.linalg.norm(X, axis=1), vR, vT, V[:, 2],
                         {"friction": m_sat_msun > 0, "m_sat_msun": m_sat_msun,
