@@ -23,7 +23,6 @@ The data are **89 points**. Each rung runs the same families on the same observa
 | **0** | isotropic, `beta = 0` fixed | -- | none | 5 | 7 | 12.7 |
 | **1** | constant `beta` | `U[-1, 0.5]` | none | 6 | 8 | 11.1 |
 | **2** | `beta(r)`, 3 params | `beta_0 ~ U[-1, -0.5]` | none | 8 | 10 | 8.9 |
-| **3** | `beta(r)` | as rung 2 | per instrument | 11 | 13 | 6.8 |
 
 **Rung 0 is the first experiment.** Isotropic Jeans with stars, remnants and a point mass,
 against the same with a cored halo. Five and seven parameters. It is the model everyone
@@ -31,9 +30,17 @@ understands, its Bayes factor has the simplest possible meaning, and its residua
 directly whether anisotropy is even needed. Then the NFW halo as a third run, to bracket the
 halo shape.
 
-Rung 1 lets the anisotropy float but not vary with radius. Rung 3 exists only because
-instrument scales are known to be degenerate with halo mass; if a halo survives only when a
-scale is free, that is a result in itself.
+Rung 1 lets the anisotropy float but not vary with radius. Rung 2 lets it vary.
+
+**There is no rung with instrument scales.** A multiplicative scale on an instrument is
+degenerate with mass by construction -- one on Gaia EDR3 rescales the outer dispersion, which
+is where a halo lives -- and the whole data-preparation effort was spent making the
+instruments agree without one (HST/Gaia 1.01 +- 0.12 in the overlap, Pristine/Gaia 1.005 +-
+0.012). Adding scales afterwards would say "and if they still disagree, absorb it". If they
+still disagree, that is a finding about the data. The MUSE offset in particular is likely
+physical (line of sight against proper motion, a different tracer population, equipartition)
+and a scale would paper over it rather than model it. Scales are a fudge; removed
+2026-09-20 at the user's call.
 
 ```
 # the first round
@@ -72,6 +79,14 @@ After each rung, three questions, in order:
 3. **Is the top rung's model even acceptable?** `chi2` per dataset at the maximum-likelihood
    sample. An evidence comparison between two models that both fit badly is not meaningful.
 
+## One diagnostic, after the first round
+
+Run the best-fitting rung **once** with instrument scales free (`ocen-dm fit ...` without
+`--no-scales`) and look at where the scales land. If every `s_inst` sits at 1.00 within a
+couple of per cent, that is an independent validation of the data preparation. If one pulls
+away, that is a red flag about that instrument and goes back to the data, not into the
+model. **Its evidence is never compared with anything.**
+
 Only climb if question 1 says yes.
 
 ## Taken now, because they remove freedom rather than adding it
@@ -106,6 +121,7 @@ Neither is wrong. Both are held back until a baseline shows they are needed.
 ## Standing rules
 
 * Fits are run only when explicitly asked for, one rung at a time.
+* No instrument scale factors in any compared model.
 * Evidences are compared only between runs whose recorded provenance matches: dataset keys,
   point count, input hashes, and every switch that changes what the likelihood is shown.
 * Every rung's result goes in `JOURNAL.md` with its `Delta ln Z`, its per-dataset `chi2`, and
