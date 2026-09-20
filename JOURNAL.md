@@ -3963,3 +3963,21 @@ why WDs reach mass splittings up to ~5 MeV; the four open items) and a section "
 density inside omega Cen from the progenitor-orbit analysis" with the frozen-cusp-inside-r_J
 figure (plots/dm_density_in_rj_profiles.png), the density table at 3/10/20 pc, and the caveats
 (shocks inside r_J, contraction/cores, two-body heating). PDF now 15 pages.
+
+## 2026-09-20 -- equilibrium of tidally truncated DM around the nucleus (new section)
+
+User: "would not the DM have to relax into the new state inside r_J?" -> yes: tides truncate in
+energy, not radius. New section in docs/dm_capture_constraints.tex with the analytic estimate,
+references and a test programme; code `src/ocen_dm/tails/truncated_equilibrium.py` (tests 2).
+Analytic result: a rho ~ r^-gamma tracer in the nucleus's Kepler potential has f(E) ~ (-E)^(gamma-3/2);
+truncating at Phi(r_J) leaves the fraction F_gamma(x) = 1 - I_x(gamma-1/2, 3/2), x = r/r_J.
+For gamma = 1: F(20 pc) = 0.35 (r_J 70) and 0.14 (r_J 35); gamma = 3/2: 0.60 / 0.28 -- much
+more than the e^-x stand-in (0.75 / 0.56) used in the profile figure. So the frozen-cusp grid at
+20 pc (0.6-17 Msun/pc^3) becomes 0.2-6 (classes 1-2) and 0.1-2.4 (class 3) before shocks.
+Shock heating per passage (impulsive + GHO99 adiabatic correction (1+(omega tau)^2)^-1.5):
+classes 1-2 (r_p 1.57 kpc, v_p 387): 20 pc protected (dE/E 1e-5 per passage), 50-70 pc eroded
+in 30-170 passages; class 3 (r_p 0.42, v_p 507): 35 pc eroded in ~44 passages, 20 pc reaches
+unity in ~600 (vs 66 passages available) -> class-3 remnant set by shocks. Experiments E1-E6
+listed (AGAMA Eddington truncation; isolated relaxation; static tide at the two pericentres;
+class-1 and class-3 orbits with shocks; contracted/cored cusps; stellar heating estimate).
+Figure plots/truncated_equilibrium.png. PDF 20 pages.
