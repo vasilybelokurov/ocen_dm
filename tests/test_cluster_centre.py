@@ -23,7 +23,7 @@ def _sep(a, b):
 
 
 def test_the_constants_are_what_the_data_say():
-    assert _sep((OCEN_RA, OCEN_DEC), centre("omegacat")) < 0.05, \
+    assert _sep((OCEN_RA, OCEN_DEC), centre("omegacat")) < 0.005, \
         "the module constants must equal the derived oMEGACat centre"
 
 
@@ -52,15 +52,26 @@ def test_no_module_hard_codes_a_centre():
     assert not offenders, f"centre literal re-introduced in {offenders}"
 
 
-def test_the_innermost_hst_bin_is_really_central():
-    """The symptom that exposed it: 'r = 3 arcsec' stars were really at 8-14 arcsec."""
+def test_the_loader_agrees_with_the_catalogue_on_every_star():
+    """The symptom that exposed it: 'r = 3 arcsec' stars were really at 8-14 arcsec.
+
+    Recomputing radii and asserting they are small would be circular. This instead matches
+    the loader's radii star by star against radii computed independently from the
+    catalogue's RA/Dec about the derived centre.
+    """
+    from astropy.table import Table
     from ocen_dm.kinematics.hst_profile import load_hst_sample
     s = load_hst_sample()
-    inner = s.r_arcsec[(s.r_arcsec < 5) & (s.quality_flag > 0)]
-    assert len(inner) > 50
-    true = centre("omegacat")
-    from astropy.table import Table
     t = Table.read(raw_dir() / "omegacat_vi_kinematics" / "catalog_and_selections.fits")
     ra, dec = np.asarray(t["RA"], float), np.asarray(t["DEC"], float)
-    r_true = np.hypot((ra - true[0]) * np.cos(np.radians(true[1])), dec - true[1]) * 3600
-    assert np.nanmax(r_true[(r_true < 5)]) < 5.01
+    ok = np.isfinite(ra) & np.isfinite(dec) & np.isfinite(np.asarray(t["pmra_corrected"], float))
+    c = centre("omegacat")
+    r_ref = np.sort(np.hypot((ra[ok] - c[0]) * np.cos(np.radians(c[1])), dec[ok] - c[1]) * 3600)
+    r_loader = np.sort(s.r_arcsec)
+    assert len(r_loader) == len(r_ref)
+    # the literals are rounded, so allow a milliarcsecond rather than bit-exactness
+    assert np.max(np.abs(r_loader - r_ref)) < 0.001, "the loader must use the derived centre"
+    # and the old centre would have disagreed grossly
+    r_bad = np.sort(np.hypot((ra[ok] - 201.696833) * np.cos(np.radians(-47.476583)),
+                             dec[ok] + 47.476583) * 3600)
+    assert np.max(np.abs(r_bad - r_ref)) > 5.0

@@ -23,6 +23,9 @@ def load_run(label: str) -> dict:
         raise FileNotFoundError(f"run {label!r} has no summary.json under {d}")
     out = {"label": label, "dir": d, "summary": json.loads((d / "summary.json").read_text()),
            "posterior": Table.read(d / "posterior.ecsv")}
+    if (d / "run.yaml").exists():          # input hashes and mock provenance, for comparability
+        import yaml
+        out["run"] = yaml.safe_load((d / "run.yaml").read_text()) or {}
     if (d / "profiles.npz").exists():
         out["profiles"] = dict(np.load(d / "profiles.npz"))
     return out
@@ -47,9 +50,24 @@ def comparison_table(runs: Iterable[dict]) -> str:
         for n in r["summary"]["parameters"]:
             if n not in names:
                 names.append(n)
-    # evidences are comparable only between runs fitted to the same data
+    # Evidences are comparable only between runs fitted to the SAME OBSERVATIONS. Matching
+    # dataset names is not enough: a product can be rebuilt under an unchanged key, and a
+    # mock run carries the same key as the real one. Until 2026-09-20 this compared names
+    # alone and would print a Bayes factor between a real run and a mock (Codex review).
+    def _fingerprint(r):
+        run = r.get("run", {}) or {}
+        return (tuple(sorted(r["summary"]["datasets"])),
+                int(r["summary"].get("n_points", -1)),
+                tuple(sorted((run.get("inputs") or {}).items())),
+                ((run.get("data") or {}).get("kind"), (run.get("data") or {}).get("mock_from")))
+    prints = [_fingerprint(r) for r in runs]
     datasets = [tuple(sorted(r["summary"]["datasets"])) for r in runs]
-    common = datasets[0] if all(d == datasets[0] for d in datasets) else None
+    common = datasets[0] if all(p == prints[0] for p in prints) else None
+    if common is None and all(d == datasets[0] for d in datasets):
+        lines_note = ("same dataset keys but different observations (input hashes, point "
+                      "count or mock provenance differ): evidences are NOT comparable")
+    else:
+        lines_note = None
     ref = max(r["summary"]["logz"] for r in runs) if common else None
     lines = ["| quantity | " + " | ".join(r["label"] for r in runs) + " |",
              "|---|" + "---|" * len(runs)]
@@ -59,6 +77,8 @@ def comparison_table(runs: Iterable[dict]) -> str:
     lines.append("| χ² at max L / N | " + " | ".join(f"{r['summary']['chi2_ml_total']:.0f} / {r['summary']['n_points']}" for r in runs) + " |")
     for ds in runs[0]["summary"]["chi2_ml"]:
         lines.append(f"| χ² {ds} | " + " | ".join(f"{r['summary']['chi2_ml'].get(ds, {}).get('chi2', float('nan')):.0f} / {r['summary']['chi2_ml'].get(ds, {}).get('n', 0)}" for r in runs) + " |")
+    if lines_note:
+        lines.append("| **warning** | " + lines_note + " |" + " |" * (len(runs) - 1))
     lines.append("| likelihood calls / time | " + " | ".join(f"{r['summary']['n_calls']:,} / {r['summary']['elapsed_s'] / 60:.0f} min" for r in runs) + " |")
     for n in names:
         cells = []

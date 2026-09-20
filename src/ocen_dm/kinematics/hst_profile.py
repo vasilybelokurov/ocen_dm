@@ -79,6 +79,21 @@ __all__ = ["MU_SYS", "HST_R_MAX_ARCSEC", "HST_FLAG_MAX_ARCSEC", "UNFLAGGED_BIAS"
            "DEFAULT_EDGES", "PRODUCT", "load_hst_sample", "unflagged_bias", "hst_profile",
            "build_hst_profile", "load_hst_product"]
 
+
+#: how many equal-count quantiles of the selected stars' radii to store per bin, so the
+#: likelihood can average the model over the radii actually observed rather than over a
+#: complete annulus. With coverage that changes inside a bin the two differ: in HST's
+#: 300-340 arcsec bin the selection-weighted mean radius is 310.8 arcsec against 319.5 for
+#: full-annulus tracer weighting, worth 1.3 statistical errors (Codex review, 2026-09-20).
+R_NODES = 8
+
+
+def _radial_nodes(r: "np.ndarray") -> "np.ndarray":
+    """Equal-count quantile midpoints of the selected radii: an unweighted average over
+    these reproduces an average over the stars themselves."""
+    q = (np.arange(R_NODES) + 0.5) / R_NODES
+    return np.quantile(np.asarray(r, float), q)
+
 #: where the quality flag runs out: 66 stars in 340-360 arcsec, none beyond
 HST_FLAG_MAX_ARCSEC = 360.0
 PRODUCT = "ocen_pm_dispersion_hst_ours"
@@ -186,16 +201,17 @@ def hst_profile(edges_arcsec=(300.0, 340.0), require_flag: bool = True,
         sys_err = sig / corr * f_un * UNFLAGGED_BIAS[1] if correct_unflagged else 0.0
         sig_c = sig / corr
         err_c = float(np.hypot(err / corr, sys_err))
+        nodes = _radial_nodes(s.r_arcsec[m])
         rows.append((lo, float(np.median(s.r_arcsec[m])), hi, int(m.sum()), n_flag, f_un,
                      o["f"], o["sigma_r"] / corr, o["sigma_r_err"] / corr,
                      o["sigma_t"] / corr, o["sigma_t_err"] / corr,
                      sig_c, err_c, sig, sys_err, sig_c * k, err_c * k,
-                     float(np.median(s.r_arcsec[m]) * distance_kpc * 1e3 / 206264.806)))
+                     float(np.median(s.r_arcsec[m]) * distance_kpc * 1e3 / 206264.806), *nodes))
     return Table(rows=rows, names=("r_lower", "r_median", "r_upper", "n_stars", "n_flagged",
                                    "f_unflagged", "f_field", "sigma_pmr", "sigma_pmr_err",
                                    "sigma_pmt", "sigma_pmt_err", "sigma_pm", "sigma_pm_err",
                                    "sigma_raw", "sigma_sys", "sigma_kms", "sigma_kms_err",
-                                   "r_pc"),
+                                   "r_pc", *[f"r_node{i}" for i in range(R_NODES)]),
                  meta={"require_flag": require_flag, "correct_unflagged": correct_unflagged,
                        "unflagged_bias": UNFLAGGED_BIAS,
                        "note": "HST PMs are relative; only dispersions are meaningful. Field is "
