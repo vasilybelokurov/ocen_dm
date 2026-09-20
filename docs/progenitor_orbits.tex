@@ -552,6 +552,89 @@ Sec.~\ref{sec:c2assump} is what makes the set finite; the friction formula itsel
 20--30\% approximation. Class 3 depends on the bar's slowdown law and on a present-day pattern
 speed at the low end of the literature, and its success is a jagged function of $\Ob$.
 
+
+\section{Tidal tracks: what the orbits imply before any $N$-body run}
+\label{sec:tracks}
+
+\subsection{The method and why it separates structure from orbit}
+\citet{penarrubia2010} and \citet[EN21]{errani2021} showed that the structure of a
+tidally stripped NFW subhalo depends only on how much mass it has lost, not on how: the
+characteristic velocity and radius follow one track,
+\begin{equation}
+\frac{V_{\rm mx}}{V_{\rm mx,0}}=2^{\alpha}\Big(\frac{r_{\rm mx}}{r_{\rm mx,0}}\Big)^{\beta}
+\Big[1+\Big(\frac{r_{\rm mx}}{r_{\rm mx,0}}\Big)^{2}\Big]^{-\alpha},\qquad \alpha=0.4,\ \beta=0.65,
+\end{equation}
+and the remnant density profile converges to an exponentially truncated cusp,
+$\rho=\rho_{\rm NFW}\,e^{-r/r_{\rm cut}}/(1+r_s/r_{\rm cut})^{0.3}$ with
+$r_{\rm cut}/r_{\rm mx,0}=0.44\,(M_{\rm mx}/M_{\rm mx,0})^{0.44}[1-(M_{\rm mx}/M_{\rm mx,0})^{0.3}]^{-1.1}$.
+The orbit enters only through the speed along the track: with the crossing time
+$T_{\rm mx}=2\pi r_{\rm mx}/V_{\rm mx}$ and the circular time at pericentre
+$T_{\rm peri}=2\pi r_{\rm peri}/V_{\rm c}$, EN21 find that the remnant converges to
+$T_{\rm asy}\simeq0.22\,T_{\rm peri}$, i.e.\ to a mean density $\simeq20$ times the host's
+mean density inside the pericentre, along $Y(t)=(T_{\rm mx}-T_{\rm asy})/T_{\rm peri}=
+Y_0[1+(t/\tau)^\eta]^{-1/\eta}$ with $\tau=0.65\,T_{\rm orb}/Y_0$, $\eta=1-e^{-2.5Y_0}$, and
+eccentric orbits delayed by $f_{\rm ecc}=[2x/(x+1)]^{3.2}$, $x=r_{\rm apo}/r_{\rm peri}$.
+Because the state is a single number on the track, a time-varying orbit is handled passage by
+passage with the local $(T_{\rm peri},T_{\rm orb},f_{\rm ecc})$ (\texttt{tails/tidal\_tracks.py},
+\texttt{walk}); the host mean density inside each pericentre replaces the isothermal
+$T_{\rm peri}$ (EN21's own suggested generalisation, with their caveat).
+
+\subsection{Our orbits are outside the calibrated regime}
+EN21 simulated $0.2<T_{\rm mx,0}/T_{\rm peri}<2$. For NFW haloes of $10^{9}$--$10^{11}\,\Msun$
+at $z=2$ ($c=4.5$--$7$; $r_{\rm mx,0}=3$--$22$\,kpc, $T_{\rm mx,0}=0.8$--$1.4$\,Gyr) on our
+orbits the ratio is $T_{\rm mx,0}/T_{\rm peri}=8$--$65$: the pericentric tides are so much
+stronger than anything in the calibration that the walk extrapolates to remnants of
+$M_{\rm mx}/M_{\rm mx,0}\sim10^{-12}$ within a few passages --- numerically meaningless, but
+the direction is robust and follows from the density criterion alone. A self-bound remnant
+must reach $\simeq20\,\bar\rho_{\rm host}(<r_{\rm peri})$, which is $1.7\times10^{10}$
+(classes 1--2, $r_{\rm peri}=1.6$\,kpc) to $1.5\times10^{11}\,\Msun\,{\rm kpc}^{-3}$ (class 3,
+0.4\,kpc). An NFW cusp of $10^{10}\,\Msun$, $c=5.5$ has that mean density only inside 4.6\,pc
+($6.7\times10^{3}\,\Msun$) for classes 1--2 and inside 0.5\,pc ($\sim10^{2}\,\Msun$) for
+class 3; a concentrated $c=12$ halo inside 14\,pc ($1.7\times10^{5}$) and 1.6\,pc
+($2.4\times10^{3}$). \emph{On every one of the nine orbits a bare dark-matter halo is stripped
+to a self-bound remnant far below the nucleus mass.} Cored haloes fare worse
+\citep{errani2020}. Whatever dark matter surrounds \ocen\ today is therefore not the remnant
+of a subhalo holding itself together; it is material held by the nucleus's own potential.
+
+\subsection{The dark-matter budget the nucleus can hold}
+That reframes the question as a budget: the dark matter initially inside the nucleus's Jacobi
+radius at the smallest pericentre, $r_J=r_{\rm peri}[M_{\rm nuc}/3M_{\rm host}(<r_{\rm peri})]^{1/3}$,
+is what the nucleus can retain if nothing else removes it (Table~\ref{tab:budget},
+Fig.~\ref{fig:budget}).
+
+\begin{table}[h]\centering
+\caption{Initial NFW dark matter inside the nucleus's Jacobi radius at the minimum pericentre
+($\Msun$); range over the orbits of each class. Nucleus mass $3.55\times10^{6}$.}
+\label{tab:budget}
+\begin{tabular}{lcccc}\toprule
+& $r_J$ [pc] & $10^{9}$, $c=7$ & $10^{10}$, $c=5.5$ & $10^{11}$, $c=4.5$ \quad / \quad $10^{10}$, $c=12$\\\midrule
+class 1 & 40--70 & $3$--$9\times10^{5}$ & $0.5$--$1.5\times10^{6}$ & $0.8$--$2.6\times10^{6}$ / $1.5$--$4.4\times10^{6}$\\
+class 2 & 70 & $9\times10^{5}$ & $1.5\times10^{6}$ & $2.6\times10^{6}$ / $4.4\times10^{6}$\\
+class 3 & 33--36 & $2.2$--$2.5\times10^{5}$ & $3.5$--$4.0\times10^{5}$ & $5.9$--$6.7\times10^{5}$ / $1.0$--$1.2\times10^{6}$\\
+\bottomrule\end{tabular}
+\end{table}
+
+\begin{figure}[h]\centering
+\includegraphics[width=\textwidth]{tidal_tracks_budget.png}
+\caption{Left: initial NFW mass profiles at $z=2$ with the self-bound-remnant scale from the
+EN21 density criterion (grey) and the nucleus's Jacobi radius at the class-3 (pink) and
+class-1/2 (blue) pericentres. Right: the dark matter initially inside that Jacobi radius, by
+class and halo --- the upper envelope of what the nucleus can hold.}
+\label{fig:budget}
+\end{figure}
+
+Three consequences. (i) The class ranking is quantitative: a class-3 history caps the dark
+matter at $\lesssim4\times10^{5}\,\Msun$ ($10^{10}$, $c=5.5$; $10^{6}$ for $c=12$), classes 1--2
+at $\lesssim1.5$ ($4.4$)$\times10^{6}$ --- of order the nucleus mass, and spread over 70\,pc
+rather than 7. (ii) These are upper envelopes without adiabatic contraction of the cusp by
+the nucleus's formation (which raises them) and without the pericentric shocks acting on the
+material inside $r_J$ (which lower them); the balance between the two is precisely what the
+$N$-body runs must settle. (iii) The $N$-body problem shrinks: only the inner $\sim100$\,pc
+needs to be live --- $\sim2\times10^{6}\,\Msun$ of dark matter in a $10^{10}$ halo, which
+$10^{5}$--$10^{6}$ particles of $\sim10\,\Msun$ resolve --- while the outer halo, whose fate the
+tracks already give, can be an analytic potential that is switched off as it is stripped. The
+multi-mass difficulties of Sec.~\ref{sec:friction} largely disappear.
+
 \section{Caveats and reproducibility}
 \begin{itemize}
 \item Corrections after the Codex review of 2026-09-20: the leapfrog unit bug above; the class-3
@@ -579,6 +662,9 @@ speed at the low end of the literature, and its success is a jagged function of 
 \bibitem[Belokurov et al.(2023)]{belokurov2023} Belokurov, V., Vasiliev, E., Deason, A. J., et al. 2023, MNRAS, 518, 6200, \url{https://arxiv.org/abs/2208.11135}
 \bibitem[Bovy(2015)]{bovy2015} Bovy, J. 2015, ApJS, 216, 29, \url{https://doi.org/10.1088/0067-0049/216/2/29}
 \bibitem[Chandrasekhar(1943)]{chandrasekhar1943} Chandrasekhar, S. 1943, ApJ, 97, 255, \url{https://doi.org/10.1086/144517}
+\bibitem[Errani \& Pe\~narrubia(2020)]{errani2020} Errani, R., Pe\~narrubia, J. 2020, MNRAS, 491, 4591, \url{https://arxiv.org/abs/1906.01642}
+\bibitem[Errani \& Navarro(2021)]{errani2021} Errani, R., Navarro, J. F. 2021, MNRAS, 505, 18, \url{https://arxiv.org/abs/2011.07077}
+\bibitem[Pe\~narrubia et al.(2010)]{penarrubia2010} Pe\~narrubia, J., Benson, A. J., Walker, M. G., et al. 2010, MNRAS, 406, 1290, \url{https://arxiv.org/abs/1002.3376}
 \bibitem[Dehnen(2000)]{dehnen2000} Dehnen, W. 2000, AJ, 119, 800, \url{https://doi.org/10.1086/301226}
 \bibitem[Dillamore et al.(2026)]{dillamore2026} Dillamore, A. M., Zhang, H., Belokurov, V. 2026, arXiv:2606.12516, \url{https://arxiv.org/abs/2606.12516}
 \bibitem[Hunter et al.(2024)]{hunter2024} Hunter, G. H., Sormani, M. C., Beckmann, J. P., et al. 2024, A\&A, 692, A216, \url{https://www.aanda.org/articles/aa/pdf/2024/12/aa50000-24.pdf}

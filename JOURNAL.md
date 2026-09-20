@@ -3911,3 +3911,26 @@ prescribed UniformAcceleration a_df(t) in the inertial frame; Jacobi radius at 0
 pc, not 50-90; two class-2 histories end today above the nucleus mass (6.7e7, 1.0e7) -- model
 change, proposed not applied. Disagreed: "live nucleus wrong by construction" is overstated
 but the conclusion holds (t_relax(2e4) ~ 0.25 Gyr even with ln Lambda reduced 4x).
+
+## 2026-09-20 -- tidal tracks (Penarrubia+2010, Errani & Navarro 2021) walked along the nine orbits
+
+User wanted to explore the tidal-track idea. `src/ocen_dm/tails/tidal_tracks.py`: EN21 model
+(track eq. 5, remnant profile eqs 7-9, time evolution eqs 4, 10-16) with a passage-by-passage
+walker using the local host mean density inside each pericentre; tests
+`tests/test_tidal_tracks.py` (3). Products: `results/tails/tidal_tracks_budget.ecsv`,
+`plots/tidal_tracks_budget.png`; write-up Sec. 8 of `docs/progenitor_orbits.tex`.
+
+Finding 1: our orbits are far outside EN21's calibration (T_mx0/T_peri = 8-65 vs 0.2-2), so
+the walk extrapolates to meaningless remnants (1e-12); but the density criterion is robust: a
+self-bound remnant needs ~20 x host mean density inside the pericentre = 1.7e10 (classes 1-2)
+to 1.5e11 Msun/kpc^3 (class 3); an NFW of 1e10 Msun, c=5.5 has that only inside 4.6 pc
+(6.7e3 Msun) / 0.5 pc (1e2 Msun); c=12: 14 pc (1.7e5) / 1.6 pc (2.4e3). A bare DM halo is
+stripped below the nucleus mass on all nine orbits.
+Finding 2: any DM around omega Cen today is held by the nucleus, so the budget is the initial
+DM inside the nucleus's Jacobi radius at the smallest pericentre: class 3 (r_J 33-36 pc)
+2-4e5 (1e10, c=5.5), up to 1.0-1.2e6 (c=12); classes 1-2 (r_J 40-70 pc) 0.5-1.5e6, up to
+4.4e6. Upper envelopes: no adiabatic contraction (raises), no pericentric shocks inside r_J
+(lowers) -- the N-body question.
+Finding 3: this shrinks the N-body problem to the inner ~100 pc (2e6 Msun of DM in a 1e10
+halo -> 1e5-1e6 particles of ~10 Msun), with the outer halo analytic and stripped per the
+tracks; the multi-mass worries largely disappear.
