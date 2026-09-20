@@ -76,10 +76,10 @@ Assumptions adopted:
 
 | M_inf \ τ [Gyr] | 0.5 | 0.75 | 1.0 | 1.25 | 1.5 | 2.0 | 2.5 | 3.0 |
 |---|---|---|---|---|---|---|---|---|
-| 10¹⁰ | 23 | 29 | 36 | 47 | 58 | 65 | 72 | 86 |
-| 3 × 10¹⁰ | 46 | 46 | 57 | 85 | 87 | 99 | 120 | 166 |
-| 10¹¹ | 78 | 111 | 127 | 148 | 139 | 154 | 307 | 367 |
-| 2 × 10¹¹ | 53 | 93 | 125 | 226 | 233 | 229 | 228 | 497 |
+| 10¹⁰ | 24 | 30 | 44 | 51 | 59 | 65 | 84 | 86 |
+| 3 × 10¹⁰ | 47 | 50 | 76 | 86 | 100 | 108 | 144 | 129 |
+| 10¹¹ | 85 | 77 | 143 | 179 | 207 | 157 | 200 | 294 |
+| 2 × 10¹¹ | 67 | 151 | 126 | 203 | 282 | 283 | 443 | 507 |
 
 (The table is noisy at the 20% level because the phase of the last apocentre matters.)
 Consequences: a **Sequoia-scale 10¹⁰ M☉ halo reaches the virial radius only if stripping is slow
@@ -92,9 +92,9 @@ far outside the virial radius. In every viable history the satellite's bound mas
 
 | label | M_inf | τ | r at t_inf | 5–6 Gyr ago (peri–apo) | 2–3 Gyr ago |
 |---|---|---|---|---|---|
-| Sequoia-like | 10¹⁰ | 2.0 | 65 kpc | 2.9–17.9 | 2.0–9.2 |
-| intermediate | 3 × 10¹⁰ | 1.25 | 85 kpc | 2.2–11.6 | 1.7–7.4 |
-| GSE-like | 10¹¹ | 0.75 | 111 kpc | 1.7–7.5 | 1.6–7.1 |
+| Sequoia-like | 10¹⁰ | 2.0 | 65 kpc | 3.0–18.1 | 1.9–9.2 |
+| intermediate | 3 × 10¹⁰ | 1.25 | 86 kpc | 2.2–11.7 | 1.6–7.3 |
+| GSE-like | 10¹¹ | 0.75 | 77 kpc | 1.7–7.4 | 1.6–7.0 |
 
 ## Class 3 — deposited by GSE, migrated inward by the bar (done properly)
 
@@ -166,14 +166,15 @@ matches the paper's 9.6). Fraction inside GSE 8 Gyr ago:
 | Ω_b,0 | 20 | 21 | 22 | 22.5 | 23 | 24 | 25 | 26 | 27 |
 |---|---|---|---|---|---|---|---|---|---|
 | test particle | 0.44 | 0.38 | 0.58 | 0.85 | 0.01 | 0.89 | 0.79 | 0.18 | 0.00 |
-| M = 10⁷ | 0.92 | 0.99 | 0.05 | 0.59 | 0.99 | 1.00 | 0.89 | 0.28 | 0.00 |
-| M = 10⁸ | 0.00 | 0.20 | 0.14 | 0.33 | 0.23 | 0.00 | 0.00 | 0.00 | 0.00 |
-| M = 10⁹ | — | — | — | — | — | 0.00 (apo 74 kpc) | — | — | — |
+| M = 10⁷ | 0.81 | 0.55 | 0.77 | 0.02 | 0.89 | 0.93 | 0.98 | 0.64 | 0.03 |
+| M = 10⁸ | 0.00 | 0.07 | 0.47 | 0.15 | 0.44 | 0.34 | 0.00 | 0.00 | 0.00 |
+| M = 10⁹ | — | — | — | — | — | 0.00 (apo 79 kpc) | — | — | — |
 
-Threshold between 10⁷ and 10⁸ M☉: below it the system migrates like a particle (endpoint
-shifted by ΔE ≈ +0.13×10⁵, ΔL_z ≈ +240); at 10⁸ the resonance never captures it. **Class 3 is
-self-consistent only for a nucleus that had lost all but ≲10⁷⁻⁸ M☉ of its envelope before the
-bar slowed (~2.5 Gyr ago).** Figure `plots/friction_test_elz.png`; tables
+Transition between 10⁷ and 10⁸ M☉: at 10⁷ the system migrates like a particle (endpoint shifted
+by ΔE ≈ +0.12×10⁵, L_z unchanged); at 10⁸ capture is marginal (0.3–0.5 at Ω = 22–24, none at
+≥25); at 10⁹ friction dominates. **Class 3 is self-consistent only for a nucleus that had lost
+all but ≲10⁸ M☉ of its envelope before the bar slowed (~2.5 Gyr ago).** (Numbers regenerated
+after the leapfrog unit fix of 2026-09-20.) Figure `plots/friction_test_elz.png`; tables
 `results/tails/friction_test.ecsv`, `friction_test_grid.ecsv`.
 
 ### What is still not modelled

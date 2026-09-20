@@ -20,22 +20,23 @@ from scipy.special import erf
 from . import bar_migration as bm
 from .progenitor_orbits import CLASS2_SET, exponential_stripping
 
-_G = 4.30091e-6; _KPC_PER_KMS_GYR = 1.02271
+_G = 4.30091e-6; TU = bm.TIME_UNIT_GYR
 OUT = Path("results/tails"); PLOTS = Path("plots")
 CASES = (("axisymmetric", None), ("bar, Omega_b0 = 37.5", 37.5), ("bar, Omega_b0 = 24", 24.0))
 
 
 def integrate(pot, pot_axi, mass_history, r_half_kpc, n_samples=20, seed=42, t_gyr=10.0,
               dt_myr=0.25, n_out=401, t_today=8.0):
-    """Backward leapfrog with Chandrasekhar friction for bound mass M(t_lookback); potential
-    time coordinate t = t_today - t_lookback (bar defined on 0..8)."""
+    """Backward leapfrog with Chandrasekhar friction for bound mass M(t_lookback [Gyr]); all
+    clocks in AGAMA natural units (kpc/(km/s) = 0.978 Gyr): potential time t = t_today - t_lb,
+    bar defined on 0..8; ``t_gyr`` is converted."""
     ic = bm.present_day_samples(n_samples, seed)
     x = ic[:, :3].copy(); v = ic[:, 3:].copy()
-    dt = -dt_myr * 1e-3; n = int(round(t_gyr / (dt_myr * 1e-3)))
+    dt = -dt_myr * 1e-3 / TU; n = int(round(t_gyr / (dt_myr * 1e-3)))
 
     def accel(x, v, t):
-        a = pot.force(x, t=t) / _KPC_PER_KMS_GYR
-        m = mass_history(t_today - t)
+        a = pot.force(x, t=t)
+        m = mass_history((t_today - t) * TU)
         if m > 1e6:
             r = np.linalg.norm(x, axis=1); vm = np.linalg.norm(v, axis=1)
             rho = pot.density(x, t=t)
@@ -44,7 +45,7 @@ def integrate(pot, pot_axi, mass_history, r_half_kpc, n_samples=20, seed=42, t_g
             X = vm / vc
             lnL = np.maximum(np.log(r / np.maximum(r_half_kpc, _G * m / vm**2)), 0.0)
             coeff = 4 * np.pi * _G**2 * m * rho * lnL * (erf(X) - 2 * X / np.sqrt(np.pi) * np.exp(-X**2))
-            a = a - (coeff / vm**3)[:, None] * v / _KPC_PER_KMS_GYR
+            a = a - (coeff / vm**3)[:, None] * v
         return a
 
     every = max(1, n // (n_out - 1))
@@ -52,14 +53,14 @@ def integrate(pot, pot_axi, mass_history, r_half_kpc, n_samples=20, seed=42, t_g
     a = accel(x, v, t)
     for i in range(1, n + 1):
         vh = v + 0.5 * dt * a
-        x = x + dt * vh * _KPC_PER_KMS_GYR
+        x = x + dt * vh
         t += dt
         a = accel(x, vh, t)
         v = vh + 0.5 * dt * a
         if i % every == 0 or i == n:
             ts.append(t); X.append(x.copy())
     ts = np.array(ts); X = np.stack(X)                     # (n_out, n_samples, 3), today first
-    return t_today - ts, np.linalg.norm(X, axis=2), X       # look-back time, r, positions
+    return (t_today - ts) * TU, np.linalg.norm(X, axis=2), X   # look-back time [Gyr], r, positions
 
 
 def per_gyr(lb, r):

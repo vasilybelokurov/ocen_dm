@@ -20,7 +20,7 @@ from scipy.special import erf
 from . import bar_migration as bm
 
 _G = 4.30091e-6           # kpc (km/s)^2 / Msun
-_KPC_PER_KMS_GYR = 1.02271
+TU = bm.TIME_UNIT_GYR     # natural time unit, Gyr
 MASSES = (0.0, 1e7, 1e8, 1e9)
 OUT = Path("results/tails"); PLOTS = Path("plots")
 
@@ -36,11 +36,11 @@ def integrate_with_friction(omega_f: float, m_sat: float, n_samples: int = 100, 
     pot, pot_axi = bm.slowing_bar_potential(hist)
     ic = bm.present_day_samples(n_samples, seed)
     x = ic[:, :3].copy(); v = ic[:, 3:].copy()
-    tf = hist.tf; dt = -dt_myr * 1e-3; n = int(round(tf / (dt_myr * 1e-3)))
+    tf = hist.tf; dt = -dt_myr * 1e-3 / TU; n = int(round(tf / (dt_myr * 1e-3 / TU)))   # natural units
     rh = r_half(m_sat)
 
     def accel(x, v, t):
-        a = pot.force(x, t=t) / _KPC_PER_KMS_GYR
+        a = pot.force(x, t=t)
         if m_sat > 0:
             r = np.linalg.norm(x, axis=1); vm = np.linalg.norm(v, axis=1)
             rho = pot.density(x, t=t)
@@ -51,7 +51,7 @@ def integrate_with_friction(omega_f: float, m_sat: float, n_samples: int = 100, 
             bmin = np.maximum(rh, _G * m_sat / vm**2)
             lnL = np.maximum(np.log(r / bmin), 0.0)
             coeff = 4 * np.pi * _G**2 * m_sat * rho * lnL * (erf(X) - 2 * X / np.sqrt(np.pi) * np.exp(-X**2))
-            a = a - (coeff / vm**3)[:, None] * v / _KPC_PER_KMS_GYR
+            a = a - (coeff / vm**3)[:, None] * v
         return a
 
     every = max(1, n // (n_out - 1))
@@ -59,7 +59,7 @@ def integrate_with_friction(omega_f: float, m_sat: float, n_samples: int = 100, 
     t = tf; a = accel(x, v, t)
     for i in range(1, n + 1):
         vh = v + 0.5 * dt * a
-        x = x + dt * vh * _KPC_PER_KMS_GYR
+        x = x + dt * vh
         t += dt
         a = accel(x, vh, t)
         v = vh + 0.5 * dt * a

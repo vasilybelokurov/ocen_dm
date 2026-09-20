@@ -35,9 +35,9 @@ that migration from GSE debris requires a present-day pattern speed $\Ob \lesssi
 places the nucleus on a most-bound GSE-debris orbit (apocentre 11--12\,kpc, pericentre
 0.4\,kpc) until $\sim$2.5\,Gyr ago, and shows that a slow bar also alters ``today's orbit''
 (pericentre 0.8 rather than 1.6\,kpc). Adding dynamical friction shows that the bar migrates
-the system like a test particle only for bound masses $\lesssim10^7\,\Msun$: a
-$10^8\,\Msun$ remnant is never captured by the resonance, so a class-3 nucleus arrived from
-GSE essentially without a dark envelope. The classes differ most in the pericentric tides
+the system like a test particle for bound masses $\lesssim10^7\,\Msun$, only marginally at
+$10^8$ and not at all at $10^9$, so a class-3 nucleus arrived from GSE with at most
+$\sim10^8\,\Msun$ of dark envelope. The classes differ most in the pericentric tides
 5--10\,Gyr ago, by more than an order of magnitude.
 \end{abstract}
 
@@ -136,9 +136,12 @@ reverses the sign of the friction term, so the orbit is pumped outwards: the int
 recovers where a satellite of bound mass $M(t)$ must have been to sink to the present orbit.
 The host is McMillan (2017) evaluated with AGAMA \citep{vasiliev2019}; the integrator is a
 leapfrog with 0.25\,Myr steps (about 1\,s per 10\,Gyr orbit). The frictionless run reproduces
-class~1 (1.63/7.04 versus 1.57/7.04\,kpc), and a constant-mass case checked against
-\texttt{galpy}'s \texttt{ChandrasekharDynamicalFrictionForce} agrees to 3\% in pericentre and
-apocentre (1.84/47.1 versus 1.79/46.0\,kpc; 1\,s versus 482\,s).
+class~1 to four figures (1.573/7.037 versus \texttt{agama.orbit} 1.572/7.037\,kpc in the same
+potential), and a constant-mass case checked against \texttt{galpy}'s
+\texttt{ChandrasekharDynamicalFrictionForce} agrees to 0.1\% in pericentre and 4\% in apocentre
+(1.786/44.3 versus 1.786/46.0\,kpc; 1\,s versus 482\,s). (A first version of the integrator
+converted accelerations with the wrong power of the time unit, making kicks 4.4\% too weak;
+Codex caught it on 2026-09-20 and every leapfrog result in this note was regenerated.)
 
 \subsection{Assumptions, and which one matters}
 \label{sec:c2assump}
@@ -186,9 +189,9 @@ look-back window.}
 \label{tab:c2}
 \begin{tabular}{lcccccc}\toprule
 label & $M_{\rm inf}$ [$\Msun$] & $\tau$ [Gyr] & $r$ at infall & 5--6\,Gyr ago & 2--3\,Gyr ago\\\midrule
-Sequoia-like & $10^{10}$ & 2.0 & 65 & 2.9--17.9 & 2.0--9.2\\
-intermediate & $3\times10^{10}$ & 1.25 & 85 & 2.2--11.6 & 1.7--7.4\\
-GSE-like & $10^{11}$ & 0.75 & 111 & 1.7--7.5 & 1.6--7.1\\
+Sequoia-like & $10^{10}$ & 2 & 65 & 3.0--18.1 & 1.9--9.2\\
+intermediate & $3\times10^{10}$ & 1.2 & 86 & 2.2--11.7 & 1.6--7.3\\
+GSE-like & $10^{11}$ & 0.75 & 77 & 1.7--7.4 & 1.6--7.0\\
 \bottomrule\end{tabular}
 \end{table}
 
@@ -241,6 +244,9 @@ file are referenced, not copied.
   corotation radius, at fixed amplitude (Fig.~\ref{fig:c3bar}, left).
 \item \textbf{Samples.} $N=10^3$ draws of the present-day state (Sec.~\ref{sec:present}),
   bar angle $28^\circ$, integrated from $t_f$ back to 0 with \texttt{agama.orbit}.
+\item \textbf{Time unit.} All class-3 times follow the paper's convention and are in
+  kpc/(\kms) $=0.978$\,Gyr, so ``8\,Gyr'' means $8\times0.978=7.8$\,Gyr and $\eta$ is per
+  that unit; the labels in this section keep the paper's rounding.
 \item \textbf{Test.} $(E,\Lz)$ at $t=0$ in the axisymmetric potential, compared with the
   outermost \citet{belokurov2023} contour after matching the energy zero point at
   $R=8.2$\,kpc. Our success metric is the fraction of samples inside that contour.
@@ -340,9 +346,9 @@ constant bound mass. Test-particle values from Table~\ref{tab:c3grid} for compar
 \begin{tabular}{l*{9}{c}}\toprule
 $\Ob$ [\kmskpc] & 20 & 21 & 22 & 22.5 & 23 & 24 & 25 & 26 & 27\\\midrule
 test particle & 0.44 & 0.38 & 0.58 & 0.85 & 0.01 & 0.89 & 0.79 & 0.18 & 0.00\\
-$M=10^7\,\Msun$ & 0.92 & 0.99 & 0.05 & 0.59 & 0.99 & 1.00 & 0.89 & 0.28 & 0.00\\
-$M=10^8\,\Msun$ & 0.00 & 0.20 & 0.14 & 0.33 & 0.23 & 0.00 & 0.00 & 0.00 & 0.00\\
-$M=10^9\,\Msun$ & \multicolumn{9}{c}{0.00 at $\Ob=24$; orbit pumped to a 74\,kpc apocentre}\\
+$M=10^7\,\Msun$ & 0.81 & 0.55 & 0.77 & 0.02 & 0.89 & 0.93 & 0.98 & 0.64 & 0.03\\
+$M=10^8\,\Msun$ & 0.00 & 0.07 & 0.47 & 0.15 & 0.44 & 0.34 & 0.00 & 0.00 & 0.00\\
+$M=10^9\,\Msun$ & \multicolumn{9}{c}{0.00 at $\Ob=24$; orbit pumped to a 79\,kpc apocentre}\\
 \bottomrule\end{tabular}
 \end{table}
 
@@ -357,22 +363,22 @@ retrograde; at $10^9\,\Msun$ friction dominates everything.}
 \label{fig:friction}
 \end{figure}
 
-The answer is mass-dependent with a sharp threshold between $10^7$ and $10^8\,\Msun$:
+The answer is mass-dependent, with the transition between $10^7$ and $10^8\,\Msun$:
 \begin{itemize}
 \item $M\le10^7\,\Msun$: migrates like a test particle. The $\Ob$ window is the same
-  ($\lesssim26$), but the pre-migration endpoint moves by $\Delta E\approx+0.13\times10^5$ and
-  $\Delta\Lz\approx+240$\,kpc\,\kms\ over 8\,Gyr (roughly the friction drift), to the
-  outer edge of the most-bound GSE debris.
-\item $M=10^8\,\Msun$: no pattern speed brings more than a third of the samples into GSE, and
-  none does at the fiducial $\Ob=24$--27. The resonant torque and the friction torque are
-  comparable and the resonance loses.
+  (0.8--1.0 for 20--25, 0.64 at 26, 0 at 27), and the pre-migration endpoint moves by
+  $\Delta E\approx+0.12\times10^5$\,km$^2$\,s$^{-2}$ (the friction drift) with $\Lz$
+  unchanged, staying inside the most-bound GSE debris.
+\item $M=10^8\,\Msun$: marginal. At $\Ob=22$--24 a third to a half of the samples still end
+  inside GSE, none for $\Ob\ge25$; the resonant and friction torques are comparable and the
+  endpoint is pushed to $E\approx-0.8\times10^5$, the upper edge of the debris.
 \item $M\ge10^9\,\Msun$: friction dominates; the system would have come from the outer halo
   (class~2 territory), not from GSE debris.
 \end{itemize}
-Since the constant mass overstates the friction of a stripping system, the threshold for a
-real remnant is somewhat higher than $10^8\,\Msun$, but the conclusion stands: \emph{the
+Since the constant mass overstates the friction of a stripping system, a real remnant of
+$10^8\,\Msun$ is somewhat less affected than this, but the conclusion stands: \emph{the
 class-3 initial condition is self-consistent only if the nucleus had already lost all but
-$\lesssim10^{7\text{--}8}\,\Msun$ of its bound envelope before the bar slowed}, i.e.\ before
+$\lesssim10^{8}\,\Msun$ of its bound envelope before the bar slowed}, i.e.\ before
 $\sim$2.5\,Gyr ago. A nucleus that migrated from GSE debris did so essentially naked. This is
 a strong statement about the dark-matter content reachable by class~3, and it follows from the
 same physics that makes friction negligible for the nucleus alone.
@@ -442,15 +448,15 @@ Fig.~\ref{fig:c2bar}). The bar is 8\,Gyr old; before that the potential is axisy
 histories' ranges).}
 \begin{tabular}{lccc}\toprule
 & last Gyr peri / apo & 5--6\,Gyr ago peri / apo & apocentre before infall\\\midrule
-axisymmetric & 1.7 / 7.0--7.3 & 1.9--3.4 / 7--18 & 73--94\\
-bar, $\Ob=37.5$ & 1.9 / 7.0--7.3 & 1.8--3.1 / 8--19 & 80--99\\
-bar, $\Ob=24$ & 0.85--1.07 / 10--12 & 0.9--2.1 / 12--26 & 95--112\\
+axisymmetric & 1.6--1.8 / 7.0--7.3 & 1.8--3.2 / 7--19 & 64--117\\
+bar, $\Ob=37.5$ & 1.9--2.3 / 7.1--7.2 & 1.8--3.4 / 8--19 & 75--112\\
+bar, $\Ob=24$ & 1.3--1.7 / 9.1--11.6 & 1.0--1.9 / 11--28 & 91--118\\
 \bottomrule\end{tabular}
 \end{table}
 
 With the fast bar nothing changes beyond the sample scatter: the class-2 picks stand. With
-the slow bar the last $\sim$2.5\,Gyr become class-3-like (pericentre 1\,kpc, apocentre
-10--12), because the retrograde 1:1 resonance sits at exactly this pattern speed for today's
+the slow bar the last $\sim$2.5\,Gyr become class-3-like (pericentre 1.3--1.7\,kpc,
+apocentre 9--12), because the retrograde 1:1 resonance sits at exactly this pattern speed for today's
 orbit; the infall apocentre rises by $\sim$20\% but stays inside the 50--150\,kpc selection
 band, so the same $(M_{\rm inf},\tau)$ picks remain valid. Under the slow bar the pericentres
 differ from the axisymmetric case all the way back to infall; that is not the bar acting
@@ -508,12 +514,12 @@ class & orbit & peri (0--1 / 5--6 / 8--9\,Gyr) & apo (0--1 / 5--6 / 8--9) & $T$ 
 1 & McMillan 2017 & 1.59 / 1.58 / 1.58 & 7.0 / 7.0 / 7.0 & 14.9 & 14.9 & 0.46\\
 1 & MWPotential2014 & 1.98 / 1.98 / 1.97 & 6.8 / 6.8 / 6.8 & 10.3 & 10.3 & 0.52\\
 1 & Irrgang 2013 I & 1.25 / 1.26 / 1.25 & 7.2 / 7.2 / 7.2 & 21.7 & 21.7 & 0.40\\
-2 & Sequoia-like & 1.65 / 2.91 / 4.84 & 7.4 / 17.9 / 45 & 13.9 & 1.9 & 0.47\\
-2 & intermediate & 1.64 / 2.24 / 5.99 & 7.1 / 11.6 / 41 & 14.1 & 1.4 & 0.47\\
-2 & GSE-like & 1.64 / 1.72 / 5.01 & 7.0 / 7.5 / 33 & 14.1 & 1.9 & 0.47\\
-3 & sample 986 & 0.84 / 0.59 / 0.40 & 9.1 / 11.0 / 10.9 & 39.4 & 104 & 0.33\\
-3 & sample 133 & 0.80 / 0.71 / 0.42 & 9.3 / 11.7 / 11.6 & 42.0 & 100 & 0.32\\
-3 & sample 240 & 0.84 / 0.80 / 0.45 & 9.1 / 11.1 / 12.2 & 39.4 & 92 & 0.33\\
+2 & Sequoia-like & 1.60 / 2.95 / 5.18 & 7.4 / 18.1 / 48.2 & 14.7 & 1.8 & 0.46\\
+2 & intermediate & 1.59 / 2.24 / 5.36 & 7.1 / 11.7 / 43.1 & 14.8 & 1.7 & 0.46\\
+2 & GSE-like & 1.58 / 1.69 / 4.54 & 7.0 / 7.4 / 39.5 & 14.9 & 2.3 & 0.46\\
+3 & sample 986 & 0.84 / 0.59 / 0.40 & 9.1 / 11.0 / 10.9 & 39.4 & 105.2 & 0.33\\
+3 & sample 133 & 0.80 / 0.71 / 0.42 & 9.3 / 11.7 / 11.6 & 42.0 & 98.6 & 0.32\\
+3 & sample 240 & 0.84 / 0.80 / 0.45 & 9.1 / 11.1 / 12.2 & 39.4 & 90.0 & 0.33\\
 \bottomrule\end{tabular}
 \end{table}
 
@@ -548,6 +554,11 @@ speed at the low end of the literature, and its success is a jagged function of 
 
 \section{Caveats and reproducibility}
 \begin{itemize}
+\item Corrections after the Codex review of 2026-09-20: the leapfrog unit bug above; the class-3
+  Jacobi radius at the 0.4\,kpc pericentre is 33\,pc (59 with the $d\ln M/d\ln r$ term), not
+  the 50--90\,pc that holds at 1.6\,kpc; two of the class-2 stripping histories end today at
+  $6.7\times10^7$ and $1.0\times10^7\,\Msun$ rather than at the nucleus mass (a constraint
+  worth imposing in a revision).
 \item Chandrasekhar friction with $\sigma=v_{\rm c}/\sqrt2$, a fixed $r_{\rm h}$ and a
   smooth exponential stripping law; no orbit-phase-dependent mass loss.
 \item Only McMillan (2017) for class 2; only Hunter et al.\ (2024) for class 3 (the only
