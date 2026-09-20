@@ -56,7 +56,7 @@ def build_products(out_dir: Path = Path("results/tails"), plot_dir: Path = Path(
     for ax, cls, title in zip(axes, ("class1", "class2", "class3"), titles):
         for o in S[cls]:
             ax.plot(-o.t_gyr, o.r, lw=0.8, label=o.label)
-        ax.set_yscale("log"); ax.set_ylabel("r [kpc]"); ax.set_title(title, fontsize=10)
+        ax.set_yscale("log"); ax.set_ylim(0.3, 200); ax.set_ylabel("r [kpc]"); ax.set_title(title, fontsize=10)
         ax.legend(fontsize=8, loc="upper left"); ax.grid(alpha=0.3)
         ax.axhline(7.0, color="k", ls=":", lw=0.7)
     axes[0].set_xlabel("look-back time [Gyr]"); axes[1].set_xlabel("look-back time [Gyr]")
