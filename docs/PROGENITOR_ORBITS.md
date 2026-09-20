@@ -147,12 +147,14 @@ Dillamore, Zhang & Belokurov 2026 (arXiv:2606.12516), following the authors' own
 
 | sample | E(t=0) [10⁵] | L_z(t=0) | pre-migration (7–8 Gyr ago) peri / apo / e / z_max | last Gyr peri / apo |
 |---|---|---|---|---|
-| 986 | −1.301 | +69 | 0.87 / 10.9 / 0.85 / 4.8 | 0.84 / 9.0 |
-| 133 | −1.265 | +163 | 0.60 / 11.6 / 0.90 / 4.9 | 0.83 / 9.3 |
-| 240 | −1.233 | +229 | 0.50 / 12.2 / 0.92 / 5.2 | 0.84 / 9.1 |
+| 986 | −1.301 | +69 | 0.40 / 10.9 / 0.93 / 4.8 | 0.84 / 9.1 |
+| 133 | −1.265 | +163 | 0.42 / 11.6 / 0.93 / 4.9 | 0.80 / 9.3 |
+| 240 | −1.233 | +229 | 0.45 / 12.2 / 0.93 / 5.2 | 0.84 / 9.1 |
 
-(L_z prograde-positive.) The pre-migration orbit is a **most-bound GSE-debris orbit**: apocentre
-11–12 kpc, pericentre 0.5–0.9 kpc, slightly prograde to zero L_z — not retrograde. The earlier
+(L_z prograde-positive; elements from a 0.25-Myr re-integration of each picked sample — the
+20-Myr grid cadence overestimates pericentres by up to a factor 2.) The pre-migration orbit is a
+**most-bound GSE-debris orbit**: apocentre 11–12 kpc, pericentre 0.4–0.45 kpc, e = 0.93,
+slightly prograde to zero L_z — not retrograde. The earlier
 static guess (L_z = −300) was wrong in sign and is kept only as `class3_gse_debris_orbit`.
 
 ### What is still not modelled
@@ -173,7 +175,7 @@ static guess (L_z = −300) was wrong in sign and is kept only as `class3_gse_de
 |---|---|---|---|
 | class 1 | today's | today's | 1.3–2.0 kpc |
 | class 2 | wider, apo 10–20 kpc at 5 Gyr, infall from R_vir | today's | 1.6–2.9 kpc early |
-| class 3 | most-bound GSE debris, apo 11–12 kpc, L_z ≈ 0 to +230, until ~2.5 Gyr ago | today's, reached by bar migration in the last ~2.5 Gyr | 0.5–0.9 kpc |
+| class 3 | most-bound GSE debris, apo 11–12 kpc, L_z ≈ 0 to +230, until ~2.5 Gyr ago | today's, reached by bar migration in the last ~2.5 Gyr | 0.4–0.45 kpc (0.8 in the barred potential today) |
 
 ## Caveats
 

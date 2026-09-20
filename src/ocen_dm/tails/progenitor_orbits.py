@@ -338,7 +338,7 @@ def class3_gse_debris_orbit(r_apo_kpc: float, lz_kpc_kms: float, incl_deg: float
 
 
 def class3_bar_migration_orbits(omega_b: float = CLASS3_OMEGA_B, n_samples: int = 1000,
-                                seed: int = 42, n_times: int = 1601) -> list:
+                                seed: int = 42, n_times: int = 161) -> list:
     """Class 3 done properly: omega Cen's phase-space samples integrated back 8 Gyr through the
     growing, decelerating bar of Dillamore et al. (2026); the three samples at the 16/50/84th
     percentiles of E(t=0) among those ending inside the GSE debris contours. Time axis of the
@@ -346,9 +346,9 @@ def class3_bar_migration_orbits(omega_b: float = CLASS3_OMEGA_B, n_samples: int 
     from . import bar_migration as bm
     run = bm.back_integrate(omega_b, n_samples=n_samples, seed=seed, n_times=n_times)
     out = []
-    for p in bm.pick_class3(run):
-        i = p["sample"]; X = run.traj[:, i, :3]; V = run.traj[:, i, 3:]
-        lb = run.t - run.hist.tf                       # 0 today, -8 at bar formation
+    for p in bm.pick_class3(run):                      # fine (0.25 Myr) re-integration of each pick
+        i = p["sample"]; X = p["traj"][:, :3]; V = p["traj"][:, 3:]
+        lb = p["t"] - run.hist.tf                      # 0 today, -8 at bar formation
         R = np.hypot(X[:, 0], X[:, 1]); phi = np.arctan2(X[:, 1], X[:, 0])
         vR = V[:, 0] * np.cos(phi) + V[:, 1] * np.sin(phi)
         vT = -V[:, 0] * np.sin(phi) + V[:, 1] * np.cos(phi)     # oCen_bar frame: disc L_z > 0
