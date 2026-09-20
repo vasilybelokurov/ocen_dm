@@ -3981,3 +3981,30 @@ unity in ~600 (vs 66 passages available) -> class-3 remnant set by shocks. Exper
 listed (AGAMA Eddington truncation; isolated relaxation; static tide at the two pericentres;
 class-1 and class-3 orbits with shocks; contracted/cored cusps; stellar heating estimate).
 Figure plots/truncated_equilibrium.png. PDF 20 pages.
+
+## 2026-09-20/21 -- rung 0: K1 and K2-cored finished, K2-NFW still sampling
+
+K1 (isotropic, no scales, 5 params): ln Z = -190.02 +- 0.48, chi2_ml = 771.5/89 (4.0 h).
+K2-cored (7 params): ln Z = -188.94 +- 0.36, chi2_ml = 761.1/89 (10.0 h). Delta ln Z = +1.1 +- 0.6
+in favour of the cored halo: no evidence either way. M_DM(<100 pc) = 1.3e6 [0.19, 2.5] x1e6,
+95% upper limit 3.1e6; r_s 261 [46, 663] pc (unconstrained); the DM trades against M_rem
+(3.1e5 -> 7.7e5) and M_star (2.88e6 -> 2.3e6). Distance 5.31 +- 0.02 in both (prior 5.43 +- 0.05).
+Per-dataset chi2 (K1 / K2): HST radial 160/152 (21 pts), HST tangential 477/484 (21), MUSE 77/76
+(29), Gaia radial 19/25 (9), Gaia tangential 38/24 (9). The isotropic model fails on the HST
+tangential profile beyond ~100 arcsec (data below model by up to 10 sigma at 150-300 arcsec):
+the outer HST field is radially anisotropic (sigma_T < sigma_R) or carries a tangential
+systematic -- this is exactly what rung 1 (constant beta) is meant to absorb. JamPy cross-check
+of the best samples agrees with our solver to ~1 in ln L (chi2 shifts of ~18 between HST radial
+and tangential, the two engines' known difference).
+K2-NFW: 11.8 h, 7.0e6 calls, iteration 7641, remainder fraction still 82% -- ultranest is
+crawling along the r_s-M_DM ridge (1 accepted draw per ~4000 calls). Not stopped; decision
+pending (let it run vs restart with the step sampler).
+Report: results/fits/comparison.md; figures plots/fit_posterior_profiles.png,
+plots/fit_rung0_K1_posterior_profiles.png, plots/fit_rung0_K2_cored_posterior_profiles.png.
+
+Two tooling fixes: report._family_for now honours the ladder switches (isotropic / constant
+beta / no scales) from run.yaml -- it crashed with KeyError beta_0 on rung-0 runs; run.yaml
+input hashes are now taken at launch, not at the end (the Gaia EDR3 profile was rewritten at
+17:22 during the test-suite run with identical numbers, which made the comparison table flag
+the two runs as "different observations" although they fitted the same data). Which code path
+rewrote the product is not identified (no test calls build_edr3_profile directly).
