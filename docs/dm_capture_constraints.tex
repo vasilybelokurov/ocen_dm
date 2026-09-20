@@ -40,8 +40,11 @@ Open items collected for this programme:
 \item \emph{Theory/phenomenology:} equilibration timescales in WDs; benchmark heating luminosities for the LZ-motivated parameters (target: two weeks).
 \item \emph{Exploitation:} given those benchmarks and the Omega Centauri WD observations, does the detailed dark matter distribution inside the cluster matter, or only an average?
 \item \emph{Kinematics:} how the tidal features of Omega Centauri constrain its dark matter distribution.
-\item \emph{Simulation:} a simplified late Omega Centauri--Milky Way encounter of a tidally stripped host that reproduces the present configuration, to see whether dark matter survives (Sections~\ref{sec:budget} and the companion note).
+\item \emph{Simulation:} a simplified late Omega Centauri--Milky Way encounter of a tidally stripped host that reproduces the present configuration, to see whether dark matter survives (Sections~\ref{sec:budget}, \ref{sec:agama} and the companion note).
 \end{enumerate}
+
+\subsection{A benchmark heating calculation}
+The presentation \texttt{HiggsinoOmegaCen.pdf} (this directory) evaluates the heating luminosity for one benchmark point, $\sigma=10^{-38}\,{\rm cm^{2}}$, $\delta=200$\,keV, $m_\chi=1.1$\,TeV, as a function of the local dark matter mass fraction $f_{\rm DM}=\rho_\chi/\rho_{\rm tot}$ and of the velocity dispersion (10--25\,\kms). The observed termination of the Omega Centauri cooling sequence corresponds to $L\simeq1.7\times10^{29}$ (bolometric correction $-0.5$) to $4.4\times10^{29}\,{\rm erg\,s^{-1}}$ ($-1.5$); heating floors below this are undetectable. For the benchmark the boundary lies at $f_{\rm DM}\approx3\times10^{-3}$--$2\times10^{-2}$, essentially independent of the dispersion, while the ambient Milky Way halo ($0.57\,{\rm GeV\,cm^{-3}}$, $f_{\rm DM}=5\times10^{-6}$) is far below it. The literature dark-matter estimates for Omega Centauri --- Brown et al.\ (2019) NFW best fit, Evans et al.\ (2022) ($\lesssim0.4$), de Vita et al.\ (2016) --- all sit at $f_{\rm DM}=0.05$--$0.4$, i.e.\ in the regime where this benchmark would already be excluded by the faint WDs. The retained-cusp models of Section~\ref{sec:budget} give $f_{\rm DM}(20\,{\rm pc})=0.06$--$0.65$ and are in the same regime.
 
 \section{Dark matter capture and heating of white dwarfs}
 
@@ -447,10 +450,32 @@ $10^{11}$, $c=15$ & 139 / 145 & 34 / 39 & 13 / 17\\
 \bottomrule\end{tabular}
 \end{table}
 
-Three things follow. (i) Inside $r_J$ the density is the initial cusp, $\rho\simeq\rho_s r_s/r\propto M_{200}^{1/3}$ times a concentration factor; the Jacobi radius, and therefore the class of orbital history, changes the density at 20\,pc by at most a factor of two, whereas halo mass and concentration each span a factor of five. The orbital class controls the retained \emph{mass} (through $r_J^{3}$) much more than the local \emph{density} a WD sees. (ii) At 20\,pc the grid spans $0.6$--$17\,M_\odot\,{\rm pc^{-3}}$ ($23$--$640\,{\rm GeV\,cm^{-3}}$) against $9\,M_\odot\,{\rm pc^{-3}}$ in stars: dark matter comparable to or above the stars for $M_{200}\ge10^{10}$ with $c\ge10$, or any $10^{11}$ halo. The $0.1$--$3\,M_\odot\,{\rm pc^{-3}}$ range adopted in Section~\ref{sec:whichrho} covers only the low-mass, low-concentration corner; the physically plausible grid mostly predicts $1$--$17\,M_\odot\,{\rm pc^{-3}}$, so the capture calculation should be evaluated at $\rho_\chi\sim10\,M_\odot\,{\rm pc^{-3}}\simeq400\,{\rm GeV\,cm^{-3}}$ as well. (iii) At 3\,pc the stars dominate by $10$--$200$, at 10\,pc by $3$--$70$; the 20\,pc field is where an extended dark component is most detectable, kinematically as well as calorimetrically.
+Three things follow. (i) Inside $r_J$ the density is the initial cusp, $\rho\simeq\rho_s r_s/r\propto M_{200}^{1/3}$ times a concentration factor; the Jacobi radius, and therefore the class of orbital history, changes the density at 20\,pc by at most a factor of two, whereas halo mass and concentration each span a factor of five. The orbital class controls the retained \emph{mass} (through $r_J^{3}$) much more than the local \emph{density} a WD sees. (ii) At 20\,pc the grid spans $0.6$--$17\,M_\odot\,{\rm pc^{-3}}$ ($23$--$640\,{\rm GeV\,cm^{-3}}$) against $9\,M_\odot\,{\rm pc^{-3}}$ in stars: dark matter comparable to or above the stars for $M_{200}\ge10^{10}$ with $c\ge10$, or any $10^{11}$ halo. The $0.1$--$3\,M_\odot\,{\rm pc^{-3}}$ range adopted in Section~\ref{sec:whichrho} covers only the low-mass, low-concentration corner; the physically plausible grid mostly predicts $1$--$17\,M_\odot\,{\rm pc^{-3}}$, so the capture calculation should be evaluated at $\rho_\chi\sim10\,M_\odot\,{\rm pc^{-3}}\simeq400\,{\rm GeV\,cm^{-3}}$ as well. (iii) At 3\,pc the stars dominate by $10$--$200$, at 10\,pc by $3$--$70$; the 20\,pc field is where an extended dark component is most detectable, kinematically as well as calorimetrically. In the language of the benchmark of Section~1.1, the local dark matter fraction at 20\,pc is $f_{\rm DM}=0.06$--$0.65$ across the grid, one to two orders of magnitude above the detectability boundary of that benchmark.
 
 \subsection{What the frozen-cusp model leaves out}
 The profile inside $r_J$ is an assumption, not a result, and it is optimistic beyond $\sim10$\,pc for one reason and uncertain inside for two others. Pericentric tidal shocks act on material inside $r_J$ as well; over $\sim100$ passages (class 3 pericentres at 0.4\,kpc) they erode the outer part of the retained dark matter, which can only lower the profile near $r_J$. The dark matter was not a pristine cusp when stripping began: the nucleus's formation adiabatically contracted it (raising the inner densities), while baryonic feedback in the host may have cored it (lowering everything and making complete stripping possible). And inside a few parsecs two-body heating by stars and remnants diffuses the dark matter outward over 10\,Gyr. The first effect is what the planned $N$-body runs quantify; the second is an initial-condition choice to be bracketed.
+
+
+\section{An ab initio stripping experiment (from the presentation)}
+\label{sec:agama}
+
+The presentation also reports a first $N$-body experiment in the spirit of Pe\~narrubia, Navarro and McConnachie (2008) and Bekki and Freeman (2003): a progenitor built with \texttt{agama.SelfConsistentModel} --- Plummer nucleus, King-like stellar envelope and dark halo --- evolved with a kick-drift-kick leapfrog, self-gravity from \texttt{pyfalcon} and a static Milky Way (Bovy 2015). The stellar mass is set by requiring that the nucleus survive as today's cluster, $M_\star=M_\omega/[(1-f_{\rm lost})f_n]$ with $f_n=0.05$, $f_{\rm lost}=0.2$, and the halo by $M_{\rm halo}=(f_d-1)M_{\rm env}$ with $f_d=10$.
+
+\begin{table}[h]\centering
+\caption{Fiducial set-up of the presentation's experiment.}
+\begin{tabular}{ll}\toprule
+nucleus & $6.25\times10^{6}\,M_\odot$, Plummer $a_n=30$\,pc, 20\,000 particles, $\epsilon=10$\,pc\\
+envelope & $1.19\times10^{8}\,M_\odot$, scale length 770\,pc, 20\,000 particles, $\epsilon=50$\,pc\\
+halo & $1.07\times10^{9}\,M_\odot$, core 0.99\,kpc, truncation 6.16\,kpc, inner slope $\gamma=0$ (also 0.5, 1, 1.5), 30\,000 particles, $\epsilon=100$\,pc\\
+orbit & start at 26\,kpc, 60\,\kms, $30^\circ$ tilt; 1\,Gyr (three pericentres); 0.5\,Gyr isolation test\\
+integration & leapfrog, $\tau=2^{-13}\simeq0.12$\,Myr, output every 10\,Myr\\
+diagnostics & shrinking-sphere centre on the nucleus; iterative self-bound mass (three passes); mass within 100\,pc at the end\\
+\bottomrule\end{tabular}
+\end{table}
+
+Results after 1\,Gyr and three pericentres: the nucleus is unaffected; the envelope keeps $10^{-4}$--$3\times10^{-2}$ of its mass (disc and spherical hosts respectively); the halo's bound fraction depends steeply on the inner slope, $3\times10^{-5}$ ($\gamma=0$, one particle), $3\times10^{-4}$ (0.5), $1.3\times10^{-3}$ (1.0), $5\times10^{-3}$ (1.5), and the dark matter within 100\,pc of the nucleus is $<10^{4}$, $5\times10^{4}$, $4\times10^{5}$ and $1.6\times10^{6}\,M_\odot$ respectively; Bekki and Freeman's 2.6\,Gyr value is $\simeq4\times10^{5}$. The presentation notes two numerical lessons: heavy particles ``slingshot'' light ones unless the softening is graded with particle mass, and the nucleus should be resolved with $\gtrsim2\times10^{4}$ particles.
+
+\paragraph{Comparison with the budget of Section~\ref{sec:budget}.} The experiment and the budget agree where they overlap and differ where they should. For a cuspy ($\gamma=1$) halo of $10^{9}\,M_\odot$ the experiment leaves $4\times10^{5}\,M_\odot$ within 100\,pc after three pericentres at roughly 1--2\,kpc; the frozen-cusp budget for a $10^{9}$, $c=7$ halo inside the class-1/2 Jacobi radius (70\,pc) is $9\times10^{5}$, so a factor of two has already been removed by three passages --- the pericentric-shock erosion that the budget leaves out. The cored halo is destroyed, as Errani and Pe\~narrubia predict. Three differences matter for the next step: the experiment's orbit is a single disc-plane infall, not one of the nine reconstructed histories, and lasts 1\,Gyr against 8--10 (60--120 pericentres); its halo mass is at the low end of the plausible range; and its nucleus (30\,pc Plummer) is four times more extended than Omega Centauri's, which weakens the potential well that holds the dark matter. The natural continuation is the same machinery on the class-1, -2 and -3 orbits with the nucleus and halo parameters of the companion note, and the bound dark matter measured inside the Jacobi radius as well as inside 100\,pc.
 
 \section{The central kinematic ``dark'' component is not necessarily particle dark matter}
 
@@ -958,6 +983,16 @@ work on heavy dark matter capture, multiple scattering, and thermalization in wh
 \item Bose, D. et al. (2026),
 ``Not so good $\nu$s for Higgsino dark matter as LZ excess: stringent limits from Super-Kamiokande and IceCube,''
 \href{https://arxiv.org/abs/2609.07807}{arXiv:2609.07807}.
+
+\item Pe\~narrubia, J., Navarro, J.~F. and McConnachie, A.~W. (2008),
+``The tidal evolution of Local Group dwarf spheroidals,''
+\emph{Astrophysical Journal}, 673, 226.
+\href{https://arxiv.org/abs/0708.3087}{arXiv:0708.3087}.
+
+\item Bekki, K. and Freeman, K.~C. (2003),
+``Formation of $\omega$ Centauri from an ancient nucleated dwarf galaxy in the young Galactic disc,''
+\emph{Monthly Notices of the Royal Astronomical Society}, 346, L11.
+\href{https://arxiv.org/abs/astro-ph/0310348}{arXiv:astro-ph/0310348}.
 
 \item Errani, R. and Navarro, J.~F. (2021),
 ``The asymptotic tidal remnants of cold dark matter subhaloes,''
