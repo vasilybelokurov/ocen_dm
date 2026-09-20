@@ -53,7 +53,9 @@ def test_k1_parameter_vector_and_build():
     assert fam.names[7:] == ("s_MUSE", "s_GaiaDR2", "s_GaiaEDR3", "distance")   # distance is never fixed by default
     x = fam.transform(np.full(len(fam.names), 0.5))
     theta = fam.to_dict(x)
-    assert theta["beta_0"] == pytest.approx(-0.5)            # An & Evans: prior lies in [-1, 0]
+    # An & Evans with a central point mass: the prior is [-1, -1/2], so the midpoint of
+    # the unit cube maps to -0.75 (narrowed from [-1, 0] on 2026-09-20)
+    assert theta["beta_0"] == pytest.approx(-0.75)
     jeans, D, scales = fam.build(theta)
     assert D == pytest.approx(5.43) and scales == {"MUSE": 1.0, "GaiaDR2": 1.0, "GaiaEDR3": 1.0}
     fixed = NoDarkMatterModel(mge_fit=_MGE, fix_distance=True, instruments=("GaiaDR2", "GaiaEDR3"))
@@ -140,7 +142,7 @@ def test_maximum_likelihood_recovers_injected_stellar_mass_and_scale():
     fam = NoDarkMatterModel(**_K1_TEST)
     rng = np.random.default_rng(11)
     theta_true = {"M_star": 3.0e6, "M_rem": 1.5e5, "a_rem": 1.5, "M_bh": 1e2,
-                  "beta_0": -0.1, "beta_inf": 0.2, "r_beta": 10.0, "s_GaiaDR2": 1.0, "s_GaiaEDR3": 1.15}
+                  "beta_0": -0.7, "beta_inf": 0.2, "r_beta": 10.0, "s_GaiaDR2": 1.0, "s_GaiaEDR3": 1.15}
     x_true = np.array([theta_true[n] for n in fam.names])
     data = _synthetic_data(fam, x_true, rng, rel_err=0.02)
     P = FitProblem(fam, data)

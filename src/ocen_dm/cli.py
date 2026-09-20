@@ -256,6 +256,8 @@ def cmd_fit(args: argparse.Namespace) -> int:
     kw = dict(tracer=args.tracer, backend=args.backend)
     if getattr(args, "no_scales", False):
         kw["instruments"] = ()
+    if getattr(args, "constant_beta", False):
+        kw["constant_beta"] = True
     if preset is not None:
         pass
     elif args.family == "K1":
@@ -293,6 +295,8 @@ def cmd_fit(args: argparse.Namespace) -> int:
                          dataset_options={"gaia_errors": args.gaia_errors,
                                           "gaia_rotation": args.gaia_rotation,
                                           "tracer": args.tracer, "backend": args.backend,
+                                          "constant_beta": bool(getattr(args, "constant_beta", False)),
+                                          "no_scales": bool(getattr(args, "no_scales", False)),
                                           "datasets": ",".join(datasets)})
     print(f"logZ = {summary['logz']:.2f} +- {summary['logzerr']:.2f}; chi2_ml = {summary['chi2_ml_total']:.1f} "
           f"/ {summary['n_points']} points; {summary['n_calls']} calls in {summary['elapsed_s']:.0f} s")
@@ -421,6 +425,9 @@ def build_parser() -> argparse.ArgumentParser:
     fit.add_argument("--preset", default=None, choices=["watkins2013", "omegacat6", "baumgardt2018", "imbh_limit"],
                      help="run under a published analysis's assumptions and compare with its numbers")
     fit.add_argument("--datasets", default=DEFAULT_DATASETS, help="comma-separated dataset keys")
+    fit.add_argument("--constant-beta", action="store_true",
+                     help="one anisotropy parameter instead of three: rung 1 of the modelling "
+                          "ladder (docs/MODELLING_PLAN.md)")
     fit.add_argument("--no-scales", action="store_true",
                      help="remove the per-instrument multiplicative nuisances (every dataset compared with the same model)")
     fit.add_argument("--tracer", default="composite", choices=["composite", "trager"],

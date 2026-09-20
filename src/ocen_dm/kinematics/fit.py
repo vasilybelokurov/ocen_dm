@@ -126,6 +126,15 @@ class Parameter:
 #: AGAMA's Cuddeford DF is undefined below this central anisotropy
 AGAMA_BETA0_MIN = -0.5
 
+#: Ceiling on the central anisotropy for a CORED tracer, from An & Evans (2006).
+#: For a self-gravitating cusp the theorem gives beta <= gamma/2, so beta_0 <= 0 when
+#: gamma = 0. But in a potential dominated by a central point mass the condition is
+#: gamma >= beta + 1/2, so a cored tracer requires beta_0 <= -1/2. Every model here carries
+#: a point mass, and the argument that its sphere of influence is unresolved fails: it
+#: reaches the innermost datum at 0.11 pc once M_bh > 7400 Msun, which is 46 per cent of the
+#: prior. Narrowed from 0.0 on 2026-09-20; this REMOVES freedom from both families equally.
+BETA0_MAX_CORED_TRACER_WITH_BH = -0.5
+
 
 class NoDarkMatterModel:
     """Experiment K1. See the module docstring for the physical content."""
@@ -135,7 +144,8 @@ class NoDarkMatterModel:
     def __init__(self, mge_fit: MGEFit | None = None, instruments: Sequence[str] = NUISANCE_INSTRUMENTS,
                  distance_prior: Prior | None = "default", fix_distance: bool = False,
                  tracer: str = "trager", backend: str = "jeans", fixed: dict[str, float] | None = None,
-                 constant_beta: bool = False, beta0_max: float = 0.0, distance_kpc: float | None = None) -> None:
+                 constant_beta: bool = False, beta0_max: float = BETA0_MAX_CORED_TRACER_WITH_BH,
+                 distance_kpc: float | None = None) -> None:
         """
         Parameters
         ----------
@@ -187,12 +197,17 @@ class NoDarkMatterModel:
             Parameter("a_rem", Prior("loguniform", 0.3, 20.0), "pc", r"a_{\rm rem}"),
             Parameter("M_bh", Prior("loguniform", 1e2, 3e5), "Msun", r"M_\bullet"),
         ]
-        b0max = getattr(self, "beta0_max", 0.0)
+        b0max = getattr(self, "beta0_max", BETA0_MAX_CORED_TRACER_WITH_BH)
         if getattr(self, "backend", "jeans") == "agama":
             # Cuddeford-Osipkov-Merritt family of the positive DF: beta -> 1 beyond r_a.
             # AGAMA's implementation rejects beta_0 < -0.5 outright, so the prior is bounded
             # there rather than left to raise mid-run (2026-09-20).
-            params += [Parameter("beta_0", Prior("uniform", AGAMA_BETA0_MIN, b0max), "", r"\beta_0"),
+            # AGAMA's Cuddeford DF is undefined below -0.5, and the An & Evans ceiling for a
+            # cored tracer with a point mass is -0.5, so the two ranges meet at a single
+            # point. The AGAMA backend therefore CANNOT represent a physically admissible
+            # model of this kind. It keeps its own range and is a diagnostic only, never a
+            # family whose evidence is compared (2026-09-20).
+            params += [Parameter("beta_0", Prior("uniform", AGAMA_BETA0_MIN, 0.0), "", r"\beta_0"),
                        Parameter("r_a", Prior("loguniform", 1.0, 1000.0), "pc", r"r_a")]
         elif getattr(self, "constant_beta", False):
             params += [Parameter("beta_0", Prior("uniform", -1.0, b0max), "", r"\beta")]

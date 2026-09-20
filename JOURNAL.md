@@ -3579,3 +3579,52 @@ Ten tests in `tests/test_likelihood_normalisation.py`.
 Still open, and deliberately not touched: the An & Evans constraint with a central point mass
 (1), the monotonic anisotropy family (4), the AGAMA positivity claim (6) and the coherent
 rotation uncertainty (7).
+
+## 2026-09-20 -- the modelling plan: a ladder, not a bigger model
+
+The user, after three review rounds each of which proposed more parameters: "I am now worried
+that we are overcomplicating the model, this seems to be the case of premature optimisation
+that I would like to avoid at all costs. Instead, we need a simple and robust set of initial
+models to test." Correct, and the state of play makes the case: the data are finished, the
+machinery has been reviewed three times, and **no fit has been run on the current dataset at
+all**.
+
+`docs/MODELLING_PLAN.md` is the plan. Three rungs, same two families on each, climbed only
+when the rung below says to:
+
+| rung | anisotropy | scales | K1 | K2 | points/param (K2) |
+|---|---|---|---|---|---|
+| 1 | constant beta | none | 6 | 8 | 11.1 |
+| 2 | beta(r), 3 params | none | 8 | 10 | 8.9 |
+| 3 | beta(r) | per instrument | 11 | 13 | 6.8 |
+
+The decision to climb rests on the residuals of the rung below, not on a reviewer's
+suggestion. A Delta ln Z that is **stable** across rungs is itself the finding: it says the
+answer is not about orbital freedom.
+
+### Taken now, because they remove freedom
+
+* **`beta_0` narrowed to `U[-1, -0.5]`** in both families. An & Evans give `beta <= gamma/2`
+  for a self-gravitating cusp, hence `beta_0 <= 0` for a cored tracer, but `gamma >= beta +
+  1/2` in a point-mass-dominated potential, hence `beta_0 <= -1/2`. My counter-argument --
+  that the sphere of influence is unresolved -- **fails**, and I checked it: `r_infl` reaches
+  the innermost datum at 0.11 pc once `M_bh > 7400 Msun`, which is 46 per cent of the
+  log-uniform prior.
+* **The AGAMA positivity claim dropped.** AGAMA clips negative DF values to zero, so
+  construction does not certify positivity. Worse, now that the ceiling is -0.5 and AGAMA's
+  floor is also -0.5, **the two ranges meet at a single point**: the AGAMA backend cannot
+  represent a physically admissible cored-tracer-plus-black-hole model at all. It keeps its
+  own range, is a diagnostic only, and its evidence is never compared.
+
+### Deferred, with the trigger written down
+
+The anisotropy turnover (one parameter, revisit if a rung leaves an anisotropy-shaped
+residual) and the shared rotation nuisance (revisit if the outer tangential bins drive the
+result). Neither is wrong; neither has been shown to be needed.
+
+### Also
+
+`--constant-beta` was not exposed on the CLI, so rung 1 was not runnable as written. It is
+now, and both it and `--no-scales` are recorded in the run provenance. Three tests updated
+for the narrowed prior: the unit-cube midpoint now maps to -0.75, and an injection test used
+a truth outside the new prior.
