@@ -3817,3 +3817,25 @@ and 2 identical (peri 1.6, apo 7.0, T = GM/r^3 = 1.4e4 (km/s/kpc)^2); class 3 pe
 9.3, T = 4e4 because the slow bar is part of its potential. 8-9 Gyr ago: class 2 peri 5-6 kpc,
 T ~ 1.5e3 (ten times weaker than today); class 3 peri 0.4 kpc, T ~ 1e5 (seven times stronger).
 L_z early: class 2 -> -2000..-4000 (more retrograde), class 3 -> 0..+230 (less).
+
+## 2026-09-20 -- does a GC + DM remnant migrate through the bar like a particle? (friction test)
+
+User asked whether a nucleus with a bound DM remnant is affected by the bar resonance exactly
+like any particle; answer: the centre of mass does, to O((r/R)^2), except for mass-dependent
+friction, non-coherent debris, and phase-locked tidal shocks. User: "lets code and run the cheap
+decisive test". `src/ocen_dm/tails/friction_test.py` (vectorised leapfrog in the time-dependent
+AGAMA barred potential + Chandrasekhar friction, constant bound mass = upper bound);
+tests `tests/test_friction_test.py` (2). Calibration: nucleus mass gives dLz/dt = 11 kpc km/s/Gyr,
+dE/dt = 7e2 (paper: 9.6, 6.3e2); frictionless leapfrog reproduces agama.orbit.
+
+Result (fraction inside GSE 8 Gyr ago, Omega_b,0 = 24): particle 0.87; 1e7 Msun 1.00 (endpoint
+shifted, dE +0.13e5, dLz +240); 1e8 Msun 0.00 -- never captured by the resonance, L_z drifts
+more retrograde; 1e9 Msun 0.00, apo 74 kpc. Omega grid 20-27: 1e7 keeps the <~26 window; 1e8
+never exceeds 0.33 and is 0 for 24-27. Threshold 1e7-1e8 Msun (higher for a stripping system).
+Conclusion for the DM question: a class-3 nucleus that migrated from GSE debris did so
+essentially without a dark envelope; the class-3 initial condition is only self-consistent if
+the envelope was gone before ~2.5 Gyr ago. Written into docs/progenitor_orbits.tex (Sec. 5.4,
+Table 6, Fig. 7) and docs/PROGENITOR_ORBITS.md.
+
+Also: stale point count (98 -> 89) in tests/test_master_plot.py fixed; full suite otherwise
+392 passed.
