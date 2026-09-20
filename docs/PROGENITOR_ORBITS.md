@@ -96,50 +96,76 @@ far outside the virial radius. In every viable history the satellite's bound mas
 | intermediate | 3 × 10¹⁰ | 1.25 | 85 kpc | 2.2–11.6 | 1.7–7.4 |
 | GSE-like | 10¹¹ | 0.75 | 111 kpc | 1.7–7.5 | 1.6–7.1 |
 
-## Class 3 — deposited by GSE, migrated inward by the bar
+## Class 3 — deposited by GSE, migrated inward by the bar (done properly)
 
-### What the literature gives
+*Code: `src/ocen_dm/tails/bar_migration.py` (`python -m ocen_dm.tails.bar_migration`); figures
+`plots/bar_migration_elz.png`, `plots/bar_migration_class3_picks.png`; tables
+`results/tails/bar_migration_grid.ecsv`, `results/tails/bar_migration_class3_picks.ecsv`.*
 
-* Dillamore, Zhang & Belokurov 2026 (arXiv:2606.12516): modified Hunter et al. 2024 barred
-  potential; bar grows 0–1 Gyr, decelerates with η = −Ω̇/Ω² = 0.003 from ≈ 45 km/s/kpc;
-  ω Cen is caught by the **retrograde 1:1 resonance** (Ω_φ − Ω_b + Ω_r = 0), which scatters
-  orbits to **lower E and more retrograde L_z**; ω Cen overlaps the GSE debris only if today's
-  Ω_b ≲ 26 km/s/kpc. Back-integration of 10³ samples of the observed phase-space point.
-  Friction is irrelevant at the nucleus mass (L̇_z ≈ 9.6 kpc km/s/Gyr).
-* GSE debris (Belokurov et al. 2023, MNRAS 518, 6200, arXiv:2208.11135): |L_z| < 700 kpc km/s,
-  chevrons with apocentres 11.5, 15.5, 21, 23, 25 kpc; most-bound debris E ≈ −1.4 × 10⁵ in
-  their potential. In McMillan 2017 a near-radial orbit with these apocentres has
-  E = Φ(r_apo) = −1.65, −1.50, −1.34, −1.26 × 10⁵ km² s⁻² (11.5, 15.5, 21, 25 kpc).
-* GSE's own infall (Naidu et al. 2021 fiducial): M★ = 5 × 10⁸, M_DM = 2 × 10¹¹, c = 4,
-  from R_vir at z ≈ 2, circularity 0.5, inclination 15°, retrograde; MW at z = 2:
-  M₂₀₀ = 5 × 10¹¹, disc 6 × 10⁹, bulge 1.4 × 10¹⁰.
+### Set-up reproduced
 
-### Two readings of "deposited by GSE"
+Dillamore, Zhang & Belokurov 2026 (arXiv:2606.12516), following the authors' own pipeline in
+`github.com/adllmr/oCen_bar` (local clone `~/Work/Code/oCen_bar`, referenced not copied):
 
-(a) **ω Cen is GSE's nuclear cluster** (Pfeffer et al. 2021). Then the disruption simulation is
-GSE's own (Naidu et al. 2021 set-up above) and the dwarf's initial orbit is GSE's infall orbit;
-the nucleus ends on a GSE-debris orbit, which the bar then drags inward.
-(b) **ω Cen's host was a smaller dwarf that fell in with GSE** (group infall; the oMEGACat X
-reading with Sequoia/Thamnos). Then the host disrupts on a GSE-debris orbit.
+* **Potential**: Hunter et al. 2024 (A&A 692, A216) Milky Way with the Sormani et al. 2022 bar
+  (M_bar = 1.83 × 10¹⁰ M☉), as AGAMA files. Split into the axisymmetric part plus the baryonic
+  bar part, scaled and rotated, minus the axisymmetrised baryonic part (so the m = 0 mass is
+  unchanged while the bar grows).
+* **Bar history**: amplitude switch-on (Dehnen 2000 eq. 4) from t = 0 to t₁ = 1 Gyr; pattern
+  speed constant at Ω₁ until t₁, smooth onset of deceleration to t₂ = 2 Gyr, then constant
+  η = −Ω̇/Ω² = 0.003 until t_f = 8 Gyr (bar age). Ω₁ follows from the present-day Ω_b,0:
+  Ω₁ = 45.1 for Ω_b,0 = 24 (the paper's "≈ 45"), 72 for 30, 110 for 35. Bar length scales as
+  S = Ω_b,0/Ω_b(t) (≈ corotation), amplitude fixed.
+* **ω Cen**: 10³ samples of (D = 5.43 ± 0.05 kpc, μ = (−3.257, −6.730) ± 0.025 mas/yr,
+  v_los = 232.7 ± 0.21 km/s), astropy default frame (R₀ = 8.122, v☉ = (12.9, 245.6, 7.78)),
+  bar angle 28°, integrated from t_f back to 0 with `agama.orbit`.
+* **Test**: (E, L_z) at t = 0 in the axisymmetric potential against the Belokurov et al. 2023
+  GSE contours (energy zero-point matched at R = 8.2 kpc). Success metric here: fraction of
+  samples inside the outermost contour.
 
-In both readings the nucleus spends the time between GSE's disruption (~9–10 Gyr ago) and the
-bar's deceleration to Ω_b ≈ 25 (late) on a GSE-debris orbit. That orbit is the class-3 initial
-condition for the host's tidal history. **Bar migration itself is not modelled here**: it needs
-the Hunter et al. 2024 barred potential and a low pattern speed, and it moves the nucleus, not
-the (already dispersed) host.
+### Results
 
-### Picked orbits (static McMillan 2017; start at apocentre, inclination 60°)
+| Ω_b,0 [km/s/kpc] | 20 | 21 | 22 | 22.5 | 23 | 23.5 | 24 | 24.5 | 25 | 25.5 | 26 | 26.5 | ≥ 27 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| fraction inside GSE at t = 0 | 0.44 | 0.38 | 0.58 | 0.85 | 0.01 | 0.34 | **0.89** | 0.81 | 0.79 | 0.54 | 0.18 | 0.02 | 0.00 |
 
-| label | apo | L_z | peri | e | z_max | E [10⁵ km²/s²] |
-|---|---|---|---|---|---|---|
-| GSE debris, most bound | 11.5 | −300 | 0.66 | 0.89 | 1.5 | −1.646 |
-| GSE debris, middle | 15.5 | −300 | 0.62 | 0.92 | 1.9 | −1.492 |
-| GSE debris, outer | 21 | −300 | 0.58 | 0.95 | 2.5 | −1.342 |
+* Reproduces the paper: overlap only for Ω_b,0 ≲ 26; nothing for the mainstream 30–40.
+* Cross-check against the authors' stored grid (`oCen_bar/artifacts/03_orbit_grid.npz`, which
+  used t₁ = 2, t₂ = 3): 0.87 (24), 0.69 (25), 0.08 (26), 0.09 (23), 0.80 (22.5) — same
+  pattern, same jagged Ω dependence. The dip at 23 is robust to the random seed (0.013 / 0.028)
+  and to the bar timings: it is resonant-phase sensitivity, not noise.
+* **Migration happens late**: E and L_z of the successful samples are constant at GSE-like
+  values from 8 to ~2.5 Gyr ago and move to today's (E, L_z) only in the last ~2.5 Gyr, as
+  Ω_b falls from ~30 to 24 and the retrograde 1:1 resonance sweeps over ω Cen.
+* **The bar changes today's orbit too.** In the barred Hunter24 potential at Ω_b,0 = 24
+  (corotation ≈ 9.5 kpc, so ω Cen at 6.5 kpc is inside corotation) the present orbit has
+  peri/apo = 0.81/9.3 kpc over the last Gyr, versus 1.56/7.02 in the axisymmetric version and
+  1.57/7.04 in McMillan 2017. Class 1's "today's orbit" therefore depends on whether a slow
+  bar is present — relevant to the disruption simulations of all classes.
 
-L_z = −300 (less retrograde than today's −529, as the resonance makes L_z more retrograde).
-The pericentre is set by L_z in the flattened potential and hardly depends on the inclination
-(0.6–0.8 kpc for 45–70°); these orbits are much more plunging than class 1 or 2, which is the
-physical point of class 3: **stronger tides at pericentre, weaker at apocentre**.
+### Picked orbits (Ω_b,0 = 24; samples at the 16/50/84th percentiles of E(t = 0) among those ending inside GSE)
+
+| sample | E(t=0) [10⁵] | L_z(t=0) | pre-migration (7–8 Gyr ago) peri / apo / e / z_max | last Gyr peri / apo |
+|---|---|---|---|---|
+| 986 | −1.301 | +69 | 0.87 / 10.9 / 0.85 / 4.8 | 0.84 / 9.0 |
+| 133 | −1.265 | +163 | 0.60 / 11.6 / 0.90 / 4.9 | 0.83 / 9.3 |
+| 240 | −1.233 | +229 | 0.50 / 12.2 / 0.92 / 5.2 | 0.84 / 9.1 |
+
+(L_z prograde-positive.) The pre-migration orbit is a **most-bound GSE-debris orbit**: apocentre
+11–12 kpc, pericentre 0.5–0.9 kpc, slightly prograde to zero L_z — not retrograde. The earlier
+static guess (L_z = −300) was wrong in sign and is kept only as `class3_gse_debris_orbit`.
+
+### What is still not modelled
+
+* Anything before the bar formed (> 8 Gyr ago): GSE's own infall and disruption (Naidu et al.
+  2021 fiducial: M★ = 5 × 10⁸, M_DM = 2 × 10¹¹, from R_vir at z ≈ 2, circularity 0.5,
+  retrograde) and where ω Cen's host sat in it. The two readings of "deposited by GSE" (ω Cen
+  = GSE's nucleus; or a smaller host in group infall) both start from the picked debris orbit.
+* Dynamical friction on the nucleus (negligible at 3.6 × 10⁶ M☉, as the paper notes) and on the
+  host while it still existed (class 2 covers this).
+* The bar-history caveat recorded in the oCen_bar journal: with fixed η = 0.003 a present-day
+  Ω_b,0 = 35 implies an initial Ω₁ = 110 km/s/kpc, so the scan over Ω_b,0 is also a scan over
+  implausible early histories; the low-Ω_b,0 requirement is tied to this slowdown law.
 
 ## What differs between the classes (for the simulations)
 
@@ -147,13 +173,14 @@ physical point of class 3: **stronger tides at pericentre, weaker at apocentre**
 |---|---|---|---|
 | class 1 | today's | today's | 1.3–2.0 kpc |
 | class 2 | wider, apo 10–20 kpc at 5 Gyr, infall from R_vir | today's | 1.6–2.9 kpc early |
-| class 3 | GSE debris, apo 11–21 kpc | today's after bar migration | 0.6 kpc |
+| class 3 | most-bound GSE debris, apo 11–12 kpc, L_z ≈ 0 to +230, until ~2.5 Gyr ago | today's, reached by bar migration in the last ~2.5 Gyr | 0.5–0.9 kpc |
 
 ## Caveats
 
 * Chandrasekhar friction with σ = v_c/√2 and a fixed r_h is a 20–30% level approximation; the
   mass-history dependence is far larger than that.
-* Only McMillan 2017 for classes 2 and 3 (AGAMA host); class 1 carries the potential spread.
+* Only McMillan 2017 for class 2 (AGAMA host); class 3 uses Hunter et al. 2024 (the only
+  potential with the fitted bar); class 1 carries the potential spread.
 * The galpy `ChandrasekharDynamicalFrictionForce` (Python force, ~30 min per orbit) is kept as
   `class2_friction_backwards` for cross-checks; the fast leapfrog is the working tool.
 * galpy checkout at `~/Work/src/galpy` is from 2024-03 and needs two import shims (astroquery

@@ -3758,3 +3758,38 @@ class recorded (omega Cen = GSE's nucleus vs a smaller host in group infall with
 The galpy `ChandrasekharDynamicalFrictionForce` cross-check of the fast integrator (M = 3e9
 constant, 5 Gyr; fast result peri 1.84 / apo 47.1 kpc) -> `results/tails_galpy_friction_check.log`.
 Rung-0 fits (started 03:03, 3 processes) are still in ultranest's sampling phase.
+
+## 2026-09-20 -- class 3 done properly: the Dillamore+2026 bar migration reproduced
+
+User: "yes i want class 3 done properly, reproduce their setup". The static GSE-debris guesses
+(L_z = -300) are superseded.
+
+**Key discovery:** `~/Work/Code/oCen_bar` is a clone of Dillamore's own repository
+(github.com/adllmr/oCen_bar; authors Dillamore, Belokurov, Zhang) with the scripted pipeline:
+Hunter+2024 AGAMA potentials, slowing-bar construction, 10^3 omega Cen samples, backward
+integration over an Omega_b,0 grid, Belokurov+2023 GSE contours (`artifacts/gaiadr3_gse_elz.fits`).
+The Hunter potential files and contours are referenced from that clone (`OCEN_BAR_DIR`), not
+copied. New module `src/ocen_dm/tails/bar_migration.py`; products `python -m ocen_dm.tails.bar_migration`;
+tests `tests/test_bar_migration.py` (4) + 1 in `test_progenitor_orbits.py`; note rewritten in
+`docs/PROGENITOR_ORBITS.md`.
+
+Set-up (paper + code): bar amplitude Dehnen switch-on 0-1 Gyr, deceleration onset 1-2 Gyr, then
+eta = 0.003 to t_f = 8 Gyr; length scales as Omega_b,0/Omega_b(t); Omega_1 = 45.1 for Omega_b,0 = 24
+(paper's "~45" -- confirms t1 = 1, t2 = 2 rather than the code defaults t1 = 2, t2 = 3 in
+`make_slowing_bar_potential`); astropy default solar frame; bar angle 28 deg.
+
+Results (fraction of the 1000 samples inside the outer GSE contour 8 Gyr ago):
+20: 0.44, 22: 0.58, 22.5: 0.85, 23: 0.01, 24: 0.89, 25: 0.79, 26: 0.18, >= 27: 0. Matches the
+authors' stored grid (0.87 / 0.69 / 0.08 at 24 / 25 / 26, dip at 23 too) and is seed-stable: the
+jagged Omega dependence is resonant-phase sensitivity. Paper's "Omega_b,0 <~ 26" reproduced.
+Migration is late: E, L_z sit at GSE values from 8 to ~2.5 Gyr ago and move only in the last
+~2.5 Gyr. Picked (Omega_b,0 = 24, E0 quantiles 0.16/0.5/0.84 among successful samples):
+pre-migration peri/apo 0.87/10.9, 0.60/11.6, 0.50/12.2 kpc, e 0.85-0.92, L_z(t=0) = +69, +163,
++229 (slightly prograde, not retrograde as guessed).
+
+Side result relevant to every class: in the barred Hunter24 potential at Omega_b,0 = 24
+(corotation ~9.5 kpc) omega Cen's present orbit has peri/apo 0.81/9.3 kpc over the last Gyr,
+against 1.56/7.02 axisymmetric. A slow bar changes "today's orbit".
+
+Also closed: galpy `ChandrasekharDynamicalFrictionForce` cross-check of the fast leapfrog
+(M = 3e9 constant, 5 Gyr): galpy peri/apo 1.79/45.95 vs fast 1.84/47.1 kpc (3%), 482 s vs 1 s.

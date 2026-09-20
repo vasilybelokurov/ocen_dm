@@ -56,7 +56,8 @@ _import_galpy_safely()
 __all__ = ["PRESENT", "OrbitSummary", "present_day_orbit", "class1_current_orbit",
            "class2_friction_backwards", "class2_friction_backwards_fast",
            "class3_gse_initial_conditions", "class3_gse_debris_orbit", "plausible_orbit_set",
-           "exponential_stripping", "CLASS2_SET", "CLASS3_SET", "M_NUCLEUS_MSUN"]
+           "exponential_stripping", "CLASS2_SET", "CLASS3_SET", "M_NUCLEUS_MSUN",
+           "class3_bar_migration_orbits", "CLASS3_OMEGA_B"]
 
 #: present-day observables (D and v_los as used throughout the project)
 PRESENT = dict(ra=OCEN_RA, dec=OCEN_DEC, distance_kpc=5.43,
@@ -286,15 +287,15 @@ M_NUCLEUS_MSUN = 3.55e6      # Baumgardt & Hilker 2018; friction is negligible a
 CLASS2_SET = (("Sequoia-like  1e10, tau 2.0", 1e10, 2.0, 10.0),
               ("intermediate  3e10, tau 1.25", 3e10, 1.25, 10.0),
               ("GSE-like      1e11, tau 0.75", 1e11, 0.75, 10.0))
-#: class 3: (label, apocentre [kpc], L_z [kpc km/s, prograde positive], inclination [deg]) of the
-#: GSE-debris orbit before bar migration. Energies span the GSE band of Belokurov et al. 2023
-#: (chevron apocentres 11.5-25 kpc); L_z less retrograde than today's -529 because the retrograde
-#: 1:1 resonance of Dillamore et al. 2026 scatters to lower E and more retrograde L_z.
-#: Inclination 60 deg gives z_max 1.5-2.5 kpc, like today's 2.9 kpc; the pericentre (0.6 kpc)
-#: is set by L_z in the flattened potential and barely depends on the inclination.
+#: class 3 (superseded static guess, kept for tests): (label, apocentre, L_z, inclination). The
+#: proper class-3 orbits come from :mod:`bar_migration` (Dillamore+2026 set-up); see
+#: :func:`plausible_orbit_set`.
 CLASS3_SET = (("GSE debris apo 11.5, Lz -300", 11.5, -300.0, 60.0),
               ("GSE debris apo 15.5, Lz -300", 15.5, -300.0, 60.0),
               ("GSE debris apo 21,   Lz -300", 21.0, -300.0, 60.0))
+#: present-day bar pattern speed for the class-3 back-integration (paper's fiducial; migration
+#: into the GSE debris works for Omega_b,0 <~ 26 km/s/kpc)
+CLASS3_OMEGA_B = 24.0
 
 
 def exponential_stripping(m_inf: float, tau_gyr: float, t_inf_gyr: float):
@@ -336,8 +337,37 @@ def class3_gse_debris_orbit(r_apo_kpc: float, lz_kpc_kms: float, incl_deg: float
                                   "bar_migration": "not modelled; Dillamore+2026 need Omega_b <~ 26"})
 
 
-def plausible_orbit_set(potentials=("McMillan17", "MWPotential2014", "Irrgang13I")) -> dict:
-    """The 3 + 3 + 3 orbits. Keys ``class1``, ``class2``, ``class3`` -> list of OrbitSummary."""
+def class3_bar_migration_orbits(omega_b: float = CLASS3_OMEGA_B, n_samples: int = 1000,
+                                seed: int = 42, n_times: int = 1601) -> list:
+    """Class 3 done properly: omega Cen's phase-space samples integrated back 8 Gyr through the
+    growing, decelerating bar of Dillamore et al. (2026); the three samples at the 16/50/84th
+    percentiles of E(t=0) among those ending inside the GSE debris contours. Time axis of the
+    returned OrbitSummary is look-back time (negative = past), like classes 1 and 2."""
+    from . import bar_migration as bm
+    run = bm.back_integrate(omega_b, n_samples=n_samples, seed=seed, n_times=n_times)
+    out = []
+    for p in bm.pick_class3(run):
+        i = p["sample"]; X = run.traj[:, i, :3]; V = run.traj[:, i, 3:]
+        lb = run.t - run.hist.tf                       # 0 today, -8 at bar formation
+        R = np.hypot(X[:, 0], X[:, 1]); phi = np.arctan2(X[:, 1], X[:, 0])
+        vR = V[:, 0] * np.cos(phi) + V[:, 1] * np.sin(phi)
+        vT = -V[:, 0] * np.sin(phi) + V[:, 1] * np.cos(phi)     # oCen_bar frame: disc L_z > 0
+        o = OrbitSummary("class3 bar-migrated, E0 q%.2f (sample %d)" % (p["q"], i), "Hunter24+bar",
+                         lb[::-1], R[::-1], X[::-1, 2], np.linalg.norm(X, axis=1)[::-1],
+                         vR[::-1], vT[::-1], V[::-1, 2],
+                         {"omega_b_present": omega_b, "sample": i, "E0_km2s2": p["E0"], "Lz0_kpc_kms": p["Lz0"],
+                          "early_0_1_gyr": p["early"], "late_last_gyr": p["late"],
+                          "frac_samples_inside_gse_t0": run.frac_inside,
+                          "set_up": "Dillamore, Zhang & Belokurov 2026; Hunter et al. 2024 potential"})
+        out.append(o)
+    return out
+
+
+def plausible_orbit_set(potentials=("McMillan17", "MWPotential2014", "Irrgang13I"),
+                        class3: str = "bar") -> dict:
+    """The 3 + 3 + 3 orbits. Keys ``class1``, ``class2``, ``class3`` -> list of OrbitSummary.
+    ``class3="bar"`` (default) uses the Dillamore+2026 back-integration; ``"static"`` the
+    superseded static GSE-debris guesses."""
     out = {"class1": [class1_current_orbit(p) for p in potentials], "class2": [], "class3": []}
     for label, m_inf, tau, t_inf in CLASS2_SET:
         rh = 1.0 * (m_inf / 1e10) ** (1.0 / 3.0)
@@ -347,7 +377,10 @@ def plausible_orbit_set(potentials=("McMillan17", "MWPotential2014", "Irrgang13I
                                         r_at_infall_kpc=o.at(t_inf)["r"],
                                         apo_last_gyr_kpc=float(o.r[o.t_gyr < -(t_inf - 1)].max()))
         out["class2"].append(o)
-    for label, apo, lz, incl in CLASS3_SET:
-        o = class3_gse_debris_orbit(apo, lz, incl); o.label = label
-        out["class3"].append(o)
+    if class3 == "bar":
+        out["class3"] = class3_bar_migration_orbits()
+    else:
+        for label, apo, lz, incl in CLASS3_SET:
+            o = class3_gse_debris_orbit(apo, lz, incl); o.label = label
+            out["class3"].append(o)
     return out
