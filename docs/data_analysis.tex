@@ -345,10 +345,11 @@ criterion, the magnitude range and the field model all change and the answer doe
 published. Line-of-sight and proper-motion dispersions are permitted to differ, since they
 probe different projections of an anisotropic velocity ellipsoid.
 
-\paragraph{\emph{Gaia} DR2.} Nine published points from $180$ to $1747''$
-\citep{baumgardt2019}. Four lie inside $380''$; DR2 has its own, brighter selection and we
-hold no star list for it, so its usability there cannot be assessed from our side. This
-remains the least-controlled element of the dataset.
+\paragraph{\emph{Gaia} DR2 --- excluded.} Four of its nine published points
+\citep{baumgardt2019} lie inside $380''$, the range whose EDR3 equivalent we removed as
+inward extrapolation. DR2 has its own, brighter selection and we hold no star list for it,
+so we cannot assess those points as we assessed EDR3's. It was dropped from the fitted
+dataset on 2026-09-20 rather than carried on trust; it remains loadable by key.
 
 \paragraph{Periphery spectroscopy.} 157 flagged members from $0.58$ to $3.15^\circ$, with no
 proper-motion selection and therefore free of the circularity that afflicts proper-motion
@@ -391,12 +392,11 @@ Key & Kind & $N$ & Radial span \\
 \texttt{hst\_pm\_radial\_ours} & PM radial & 21 & $4$--$342''$ ($0.11$--$9.0$\,pc) \\
 \texttt{hst\_pm\_tangential\_ours} & PM tangential & 21 & $4$--$342''$ \\
 \texttt{muse\_los\_dispersion} & LOS & 29 & $5.7$--$290''$ \\
-\texttt{gaia\_dr2\_pm} & PM combined & 9 & $180$--$1747''$ \\
 \texttt{gaia\_edr3\_ours\_radial} & PM radial & 9 & $356$--$2148''$ \\
 \texttt{gaia\_edr3\_ours\_tangential} & PM tangential & 9 & $356$--$2148''$ \\
 \bottomrule
 \end{tabular}
-\caption{98 points. HST is now our own measurement from flagged stars rather than the
+\caption{89 points. HST is now our own measurement from flagged stars rather than the
 published profile, which reaches $360''$ instead of $300''$ and so genuinely overlaps
 \emph{Gaia}; and \emph{Gaia} enters as its two components rather than their combination, so
 the anisotropy constrains the model where a halo would act. Fewer points than the previous
@@ -467,13 +467,28 @@ invisible by eye because the largest shift is $0.30$\,\kms\ on an axis spanning 
 $26$\,\kms. Note that only the \emph{Gaia} points differ between those two figures: HST
 carries the published curve in both, so the ``ours'' variant is a hybrid.
 
-\section{Open decisions}
+\section{Choices left explicit}
+
+Two modelling choices are not averaged over and not folded into a systematic. Each is a
+switch, and the intention is to fit both and compare the mass models rather than to guess:
 
 \begin{enumerate}
-\item \textbf{Decide the status of the four \emph{Gaia} DR2 points inside $380''$.} DR2 has
-      its own, brighter selection and we hold no star list for it, so we cannot assess it
-      from here. It is the least-controlled element of the dataset.
+\item \textbf{The \emph{Gaia} error model} (\texttt{--gaia-errors}). The default is
+      \texttt{raw}: the catalogue's own uncertainties, unmodified. The alternative,
+      \texttt{eta}, applies the density-dependent inflation of \citet{vasiliev2021}. Both
+      fits are stored per component in the product. Until 2026-09-20 the two were averaged
+      and half their separation carried as a per-bin systematic, which both hid the choice
+      and treated one coherent calibration decision as independent noise.
+\item \textbf{The rotation curve} (\texttt{--gaia-rotation}). The default is
+      \texttt{published}: the \citet{vasiliev2021} curve, with its published percentiles
+      propagated into the error. The alternative, \texttt{ours}, removes the mean motion our
+      own mixture fits in each annulus. The two agree to about 2 per cent in amplitude and
+      swapping them moves the data by $0.95\sigma$ in quadrature across nine points.
 \end{enumerate}
+
+The remaining known limitation is that both switches, and the rotation uncertainty now
+carried, act coherently across bins while the likelihood is diagonal. A shared nuisance
+parameter would be the correct treatment; comparing two fits is the chosen alternative.
 
 \begin{figure}[p]
 \centering

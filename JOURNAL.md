@@ -3478,3 +3478,44 @@ plus an explicit warning; real vs real still gives Delta ln Z = -51.01.
 * the three products predating the centre fix quarantined under
   `data/processed/kinematics/_stale_pre_centre_fix/` with a README, rather than deleted, so
   the older figures stay reproducible.
+
+## 2026-09-20 -- three decisions taken by the user
+
+### 1. Error inflation is an option, not a default
+
+The product averaged the raw-error and eta-inflated fits and carried half their separation as
+a per-bin systematic. That hid the choice and treated one coherent calibration decision as
+independent noise. Now **the default is `raw`** -- the catalogue's own uncertainties,
+unmodified -- and both fits are stored per component (`sigma_pmr`, `sigma_pmr_eta`, ...).
+`sigma_sys` is still recorded but **no longer added to the quoted error**.
+
+### 2. The published rotation curve is the default
+
+Gaia's streaming term was our own fitted mean. It is now the **published curve with its
+percentiles propagated**, matching how HST has always been treated, with our own means
+available as the alternative. The radial component carries no published rotation (their
+radial mean is fixed to perspective expansion), so its streaming is zero by default and
+non-zero under `rotation="ours"`.
+
+### 3. Gaia DR2 dropped
+
+Four of its nine points sit inside 380 arcsec, the range whose EDR3 equivalent we removed as
+extrapolation, and we hold no star list for DR2 so the same check is impossible. Out of the
+default; still loadable by key.
+
+### How the variants are run
+
+Both choices are switches rather than assumptions:
+
+```
+ocen-dm fit --family K2-cored                                  # raw errors, published rotation
+ocen-dm fit --family K2-cored --gaia-errors eta                # inflated errors
+ocen-dm fit --family K2-cored --gaia-rotation ours             # our rotation curve
+```
+
+The default dataset is now **89 points**: HST 21+21, MUSE 29, Gaia EDR3 9+9. Five tests in
+`tests/test_gaia_options.py` pin the defaults, that the product carries both error models,
+that each switch moves what it should and nothing else, and that DR2 is out of the default
+but still loadable.
+
+The write-up gained a *Choices left explicit* section and is 13 pages.
