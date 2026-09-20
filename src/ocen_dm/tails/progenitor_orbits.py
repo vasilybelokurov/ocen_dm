@@ -204,10 +204,14 @@ def class3_gse_initial_conditions() -> dict:
 #   X = v / (sqrt(2) sigma(r)),  sigma = v_circ(r) / sqrt(2)  (isothermal-sphere estimate),
 #   ln Lambda = ln( r / max(r_hm, G M / v^2) )   (galpy's default, gamma = 1).
 # Integrating backwards flips the sign of the friction term: the orbit is pumped outward.
-# Units: kpc, km/s, Msun; time in Gyr with 1 kpc = 1.02271 km/s Gyr.
+# Units: kpc, km/s, Msun. The leapfrog runs in AGAMA's natural time unit kpc/(km/s) =
+# 0.977792 Gyr, in which x' = v and v' = a with a in (km/s)^2/kpc; times are converted to Gyr
+# only for output. (An earlier version divided the acceleration by 1.02271 instead of
+# multiplying: kicks 4.4% too weak, pericentre 4% too large; caught by Codex on 2026-09-20.)
 # ---------------------------------------------------------------------------------------
 _G_KPC_KMS2_MSUN = 4.30091e-6  # kpc (km/s)^2 / Msun
-_KPC_PER_KMS_GYR = 1.02271     # kpc travelled at 1 km/s in 1 Gyr
+TIME_UNIT_GYR = 0.977792       # 1 kpc/(km/s) in Gyr (AGAMA natural unit for kpc, km/s)
+_KPC_PER_KMS_GYR = 1.0 / TIME_UNIT_GYR   # = 1.02271, kept for external callers
 
 
 def _agama_potential(name: str = "McMillan17"):
@@ -219,7 +223,7 @@ def _agama_potential(name: str = "McMillan17"):
 
 
 def _friction_accel(pot, x, v, m_sat, r_hm):
-    """Chandrasekhar deceleration [(km/s)/Gyr] in the *forward* sense of time."""
+    """Chandrasekhar deceleration [(km/s)^2/kpc = km/s per time unit] in the *forward* sense of time."""
     from scipy.special import erf
     r = np.linalg.norm(x); vmag = np.linalg.norm(v)
     rho = float(pot.density(x))                                   # Msun/kpc^3
@@ -231,7 +235,7 @@ def _friction_accel(pot, x, v, m_sat, r_hm):
     lnL = max(np.log(r / bmin), 0.0)
     coeff = 4.0 * np.pi * _G_KPC_KMS2_MSUN**2 * m_sat * rho * lnL * (
         erf(X) - 2.0 * X / np.sqrt(np.pi) * np.exp(-X**2))       # (km/s)^2 / kpc
-    return -coeff * v / vmag**3 / _KPC_PER_KMS_GYR                # (km/s)/Gyr
+    return -coeff * v / vmag**3
 
 
 def class2_friction_backwards_fast(m_sat_msun: float, r_half_kpc: float,
@@ -247,14 +251,14 @@ def class2_friction_backwards_fast(m_sat_msun: float, r_half_kpc: float,
     # galpy is left-handed (x towards the Sun); AGAMA/astropy right-handed: flip x and vx
     x = np.array([-o.x(), o.y(), o.z()], float)
     v = np.array([-o.vx(), o.vy(), o.vz()], float)
-    dt = -dt_myr * 1e-3                       # negative: backwards
+    dt = -dt_myr * 1e-3 / TIME_UNIT_GYR       # negative: backwards; natural time units
     n = int(round(t_gyr / (dt_myr * 1e-3)))
     m_of = (lambda t: m_sat_msun) if mass_history is None else mass_history
 
-    def accel(x, v, t):
-        a = np.asarray(pot.force(x), float) / _KPC_PER_KMS_GYR   # (km/s)^2/kpc -> (km/s)/Gyr
+    def accel(x, v, t_nat):
+        a = np.asarray(pot.force(x), float)                        # (km/s)^2/kpc = km/s per time unit
         if m_sat_msun > 0:
-            a = a + _friction_accel(pot, x, v, m_of(-t), r_half_kpc)
+            a = a + _friction_accel(pot, x, v, m_of(-t_nat * TIME_UNIT_GYR), r_half_kpc)
         return a
 
     ts = np.empty(n + 1); X = np.empty((n + 1, 3)); V = np.empty((n + 1, 3))
@@ -262,7 +266,7 @@ def class2_friction_backwards_fast(m_sat_msun: float, r_half_kpc: float,
     a = accel(x, v, t)
     for i in range(1, n + 1):
         v_half = v + 0.5 * dt * a
-        x = x + dt * v_half * _KPC_PER_KMS_GYR
+        x = x + dt * v_half
         t += dt
         a = accel(x, v_half, t)                # velocity-dependent force: use half-step v
         v = v_half + 0.5 * dt * a
@@ -271,12 +275,12 @@ def class2_friction_backwards_fast(m_sat_msun: float, r_half_kpc: float,
     vR = V[:, 0] * np.cos(phi) + V[:, 1] * np.sin(phi)
     # right-handed (astropy) frame has disc rotation with v_phi < 0; store prograde-positive like galpy
     vT = -(-V[:, 0] * np.sin(phi) + V[:, 1] * np.cos(phi))
-    return OrbitSummary("class2fast M=%.1e" % m_sat_msun, potential, ts, R, X[:, 2],
+    return OrbitSummary("class2fast M=%.1e" % m_sat_msun, potential, ts * TIME_UNIT_GYR, R, X[:, 2],
                         np.linalg.norm(X, axis=1), vR, vT, V[:, 2],
                         {"friction": m_sat_msun > 0, "m_sat_msun": m_sat_msun,
                          "r_half_kpc": r_half_kpc,
                          "mass_history": "constant" if mass_history is None else "custom",
-                         "t_gyr": t_gyr, "integrator": "leapfrog dt=%.2f Myr, AGAMA host" % dt_myr})
+                         "t_gyr": t_gyr, "integrator": "leapfrog dt=%.2f Myr, AGAMA host, natural units" % dt_myr})
 
 
 # ---------------------------------------------------------------------------------------
@@ -318,16 +322,16 @@ def class3_gse_debris_orbit(r_apo_kpc: float, lz_kpc_kms: float, incl_deg: float
     vphi = lz_kpc_kms / r_apo_kpc
     vz = abs(vphi) * np.tan(np.radians(incl_deg))
     x = np.array([r_apo_kpc, 0.0, 0.0]); v = np.array([0.0, -vphi, vz])   # right-handed: disk L_z < 0
-    dt = dt_myr * 1e-3; n = int(round(t_gyr / dt))
+    dt = dt_myr * 1e-3 / TIME_UNIT_GYR; n = int(round(t_gyr / (dt_myr * 1e-3)))   # natural units
     ts = np.empty(n + 1); X = np.empty((n + 1, 3)); V = np.empty((n + 1, 3))
     ts[0] = 0; X[0] = x; V[0] = v
-    a = np.asarray(pot.force(x)) / _KPC_PER_KMS_GYR
+    a = np.asarray(pot.force(x))
     for i in range(1, n + 1):
         v_half = v + 0.5 * dt * a
-        x = x + dt * v_half * _KPC_PER_KMS_GYR
-        a = np.asarray(pot.force(x)) / _KPC_PER_KMS_GYR
+        x = x + dt * v_half
+        a = np.asarray(pot.force(x))
         v = v_half + 0.5 * dt * a
-        ts[i] = i * dt; X[i] = x; V[i] = v
+        ts[i] = i * dt * TIME_UNIT_GYR; X[i] = x; V[i] = v
     R = np.hypot(X[:, 0], X[:, 1]); phi = np.arctan2(X[:, 1], X[:, 0])
     E = 0.5 * (V[0]**2).sum() + float(pot.potential(X[0]))
     return OrbitSummary("class3 apo=%.1f Lz=%.0f" % (r_apo_kpc, lz_kpc_kms), "McMillan17", ts, R, X[:, 2],

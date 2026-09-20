@@ -3883,3 +3883,31 @@ Recommendation: gyrfalcON + AGAMA plug-in for round one (~5-8 h per 10-Gyr run, 
 particles), IC generation with AGAMA self-consistent models, pyfalcon as fallback for
 per-particle friction control; Gadget-4 only if serial speed becomes limiting. A symlink
 $NEMOOBJ/acc/agama.so -> venv agama.so was created; the stub lives in ~/.cache/ocen_dm.
+
+## 2026-09-20 -- Codex review of the N-body plan: a real bug and several corrections
+
+User: "use ask codex skill to discuss (discuss means not accept but evaluated, agree,
+disagreed, reject too)". Review saved as `docs/codex_review_nbody_2026-09-20.md`; my verdicts in
+the reply of the same time. The big one: **the fast leapfrogs divided the acceleration by
+1.02271 instead of multiplying** ((km/s)^2/kpc = 1.0227 (km/s)/Gyr), kicks 4.4% too weak,
+pericentre 4% too large -- exactly the "AGAMA vs galpy" difference I had explained away.
+Verified: the corrected integrator reproduces agama.orbit to four figures (1.5730/7.0367 vs
+1.5724/7.0368). All AGAMA leapfrogs now run in natural units (kpc/(km/s) = 0.977792 Gyr), which
+also removes the Gyr-vs-natural-unit clock mismatch Codex flagged in friction_test/class2_barred;
+bar_migration times are documented as the paper's kpc/(km/s) units (t_f = 8 = 7.82 Gyr).
+
+Regenerated: class-2 scan (values shift 10-20%, picks still satisfy 50-150 kpc: 65/86/77 kpc);
+friction test (1e7: window intact, 0.8-0.98; 1e8: marginal 0.3-0.5 at Omega 22-24, 0 at >=25 --
+previously 0 everywhere; 1e9: 0, apo 79 kpc); class2_barred (same conclusions; slow-bar
+last-Gyr peri now 1.3-1.7 rather than 0.85-1.07); products, write-up figures, LaTeX tables and
+prose, PROGENITOR_ORBITS.md, NBODY_IC_PROPOSAL.md. Galpy cross-check of the corrected
+integrator: peri 1.786 = galpy 1.786, apo 44.3 vs 46.0.
+
+Other Codex points confirmed: falcON kernel default P1 and pair-softening mean -> rigid nucleus
+must be an explicit AGAMA potential; Boldrini+2020 use live GCs (my citation wrong; Meadows+2020
+use softened point masses, eps = 13 pc); nucleus density at 10 pc is 155 not 2500 Msun/pc^3 ->
+DM particles near the nucleus <~ 1e4 Msun; a translating frame does not supply friction ->
+prescribed UniformAcceleration a_df(t) in the inertial frame; Jacobi radius at 0.4 kpc is 33-59
+pc, not 50-90; two class-2 histories end today above the nucleus mass (6.7e7, 1.0e7) -- model
+change, proposed not applied. Disagreed: "live nucleus wrong by construction" is overstated
+but the conclusion holds (t_relax(2e4) ~ 0.25 Gyr even with ln Lambda reduced 4x).

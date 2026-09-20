@@ -31,7 +31,11 @@ GSE_CONTOURS = OCEN_BAR_DIR / "artifacts" / "gaiadr3_gse_elz.fits"
 PRESENT_ERR = dict(distance_kpc=0.05, pmra=0.025, pmdec=0.025, vlos=0.21)
 BAR_ANGLE_DEG = 28.0          # present-day bar angle to the Sun-GC line (oCen_bar convention)
 ETA = 0.003
-T0, T1, T2, TF = 0.0, 1.0, 2.0, 8.0   # Gyr; paper text: growth to t1 ~ 1, smooth deceleration to t2 ~ 2
+#: All times in this module are in AGAMA's natural unit kpc/(km/s) = 0.977792 Gyr, exactly as in
+#: Dillamore et al. (2026) ("t = 8 s kpc/km ~ 8 Gyr") and the oCen_bar pipeline; t_f = 8 units
+#: = 7.82 Gyr. Convert with TIME_UNIT_GYR when quoting Gyr.
+TIME_UNIT_GYR = 0.977792
+T0, T1, T2, TF = 0.0, 1.0, 2.0, 8.0   # growth to t1 ~ 1, smooth deceleration onset to t2 ~ 2, bar age 8
 
 
 def _agama():
@@ -311,7 +315,7 @@ def build_products(out_dir: Path = Path("results/tails"), plot_dir: Path = Path(
         axes[2].plot(lb, fid.Lz[:, i], lw=0.8)
     axes[0].set_yscale("log"); axes[0].set_ylabel("r [kpc]"); axes[0].legend(fontsize=7, loc="upper left")
     axes[1].set_ylabel(r"$E$ [$10^5$ km$^2$ s$^{-2}$]"); axes[2].set_ylabel(r"$L_z$ [kpc km/s]")
-    axes[2].set_xlabel("look-back time [Gyr]  (bar forms at 8, grows to 7, decelerates from 7)")
+    axes[2].set_xlabel("look-back time [kpc/(km/s) = 0.978 Gyr]  (bar forms at 8, grows to 7, decelerates from 7)")
     ax2 = axes[1].twinx(); ax2.plot(fid.hist.tf - fid.hist.t, fid.hist.omega, color="grey", ls=":", lw=1); ax2.set_ylabel(r"$\Omega_b$ [km/s/kpc]", color="grey")
     for ax in axes: ax.grid(alpha=0.3)
     axes[0].set_title(r"Class 3, $\Omega_{b,0}$ = %.0f: three back-integrated omega Cen samples ending inside GSE" % OMEGA_FIDUCIAL, fontsize=10)
