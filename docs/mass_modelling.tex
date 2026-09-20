@@ -1,0 +1,276 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.4cm]{geometry}
+\usepackage{graphicx,booktabs,amsmath,amssymb,natbib,hyperref,xcolor}
+\usepackage[T1]{fontenc}
+\hypersetup{colorlinks=true,linkcolor=blue!55!black,citecolor=blue!55!black,urlcolor=blue!55!black}
+\graphicspath{{../plots/}}
+\newcommand{\masyr}{mas\,yr$^{-1}$}
+\newcommand{\kms}{km\,s$^{-1}$}
+\newcommand{\ocen}{$\omega$\,Cen}
+\newcommand{\Msun}{M_\odot}
+\title{\ocen: the mass-modelling procedure}
+\author{oCen\_dm project notes}
+\date{2026 September 20}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The companion note describes how the kinematic data were prepared. This one describes what is
+done with them: the mass model, the dynamical solver, the likelihood, the priors, and the
+inference. The question is whether \ocen\ requires mass beyond its stars, remnants and any
+central black hole, and it is posed as a comparison of Bayesian evidence between two model
+families that differ by one component. Everything here is deliberately low-dimensional: the
+data are 89 binned points over two decades in radius, and the failure mode to avoid is giving
+the halo more freedom than they can constrain.
+\end{abstract}
+
+\section{The question, and how it is posed}
+
+Two families are fitted to the same observations and compared by evidence.
+
+\begin{description}
+\item[K1, no dark matter] stars, a compact remnant population, and a central point mass.
+\item[K2, dark matter] the same three components plus a truncated generalized NFW halo.
+\end{description}
+
+K1 is nested inside K2 at zero halo mass, so the Bayes factor $\ln Z_{K2}-\ln Z_{K1}$ measures
+whether the extra two parameters earn their prior volume. Two K2 variants are run separately,
+a cored halo ($\gamma=0$) and a cuspy one ($\gamma=1$), rather than fitting $\gamma$: making
+the inner slope free gives the halo shape freedom the data do not support, and the two
+limiting cases bracket it.
+
+\section{The mass model}
+
+The potential is spherical and the components add:
+\begin{equation}
+M(<r) = M_\star(<r) + M_{\rm rem}(<r) + M_\bullet + M_{\rm DM}(<r).
+\end{equation}
+
+\paragraph{Stars.} A multi-Gaussian expansion of the observed surface-brightness profile,
+deprojected analytically under spherical symmetry, scaled by a single free total mass
+$M_\star$. Using an MGE rather than a Plummer sphere matters because the tracer density
+appears in the Jeans equation directly, so its shape is not a free choice.
+
+\paragraph{Remnants.} A Plummer sphere with free mass $M_{\rm rem}$ and scale $a_{\rm rem}$.
+It is a separate component rather than an inflation of the stellar mass-to-light ratio so that
+its mass appears under its own name in every posterior and can be confronted with
+multi-mass predictions later. The parametrisation is phenomenological: the point is to let a
+centrally concentrated dark component of \emph{known} astrophysical origin compete with the
+halo, so that a halo detection cannot be manufactured by forbidding one.
+
+\paragraph{Central point mass.} $M_\bullet$, an intermediate-mass black hole or any
+unresolved central mass.
+
+\paragraph{Dark halo (K2 only).} A truncated generalized NFW profile,
+\begin{equation}
+\rho(r) = \rho_s\left(\frac{r}{r_s}\right)^{-\gamma}
+          \left(1+\frac{r}{r_s}\right)^{\gamma-3} T(r), \qquad
+T(r) = \left[1+\left(\frac{r}{r_t}\right)^{2}\right]^{-2}.
+\end{equation}
+The truncation is smooth everywhere, keeps the total mass finite and falls as $r^{-4}$ outside
+$r_t$, in the manner of a tidally limited halo. It is fixed at $r_t=1000$\,pc, well outside
+the data, which end at 57\,pc.
+
+The halo is parametrised by $M_{\rm DM}(<100\,\mathrm{pc})$ and $r_s$ rather than by $\rho_s$
+and $r_s$. This is not cosmetic: $\rho_s$ and $r_s$ are strongly degenerate and a prior flat
+in $\log\rho_s$ puts most of its mass where the halo is unobservable, whereas an enclosed mass
+at a radius near the data is close to what the data measure.
+
+\section{Anisotropy}
+
+The orbital anisotropy is the principal degeneracy with mass, so it is fitted, not assumed:
+\begin{equation}
+\beta(r) = \beta_0 + (\beta_\infty-\beta_0)\,\frac{r^2}{r^2+r_\beta^2}.
+\end{equation}
+Three parameters, monotonic, with closed-form $\exp\left(2\int\beta/t\,\mathrm{d}t\right)$,
+which is what the Jeans integrating factor needs. It is also exactly JamPy's logistic
+anisotropy with $\alpha=2$, which is what makes the cross-check in \S\ref{sec:crosschecks}
+an identity rather than an approximation.
+
+$\beta_0\le0$ is imposed. For a tracer density with a core, \citet{anevans2006} show the
+central anisotropy cannot be radial; allowing $\beta_0>0$ admits models that are not
+physically realisable as distribution functions.
+
+\section{The dynamical solver}
+
+Given $\nu(r)$ from the tracer MGE, $M(<r)$ from the mass model and $\beta(r)$, the spherical
+Jeans equation
+\begin{equation}
+\frac{\mathrm{d}(\nu\sigma_r^2)}{\mathrm{d}r} + \frac{2\beta\nu\sigma_r^2}{r}
+= -\frac{\nu\,G M(<r)}{r^2}
+\end{equation}
+integrates with the factor $g(r)=\exp\left(2\int\beta/t\,\mathrm{d}t\right)$ to
+\begin{equation}
+\nu\sigma_r^2(r) = \frac{1}{g(r)}\int_r^\infty g(s)\,\nu(s)\,\frac{G M(<s)}{s^2}\,\mathrm{d}s ,
+\end{equation}
+and the projected second moments follow \citep{binneymamon1982}:
+\begin{align}
+\Sigma\sigma_{\rm los}^2(R) &= 2\int_R^\infty \left[1-\beta\frac{R^2}{r^2}\right]
+   \nu\sigma_r^2\,\frac{r\,\mathrm{d}r}{\sqrt{r^2-R^2}},\\
+\Sigma\sigma_{\rm pmR}^2(R) &= 2\int_R^\infty \left[1-\beta+\beta\frac{R^2}{r^2}\right]
+   \nu\sigma_r^2\,\frac{r\,\mathrm{d}r}{\sqrt{r^2-R^2}},\\
+\Sigma\sigma_{\rm pmT}^2(R) &= 2\int_R^\infty \left[1-\beta\right]
+   \nu\sigma_r^2\,\frac{r\,\mathrm{d}r}{\sqrt{r^2-R^2}} .
+\end{align}
+All three projections and $\Sigma(R)$ share their quadrature nodes, so one model evaluation
+delivers the line-of-sight, radial and tangential predictions together.
+
+\paragraph{Numerics.} The substitution $r=R\cosh u$ removes the integrable singularity at
+$r=R$ exactly, since $r\,\mathrm{d}r/\sqrt{r^2-R^2}=r\,\mathrm{d}u$, leaving smooth integrals
+that fixed Gauss--Legendre nodes handle to high accuracy. $\nu\sigma_r^2$ is tabulated once per
+model on a 600-point logarithmic grid and splined in the log. A full set of projected profiles
+costs a few milliseconds, which is what makes nested sampling over $10^5$--$10^6$ likelihood
+calls practical.
+
+One defect worth recording: the outer integral was originally evaluated as
+$\mathrm{cumulative}[-1]-\mathrm{cumulative}$, which loses all significance once the remaining
+integral is small, and $\sigma_r$ collapsed to zero around three MGE scale lengths. It is now
+accumulated in reverse. The runs made before that fix are quarantined.
+
+\section{The likelihood}
+
+Each dataset is a set of binned dispersions with asymmetric errors. The log-likelihood is a
+split normal,
+\begin{equation}
+\ln \mathcal{L} = \sum_i -\frac{1}{2}\left(\frac{m_i-d_i}{\varepsilon_i}\right)^2
+                  - \ln\varepsilon_i - \frac{1}{2}\ln 2\pi, \qquad
+\varepsilon_i = \begin{cases}\varepsilon_i^{+} & m_i > d_i\\ \varepsilon_i^{-} & \text{else,}\end{cases}
+\end{equation}
+summed over datasets, which are treated as independent.
+
+Three things happen between the model and the datum.
+
+\paragraph{Radial averaging.} The model is averaged over the radii of the stars actually
+measured in each bin --- eight equal-count quantiles stored with the data --- not over a
+complete annulus with $\Sigma(R)R$ weighting. Where the selection's coverage changes inside a
+bin the two differ: HST's $300$--$340''$ sample has a star-weighted mean radius of $313.2''$
+against the annulus midpoint of $320''$, worth up to $1.17\sigma$.
+
+\paragraph{Streaming.} The model predicts the full second moment; the data are dispersions
+about a rotating mean. Each dataset that needs it carries $\langle\bar v^2\rangle$, and the
+comparison is with $\sqrt{\sigma_{\rm model}^2-\langle\bar v^2\rangle}$. The uncertainty on
+that term is propagated into the datum's error.
+
+\paragraph{Instrument scales.} Optional multiplicative nuisances $s_{\rm inst}$ on the model
+prediction, one per instrument, with uniform priors. They absorb a constant calibration
+offset. They are also strongly degenerate with the halo mass, which is why the headline runs
+are done both with and without them: a halo that only survives when an instrument scale is
+free is not a detection.
+
+\section{Parameters and priors}
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{llll}
+\toprule
+Parameter & Prior & Unit & Meaning \\
+\midrule
+$M_\star$ & log-uniform $[10^6, 10^7]$ & $\Msun$ & stellar mass \\
+$M_{\rm rem}$ & log-uniform $[10^4, 3\times10^6]$ & $\Msun$ & remnant mass \\
+$a_{\rm rem}$ & log-uniform $[0.3, 20]$ & pc & remnant scale radius \\
+$M_\bullet$ & log-uniform $[10^2, 3\times10^5]$ & $\Msun$ & central point mass \\
+$\beta_0$ & uniform $[-1, 0]$ & --- & central anisotropy \\
+$\beta_\infty$ & uniform $[-1, 1]$ & --- & outer anisotropy \\
+$r_\beta$ & log-uniform $[0.5, 100]$ & pc & anisotropy scale \\
+$M_{\rm DM}(<100\,\mathrm{pc})$ & log-uniform $[10^3, 3\times10^7]$ & $\Msun$ & K2 only \\
+$r_s$ & log-uniform $[3, 1000]$ & pc & K2 only \\
+$s_{\rm inst}$ & uniform, $\sim[0.7,1.3]$ & --- & optional, one per instrument \\
+$D$ & normal $(5.43, 0.05)$ & kpc & optional \\
+\bottomrule
+\end{tabular}
+\caption{K1 has seven physical parameters, K2 nine. Log-uniform priors on every mass and
+scale, because they span orders of magnitude and the prior should not privilege a decade.}
+\end{table}
+
+\section{Inference}
+
+Nested sampling with \texttt{ultranest}: 400 live points, $\mathrm{d}\ln Z<0.5$, MLFriends by
+default with a slice stepper available for the higher-dimensional variants. The evidence is
+the output of interest; the posterior comes with it.
+
+Run-to-run scatter in $\ln Z$ was measured by repetition at 0.5, so differences below about
+1.5 are not interpretable. Each run writes the equally-weighted posterior, a summary with the
+evidence and per-dataset $\chi^2$ at the maximum-likelihood sample, radial profiles for a
+random subset of samples, and a provenance record: git commit, sampler settings, priors, and
+the SHA-256 of every input product.
+
+Evidences are comparable only between runs fitted to the \emph{same observations}. The
+comparison tool fingerprints the dataset keys, the point count, the input hashes and the mock
+provenance, and refuses to quote a Bayes factor across a mismatch. Matching dataset names is
+not sufficient, because a product can be rebuilt under an unchanged key.
+
+\section{Cross-checks}
+\label{sec:crosschecks}
+
+The inference is not allowed to rest on one implementation.
+
+\paragraph{A second Jeans engine.} JamPy's spherical solver runs behind the same likelihood.
+The mass components are expanded as projected MGEs so it can consume them, and the anisotropy
+family is chosen to be exactly JamPy's logistic form, so agreement is an identity check on the
+implementation rather than an approximate comparison.
+
+\paragraph{A distribution-function model.} An AGAMA Cuddeford--Osipkov--Merritt DF, again
+behind the same likelihood. This is the strongest check available: it guarantees a positive
+distribution function, which a Jeans solution does not. A Jeans model that cannot be realised
+by any DF is a fit, not a dynamical model.
+
+\paragraph{Published analyses.} Presets reproduce the assumptions of individual papers and
+compare the numbers we recover with theirs, as regression anchors.
+
+\paragraph{Injection.} Mock data generated from a K1 model and fitted with both families, to
+confirm the evidence comparison does not manufacture a halo when there is none.
+
+\section{What the model does not include}
+
+Stated plainly, because each is a route by which a spurious halo could appear.
+
+\begin{enumerate}
+\item \textbf{Sphericity.} \ocen\ is flattened. A spherical model absorbs flattening into
+      mass and anisotropy.
+\item \textbf{Rotation is removed, not modelled.} The streaming term is subtracted from the
+      model's second moment. A rotating model would be preferable.
+\item \textbf{Equilibrium.} The cluster is tidally limited and losing stars; the data end at
+      $0.7\,r_J(\mathrm{peri})$, and the outermost bins are closest to where equilibrium is
+      least safe.
+\item \textbf{Diagonal likelihood.} The error-model choice, the rotation-curve uncertainty and
+      the shared field template all act coherently across bins but enter as independent
+      per-bin errors. A shared nuisance parameter is the correct treatment; comparing separate
+      fits is the chosen alternative.
+\item \textbf{A single tracer population.} Mass segregation makes the dispersion depend on
+      stellar mass, and the selections differ in magnitude between instruments.
+\end{enumerate}
+
+\section{The runs}
+
+The default dataset is the 89 points described in the companion note. Two modelling choices
+are left explicit as switches rather than averaged over, and the intention is to fit each and
+compare rather than to guess:
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{lll}
+\toprule
+Run & Command & Purpose \\
+\midrule
+K1 & \texttt{--family K1} & no dark matter, the null \\
+K2 cored & \texttt{--family K2-cored} & the headline comparison \\
+K2 NFW & \texttt{--family K2-nfw} & the cuspy bracket \\
+inflated errors & \texttt{--gaia-errors eta} & sensitivity to the Gaia error model \\
+our rotation & \texttt{--gaia-rotation ours} & sensitivity to the rotation curve \\
+no scales & \texttt{--no-scales} & does the halo survive without nuisances \\
+injection & \texttt{--mock-from ...} & does the comparison produce a false positive \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{thebibliography}{9}
+\bibitem[An \& Evans(2006)]{anevans2006} An, J.~H., Evans, N.~W. 2006, ApJ, 642, 752.
+  \url{https://ui.adsabs.harvard.edu/abs/2006ApJ...642..752A}
+\bibitem[Binney \& Mamon(1982)]{binneymamon1982} Binney, J., Mamon, G.~A. 1982, MNRAS, 200,
+  361. \url{https://ui.adsabs.harvard.edu/abs/1982MNRAS.200..361B}
+\bibitem[Vasiliev \& Baumgardt(2021)]{vasiliev2021} Vasiliev, E., Baumgardt, H. 2021, MNRAS,
+  505, 5978. \url{https://arxiv.org/abs/2102.09568}
+\end{thebibliography}
+
+\end{document}
