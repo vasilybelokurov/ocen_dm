@@ -3706,3 +3706,55 @@ classes:
    Omega_b <~ 26 km/s/kpc, well below most current estimates.
 
 Discussion in the reply of the same date. Not started.
+
+## 2026-09-20 -- progenitor orbits: assumptions investigated, 3 + 3 + 3 orbits picked
+
+User: "investigate the plausible assumptions about the initial conditions for the dwarf
+(important for class 2 and 3) and come up with a small set of most plausible orbits in each
+class (say 2 or 3)". Full note: `docs/PROGENITOR_ORBITS.md`; figure `plots/progenitor_orbits.png`;
+table `results/tails/progenitor_orbits_summary.ecsv`; code `src/ocen_dm/tails/progenitor_orbits.py`,
+`python -m ocen_dm.tails.products`; tests `tests/test_progenitor_orbits.py` (6 pass).
+
+### Bugs found on the way
+
+* galpy's `solarmotion` is the *peculiar* solar motion; I had added v_0 = 233 km/s to V, which
+  made the orbit prograde with apo 10.6 kpc. Caught by comparing with an astropy transform
+  (now a test). Correct: L_z = -529 kpc km/s, retrograde, E = -1.85e5 km^2/s^2 (McMillan 2017).
+* galpy checkout (~/Work/src/galpy, 2024-03) needs two import shims: astroquery's broken
+  version metadata and scipy's removed `vectorize1`. Both live in `_import_galpy_safely`.
+* galpy's friction force is Python-level: ~30 min per orbit. Replaced by a leapfrog with the
+  AGAMA McMillan 2017 host and the same Chandrasekhar formula (~1 s); frictionless run
+  reproduces class 1 (1.63/7.04 vs 1.57/7.04 kpc).
+
+### Class 1
+McMillan17 1.57/7.04 (e 0.63), MWPotential2014 1.97/6.76 (0.55), Irrgang13I 1.25/7.20 (0.70).
+All three kept: the spread is the potential spread.
+
+### Class 2 -- the key assumption is the mass history, not the mass
+Constant-mass backward friction is wrong in the important direction (a constant 1e10 Msun
+satellite is pumped to 40-140 kpc). Adopted: exponential stripping since infall 10 Gyr ago,
+M(t) = M_inf exp(-(t_inf - t)/tau), floored at the nucleus mass, r_h = 1 kpc (M_inf/1e10)^(1/3),
+sigma = v_c/sqrt(2). Selection rule: the orbit must be at 50-150 kpc (virial radius of the
+young MW) at infall. Scan over M_inf = 1e10 ... 2e11 and tau = 0.5 ... 3 Gyr shows a 1e10 halo
+needs slow stripping (tau >= 1.5 Gyr) to have sunk from the virial radius; a GSE-mass halo
+needs fast stripping (tau <= 1 Gyr). Picked: (1e10, 2.0) r_inf 65 kpc; (3e10, 1.25) 85 kpc;
+(1e11, 0.75) 111 kpc. In all three the orbit is essentially today's for the last 3-5 Gyr and
+apo 10-20 kpc at 5 Gyr ago.
+
+Literature for M_inf: NSC-host relation M* ~ 1e9 (Pfeffer+2021); oMEGACat X 4.5e9 "GE-like"
+dwarf mass (Souza+2026, arXiv:2603.23589), favouring Sequoia/Thamnos debris; GSE 2e11 halo
+(Naidu+2021).
+
+### Class 3 -- GSE-debris orbit before bar migration
+Dillamore+2026: retrograde 1:1 resonance of a decelerating bar (eta = 0.003 from ~45 km/s/kpc)
+drags omega Cen to lower E and more retrograde L_z; works only for Omega_b <~ 26 today. The
+bar is not modelled here; the class-3 initial condition is the debris orbit: apocentres from
+the Belokurov+2023 chevrons (11.5, 15.5, 21 kpc), L_z = -300 (less retrograde than today),
+inclination 60 deg -> peri 0.6 kpc, e 0.89-0.95, z_max 1.5-2.5 kpc. Pericentre is set by
+L_z in the flattened potential and hardly depends on the inclination. Two readings of the
+class recorded (omega Cen = GSE's nucleus vs a smaller host in group infall with GSE).
+
+### Still running
+The galpy `ChandrasekharDynamicalFrictionForce` cross-check of the fast integrator (M = 3e9
+constant, 5 Gyr; fast result peri 1.84 / apo 47.1 kpc) -> `results/tails_galpy_friction_check.log`.
+Rung-0 fits (started 03:03, 3 processes) are still in ultranest's sampling phase.
