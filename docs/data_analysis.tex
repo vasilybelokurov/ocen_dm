@@ -65,6 +65,27 @@ Periphery spectroscopy & \citet{kuzma2026} & 592 LOS velocities to $3.15^\circ$ 
 \caption{Catalogues used. Only the first four enter the likelihood.}
 \end{table}
 
+\section{The cluster centre}
+
+Every radius in this analysis depends on one pair of numbers, and until 2026-09-19 they were
+wrong. Four modules hard-coded $(201.696833, -47.476583)$ with the comment ``Baumgardt
+catalogue centre''; the directory that comment cites was never downloaded, and the value was
+written from memory. It sits $10.7''$ north of the centre oMEGACat itself uses and $9.9''$
+north of Vasiliev \& Baumgardt's. Those two agree with each other to $0.83''$. The symptom:
+stars labelled as lying $2.6$--$3.2''$ from the centre were really at $7.8$--$13.9''$.
+
+The centre is now derived rather than written down. oMEGACat's astrometry is tied to a pixel
+grid whose reference pixel carries the Anderson \& van der Marel photometric centre; fitting
+the local solution from the 272 stars within 60\,px gives $(201.696833, -47.479569)$, and
+the recovered origin is stable against the fitting window and against adding quadratic terms.
+Vasiliev's member table inverts to $(201.696838, -47.479339)$. We adopt the HST value. Six
+tests pin it, one of which greps the source tree so the literal cannot return.
+
+Where it mattered: \textbf{nowhere for \emph{Gaia}}, every bin within $0.5\sigma$, since $10.7''$ at
+$r>300''$ is at most $3.6$ per cent in radius on a shallow gradient; and in the inner HST
+bins, where matched on bin edges the shifts reach $2.6\sigma$ and are mostly below $1.5$.
+The underlying centre carries about $1''$ of its own uncertainty, which is not propagated.
+
 \section{The dispersion estimator}
 \label{sec:estimator}
 
@@ -92,6 +113,29 @@ its two unequal widths ($3.1$ and $2.0$\,\masyr\ for \ocen) around the annulus a
 manufactures shoulders that no one-dimensional model reproduces. Fitting in two dimensions
 removes the problem: the per-annulus $\chi^2$ improved from $8.22$ to $1.73$ per bin when the
 field model was changed from two Gaussians to the empirical template.
+
+\paragraph{Two defects, found and fixed.} An external review of the implementation on
+2026-09-19 found both. The covariance cross-terms in the mean-update normal equations carried
+a plus where the derivation gives a minus; they vanish for an isotropic cluster with
+uncorrelated errors, which every test mock was, so nothing caught it. On a synthetic
+anisotropic sample with an injected tangential mean of $-0.200$\,\masyr\ the code returned
+$-0.125$ and the corrected algebra $-0.205$, matching a direct numerical maximisation. The
+combined dispersion moved by at most $0.17$ per cent, but the anisotropy moved and the fitted
+rotation by up to 17 per cent. The independent check: our fitted rotation against the
+published curve the estimator never sees went from $0.93$ of it to $0.98$.
+
+Separately, the profile-likelihood interval stepped by a fixed $0.02\sigma$ and returned the
+first point past the crossing, flooring \emph{every} reported uncertainty at $1.4$ per cent
+regardless of sample size; every HST bin sat exactly on it. It is now bracketed and
+interpolated, and recovers the analytic expectation to within 4 per cent from $2\times10^3$
+to $10^5$ stars. That fix is what exposed the rotation-uncertainty problem below.
+
+\paragraph{Averaging over the stars, not the annulus.} The model is averaged over eight
+equal-count quantiles of the radii of the stars actually measured in each bin, not over a
+complete annulus with $\Sigma(R)R$ weighting. The two differ where the selection's coverage
+changes inside a bin: HST's $300$--$340''$ sample has a star-weighted mean radius of
+$313.2''$ against the annulus midpoint of $320''$, worth up to $1.17\sigma$ in the predicted
+dispersion.
 
 \paragraph{Error deconvolution.} Adding $\mathsf{E}_i$ to the intrinsic covariance
 \emph{is} the convolution; the fit is unbinned in velocity and predicts the observed
@@ -344,15 +388,15 @@ proper-motion cuts has not been established.
 \toprule
 Key & Kind & $N$ & Radial span \\
 \midrule
-\texttt{hst\_pm\_radial\_ours} & PM radial & 22 & $3$--$341''$ ($0.08$--$9.0$\,pc) \\
-\texttt{hst\_pm\_tangential\_ours} & PM tangential & 22 & $3$--$341''$ \\
+\texttt{hst\_pm\_radial\_ours} & PM radial & 21 & $4$--$342''$ ($0.11$--$9.0$\,pc) \\
+\texttt{hst\_pm\_tangential\_ours} & PM tangential & 21 & $4$--$342''$ \\
 \texttt{muse\_los\_dispersion} & LOS & 29 & $5.7$--$290''$ \\
 \texttt{gaia\_dr2\_pm} & PM combined & 9 & $180$--$1747''$ \\
 \texttt{gaia\_edr3\_ours\_radial} & PM radial & 9 & $356$--$2148''$ \\
 \texttt{gaia\_edr3\_ours\_tangential} & PM tangential & 9 & $356$--$2148''$ \\
 \bottomrule
 \end{tabular}
-\caption{100 points. HST is now our own measurement from flagged stars rather than the
+\caption{98 points. HST is now our own measurement from flagged stars rather than the
 published profile, which reaches $360''$ instead of $300''$ and so genuinely overlaps
 \emph{Gaia}; and \emph{Gaia} enters as its two components rather than their combination, so
 the anisotropy constrains the model where a halo would act. Fewer points than the previous
