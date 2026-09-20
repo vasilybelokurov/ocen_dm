@@ -3953,3 +3953,13 @@ M200^(1/3) and c (factor ~5 each across the grid). At 20 pc the grid spans 0.6-1
 M200 >= 1e10 with c >= 10, or any 1e11. At 3 pc stars dominate by 10-200x. The 0.1-3
 Msun/pc^3 band assumed in docs/dm_capture_constraints.tex covers only the low-mass/low-c
 corner of the grid. Caveats: no adiabatic contraction (raises), no shocks inside r_J (lowers).
+
+## 2026-09-20 -- dm_capture_constraints.tex extended
+
+Added (user request, with the links/explanations from their Google Doc): a Motivation section
+(McCullough & Fairbairn 2010; Hooper+2010; the LZ 248 keV event arXiv:2609.02823; inelastic
+interpretation McCabe 2609.04181; Higgsino exclusion by solar neutrinos 2609.02775, 2609.07807;
+why WDs reach mass splittings up to ~5 MeV; the four open items) and a section "Predicted DM
+density inside omega Cen from the progenitor-orbit analysis" with the frozen-cusp-inside-r_J
+figure (plots/dm_density_in_rj_profiles.png), the density table at 3/10/20 pc, and the caveats
+(shocks inside r_J, contraction/cores, two-body heating). PDF now 15 pages.

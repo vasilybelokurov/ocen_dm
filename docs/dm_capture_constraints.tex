@@ -6,6 +6,8 @@
 \usepackage{hyperref}
 \usepackage{enumitem}
 \usepackage{microtype}
+\usepackage{graphicx}
+\graphicspath{{../plots/}}
 
 \title{Dark Matter Capture and Heating of White Dwarfs in Omega Centauri}
 \author{}
@@ -21,6 +23,25 @@ White dwarfs (WDs) can act as calorimeters for dark matter (DM) in sufficiently 
 The deepest observed Omega Centauri WD cooling sequence, measured with HST by Scalco et al. (2024), lies at a projected radius of approximately 20 pc from the cluster centre and reaches the termination of the WD luminosity function at $m_{\rm F606W}=30.1\pm0.2$. The corresponding objects are old WDs with effective temperatures of order a few thousand kelvin and luminosities of order $10^{29}\,{\rm erg\,s^{-1}}$, although a quantitative conversion requires the appropriate WD cooling tracks and mass distribution. Existing kinematic and stripped-progenitor models suggest physically interesting DM densities at this radius of approximately $0.1$ to a few $M_\odot\,{\rm pc}^{-3}$, or several to approximately $100\,{\rm GeV\,cm^{-3}}$. The observed faint WD sequence therefore provides a potentially useful constraint on DM capture and heating at radii of order 20 pc, complementary to annihilation searches and central dynamical constraints.
 \end{abstract}
 
+
+
+\section{Motivation: inelastic dark matter, the LZ event, and why white dwarfs}
+
+The original proposal that white dwarfs can capture and burn \emph{inelastic} dark matter is due to McCullough and Fairbairn (2010, \href{https://arxiv.org/abs/1001.2737}{arXiv:1001.2737}), followed by Hooper, Spolyar, Vallinotto and Gnedin (2010, \href{https://arxiv.org/abs/1002.0005}{arXiv:1002.0005}), who showed that inelastic dark matter accumulating in compact stars can prevent old WDs from cooling and proposed WD populations in dwarf spheroidals and the Milky Way as a test.
+
+The question has become topical. The LUX-ZEPLIN collaboration reports a single event in an extended nuclear-recoil window, with recoil energy $248\pm23\,({\rm stat})\pm23\,({\rm sys})$\,keV and a global significance of $2.6\sigma$ (\href{https://arxiv.org/abs/2609.02823}{arXiv:2609.02823}). Such a high-energy recoil is naturally produced by inelastic dark matter scattering with a mass splitting $\delta$ between two dark-sector states; McCabe (\href{https://arxiv.org/abs/2609.04181}{arXiv:2609.04181}) shows that the preferred splitting sits near the kinematic limit, which predicts a strongly seasonal ($>50\%$ annual modulation) signal.
+
+The simplest candidate, a Higgsino, is disfavoured: dark matter captured by the Sun over its lifetime would annihilate and produce high-energy neutrinos, and their absence in IceCube and Super-Kamiokande requires $\delta\gtrsim560$\,keV (Pospelov and Ramani, \href{https://arxiv.org/abs/2609.02775}{arXiv:2609.02775}; Bose et al., \href{https://arxiv.org/abs/2609.07807}{arXiv:2609.07807}), incompatible with the LZ kinematics for standard halo velocities. The event may still be inelastic dark matter of a different dark-sector kind, for instance one annihilating to $e^+e^-$, which evades the solar-neutrino limits.
+
+White dwarfs are the natural next probe because their compactness accelerates infalling dark matter to velocities that make inelastic up-scattering possible for mass splittings as large as $\sim5$\,MeV. They therefore cover the LZ-preferred region in a largely model-independent way, and the canonical Higgsino out to larger splittings. The constraint is only as good as the dark matter density the WDs sit in, which is why an independent, robust assessment of the dark matter content of Omega Centauri --- the subject of the rest of this note and of the companion progenitor-orbit study --- matters.
+
+Open items collected for this programme:
+\begin{enumerate}[label=(\roman*)]
+\item \emph{Theory/phenomenology:} equilibration timescales in WDs; benchmark heating luminosities for the LZ-motivated parameters (target: two weeks).
+\item \emph{Exploitation:} given those benchmarks and the Omega Centauri WD observations, does the detailed dark matter distribution inside the cluster matter, or only an average?
+\item \emph{Kinematics:} how the tidal features of Omega Centauri constrain its dark matter distribution.
+\item \emph{Simulation:} a simplified late Omega Centauri--Milky Way encounter of a tidally stripped host that reproduces the present configuration, to see whether dark matter survives (Sections~\ref{sec:budget} and the companion note).
+\end{enumerate}
 
 \section{Dark matter capture and heating of white dwarfs}
 
@@ -264,6 +285,7 @@ would clearly be difficult to reconcile with the existence of the faint old WD s
 
 
 \section{Which dark matter density should be compared with the WD data?}
+\label{sec:whichrho}
 
 The relevant dark matter density is not the central density inferred from kinematic modelling.
 
@@ -386,6 +408,49 @@ or approximately
 
 This should be treated as a physically motivated range for exploration, not as a precise observational constraint.
 
+
+
+\section{Predicted dark matter density inside Omega Centauri from the progenitor-orbit analysis}
+\label{sec:budget}
+
+The companion note (\texttt{progenitor\_orbits.pdf}) reconstructs three classes of orbital history for the host dwarf --- today's orbit throughout (class 1), infall from the virial radius under dynamical friction (class 2), and deposition by Gaia--Sausage--Enceladus followed by bar-driven migration (class 3) --- and walks Errani \& Navarro (2021) tidal tracks along them. Two results carry over.
+
+First, on every history a bare dark-matter halo is stripped far below the nucleus mass: a self-bound remnant would need a mean density $\simeq20$ times the Milky Way's mean density inside the pericentre, $1.7\times10^{10}$ (1.6\,kpc pericentres, classes 1--2) to $1.5\times10^{11}\,M_\odot\,{\rm kpc^{-3}}$ (0.4\,kpc, class 3), which an NFW cusp of $10^{10}\,M_\odot$ reaches only inside a few parsecs. Any dark matter around Omega Centauri today is therefore held by the nucleus's own potential.
+
+Second, the budget is then the initial dark matter inside the nucleus's Jacobi radius at the smallest pericentre, $r_J=r_{\rm peri}[M_{\rm nuc}/3M_{\rm MW}(<r_{\rm peri})]^{1/3}$: 33--36\,pc for class 3, 40--70\,pc for classes 1--2. For NFW haloes of $10^{9}$--$10^{11}\,M_\odot$ at $z=2$ this is $2\times10^{5}$--$1.2\times10^{6}\,M_\odot$ (class 3) and $0.3$--$4.4\times10^{6}\,M_\odot$ (classes 1--2).
+
+\subsection{The density profile if the dark matter inside $r_J$ is retained}
+
+Figure~\ref{fig:dmrho} shows the simplest model consistent with these results: the initial NFW cusp, unchanged inside $r_J$ and exponentially truncated there,
+\begin{equation}
+\rho_{\rm DM}(r)=\rho_{\rm NFW}(r;\,M_{200},c)\,e^{-r/r_J},
+\end{equation}
+for $M_{200}=10^{9},10^{10},10^{11}\,M_\odot$, concentrations $c=5,10,15$ and the two Jacobi radii, against the stellar density of the cluster (the project's MGE light model scaled to the fitted stellar mass $2.9\times10^{6}\,M_\odot$). The three radii of interest are marked: 3\,pc (where central kinematics and stellar remnants dominate), 10\,pc, and 20\,pc, the projected radius of the deep WD field.
+
+\begin{figure}[h]\centering
+\includegraphics[width=\textwidth]{dm_density_in_rj_profiles.png}
+\caption{Dark matter retained inside the nucleus's Jacobi radius, $\rho_{\rm NFW}(r)\,e^{-r/r_J}$, for initial NFW haloes at $z=2$ (panels: $M_{200}$; colours: concentration; solid: $r_J=70$\,pc, classes 1--2; dashed: $r_J=35$\,pc, class 3), compared with the stellar density (black). Dotted lines mark 3, 10 and 20\,pc; the grey band is the $0.1$--$3\,M_\odot\,{\rm pc^{-3}}$ range discussed in Section~\ref{sec:whichrho}. Right axis in GeV\,cm$^{-3}$.}
+\label{fig:dmrho}
+\end{figure}
+
+\begin{table}[h]\centering
+\caption{Retained dark matter density [$M_\odot\,{\rm pc^{-3}}$] at the three radii for $r_J=35$\,pc (class 3) / $70$\,pc (classes 1--2); stellar density $1230$, $117$, $9.1\,M_\odot\,{\rm pc^{-3}}$ at 3, 10, 20\,pc. Multiply by 38 for GeV\,cm$^{-3}$.}
+\begin{tabular}{lccc}\toprule
+initial halo & 3\,pc & 10\,pc & 20\,pc\\\midrule
+$10^{9}$, $c=5$ & 6.3 / 6.6 & 1.6 / 1.8 & 0.58 / 0.77\\
+$10^{9}$, $c=15$ & 30 / 31 & 7.1 / 8.2 & 2.6 / 3.5\\
+$10^{10}$, $c=5$ & 14 / 14 & 3.4 / 3.9 & 1.3 / 1.7\\
+$10^{10}$, $c=10$ & 35 / 37 & 8.6 / 9.9 & 3.2 / 4.3\\
+$10^{10}$, $c=15$ & 64 / 67 & 16 / 18 & 5.8 / 7.7\\
+$10^{11}$, $c=5$ & 30 / 31 & 7.2 / 8.4 & 2.7 / 3.6\\
+$10^{11}$, $c=15$ & 139 / 145 & 34 / 39 & 13 / 17\\
+\bottomrule\end{tabular}
+\end{table}
+
+Three things follow. (i) Inside $r_J$ the density is the initial cusp, $\rho\simeq\rho_s r_s/r\propto M_{200}^{1/3}$ times a concentration factor; the Jacobi radius, and therefore the class of orbital history, changes the density at 20\,pc by at most a factor of two, whereas halo mass and concentration each span a factor of five. The orbital class controls the retained \emph{mass} (through $r_J^{3}$) much more than the local \emph{density} a WD sees. (ii) At 20\,pc the grid spans $0.6$--$17\,M_\odot\,{\rm pc^{-3}}$ ($23$--$640\,{\rm GeV\,cm^{-3}}$) against $9\,M_\odot\,{\rm pc^{-3}}$ in stars: dark matter comparable to or above the stars for $M_{200}\ge10^{10}$ with $c\ge10$, or any $10^{11}$ halo. The $0.1$--$3\,M_\odot\,{\rm pc^{-3}}$ range adopted in Section~\ref{sec:whichrho} covers only the low-mass, low-concentration corner; the physically plausible grid mostly predicts $1$--$17\,M_\odot\,{\rm pc^{-3}}$, so the capture calculation should be evaluated at $\rho_\chi\sim10\,M_\odot\,{\rm pc^{-3}}\simeq400\,{\rm GeV\,cm^{-3}}$ as well. (iii) At 3\,pc the stars dominate by $10$--$200$, at 10\,pc by $3$--$70$; the 20\,pc field is where an extended dark component is most detectable, kinematically as well as calorimetrically.
+
+\subsection{What the frozen-cusp model leaves out}
+The profile inside $r_J$ is an assumption, not a result, and it is optimistic beyond $\sim10$\,pc for one reason and uncertain inside for two others. Pericentric tidal shocks act on material inside $r_J$ as well; over $\sim100$ passages (class 3 pericentres at 0.4\,kpc) they erode the outer part of the retained dark matter, which can only lower the profile near $r_J$. The dark matter was not a pristine cusp when stripping began: the nucleus's formation adiabatically contracted it (raising the inner densities), while baryonic feedback in the host may have cored it (lowering everything and making complete stripping possible). And inside a few parsecs two-body heating by stars and remnants diffuses the dark matter outward over 10\,Gyr. The first effect is what the planned $N$-body runs quantify; the second is an initial-condition choice to be bracketed.
 
 \section{The central kinematic ``dark'' component is not necessarily particle dark matter}
 
@@ -836,9 +901,10 @@ The most compelling future test would be a radially resolved WD cooling sequence
 \href{https://arxiv.org/abs/1001.2737}
 {arXiv:1001.2737}.
 
-\item Hooper, D. et al. (2010),
+\item Hooper, D., Spolyar, D., Vallinotto, A. and Gnedin, N.~Y. (2010),
 ``Inelastic Dark Matter as an Efficient Fuel for Compact Stars,''
 \emph{Physical Review D}, 81, 103531.
+\href{https://arxiv.org/abs/1002.0005}{arXiv:1002.0005}.
 
 \item Amaro-Seoane, P. et al. (2016),
 ``Probing dark matter crests with white dwarfs and IMBHs,''
@@ -876,6 +942,27 @@ work on heavy dark matter capture, multiple scattering, and thermalization in wh
 
 \item Banares-Hernandez, A. et al. (2025),
 ``New constraints on the central mass contents of Omega Centauri from combined stellar kinematics and pulsar timing.''
+
+\item LUX-ZEPLIN Collaboration (2026),
+``Search for dark matter particle interactions in an extended nuclear recoil energy window with the LUX-ZEPLIN (LZ) experiment,''
+\href{https://arxiv.org/abs/2609.02823}{arXiv:2609.02823}.
+
+\item McCabe, C. (2026),
+``Seasonal dark matter from the LUX-ZEPLIN high-energy event,''
+\href{https://arxiv.org/abs/2609.04181}{arXiv:2609.04181}.
+
+\item Pospelov, M. and Ramani, H. (2026),
+``Strong constraints on Higgsino dark matter from solar capture,''
+\href{https://arxiv.org/abs/2609.02775}{arXiv:2609.02775}.
+
+\item Bose, D. et al. (2026),
+``Not so good $\nu$s for Higgsino dark matter as LZ excess: stringent limits from Super-Kamiokande and IceCube,''
+\href{https://arxiv.org/abs/2609.07807}{arXiv:2609.07807}.
+
+\item Errani, R. and Navarro, J.~F. (2021),
+``The asymptotic tidal remnants of cold dark matter subhaloes,''
+\emph{Monthly Notices of the Royal Astronomical Society}, 505, 18.
+\href{https://arxiv.org/abs/2011.07077}{arXiv:2011.07077}.
 
 \end{enumerate}
 
