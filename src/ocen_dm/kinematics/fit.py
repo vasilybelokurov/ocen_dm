@@ -430,6 +430,11 @@ def run_nested(problem: FitProblem, out_dir: Path, *, n_live: int = 400, dlogz: 
     import yaml
 
     out_dir = Path(out_dir)
+    # Input hashes are taken NOW, before sampling: a product regenerated while a long run is in
+    # flight (it happened on 2026-09-20 -- a test rewrote the Gaia profile mid-run) must not
+    # make two runs that read identical data look like they fitted different observations.
+    _kin_dir = processed_dir() / "kinematics"
+    inputs_at_launch = {f.name: _sha256(f) for f in sorted(_kin_dir.glob("*.ecsv"))}
     out_dir.mkdir(parents=True, exist_ok=True)
     fam = problem.family
     t0 = time.time()
@@ -499,7 +504,7 @@ def run_nested(problem: FitProblem, out_dir: Path, *, n_live: int = 400, dlogz: 
         "dataset_options": dataset_options or {},
         "priors": {p.name: p.prior.describe() for p in fam.parameters},
         "distance_kpc": None if fam.distance_prior else OCEN_DISTANCE_KPC,
-        "inputs": {f.name: _sha256(f) for f in sorted(kin.glob("*.ecsv"))},
+        "inputs": inputs_at_launch,
     }
     (out_dir / "run.yaml").write_text(yaml.safe_dump(run, sort_keys=False))
     return summary

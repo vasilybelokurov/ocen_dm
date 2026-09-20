@@ -121,7 +121,7 @@ def write_report(labels: Iterable[str], path: Path | None = None, plots_dir: Pat
     for r in runs:
         s = r["summary"]
         data, prov = data_for(s)
-        fam = _family_for(s)
+        fam = _family_for(s, options=r.get("run", {}).get("dataset_options"))
         P = FitProblem(fam, data)
         x_ml = np.array([s["parameters"][n]["ml"] for n in fam.names])
         samples = np.array([np.asarray(r["posterior"][n]) for n in fam.names]).T
@@ -154,13 +154,25 @@ def data_for(summary: dict):
     return FitProblem(gen, data).mock_data(x_true, rng), prov
 
 
-def _family_for(summary: dict, backend: str = "jeans"):
+def _family_for(summary: dict, backend: str = "jeans", options: dict | None = None):
+    """Rebuild the model family of a run. ``options`` is the ``dataset_options`` block of
+    ``run.yaml`` (ladder switches: isotropic / constant_beta / no_scales); without it the
+    pre-ladder default (beta(r) family, instrument scales free) is assumed."""
     from .fit import DarkMatterModel, NoDarkMatterModel
     fam_label = summary["family"]
-    tracer = "composite" if "_composite" in fam_label else "trager"
+    options = options or {}
+    tracer = options.get("tracer", "composite" if "_composite" in fam_label else "trager")
+    kw = dict(tracer=tracer, backend=backend)
+    if options.get("no_scales"):
+        kw["instruments"] = ()
+    if options.get("isotropic"):
+        kw["constant_beta"] = True
+        kw["fixed"] = {"beta_0": 0.0}
+    elif options.get("constant_beta"):
+        kw["constant_beta"] = True
     if fam_label.startswith("K1"):
-        return NoDarkMatterModel(tracer=tracer, backend=backend)
-    return DarkMatterModel(gamma=0.0 if "cored" in fam_label else 1.0, tracer=tracer, backend=backend)
+        return NoDarkMatterModel(**kw)
+    return DarkMatterModel(gamma=0.0 if "cored" in fam_label else 1.0, **kw)
 
 
 def engine_crosscheck(label: str, backends: Iterable[str] = ("jeans", "jam")) -> str:
@@ -178,7 +190,7 @@ def engine_crosscheck(label: str, backends: Iterable[str] = ("jeans", "jam")) ->
     data, _ = data_for(s)
     lines = ["| engine | " + " | ".join(f"χ² {d}" for d in s["datasets"]) + " | ln L |", "|---|" + "---|" * (len(s["datasets"]) + 1)]
     for b in backends:
-        fam = _family_for(s, b)
+        fam = _family_for(s, b, options=run.get("run", {}).get("dataset_options"))
         x = np.array([s["parameters"][n]["ml"] for n in fam.names])
         P = FitProblem(fam, data)
         chi = P.chi2(x)
