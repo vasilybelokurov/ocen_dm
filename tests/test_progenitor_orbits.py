@@ -49,3 +49,17 @@ def test_class3_orbit_starts_at_apocentre_with_requested_lz():
     o = po.class3_gse_debris_orbit(15.5, -300.0, 60.0, t_gyr=1.0)
     assert abs(o.r_apo - 15.5) < 0.2 and o.eccentricity > 0.85   # later apocentres drift slightly (L not conserved)
     assert abs(o.R[0] * o.vT[0] + 300.0) < 1.0
+
+
+def test_class3_bar_migration_orbits_are_gse_like_before_migration():
+    bm = pytest.importorskip("ocen_dm.tails.bar_migration")
+    if not bm.POT_DIR.exists():
+        pytest.skip("oCen_bar clone not found")
+    orbs = po.class3_bar_migration_orbits(n_samples=200, n_times=401)
+    assert len(orbs) == 3
+    for o in orbs:
+        assert abs(o.t_gyr[0]) < 1e-9 and abs(o.t_gyr[-1] + 8.0) < 1e-9      # look-back axis, 0 today first
+        assert abs(o.r[0] - 6.46) < 0.2                                      # today's radius
+        early = o.notes["early_0_1_gyr"]
+        assert early["ecc"] > 0.8 and 9 < early["r_apo"] < 14                # GSE-debris-like orbit
+        assert o.notes["Lz0_kpc_kms"] > -100                                # no longer strongly retrograde
