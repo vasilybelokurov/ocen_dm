@@ -3684,3 +3684,25 @@ finding about the data, not something to absorb. The MUSE offset is likely physi
 Rung 3 deleted. Scales survive only as a **one-off diagnostic** after the first round: fit
 once with them free and check they land at 1.00; a pull-away is a red flag about that
 instrument. That run's evidence is never compared.
+
+## 2026-09-20 -- a second route to the DM question: simulate the host's disruption
+
+User's idea, recorded while the rung-0 fits run. Constrain omega Cen's dark-matter content
+**from the other end**: instead of inferring it from the present-day kinematics, simulate the
+tidal disruption of the host dwarf and see how much DM the surviving nucleus is left with.
+Before any simulation, build a small set of distinct progenitor orbit histories. Three
+classes:
+
+1. **Current orbit, static axisymmetric potential.** The dwarf was always on today's orbit.
+   In McMillan (2017): r_peri = 1.59 kpc, r_apo = 6.99 kpc, e = 0.63, from the systemic
+   PM (-3.257, -6.730), v_los = 232.7 km/s, D = 5.43 kpc (computed 2026-09-19 for the Jacobi
+   radius).
+2. **Same, with dynamical friction integrated back in time.** The dwarf came in on a wider
+   orbit and sank; the tidal history is gentler early on.
+3. **Deposited by GSE, then migrated inward by the bar** -- Dillamore, Zhang & Belokurov
+   2026, arXiv:2606.12516, "Bar-induced migration of omega Centauri away from Gaia
+   Sausage-Enceladus". Their result: omega Cen *can* be traced back to the GSE phase-space
+   region under a decelerating bar, but only for a present-day pattern speed
+   Omega_b <~ 26 km/s/kpc, well below most current estimates.
+
+Discussion in the reply of the same date. Not started.
