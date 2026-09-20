@@ -3839,3 +3839,22 @@ Table 6, Fig. 7) and docs/PROGENITOR_ORBITS.md.
 
 Also: stale point count (98 -> 89) in tests/test_master_plot.py fixed; full suite otherwise
 392 passed.
+
+## 2026-09-20 -- class 2 in a barred potential
+
+User: "For Class 2, can we investigate if the orbits change at all if the integration is done
+in a potential with a rotating bar?" -> `src/ocen_dm/tails/class2_barred.py`, figure
+`plots/class2_barred.png`, table `results/tails/class2_barred.ecsv`. The three class-2
+histories re-integrated (20 error samples, backward leapfrog with friction) in Hunter+2024:
+axisymmetric, and with the Dillamore+2026 growing/decelerating bar ending at 37.5 (Hunter's
+value) and at 24 km/s/kpc. The bar is 8 Gyr old; earlier the potential is axisymmetric (checked
+that the AGAMA scale modifier holds A = 0 before t = 0).
+
+Result: with the mainstream bar (37.5) nothing changes beyond the sample scatter -- last-Gyr
+peri 1.9 vs 1.7 kpc, apo 7.0-7.3 in both, 5-6 Gyr elements within 10%, apocentre before infall
+80-99 vs 73-94 kpc (16-84% ranges overlap). With the slow bar (24) the orbit is resonantly
+perturbed as in class 3: last-Gyr peri 0.85-1.07 and apo 10-12 kpc, 5-6 Gyr peri 0.9-2.1 vs
+1.9-3.4, infall apocentre 95-112 vs 73-94 (still inside the 50-150 selection band). So the
+class-2 histories are robust to a fast bar and change only under the slow-bar hypothesis, in
+which case the last ~2.5 Gyr look like class 3 (plunging pericentres). The Hunter axisymmetric
+baseline itself reproduces the McMillan17 class-2 picks (infall 67/94/79 vs 65/85/111 kpc).
