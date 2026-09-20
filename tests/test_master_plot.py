@@ -29,7 +29,9 @@ def test_point_count_matches_the_likelihood():
     # measurement (per component, reaching 360 arcsec), and Gaia EDR3 split into its radial
     # and tangential components
     # 98 since the 2026-09-19 centre fix moved two HST bins below the minimum star count
-    assert data.n_points == 98
+    # 89 since 2026-09-20: flagged-only HST profile (21 bins per component) and the 9-bin Gaia
+    # profile from 300 arcsec -- the dataset frozen for the rung-0 fits
+    assert data.n_points == 89
 
 
 def test_master_plot_renders(tmp_path):
