@@ -3934,3 +3934,22 @@ DM inside the nucleus's Jacobi radius at the smallest pericentre: class 3 (r_J 3
 Finding 3: this shrinks the N-body problem to the inner ~100 pc (2e6 Msun of DM in a 1e10
 halo -> 1e5-1e6 particles of ~10 Msun), with the outer halo analytic and stripped per the
 tracks; the multi-mass worries largely disappear.
+
+## 2026-09-20 -- predicted DM density inside omega Cen if the DM within r_J is retained
+
+User asked for plots of the predicted DM density for different r_J, initial masses and
+concentrations at 2-3 radii inside the cluster including the deep WD field (20 pc, Scalco+2024).
+`src/ocen_dm/tails/dm_density_plots.py`: model rho(r) = rho_NFW(r; M200, c) exp(-r/r_J)
+(EN21-style truncation at the nucleus's Jacobi radius), grid M200 = 1e9/1e10/1e11, c = 5/10/15
+(z = 2), r_J 10-200 pc; stellar density from the MGE light model scaled to the rung-0 K1
+M_star = 2.88e6. Figures `plots/dm_density_in_rj_profiles.png` (profiles vs r, three M200
+panels, r_J = 35 and 70 pc) and `plots/dm_density_in_rj_vs_rj.png` (rho at 3, 10, 20 pc vs r_J);
+table `results/tails/dm_density_grid.ecsv`.
+
+Reading: inside r_J the density is the initial cusp, rho ~ rho_s r_s / r, so r_J matters only
+through the truncation factor (<= 2x between class 3 and classes 1-2 at 20 pc); the leverage is
+M200^(1/3) and c (factor ~5 each across the grid). At 20 pc the grid spans 0.6-17 Msun/pc^3
+(23-640 GeV/cm^3) against 9 Msun/pc^3 in stars: DM comparable to or above the stars there for
+M200 >= 1e10 with c >= 10, or any 1e11. At 3 pc stars dominate by 10-200x. The 0.1-3
+Msun/pc^3 band assumed in docs/dm_capture_constraints.tex covers only the low-mass/low-c
+corner of the grid. Caveats: no adiabatic contraction (raises), no shocks inside r_J (lowers).
