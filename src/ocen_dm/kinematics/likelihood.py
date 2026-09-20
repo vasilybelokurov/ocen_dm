@@ -310,32 +310,55 @@ def _hst_ours(component: str) -> BinnedProfile:
         r_nodes=_radial_nodes_from(t))
 
 
-def _edr3_ours_component(component: str) -> BinnedProfile:
-    """Our Gaia EDR3 measurement split into its radial and tangential parts.
+def _edr3_ours_component(component: str, error_model: str = "raw",
+                         rotation: str = "published") -> BinnedProfile:
+    """Our Gaia EDR3 measurement, one component.
 
-    The two are measured jointly but are very nearly uncorrelated: over 60 independent
-    synthetic realisations with uniform position angles the correlation between the fitted
-    sigma_R and sigma_T is -0.08, so treating them as two datasets costs a 0.6 per cent
-    error in the joint chi2 and buys the anisotropy at large radius (2026-09-19).
+    The two components are measured jointly but are very nearly uncorrelated: over 60
+    independent synthetic realisations with uniform position angles the correlation between
+    the fitted sigma_R and sigma_T is -0.08.
+
+    Two choices are explicit rather than averaged over, so that each can be refitted and the
+    mass models compared (user's decision, 2026-09-20):
+
+    ``error_model``
+        ``"raw"`` (default) takes the catalogue's own uncertainties; ``"eta"`` takes the
+        density-dependent inflation of Vasiliev & Baumgardt.
+    ``rotation``
+        ``"published"`` (default) removes their rotation curve, with its published
+        percentiles propagated into the error; ``"ours"`` removes the mean motion our own
+        mixture fits per annulus.
     """
     from .outer_gaia import load_edr3_profile
     t = load_edr3_profile()
-    col = "sigma_pmr" if component == "pmr" else "sigma_pmt"
+    if error_model not in ("raw", "eta"):
+        raise ValueError("error_model must be 'raw' or 'eta'")
+    if rotation not in ("published", "ours"):
+        raise ValueError("rotation must be 'published' or 'ours'")
+    base = "sigma_pmr" if component == "pmr" else "sigma_pmt"
+    col = base if error_model == "raw" else base + "_eta"
+    value = np.asarray(t[col], float)
     err = np.asarray(t[col + "_err"], float)
-    mean = np.asarray(t["mean_pmr" if component == "pmr" else "mean_pmt"], float)
-    # the fitted mean carries the dispersion's own uncertainty, ~ sigma/sqrt(N)
-    mean_err = np.asarray(t[col], float) / np.sqrt(np.maximum(
-        (1.0 - np.asarray(t["f_field"], float)) * np.asarray(t["n_stars"], float), 1.0))
-    err = np.hypot(err, streaming_error_on_sigma(np.asarray(t[col], float), mean, mean_err))
+    r = np.asarray(t["r_median"], float)
+
+    if rotation == "published":
+        v = pm_rotation_curve(r) if component == "pmt" else np.zeros_like(r)
+        v_err = pm_rotation_error(r) if component == "pmt" else np.zeros_like(r)
+    else:
+        v = np.abs(np.asarray(t["mean_pmr" if component == "pmr" else "mean_pmt"], float))
+        v_err = value / np.sqrt(np.maximum(
+            (1.0 - np.asarray(t["f_field"], float)) * np.asarray(t["n_stars"], float), 1.0))
+    err = np.hypot(err, streaming_error_on_sigma(value, v, v_err))
+
     other = "gaia_edr3_ours_tangential" if component == "pmr" else "gaia_edr3_ours_radial"
     return BinnedProfile(
         name="gaia_edr3_ours_radial" if component == "pmr" else "gaia_edr3_ours_tangential",
-        kind=component, r=np.asarray(t["r_median"], float),
-        r_lower=np.asarray(t["r_lower"], float), r_upper=np.asarray(t["r_upper"], float),
-        value=np.asarray(t[col], float), err_lo=err, err_hi=err, instrument="GaiaEDR3",
+        kind=component, r=r, r_lower=np.asarray(t["r_lower"], float),
+        r_upper=np.asarray(t["r_upper"], float), value=value, err_lo=err, err_hi=err,
+        instrument="GaiaEDR3",
         shares_stars_with=(other, "gaia_edr3_ours", "gaia_edr3_pm", "gaia_dr2_pm"),
-        note="our measurement, one component; the pair is nearly uncorrelated (rho = -0.08)",
-        streaming2=mean ** 2, r_nodes=_radial_nodes_from(t))
+        note=f"our measurement, one component; errors={error_model}, rotation={rotation}",
+        streaming2=v ** 2, r_nodes=_radial_nodes_from(t))
 
 
 DATASETS: dict[str, Any] = {
@@ -346,8 +369,8 @@ DATASETS: dict[str, Any] = {
     "gaia_dr2_pm": _baumgardt2019,
     "gaia_edr3_pm": _vasiliev2021,
     "gaia_edr3_ours": _edr3_ours,
-    "gaia_edr3_ours_radial": lambda: _edr3_ours_component("pmr"),
-    "gaia_edr3_ours_tangential": lambda: _edr3_ours_component("pmt"),
+    "gaia_edr3_ours_radial": lambda **kw: _edr3_ours_component("pmr", **kw),
+    "gaia_edr3_ours_tangential": lambda **kw: _edr3_ours_component("pmt", **kw),
     "hst_pm_radial_ours": lambda: _hst_ours("pmr"),
     "hst_pm_tangential_ours": lambda: _hst_ours("pmt"),
 }

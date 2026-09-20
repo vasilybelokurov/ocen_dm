@@ -104,36 +104,45 @@ def build_edr3_profile(edges: np.ndarray | None = None, err_max_frac: float = 0.
         out = {k: dispersion_2d(s, m, dens2d, depth_var=sd ** 2, field_at=s.absolute_pm)
                for k, s in samples.items()}
         sig = {k: float(np.sqrt(0.5 * (o["sigma_r"] ** 2 + o["sigma_t"] ** 2))) for k, o in out.items()}
-        value = 0.5 * (sig["raw"] + sig["eta"])
-        sys_err = 0.5 * abs(sig["raw"] - sig["eta"])
+        value = sig["raw"]
+        sys_err = 0.5 * abs(sig["raw"] - sig["eta"])      # recorded, no longer added
         stat = float(0.5 * np.hypot(out["raw"]["sigma_r_err"], out["raw"]["sigma_t_err"]))
         mean_r = 0.5 * (out["raw"]["mean_r"] + out["eta"]["mean_r"])
         mean_t = 0.5 * (out["raw"]["mean_t"] + out["eta"]["mean_t"])
         # per-component values and errors: the midpoint of the two error models, with half
         # their separation added in quadrature exactly as for the combined dispersion
+        # Both error models are stored per component. The DEFAULT is the raw one: the
+        # catalogue's own uncertainties, unmodified. The density-dependent inflation is kept
+        # as an alternative to be refitted and compared, rather than folded into a midpoint
+        # with half the gap as a systematic, which is what this did until 2026-09-20. The
+        # comparison of two fits answers the question better than a fudged error bar
+        # (user's call, 2026-09-20).
         comp = {}
         for c in ("r", "t"):
-            v = 0.5 * (out["raw"][f"sigma_{c}"] + out["eta"][f"sigma_{c}"])
-            sy = 0.5 * abs(out["raw"][f"sigma_{c}"] - out["eta"][f"sigma_{c}"])
-            comp[c] = (v, float(np.hypot(out["raw"][f"sigma_{c}_err"], sy)))
+            comp[c] = (out["raw"][f"sigma_{c}"], out["raw"][f"sigma_{c}_err"],
+                       out["eta"][f"sigma_{c}"], out["eta"][f"sigma_{c}_err"])
         nodes = _radial_nodes(base.r_arcsec[m])
         rows.append((lo, float(np.median(base.r_arcsec[m])), hi, int(m.sum()), value, stat, sys_err,
-                     float(np.hypot(stat, sys_err)), sig["raw"], sig["eta"],
+                     stat, sig["raw"], sig["eta"],
                      comp["r"][0], comp["r"][1], comp["t"][0], comp["t"][1],
+                     comp["r"][2], comp["r"][3], comp["t"][2], comp["t"][3],
                      mean_r, mean_t, 0.5 * (mean_r ** 2 + mean_t ** 2),
                      0.5 * (out["raw"]["f"] + out["eta"]["f"]), float(np.median(eta[m])),
                      float(np.median(base.g_mag[m])), *nodes))
     t = Table(rows=rows, names=("r_lower", "r_median", "r_upper", "n_stars", "sigma_pm", "sigma_stat",
                                 "sigma_sys", "sigma_pm_err", "sigma_raw", "sigma_eta", "sigma_pmr",
-                                "sigma_pmr_err", "sigma_pmt", "sigma_pmt_err", "mean_pmr",
+                                "sigma_pmr_err", "sigma_pmt", "sigma_pmt_err",
+                                "sigma_pmr_eta", "sigma_pmr_eta_err", "sigma_pmt_eta",
+                                "sigma_pmt_eta_err", "mean_pmr",
                                 "mean_pmt", "streaming2", "f_field", "median_eta", "median_g",
                                 *[f"r_node{i}" for i in range(R_NODES)]))
     t.meta.update({
         "product": PRODUCT, "err_max_frac": err_max_frac, "r_min_arcsec": float(edges[0]),
         "distance_kpc": distance_kpc, "quality_bit": QUALITY_BIT,
         "built_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "note": "sigma_pm is the midpoint of the raw-error and eta-inflated fits; sigma_sys is half "
-                "their separation; sigma_pm_err adds it in quadrature to the statistical error. "
+        "note": "sigma_pm and sigma_pm* are the RAW-error fit (the catalogue's own uncertainties). "
+                "The eta-inflated alternative is stored in sigma_*_eta for a comparison run; "
+                "sigma_sys records half their separation but is NOT added to the error. "
                 "streaming2 = (mean_pmr^2 + mean_pmt^2)/2, to be subtracted from the model second moment.",
         "source": "Vasiliev & Baumgardt 2021 EDR3 member catalogue, arXiv:2102.09568",
     })
