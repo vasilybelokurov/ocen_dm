@@ -3858,3 +3858,13 @@ perturbed as in class 3: last-Gyr peri 0.85-1.07 and apo 10-12 kpc, 5-6 Gyr peri
 class-2 histories are robust to a fast bar and change only under the slow-bar hypothesis, in
 which case the last ~2.5 Gyr look like class 3 (plunging pericentres). The Hunter axisymmetric
 baseline itself reproduces the McMillan17 class-2 picks (infall 67/94/79 vs 65/85/111 kpc).
+
+## 2026-09-20 -- resonances of the present orbit (added to the write-up)
+
+`src/ocen_dm/tails/resonances.py`: Omega_r 69.7, Omega_z 63.1, Omega_phi -44.3 km/s/kpc for
+today's orbit (Hunter24 axi; McMillan17 70.2, 62.8, -44.0). Omega_b = Omega_phi +
+(l Omega_r + n Omega_z)/m: corotation and OLR-type negative (retrograde orbit); retrograde 1:1
+at 25.4 (the Dillamore resonance); next physical ones 42.8 (5:4), 48.6 (4:3), 60.3 (3:2). At
+33-41 km/s/kpc the present orbit is in no low-order resonance. Written into
+docs/progenitor_orbits.tex (Sec. 5.5) together with the class-2-in-bar result (Sec. 5.6,
+Fig. 8); test added.
