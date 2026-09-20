@@ -3538,3 +3538,44 @@ omissions; and the table of runs.
 The omissions are stated plainly because each is a route to a spurious halo: sphericity,
 rotation removed rather than modelled, equilibrium at 0.7 r_J(peri), the diagonal likelihood
 against coherent systematics, and a single tracer population under mass segregation.
+
+## 2026-09-20 -- mass-modelling review: the four fixes agreed
+
+### 2. The likelihood was not a normalised density
+
+Each side of the split normal carried its own `-ln(err)`, so the density **jumped by
+`err_hi/err_lo` as the model crossed the datum** -- a factor of 4 for errors of 0.5 and 2,
+reproduced exactly. It is now the standard two-piece form with the shared normalisation
+`sqrt(2/pi)/(err_lo + err_hi)`: continuous, integrates to 1.000000, and reduces to a plain
+normal when the errors are equal. MUSE has asymmetric errors, so this was live.
+
+### 3. The evidence fingerprint missed the switches I had just added
+
+I wrote the fingerprint in the morning and added `--gaia-errors` and `--gaia-rotation` in the
+afternoon without going back. Neither was recorded in `run.yaml`, so two runs differing only
+in the error model fingerprinted identically. `run_nested` now records a `dataset_options`
+block (both switches, the tracer, the backend and the dataset list) and the fingerprint
+includes it, plus the mock seed, family and generating parameters -- the previous version
+read a `mock_from` field that does not exist.
+
+### 5. The AGAMA prior ran outside what AGAMA accepts
+
+Its Cuddeford DF is undefined below `beta_0 = -0.5` and raised an uncaught `RuntimeError`
+mid-run. The prior for that backend is now bounded at `AGAMA_BETA0_MIN = -0.5`; the Jeans
+backend keeps `[-1, 0]`.
+
+### 8, 9. Two things the write-up got wrong
+
+The default tracer is **not** a surface-brightness MGE: it is HST star counts inside 25
+arcsec spliced onto Trager light outside, and the same shape supplies both the tracer density
+and the stellar mass density, which assumes a radius-independent M/L. And the radial
+averaging and rotation propagation apply only to the four profiles we measured: **MUSE has
+neither**. Its rotation and dispersion were fitted jointly by the survey, so it needs their
+covariance rather than an independent error; the first-order rotation contribution in its
+innermost bin is 1.22 km/s against quoted errors of 1.90/2.52. Recorded as outstanding.
+
+Ten tests in `tests/test_likelihood_normalisation.py`.
+
+Still open, and deliberately not touched: the An & Evans constraint with a central point mass
+(1), the monotonic anisotropy family (4), the AGAMA positivity claim (6) and the coherent
+rotation uncertainty (7).

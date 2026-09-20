@@ -47,10 +47,17 @@ The potential is spherical and the components add:
 M(<r) = M_\star(<r) + M_{\rm rem}(<r) + M_\bullet + M_{\rm DM}(<r).
 \end{equation}
 
-\paragraph{Stars.} A multi-Gaussian expansion of the observed surface-brightness profile,
-deprojected analytically under spherical symmetry, scaled by a single free total mass
-$M_\star$. Using an MGE rather than a Plummer sphere matters because the tracer density
-appears in the Jeans equation directly, so its shape is not a free choice.
+\paragraph{Stars.} A multi-Gaussian expansion, deprojected analytically under spherical
+symmetry, scaled by a single free total mass $M_\star$. Using an MGE rather than a Plummer
+sphere matters because the tracer density appears in the Jeans equation directly, so its
+shape is not a free choice.
+
+The default profile is not the surface brightness alone. It is a \emph{composite}: HST star
+counts inside $25''$ spliced onto the Trager surface-brightness profile outside, because the
+light profile is unreliable in the crowded core where a handful of bright giants dominate it.
+The Trager-only alternative is selectable. The same shape supplies both the tracer density
+$\nu(r)$ and the stellar mass density, which assumes a radius-independent mass-to-light
+ratio; mass segregation makes that an approximation.
 
 \paragraph{Remnants.} A Plummer sphere with free mass $M_{\rm rem}$ and scale $a_{\rm rem}$.
 It is a separate component rather than an inflation of the stellar mass-to-light ratio so that
@@ -134,23 +141,32 @@ Each dataset is a set of binned dispersions with asymmetric errors. The log-like
 split normal,
 \begin{equation}
 \ln \mathcal{L} = \sum_i -\frac{1}{2}\left(\frac{m_i-d_i}{\varepsilon_i}\right)^2
-                  - \ln\varepsilon_i - \frac{1}{2}\ln 2\pi, \qquad
+                  + \ln\frac{\sqrt{2/\pi}}{\varepsilon_i^{-}+\varepsilon_i^{+}}, \qquad
 \varepsilon_i = \begin{cases}\varepsilon_i^{+} & m_i > d_i\\ \varepsilon_i^{-} & \text{else,}\end{cases}
 \end{equation}
-summed over datasets, which are treated as independent.
+summed over datasets, which are treated as independent. The normalisation is \emph{shared}
+between the two sides, which is what makes the density continuous at $m_i=d_i$ and integrate
+to one; giving each side its own $-\ln\varepsilon$, as this did until 2026-09-20, produced a
+jump of $\varepsilon^{+}/\varepsilon^{-}$ across every datum.
 
 Three things happen between the model and the datum.
 
-\paragraph{Radial averaging.} The model is averaged over the radii of the stars actually
-measured in each bin --- eight equal-count quantiles stored with the data --- not over a
-complete annulus with $\Sigma(R)R$ weighting. Where the selection's coverage changes inside a
-bin the two differ: HST's $300$--$340''$ sample has a star-weighted mean radius of $313.2''$
-against the annulus midpoint of $320''$, worth up to $1.17\sigma$.
+\paragraph{Radial averaging.} For the datasets we measured ourselves --- the four HST and
+\emph{Gaia} profiles --- the model is averaged over the radii of the stars actually measured
+in each bin, eight equal-count quantiles stored with the data, rather than over a complete
+annulus with $\Sigma(R)R$ weighting. Where the selection's coverage changes inside a bin the
+two differ: HST's $300$--$340''$ sample has a star-weighted mean radius of $313.2''$ against
+the annulus midpoint of $320''$, worth up to $1.17\sigma$. The 29 \textbf{MUSE} bins are
+published, carry no such information, and are still averaged over complete annuli.
 
 \paragraph{Streaming.} The model predicts the full second moment; the data are dispersions
 about a rotating mean. Each dataset that needs it carries $\langle\bar v^2\rangle$, and the
 comparison is with $\sqrt{\sigma_{\rm model}^2-\langle\bar v^2\rangle}$. The uncertainty on
-that term is propagated into the datum's error.
+that term is propagated into the datum's error for the HST and \emph{Gaia} profiles.
+\textbf{It is not for MUSE}, whose rotation and dispersion were fitted jointly by the survey
+and would need their covariance rather than an independent error: at the innermost bin the
+first-order rotation contribution is about $1.22$\,\kms\ against quoted errors of
+$1.90/2.52$\,\kms, so this is not negligible and is an outstanding item.
 
 \paragraph{Instrument scales.} Optional multiplicative nuisances $s_{\rm inst}$ on the model
 prediction, one per instrument, with uniform priors. They absorb a constant calibration

@@ -123,6 +123,10 @@ class Parameter:
 
 
 # ---------------------------------------------------------------- families ---
+#: AGAMA's Cuddeford DF is undefined below this central anisotropy
+AGAMA_BETA0_MIN = -0.5
+
+
 class NoDarkMatterModel:
     """Experiment K1. See the module docstring for the physical content."""
 
@@ -185,8 +189,10 @@ class NoDarkMatterModel:
         ]
         b0max = getattr(self, "beta0_max", 0.0)
         if getattr(self, "backend", "jeans") == "agama":
-            # Cuddeford-Osipkov-Merritt family of the positive DF: beta -> 1 beyond r_a
-            params += [Parameter("beta_0", Prior("uniform", -1.0, b0max), "", r"\beta_0"),
+            # Cuddeford-Osipkov-Merritt family of the positive DF: beta -> 1 beyond r_a.
+            # AGAMA's implementation rejects beta_0 < -0.5 outright, so the prior is bounded
+            # there rather than left to raise mid-run (2026-09-20).
+            params += [Parameter("beta_0", Prior("uniform", AGAMA_BETA0_MIN, b0max), "", r"\beta_0"),
                        Parameter("r_a", Prior("loguniform", 1.0, 1000.0), "pc", r"r_a")]
         elif getattr(self, "constant_beta", False):
             params += [Parameter("beta_0", Prior("uniform", -1.0, b0max), "", r"\beta")]
@@ -384,7 +390,8 @@ def _sha256(path: Path) -> str:
 def run_nested(problem: FitProblem, out_dir: Path, *, n_live: int = 400, dlogz: float = 0.5,
                max_ncalls: int | None = None, seed: int = 42, n_profile_samples: int = 300,
                resume: str = "overwrite", verbose: bool = False, step_sampler: bool = False,
-               data_provenance: dict[str, Any] | None = None) -> dict[str, Any]:
+               data_provenance: dict[str, Any] | None = None,
+               dataset_options: dict[str, Any] | None = None) -> dict[str, Any]:
     """Run ultranest on ``problem`` and write posterior, summary and profiles to ``out_dir``.
 
     Files written: ``posterior.ecsv`` (equally weighted samples), ``summary.json``
@@ -441,6 +448,10 @@ def run_nested(problem: FitProblem, out_dir: Path, *, n_live: int = 400, dlogz: 
         # what was actually fitted: real profiles, or a mock realisation. Without this a
         # report cannot know which data to draw the model against (JOURNAL 2026-09-18).
         "data": data_provenance or {"kind": "real"},
+        # every switch that changes what the likelihood is shown. Recorded because file
+        # hashes alone do not distinguish two runs that read the same product differently
+        # (2026-09-20).
+        "dataset_options": dataset_options or {},
     }
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2))
 
@@ -456,6 +467,10 @@ def run_nested(problem: FitProblem, out_dir: Path, *, n_live: int = 400, dlogz: 
         "elapsed_s": round(elapsed, 1), "sampler": {"name": "ultranest", "version": ultranest.__version__,
                                                     "n_live": n_live, "dlogz": dlogz, "seed": seed, "max_ncalls": max_ncalls},
         "data": data_provenance or {"kind": "real"},
+        # every switch that changes what the likelihood is shown. Recorded because file
+        # hashes alone do not distinguish two runs that read the same product differently
+        # (2026-09-20).
+        "dataset_options": dataset_options or {},
         "priors": {p.name: p.prior.describe() for p in fam.parameters},
         "distance_kpc": None if fam.distance_prior else OCEN_DISTANCE_KPC,
         "inputs": {f.name: _sha256(f) for f in sorted(kin.glob("*.ecsv"))},

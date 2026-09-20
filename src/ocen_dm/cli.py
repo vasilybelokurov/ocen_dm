@@ -289,7 +289,11 @@ def cmd_fit(args: argparse.Namespace) -> int:
     print(f"fit {family.label}: {len(family.names)} parameters, {problem.data.n_points} points -> {out}")
     summary = run_nested(problem, out, n_live=args.n_live, dlogz=args.dlogz, seed=args.seed,
                          max_ncalls=args.max_ncalls, verbose=args.verbose, step_sampler=args.step_sampler,
-                         data_provenance=data_provenance)
+                         data_provenance=data_provenance,
+                         dataset_options={"gaia_errors": args.gaia_errors,
+                                          "gaia_rotation": args.gaia_rotation,
+                                          "tracer": args.tracer, "backend": args.backend,
+                                          "datasets": ",".join(datasets)})
     print(f"logZ = {summary['logz']:.2f} +- {summary['logzerr']:.2f}; chi2_ml = {summary['chi2_ml_total']:.1f} "
           f"/ {summary['n_points']} points; {summary['n_calls']} calls in {summary['elapsed_s']:.0f} s")
     for name, q in summary["parameters"].items():

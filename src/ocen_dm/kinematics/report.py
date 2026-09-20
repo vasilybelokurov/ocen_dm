@@ -56,10 +56,14 @@ def comparison_table(runs: Iterable[dict]) -> str:
     # alone and would print a Bayes factor between a real run and a mock (Codex review).
     def _fingerprint(r):
         run = r.get("run", {}) or {}
+        data = run.get("data") or {}
         return (tuple(sorted(r["summary"]["datasets"])),
                 int(r["summary"].get("n_points", -1)),
                 tuple(sorted((run.get("inputs") or {}).items())),
-                ((run.get("data") or {}).get("kind"), (run.get("data") or {}).get("mock_from")))
+                # every switch that changes the likelihood's inputs, not just the file hashes
+                tuple(sorted((run.get("dataset_options") or {}).items())),
+                (data.get("kind"), data.get("mock_from"), data.get("seed"),
+                 data.get("family"), tuple(data.get("parameters") or ())))
     prints = [_fingerprint(r) for r in runs]
     datasets = [tuple(sorted(r["summary"]["datasets"])) for r in runs]
     common = datasets[0] if all(p == prints[0] for p in prints) else None
