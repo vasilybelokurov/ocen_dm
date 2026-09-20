@@ -3798,3 +3798,22 @@ against 1.56/7.02 axisymmetric. A slow bar changes "today's orbit".
 
 Also closed: galpy `ChandrasekharDynamicalFrictionForce` cross-check of the fast leapfrog
 (M = 3e9 constant, 5 Gyr): galpy peri/apo 1.79/45.95 vs fast 1.84/47.1 kpc (3%), 482 s vs 1 s.
+
+## 2026-09-20 -- LaTeX write-up of the progenitor orbits
+
+User: "produce a latex write-up explaining the model construction for each Class, the
+assumptions, analyze the resulting models and compare between them, have sufficient number of
+informative plots illustrating the orbits". -> `docs/progenitor_orbits.tex/.pdf` (12 pages,
+9 figures, 6 tables). New figure module `src/ocen_dm/tails/writeup_figures.py`
+(`plots/po_*.png`, `results/tails/po_comparison.ecsv`, `po_class2_scan.ecsv`).
+
+Fixes made while producing the figures: the fast class-2 integrator stored v_T in the
+right-handed (astropy) sense, opposite to galpy's prograde-positive convention used by class 1
+-> flipped, so all OrbitSummary objects are prograde-positive; the class-3 L_z was needlessly
+sign-flipped in the E-Lz figure (the oCen_bar frame is already prograde-positive).
+
+Comparison numbers (per-Gyr elements, McMillan17 enclosed mass for all): last Gyr, classes 1
+and 2 identical (peri 1.6, apo 7.0, T = GM/r^3 = 1.4e4 (km/s/kpc)^2); class 3 peri 0.8, apo
+9.3, T = 4e4 because the slow bar is part of its potential. 8-9 Gyr ago: class 2 peri 5-6 kpc,
+T ~ 1.5e3 (ten times weaker than today); class 3 peri 0.4 kpc, T ~ 1e5 (seven times stronger).
+L_z early: class 2 -> -2000..-4000 (more retrograde), class 3 -> 0..+230 (less).
