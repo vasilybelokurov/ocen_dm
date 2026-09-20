@@ -3671,3 +3671,16 @@ ocen-dm fit --family K1       --isotropic --no-scales
 ocen-dm fit --family K2-cored --isotropic --no-scales
 ocen-dm fit --family K2-nfw   --isotropic --no-scales
 ```
+
+### Instrument scales removed from the ladder
+
+User: "this sounds like a fudge to me." Agreed, and the case is stronger now than when the
+scales were introduced. They are degenerate with mass by construction, and the data
+preparation has made them unnecessary: HST/Gaia agree at 1.01 +- 0.12 in the overlap and
+Pristine/Gaia at 1.005 +- 0.012 with no scale anywhere. A remaining disagreement would be a
+finding about the data, not something to absorb. The MUSE offset is likely physical
+(equipartition, different tracer) and deserves a model, not a factor.
+
+Rung 3 deleted. Scales survive only as a **one-off diagnostic** after the first round: fit
+once with them free and check they land at 1.00; a pull-away is a red flag about that
+instrument. That run's evidence is never compared.
