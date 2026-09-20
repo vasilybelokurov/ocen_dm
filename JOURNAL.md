@@ -3784,8 +3784,13 @@ authors' stored grid (0.87 / 0.69 / 0.08 at 24 / 25 / 26, dip at 23 too) and is 
 jagged Omega dependence is resonant-phase sensitivity. Paper's "Omega_b,0 <~ 26" reproduced.
 Migration is late: E, L_z sit at GSE values from 8 to ~2.5 Gyr ago and move only in the last
 ~2.5 Gyr. Picked (Omega_b,0 = 24, E0 quantiles 0.16/0.5/0.84 among successful samples):
-pre-migration peri/apo 0.87/10.9, 0.60/11.6, 0.50/12.2 kpc, e 0.85-0.92, L_z(t=0) = +69, +163,
-+229 (slightly prograde, not retrograde as guessed).
+pre-migration peri/apo 0.40/10.9, 0.42/11.6, 0.45/12.2 kpc, e 0.93, L_z(t=0) = +69, +163,
++229 (slightly prograde, not retrograde as guessed). Pericentres need the 0.25-Myr
+re-integration (`refine_trajectory`): the 20-Myr grid cadence gave 0.5-0.9 kpc, up to 2x too
+large, because a pericentre passage at 0.4 kpc lasts ~1 Myr.
+
+Lesson re-learnt: `pytest ... | tail -1` hid a failing test and the previous commit (d7c49be)
+went in with 1 failure; fixed here and the chain now uses `set -o pipefail`.
 
 Side result relevant to every class: in the barred Hunter24 potential at Omega_b,0 = 24
 (corotation ~9.5 kpc) omega Cen's present orbit has peri/apo 0.81/9.3 kpc over the last Gyr,

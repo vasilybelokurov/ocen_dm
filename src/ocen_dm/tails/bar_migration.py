@@ -175,6 +175,7 @@ class MigrationRun:
     E: np.ndarray                 # (n_times, n_samples) in the axisymmetric potential
     Lz: np.ndarray
     inside_t0: np.ndarray         # bool per sample: inside outer GSE contour at t = 0
+    ic: np.ndarray = None         # (n_samples, 6) present-day initial conditions (bar frame)
 
     @property
     def frac_inside(self) -> float:
@@ -196,7 +197,17 @@ def back_integrate(omega_f: float, n_samples: int = 1000, seed: int = 42, n_time
         E[j], Lz[j] = energy_lz(traj[j], pot_axi)
     cont = gse_contours(pot_axi)
     inside = inside_gse(E[0], Lz[0], cont, level=0)
-    return MigrationRun(omega_f, hist, t, traj, E, Lz, inside)
+    return MigrationRun(omega_f, hist, t, traj, E, Lz, inside, ic)
+
+
+def refine_trajectory(run: MigrationRun, i: int, n_times: int = 32001):
+    """Re-integrate sample ``i`` alone with fine output (0.25 Myr for tf = 8 Gyr), so that
+    pericentre passages (~1 Myr long at 0.5 kpc) are resolved. Returns (t ascending, traj)."""
+    agama = _agama()
+    pot, _ = slowing_bar_potential(run.hist)
+    t, tr = agama.orbit(ic=run.ic[i], potential=pot, timestart=run.hist.tf, time=-run.hist.tf, trajsize=n_times)
+    order = np.argsort(t)
+    return np.asarray(t)[order], np.asarray(tr)[order]
 
 
 # ----------------------------------------------------------------------------- grid, picks, products
@@ -218,9 +229,10 @@ def orbit_elements(traj_1, t, t_lo, t_hi):
                 z_max=float(np.abs(traj_1[m, 2]).max()))
 
 
-def pick_class3(run: MigrationRun, quantiles=(0.16, 0.5, 0.84)):
+def pick_class3(run: MigrationRun, quantiles=(0.16, 0.5, 0.84), refine: bool = True):
     """Among samples inside the GSE contour at t = 0, the ones at the given quantiles of E(t=0).
-    Returns list of (sample index, elements at 0-1 Gyr, elements at 7-8 Gyr, E0, Lz0)."""
+    Returns list of dicts (sample index, fine trajectory, elements at 0-1 Gyr and in the last
+    Gyr, E0, Lz0). Elements come from a 0.25-Myr re-integration when ``refine`` is set."""
     idx = np.flatnonzero(run.inside_t0)
     if idx.size == 0:
         return []
@@ -229,9 +241,10 @@ def pick_class3(run: MigrationRun, quantiles=(0.16, 0.5, 0.84)):
     for q in quantiles:
         target = np.quantile(E0, q)
         i = idx[np.argmin(np.abs(E0 - target))]
-        picks.append(dict(sample=int(i), q=q, E0=float(run.E[0, i]), Lz0=float(run.Lz[0, i]),
-                          early=orbit_elements(run.traj[:, i], run.t, 0.0, 1.0),
-                          late=orbit_elements(run.traj[:, i], run.t, run.hist.tf - 1.0, run.hist.tf)))
+        t, tr = refine_trajectory(run, i) if refine else (run.t, run.traj[:, i])
+        picks.append(dict(sample=int(i), q=q, E0=float(run.E[0, i]), Lz0=float(run.Lz[0, i]), t=t, traj=tr,
+                          early=orbit_elements(tr, t, 0.0, 1.0),
+                          late=orbit_elements(tr, t, run.hist.tf - 1.0, run.hist.tf)))
     return picks
 
 
@@ -244,7 +257,7 @@ def build_products(out_dir: Path = Path("results/tails"), plot_dir: Path = Path(
     runs = run_grid(omegas, n_samples=n_samples, seed=seed, n_times=161)
     pot_axi = axisymmetric_potential()
     cont = gse_contours(pot_axi)
-    fid = back_integrate(OMEGA_FIDUCIAL, n_samples=n_samples, seed=seed, n_times=1601)
+    fid = back_integrate(OMEGA_FIDUCIAL, n_samples=n_samples, seed=seed, n_times=161)
     picks = pick_class3(fid)
     E_now, Lz_now = energy_lz(present_day_samples(1), pot_axi)
 
@@ -290,10 +303,10 @@ def build_products(out_dir: Path = Path("results/tails"), plot_dir: Path = Path(
     fig, axes = plt.subplots(3, 1, figsize=(9, 10), sharex=True)
     lb = fid.hist.tf - fid.t     # look-back time
     for p in picks:
-        i = p["sample"]; r = np.linalg.norm(fid.traj[:, i, :3], axis=1)
+        i = p["sample"]; r = np.linalg.norm(p["traj"][:, :3], axis=1); lbp = fid.hist.tf - p["t"]
         lab = "sample %d (E0 quantile %.2f): early peri/apo %.1f/%.1f -> late %.1f/%.1f" % (
             i, p["q"], p["early"]["r_peri"], p["early"]["r_apo"], p["late"]["r_peri"], p["late"]["r_apo"])
-        axes[0].plot(lb, r, lw=0.6, label=lab)
+        axes[0].plot(lbp, r, lw=0.4, label=lab)
         axes[1].plot(lb, fid.E[:, i] / 1e5, lw=0.8)
         axes[2].plot(lb, fid.Lz[:, i], lw=0.8)
     axes[0].set_yscale("log"); axes[0].set_ylabel("r [kpc]"); axes[0].legend(fontsize=7, loc="upper left")

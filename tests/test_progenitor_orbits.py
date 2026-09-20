@@ -55,7 +55,7 @@ def test_class3_bar_migration_orbits_are_gse_like_before_migration():
     bm = pytest.importorskip("ocen_dm.tails.bar_migration")
     if not bm.POT_DIR.exists():
         pytest.skip("oCen_bar clone not found")
-    orbs = po.class3_bar_migration_orbits(n_samples=200, n_times=401)
+    orbs = po.class3_bar_migration_orbits(n_samples=200, n_times=41)
     assert len(orbs) == 3
     for o in orbs:
         assert abs(o.t_gyr[0]) < 1e-9 and abs(o.t_gyr[-1] + 8.0) < 1e-9      # look-back axis, 0 today first
