@@ -508,8 +508,17 @@ class ProfileLikelihood:
     # ---- likelihood ----------------------------------------------------------
     @staticmethod
     def _split_normal_lnlike(model: np.ndarray, p: BinnedProfile) -> np.ndarray:
+        """Two-piece (split) normal, with the **shared** normalisation.
+
+        Until 2026-09-20 each side carried its own ``-ln(err)``, which made the density jump
+        by ``err_hi/err_lo`` as the model crossed the datum -- a factor of 4 for errors of
+        0.5 and 2 -- and so was not a normalised density at all. The standard form
+        (Wallis 2014) uses one normalisation for both sides,
+        ``sqrt(2/pi) / (err_lo + err_hi)``, which is continuous and integrates to one.
+        """
         err = np.where(model > p.value, p.err_hi, p.err_lo)
-        return -0.5 * ((model - p.value) / err) ** 2 - np.log(err) - 0.5 * np.log(2 * np.pi)
+        norm = np.sqrt(2.0 / np.pi) / (p.err_lo + p.err_hi)
+        return -0.5 * ((model - p.value) / err) ** 2 + np.log(norm)
 
     def lnlike_terms(self, jeans: SphericalJeans, distance_kpc: float,
                      scales: dict[str, float] | None = None) -> dict[str, float]:
