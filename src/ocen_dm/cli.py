@@ -256,7 +256,10 @@ def cmd_fit(args: argparse.Namespace) -> int:
     kw = dict(tracer=args.tracer, backend=args.backend)
     if getattr(args, "no_scales", False):
         kw["instruments"] = ()
-    if getattr(args, "constant_beta", False):
+    if getattr(args, "isotropic", False):
+        kw["constant_beta"] = True
+        kw["fixed"] = {**kw.get("fixed", {}), "beta_0": 0.0}
+    elif getattr(args, "constant_beta", False):
         kw["constant_beta"] = True
     if preset is not None:
         pass
@@ -295,6 +298,7 @@ def cmd_fit(args: argparse.Namespace) -> int:
                          dataset_options={"gaia_errors": args.gaia_errors,
                                           "gaia_rotation": args.gaia_rotation,
                                           "tracer": args.tracer, "backend": args.backend,
+                                          "isotropic": bool(getattr(args, "isotropic", False)),
                                           "constant_beta": bool(getattr(args, "constant_beta", False)),
                                           "no_scales": bool(getattr(args, "no_scales", False)),
                                           "datasets": ",".join(datasets)})
@@ -425,6 +429,9 @@ def build_parser() -> argparse.ArgumentParser:
     fit.add_argument("--preset", default=None, choices=["watkins2013", "omegacat6", "baumgardt2018", "imbh_limit"],
                      help="run under a published analysis's assumptions and compare with its numbers")
     fit.add_argument("--datasets", default=DEFAULT_DATASETS, help="comma-separated dataset keys")
+    fit.add_argument("--isotropic", action="store_true",
+                     help="beta = 0 everywhere, no anisotropy parameter: rung 0 of the "
+                          "modelling ladder (docs/MODELLING_PLAN.md)")
     fit.add_argument("--constant-beta", action="store_true",
                      help="one anisotropy parameter instead of three: rung 1 of the modelling "
                           "ladder (docs/MODELLING_PLAN.md)")

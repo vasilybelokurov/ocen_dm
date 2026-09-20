@@ -135,6 +135,15 @@ AGAMA_BETA0_MIN = -0.5
 #: prior. Narrowed from 0.0 on 2026-09-20; this REMOVES freedom from both families equally.
 BETA0_MAX_CORED_TRACER_WITH_BH = -0.5
 
+#: Prior range for a CONSTANT anisotropy. The An & Evans bound is a condition at r -> 0;
+#: a constant beta has no separate centre, so imposing -0.5 on it would force the
+#: tangential dispersion to exceed the radial one by 22 per cent at every radius, which the
+#: data never show (projected sigma_T/sigma_R runs 0.84-1.18, i.e. beta roughly -0.4 to
+#: +0.3). The constant-beta rung is a deliberately crude baseline that is not required to
+#: be DF-realisable at the centre; it gets a wide symmetric-ish range instead
+#: (2026-09-20, after a day on which the bound was briefly and wrongly applied to it).
+CONSTANT_BETA_RANGE = (-1.0, 0.5)
+
 
 class NoDarkMatterModel:
     """Experiment K1. See the module docstring for the physical content."""
@@ -156,8 +165,9 @@ class NoDarkMatterModel:
             Use a single anisotropy ``beta_0`` (``beta_inf = beta_0``); literature
             comparisons with constant-anisotropy models need this.
         beta0_max : float
-            Upper edge of the ``beta_0`` prior (default 0, the An & Evans bound for a
-            cored tracer; literature presets that fitted radial anisotropy raise it).
+            Upper edge of the ``beta_0`` prior for the radially varying anisotropy
+            (default -0.5, the An & Evans bound for a cored tracer with a central point
+            mass). Ignored for ``constant_beta``, which uses :data:`CONSTANT_BETA_RANGE`.
         distance_kpc : float, optional
             Fixed distance to use instead of :data:`OCEN_DISTANCE_KPC` when
             ``fix_distance`` is true.
@@ -210,7 +220,8 @@ class NoDarkMatterModel:
             params += [Parameter("beta_0", Prior("uniform", AGAMA_BETA0_MIN, 0.0), "", r"\beta_0"),
                        Parameter("r_a", Prior("loguniform", 1.0, 1000.0), "pc", r"r_a")]
         elif getattr(self, "constant_beta", False):
-            params += [Parameter("beta_0", Prior("uniform", -1.0, b0max), "", r"\beta")]
+            lo_c, hi_c = CONSTANT_BETA_RANGE
+            params += [Parameter("beta_0", Prior("uniform", lo_c, hi_c), "", r"\beta")]
         else:
             params += [Parameter("beta_0", Prior("uniform", -1.0, b0max), "", r"\beta_0"),      # An & Evans: cored tracer => beta_0 <= 0
                        Parameter("beta_inf", Prior("uniform", -1.0, 1.0), "", r"\beta_\infty"),

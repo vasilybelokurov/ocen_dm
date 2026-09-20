@@ -3628,3 +3628,46 @@ result). Neither is wrong; neither has been shown to be needed.
 now, and both it and `--no-scales` are recorded in the run provenance. Three tests updated
 for the narrowed prior: the unit-cube midpoint now maps to -0.75, and an injection test used
 a truth outside the new prior.
+
+### Review of the plan: rung 1 was broken by my own prior change
+
+User: "Does any of these apply to the first mass modelling experiment?" Of the four review
+items, only the anisotropy prior touches the first round, and I had applied it wrongly.
+
+An & Evans is a condition **at r -> 0**. With `beta(r)`, `beta_0` is the central value and
+the bound belongs there. With a **constant** `beta`, `beta_0` is `beta` everywhere, so the
+ceiling of -0.5 I set in the morning had become a global constraint: tangential dispersion
+at least 22 per cent above radial at every radius. The data never show that -- projected
+`sigma_T/sigma_R` runs 0.84 to 1.18, i.e. `beta` roughly -0.4 to +0.3. Rung 1 as I left it
+forbade every anisotropy the data display.
+
+Fixed: the bound applies only to the radially varying family; constant `beta` gets
+`CONSTANT_BETA_RANGE = (-1, 0.5)`, wide enough to hold what the data imply with margin.
+
+### The first round, defined
+
+Added **rung 0, isotropic**: `beta = 0` fixed, no scales, K1 with 5 parameters against
+K2-cored with 7, plus K2-NFW to bracket the halo shape. It is the model everyone
+understands, its Bayes factor has the simplest meaning, and its residuals answer directly
+whether anisotropy is needed at all. `--isotropic` added to the CLI and recorded in the
+provenance.
+
+| rung | anisotropy | `beta` prior | K1 | K2 | points/param (K2) |
+|---|---|---|---|---|---|
+| 0 | isotropic | fixed 0 | 5 | 7 | 12.7 |
+| 1 | constant | `U[-1, 0.5]` | 6 | 8 | 11.1 |
+| 2 | `beta(r)` | `beta_0 ~ U[-1, -0.5]` | 8 | 10 | 8.9 |
+| 3 | `beta(r)` + scales | as 2 | 11 | 13 | 6.8 |
+
+Smoke-tested: every rung's two families build and return a finite likelihood in **4 ms**
+per evaluation at three points of the unit cube. `tests/test_modelling_ladder.py` pins the
+parameter counts, the nesting of K1 in K2, that the central bound touches only the radially
+varying family, and that the CLI exposes every rung. 34 fit-side tests pass.
+
+**No fit has been run.** The first round is three commands away:
+
+```
+ocen-dm fit --family K1       --isotropic --no-scales
+ocen-dm fit --family K2-cored --isotropic --no-scales
+ocen-dm fit --family K2-nfw   --isotropic --no-scales
+```
