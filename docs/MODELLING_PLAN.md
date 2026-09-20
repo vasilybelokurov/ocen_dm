@@ -16,29 +16,55 @@ So the plan is a ladder. Climb one rung at a time and stop when the answer stops
 
 ## The ladder
 
-The data are **89 points**. Each rung runs the same two families on the same observations.
+The data are **89 points**. Each rung runs the same families on the same observations.
 
-| Rung | Anisotropy | Scales | K1 params | K2 params | Points per parameter (K2) |
-|---|---|---|---|---|---|
-| **1** | constant `beta` | none | 6 | 8 | 11.1 |
-| **2** | `beta(r)`, 3 params | none | 8 | 10 | 8.9 |
-| **3** | `beta(r)` | per instrument | 11 | 13 | 6.8 |
+| Rung | Anisotropy | `beta` prior | Scales | K1 | K2 | Points/param (K2) |
+|---|---|---|---|---|---|---|
+| **0** | isotropic, `beta = 0` fixed | -- | none | 5 | 7 | 12.7 |
+| **1** | constant `beta` | `U[-1, 0.5]` | none | 6 | 8 | 11.1 |
+| **2** | `beta(r)`, 3 params | `beta_0 ~ U[-1, -0.5]` | none | 8 | 10 | 8.9 |
+| **3** | `beta(r)` | as rung 2 | per instrument | 11 | 13 | 6.8 |
 
-Rung 1 is the most robust pair we can write down and the one where a Bayes factor means
-something simple. Rung 3 exists only because instrument scales are known to be degenerate
-with halo mass; if a halo survives only when a scale is free, that is a result in itself.
+**Rung 0 is the first experiment.** Isotropic Jeans with stars, remnants and a point mass,
+against the same with a cored halo. Five and seven parameters. It is the model everyone
+understands, its Bayes factor has the simplest possible meaning, and its residuals tell us
+directly whether anisotropy is even needed. Then the NFW halo as a third run, to bracket the
+halo shape.
+
+Rung 1 lets the anisotropy float but not vary with radius. Rung 3 exists only because
+instrument scales are known to be degenerate with halo mass; if a halo survives only when a
+scale is free, that is a result in itself.
 
 ```
+# the first round
+ocen-dm fit --family K1       --isotropic --no-scales
+ocen-dm fit --family K2-cored --isotropic --no-scales
+ocen-dm fit --family K2-nfw   --isotropic --no-scales
+# rung 1
 ocen-dm fit --family K1       --constant-beta --no-scales
 ocen-dm fit --family K2-cored --constant-beta --no-scales
 ```
+
+Every rung's families build and evaluate the likelihood in 4 ms; a nested run is
+$10^5$--$10^6$ evaluations, so expect tens of minutes for rung 0 and a few hours for rung 3.
+
+### Why the anisotropy prior differs between rungs
+
+The An & Evans bound `beta_0 <= -1/2` is a condition **at the centre**. In `beta(r)`,
+`beta_0` is genuinely the central value, so the bound applies (rung 2 onwards). A constant
+`beta` has no separate centre: imposing `-0.5` on it would force the tangential dispersion to
+exceed the radial one by 22 per cent at every radius, which the data never show (projected
+`sigma_T/sigma_R` runs 0.84 to 1.18, i.e. `beta` roughly -0.4 to +0.3). So rungs 0 and 1 are
+deliberately crude baselines that are **not** required to be DF-realisable at the centre,
+and rung 1 gets `U[-1, 0.5]`. This was briefly got wrong on 2026-09-20 and caught in review.
 
 ## What decides whether to climb
 
 After each rung, three questions, in order:
 
-1. **Do the residuals show structure the next rung would fix?** If rung 1's residuals are
-   flat, rung 2 cannot be what the data are asking for.
+1. **Do the residuals show structure the next rung would fix?** If rung 0's residuals are
+   flat, anisotropy is not what the data are asking for and rung 1 is unnecessary. If they
+   show a radial trend in `sigma_T/sigma_R`, that is the case for climbing.
 2. **Has the evidence gap moved?** Compare `Delta ln Z` between rungs. Run-to-run scatter is
    0.5, so movement below ~1.5 is noise. **A gap that is stable across rungs is the finding**:
    it says the answer is not about orbital freedom. A gap that moves a lot is also the
@@ -50,7 +76,8 @@ Only climb if question 1 says yes.
 
 ## Taken now, because they remove freedom rather than adding it
 
-* **`beta_0` prior narrowed to `U[-1, -0.5]`.** An & Evans give `gamma >= beta + 1/2` for a
+* **`beta_0` prior narrowed to `U[-1, -0.5]` for the radially varying anisotropy (rung 2+).**
+  An & Evans give `gamma >= beta + 1/2` for a
   tracer in a point-mass-dominated potential; our tracer is cored and every model carries a
   central point mass, so `-0.5 < beta_0 <= 0` admits models with no non-negative distribution
   function. The counter-argument that the sphere of influence is unresolved **fails**: it
