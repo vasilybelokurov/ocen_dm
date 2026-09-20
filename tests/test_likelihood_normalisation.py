@@ -45,6 +45,9 @@ def test_the_agama_prior_stays_inside_what_the_backend_accepts():
     fam = NoDarkMatterModel(backend="agama")
     b0 = [q for q in fam.parameters if q.name == "beta_0"][0]
     assert b0.prior.lo >= AGAMA_BETA0_MIN, "AGAMA rejects beta_0 below -0.5"
+    # AGAMA's floor and the An & Evans ceiling meet at a point, so that backend keeps its own
+    # range and cannot be an admissible family: it is a diagnostic only.
+    assert b0.prior.hi == 0.0
     plain = NoDarkMatterModel()
     assert [q for q in plain.parameters if q.name == "beta_0"][0].prior.lo == -1.0
 

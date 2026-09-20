@@ -95,9 +95,13 @@ which is what the Jeans integrating factor needs. It is also exactly JamPy's log
 anisotropy with $\alpha=2$, which is what makes the cross-check in \S\ref{sec:crosschecks}
 an identity rather than an approximation.
 
-$\beta_0\le0$ is imposed. For a tracer density with a core, \citet{anevans2006} show the
-central anisotropy cannot be radial; allowing $\beta_0>0$ admits models that are not
-physically realisable as distribution functions.
+$\beta_0\le-1/2$ is imposed. \citet{anevans2006} give two conditions. For a self-gravitating
+cusp, $\beta\le\gamma/2$, so a cored tracer needs $\beta_0\le0$. But in a potential dominated
+by a central point mass the condition is $\gamma\ge\beta+1/2$, so a cored tracer needs
+$\beta_0\le-1/2$. Every model here carries a point mass, and its sphere of influence is
+\emph{not} safely unresolved: it reaches the innermost datum at $0.11$\,pc once
+$M_\bullet>7400\,\Msun$, which is 46 per cent of the prior. The tighter ceiling is applied to
+both families equally. It is a necessary, not sufficient, condition for a non-negative DF.
 
 \section{The dynamical solver}
 
@@ -186,7 +190,7 @@ $M_\star$ & log-uniform $[10^6, 10^7]$ & $\Msun$ & stellar mass \\
 $M_{\rm rem}$ & log-uniform $[10^4, 3\times10^6]$ & $\Msun$ & remnant mass \\
 $a_{\rm rem}$ & log-uniform $[0.3, 20]$ & pc & remnant scale radius \\
 $M_\bullet$ & log-uniform $[10^2, 3\times10^5]$ & $\Msun$ & central point mass \\
-$\beta_0$ & uniform $[-1, 0]$ & --- & central anisotropy \\
+$\beta_0$ & uniform $[-1, -1/2]$ & --- & central anisotropy (An \& Evans) \\
 $\beta_\infty$ & uniform $[-1, 1]$ & --- & outer anisotropy \\
 $r_\beta$ & log-uniform $[0.5, 100]$ & pc & anisotropy scale \\
 $M_{\rm DM}(<100\,\mathrm{pc})$ & log-uniform $[10^3, 3\times10^7]$ & $\Msun$ & K2 only \\
@@ -227,9 +231,13 @@ family is chosen to be exactly JamPy's logistic form, so agreement is an identit
 implementation rather than an approximate comparison.
 
 \paragraph{A distribution-function model.} An AGAMA Cuddeford--Osipkov--Merritt DF, again
-behind the same likelihood. This is the strongest check available: it guarantees a positive
-distribution function, which a Jeans solution does not. A Jeans model that cannot be realised
-by any DF is a fit, not a dynamical model.
+behind the same likelihood. It is a \emph{limited} cross-check and is described as such: a
+successful construction does not certify a non-negative distribution function, because AGAMA
+clips negative values to zero, which can change the realised tracer density (a ratio of
+1.045 at 0.11 pc in one trial). Two further limits: its Cuddeford family cannot represent
+the anisotropy profile we fit, and the backend softens the point mass with a $10^{-4}$\,pc
+Plummer radius, so its central limit is not Keplerian. It is run as a diagnostic on posterior
+draws, not as a veto --- vetoing would define a different model and require its own evidence.
 
 \paragraph{Published analyses.} Presets reproduce the assumptions of individual papers and
 compare the numbers we recover with theirs, as regression anchors.
@@ -258,6 +266,12 @@ Stated plainly, because each is a route by which a spurious halo could appear.
 \end{enumerate}
 
 \section{The runs}
+
+They are taken one rung at a time, following \texttt{docs/MODELLING\_PLAN.md}: constant
+anisotropy without instrument scales first (6 and 8 parameters against 89 points), then the
+three-parameter $\beta(r)$, then the scales. The decision to climb is made on the residuals
+of the rung below, not in advance. An anisotropy turnover and a shared rotation nuisance are
+written down there as deferred, with the conditions that would bring them back.
 
 The default dataset is the 89 points described in the companion note. Two modelling choices
 are left explicit as switches rather than averaged over, and the intention is to fit each and
