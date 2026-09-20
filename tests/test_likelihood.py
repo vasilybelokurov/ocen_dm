@@ -128,8 +128,10 @@ def test_split_normal_uses_upper_error_when_model_is_high():
     p = BinnedProfile("a", "los", r, None, None, v, np.array([0.5]), np.array([2.0]), "X")
     hi = ProfileLikelihood._split_normal_lnlike(np.array([7.0]), p)   # model above by 2 -> uses err_hi=2 -> chi2 = 1
     lo = ProfileLikelihood._split_normal_lnlike(np.array([3.0]), p)   # model below by 2 -> uses err_lo=0.5 -> chi2 = 16
-    assert hi[0] == pytest.approx(-0.5 - np.log(2.0) - 0.5 * np.log(2 * np.pi))
-    assert lo[0] == pytest.approx(-8.0 - np.log(0.5) - 0.5 * np.log(2 * np.pi))
+    # shared normalisation sqrt(2/pi)/(err_lo + err_hi): continuous at the measured value
+    norm = np.log(np.sqrt(2 / np.pi) / 2.5)
+    assert hi[0] == pytest.approx(-0.5 + norm)
+    assert lo[0] == pytest.approx(-8.0 + norm)
 
 
 def test_lnlike_is_minus_inf_outside_tracer():
