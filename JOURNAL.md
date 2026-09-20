@@ -3519,3 +3519,22 @@ that each switch moves what it should and nothing else, and that DR2 is out of t
 but still loadable.
 
 The write-up gained a *Choices left explicit* section and is 13 pages.
+
+## 2026-09-20 -- mass-modelling write-up
+
+`docs/mass_modelling.tex` -> `mass_modelling.pdf`, 5 pages, written from the code rather than
+from memory (every parameter, prior and equation checked against `mass_models/`,
+`kinematics/jeans.py`, `kinematics/anisotropy.py` and `kinematics/fit.py`).
+
+Sections: how the question is posed (K1 nested in K2, two halo slopes run separately rather
+than fitting gamma); the four mass components and why the remnants are a separate component
+rather than an inflated mass-to-light ratio; the anisotropy family and the An & Evans
+constraint; the Jeans solver with its projections, the `r = R cosh u` substitution and the
+reverse-accumulation fix; the split-normal likelihood with radial averaging, streaming and
+instrument scales; the prior table; nested sampling and the evidence-comparability rule;
+the four cross-checks (JamPy, an AGAMA DF, literature presets, injection); five stated
+omissions; and the table of runs.
+
+The omissions are stated plainly because each is a route to a spurious halo: sphericity,
+rotation removed rather than modelled, equilibrium at 0.7 r_J(peri), the diagonal likelihood
+against coherent systematics, and a single tracer population under mass segregation.
