@@ -3868,3 +3868,18 @@ at 25.4 (the Dillamore resonance); next physical ones 42.8 (5:4), 48.6 (4:3), 60
 33-41 km/s/kpc the present orbit is in no low-order resonance. Written into
 docs/progenitor_orbits.tex (Sec. 5.5) together with the class-2-in-bar result (Sec. 5.6,
 Fig. 8); test added.
+
+## 2026-09-20 -- which N-body code for the disruption simulations
+
+User: "lets establish how as in what code to use ... I have ../satellite_experiment ... Report
+back with your findings". Full assessment: `docs/NBODY_CODE_ASSESSMENT.md`; environment helper
+`bin/nemo_env.sh`. Summary: satellite_experiment is a July scaffold (Plummer satellite, analytic
+host, gyrfalcON driver) with pipeline-test values; the NEMO/gyrfalcON build behind it works after
+three environment fixes (dylib paths, SIP stripping DYLD_* through /usr/bin/time, a stale
+dlerror() from LLVM libomp that NEMO's loadobj misreads -> stub dylib). Benchmarks: 1e5
+particles 0.08 s/step, 1e6 0.7 s/step (serial). The AGAMA plug-in runs with the rotating
+Hunter+2024 bar, so the decelerating-bar potential of class 3 can be used directly.
+Recommendation: gyrfalcON + AGAMA plug-in for round one (~5-8 h per 10-Gyr run, 1e6
+particles), IC generation with AGAMA self-consistent models, pyfalcon as fallback for
+per-particle friction control; Gadget-4 only if serial speed becomes limiting. A symlink
+$NEMOOBJ/acc/agama.so -> venv agama.so was created; the stub lives in ~/.cache/ocen_dm.
