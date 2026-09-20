@@ -1413,7 +1413,7 @@ def plot_extended_profile(path: Path | str = "plots/profile_extended_pristine.pn
     return path
 
 
-def gaia_streaming2(which: str = "ours") -> np.ndarray:
+def gaia_streaming2(which: str = "ours", per_component: bool = False):
     """Mean-square streaming to remove from the Gaia bins, from either rotation curve.
 
     ``"ours"`` uses the means fitted per annulus by our own mixture; ``"published"`` uses
@@ -1424,13 +1424,16 @@ def gaia_streaming2(which: str = "ours") -> np.ndarray:
     from ..kinematics.outer_gaia import load_edr3_profile
     g = load_edr3_profile()
     if which == "ours":
-        return np.asarray(g["streaming2"], float)
-    if which != "published":
+        sr = np.asarray(g["mean_pmr"], float) ** 2
+        st = np.asarray(g["mean_pmt"], float) ** 2
+    elif which == "published":
+        t = Table.read(processed_dir() / "kinematics" / "vasiliev2021_ocen_pm_profiles.ecsv")
+        v = np.interp(np.asarray(g["r_median"], float), np.asarray(t["r"], float),
+                      np.asarray(t["vrot_pm"], float))
+        sr, st = np.zeros_like(v), v ** 2          # rotation is tangential; radial mean is ~0
+    else:
         raise ValueError("which must be 'ours' or 'published'")
-    t = Table.read(processed_dir() / "kinematics" / "vasiliev2021_ocen_pm_profiles.ecsv")
-    v = np.interp(np.asarray(g["r_median"], float), np.asarray(t["r"], float),
-                  np.asarray(t["vrot_pm"], float))
-    return 0.5 * v ** 2
+    return (sr, st) if per_component else 0.5 * (sr + st)
 
 
 def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
@@ -1484,7 +1487,7 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
     else:
         fig, (a1, a0, a3, a2) = plt.subplots(4, 1, figsize=(10.6, 13.2), sharex=True,
                                              gridspec_kw={"height_ratios": [2.5, 1.0, 1.05, 0.95]})
-        s2 = gaia_streaming2(streaming)
+        s2r, s2t = gaia_streaming2(streaming, per_component=True)
 
     # --- context: real data that exists but is not fitted --------------------------
     rp, sp = published_profile()
@@ -1508,7 +1511,12 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
         scale = 1.0 if p.kind == "los" else k
         val = np.asarray(p.value, float)
         if streaming is not None and key.startswith("gaia_edr3_ours"):
-            val = np.sqrt(np.maximum(val ** 2 - s2, 1e-12))
+            # The measurement is already a dispersion about its fitted mean. The likelihood
+            # subtracts streaming from the MODEL's second moment, so the comparable quantity
+            # to draw is the measured second moment: add the streaming back, per component.
+            # Subtracting it from the data (as this did until 2026-09-20) double-counts it,
+            # and using the combined term for both components is wrong twice over.
+            val = np.sqrt(val ** 2 + (s2r if key.endswith("radial") else s2t))
         draw(a1, pc(p.r), val * scale,
              [np.asarray(p.err_lo) * scale, np.asarray(p.err_hi) * scale], key,
              size=4.5 if p.instrument in ("HST", "MUSE") else 7.0)
@@ -1536,25 +1544,26 @@ def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
                   else r"$\sqrt{\sigma^2-\langle\bar v^2\rangle}$  [km/s]")
     a1.legend(fontsize=7.6, loc="lower left", framealpha=0.93)
     a1.set_title("$\\omega$ Cen: the kinematic data" if streaming is None
-                 else "$\\omega$ Cen: the kinematic data, %s rotation removed"
+                 else "$\\omega$ Cen: Gaia second moments, %s rotation added back"
                       % ("our fitted" if streaming == "ours" else "the published"),
                  fontsize=12)
     add_arcsec_axis(a1, distance_kpc)
 
     # --- effect of the rotation choice ----------------------------------------------
     if a0 is not None:
-        other = gaia_streaming2("published" if streaming == "ours" else "ours")
-        p = load_profile("gaia_edr3_ours")
+        o_r, o_t = gaia_streaming2("published" if streaming == "ours" else "ours",
+                                   per_component=True)
+        p = load_profile("gaia_edr3_ours_tangential")
         v = np.asarray(p.value, float); e = np.asarray(p.err_lo, float)
-        this = np.sqrt(np.maximum(v ** 2 - s2, 1e-12))
-        that = np.sqrt(np.maximum(v ** 2 - other, 1e-12))
+        this = np.sqrt(v ** 2 + s2t)
+        that = np.sqrt(v ** 2 + o_t)
         shift = (that - this) / e
         st = dataset_style("gaia_edr3", size=7)
         a0.axhline(0.0, color=style.INK_SECONDARY, lw=1.5)
         a0.axhspan(-1, 1, color=style.SERIES[2], alpha=0.15, lw=0, label="$\\pm1\\sigma$")
         a0.plot(pc(p.r), shift, ls="-", lw=1.6, **st)
         a0.set_ylim(-1.6, 1.6)
-        a0.set_ylabel("effect of the other\nrotation curve  [$\\sigma$]")
+        a0.set_ylabel("tangential second moment:\neffect of the other curve  [$\\sigma$]")
         a0.legend(fontsize=8, loc="upper right")
         a0.annotate("switching to the %s curve moves the points by %.2f$\\sigma$ in quadrature"
                     % ("published" if streaming == "ours" else "our fitted",

@@ -363,13 +363,13 @@ uniform $1.4$ per cent before.}
 \section{Known limitations}
 
 \begin{enumerate}
-\item \textbf{The field template does not follow the science selection.} Both the \emph{Gaia}
-      and HST fits score stars against one empirical \emph{Gaia}~DR3 field density whose
-      magnitude, quality and error selections differ from the sample being fitted; only its
-      normalisation is free. In the outermost \emph{Gaia} bin, where $95$ per cent of the
-      selected stars are field, restricting the template to the same error ceiling moves the
-      fitted dispersion by about $1.5$ per cent, well above the quoted error-model
-      systematic. A selection-matched template is the obvious next improvement.
+\item \textbf{The field template still differs from the science selection in its quality
+      cuts.} Its parallax cut was removed on 2026-09-20 and the template re-queried
+      (231\,269 stars, up from 192\,054), which moved the fitted dispersions by at most
+      $0.33\sigma$; per-annulus matching on error ceiling and magnitude was added the day
+      before. What remains unmatched is the template's RUWE, excess-noise and PM-error
+      ceilings against the science sample's quality flag. Those are the same family of cuts,
+      so the residual mismatch is smaller than the two already removed, but it is not zero.
 \item \textbf{HST's frame is not restored by adding a constant.} The catalogue's proper
       motions are locally corrected, so position-dependent cluster streaming has been removed
       from them. Adding the constant systemic vector to score them against an absolute field
@@ -383,14 +383,25 @@ uniform $1.4$ per cent before.}
       energy equipartition \citep{haeberle2025}, so selecting brighter stars selects more
       massive ones, which have a lower dispersion.
 \item \textbf{Per-bin errors are treated as independent.} Shared stars between routes, a
-      shared field template, spatially correlated \emph{Gaia} astrometric systematics and a
-      common error calibration are not propagated.
+      shared field template and spatially correlated \emph{Gaia} astrometric systematics are
+      not propagated. One case is specific and known: the error-model systematic (half the
+      separation between the raw-error and $\eta$-inflated fits) responds to a \emph{single}
+      calibration choice and therefore moves every bin coherently, but it is added to each
+      bin's error in quadrature and then consumed by a diagonal likelihood. A shared
+      nuisance parameter is the correct treatment; that is a change to the model and has not
+      been made.
 \end{enumerate}
 
 \section{Rotation}
 
 The Jeans model predicts the full second moment, so each dataset is compared with
-$\sqrt{\sigma_{\rm model}^2-\langle\bar v^2\rangle}$. Where that streaming term comes from
+$\sqrt{\sigma_{\rm model}^2-\langle\bar v^2\rangle}$. The streaming term is \emph{uncertain},
+and since 2026-09-20 that uncertainty is carried: an error $\delta v$ moves the dispersion
+the model must predict by $v\,\delta v/\sigma$, which is added in quadrature to the
+measurement error. It matters most where the statistical errors are smallest --- the HST
+tangential uncertainties at $223$ and $270''$ grow by factors of $4.9$ and $5.7$ --- and it
+is a floor rather than the full correction, because the rotation curve moves coherently
+between bins and is here treated as independent. Where that streaming term comes from
 differs by instrument, and the difference is not cosmetic: it removes between 1 and 17 per
 cent of the squared dispersion in the \emph{Gaia} bins.
 

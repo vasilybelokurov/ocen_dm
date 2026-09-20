@@ -31,7 +31,7 @@ from astropy.table import Table
 from ..paths import processed_dir
 from .jeans import KMS_PER_MASYR_KPC, SphericalJeans
 
-__all__ = ["BinnedProfile", "KinematicData", "ProfileLikelihood", "load_profile", "DATASETS"]
+__all__ = ["pm_rotation_error", "streaming_error_on_sigma", "BinnedProfile", "KinematicData", "ProfileLikelihood", "load_profile", "DATASETS"]
 
 ARCSEC_PER_RAD = 206264.806
 _BIN_NODES = 6   # Gauss-Legendre nodes per bin for the tracer-weighted average
@@ -84,6 +84,12 @@ class BinnedProfile:
     shares_stars_with: tuple[str, ...] = ()
     note: str = ""
     streaming2: np.ndarray | None = None
+    #: equal-count quantiles of the radii of the stars actually measured in each bin,
+    #: shape ``(n_bins, k)``. When present the model is averaged over these instead of over
+    #: a complete annulus with tracer weighting, because the selection's coverage changes
+    #: within a bin: HST's 300-340 arcsec sample has a mean radius of 313.2 arcsec against
+    #: the annulus midpoint of 320 (2026-09-20).
+    r_nodes: np.ndarray | None = None
 
     def __post_init__(self) -> None:
         if self.streaming2 is not None and (len(self.streaming2) != len(self.r) or np.any(self.streaming2 < 0)):
@@ -111,6 +117,13 @@ class BinnedProfile:
 
 
 # ----------------------------------------------------------------- loading ---
+def _radial_nodes_from(t: Table) -> np.ndarray | None:
+    """Stack the stored ``r_node*`` columns into an ``(n_bins, k)`` array, if present."""
+    cols = sorted((c for c in t.colnames if c.startswith("r_node")),
+                  key=lambda c: int(c[len("r_node"):]))
+    return np.column_stack([np.asarray(t[c], float) for c in cols]) if cols else None
+
+
 def pm_rotation_curve(r_arcsec: np.ndarray) -> np.ndarray:
     """Mean tangential proper motion of the rotating cluster at projected radius ``r``.
 
@@ -123,6 +136,37 @@ def pm_rotation_curve(r_arcsec: np.ndarray) -> np.ndarray:
     """
     t = Table.read(processed_dir() / "kinematics" / "vasiliev2021_ocen_pm_profiles.ecsv")
     return np.interp(np.asarray(r_arcsec, float), np.asarray(t["r"], float), np.asarray(t["vrot_pm"], float))
+
+
+def pm_rotation_error(r_arcsec: np.ndarray) -> np.ndarray:
+    """Half the 16th-84th percentile width of that rotation curve, in mas/yr.
+
+    The curve is published with percentiles and we used only its median. That was harmless
+    while every uncertainty sat on a 1.4 per cent numerical floor; once the floor was removed
+    the rotation error became the **largest** term in the outer HST bins -- at 270 arcsec it
+    moves the predicted tangential dispersion by 5.4 times the statistical error. It is now
+    propagated into the datasets that use it (2026-09-20).
+    """
+    t = Table.read(processed_dir() / "kinematics" / "vasiliev2021_ocen_pm_profiles.ecsv")
+    r = np.asarray(t["r"], float)
+    lo = np.interp(np.asarray(r_arcsec, float), r, np.asarray(t["vrot_pm_p16"], float))
+    hi = np.interp(np.asarray(r_arcsec, float), r, np.asarray(t["vrot_pm_p84"], float))
+    return 0.5 * (hi - lo)
+
+
+def streaming_error_on_sigma(value: np.ndarray, v_rot: np.ndarray,
+                             v_err: np.ndarray) -> np.ndarray:
+    """How much an uncertain streaming term moves the dispersion a model must predict.
+
+    The datum is compared with ``sqrt(sigma_model^2 - v^2)``, so to first order an error
+    ``dv`` on the rotation shifts that predicted dispersion by ``v dv / sigma``. Added in
+    quadrature to the measurement error. This treats the rotation error as independent
+    between bins, which it is not -- the curve moves coherently -- so it is a floor on the
+    right correction rather than the correction itself; a single shared nuisance parameter
+    would be better and is a model change.
+    """
+    value = np.asarray(value, float)
+    return np.abs(np.asarray(v_rot, float) * np.asarray(v_err, float)) / np.maximum(value, 1e-6)
 
 
 def _asym(t: Table, base: str) -> tuple[np.ndarray, np.ndarray]:
@@ -247,6 +291,10 @@ def _hst_ours(component: str) -> BinnedProfile:
     col = "sigma_pmr" if component == "pmr" else "sigma_pmt"
     r = np.asarray(t["r_median"], float)
     err = np.asarray(t[col + "_err"], float)
+    if component == "pmt":                      # the rotation term is uncertain; carry it
+        v = pm_rotation_curve(r)
+        err = np.hypot(err, streaming_error_on_sigma(np.asarray(t[col], float), v,
+                                                     pm_rotation_error(r)))
     other = "hst_pm_tangential_ours" if component == "pmr" else "hst_pm_radial_ours"
     note = ("our measurement from selection_hq_astrometry stars, cluster+field mixture, "
             "reaching 360 arcsec where the published profile stops at 300")
@@ -258,7 +306,8 @@ def _hst_ours(component: str) -> BinnedProfile:
         shares_stars_with=(other, "hst_pm_radial", "hst_pm_tangential", "hst_pm_combined"),
         note=note + ("; radial PM carries no rotation term" if component == "pmr" else
                      "; <mu_T>^2 from the Vasiliev & Baumgardt 2021 curve added to the model"),
-        streaming2=None if component == "pmr" else pm_rotation_curve(r) ** 2)
+        streaming2=None if component == "pmr" else pm_rotation_curve(r) ** 2,
+        r_nodes=_radial_nodes_from(t))
 
 
 def _edr3_ours_component(component: str) -> BinnedProfile:
@@ -274,6 +323,10 @@ def _edr3_ours_component(component: str) -> BinnedProfile:
     col = "sigma_pmr" if component == "pmr" else "sigma_pmt"
     err = np.asarray(t[col + "_err"], float)
     mean = np.asarray(t["mean_pmr" if component == "pmr" else "mean_pmt"], float)
+    # the fitted mean carries the dispersion's own uncertainty, ~ sigma/sqrt(N)
+    mean_err = np.asarray(t[col], float) / np.sqrt(np.maximum(
+        (1.0 - np.asarray(t["f_field"], float)) * np.asarray(t["n_stars"], float), 1.0))
+    err = np.hypot(err, streaming_error_on_sigma(np.asarray(t[col], float), mean, mean_err))
     other = "gaia_edr3_ours_tangential" if component == "pmr" else "gaia_edr3_ours_radial"
     return BinnedProfile(
         name="gaia_edr3_ours_radial" if component == "pmr" else "gaia_edr3_ours_tangential",
@@ -282,7 +335,7 @@ def _edr3_ours_component(component: str) -> BinnedProfile:
         value=np.asarray(t[col], float), err_lo=err, err_hi=err, instrument="GaiaEDR3",
         shares_stars_with=(other, "gaia_edr3_ours", "gaia_edr3_pm", "gaia_dr2_pm"),
         note="our measurement, one component; the pair is nearly uncorrelated (rho = -0.08)",
-        streaming2=mean ** 2)
+        streaming2=mean ** 2, r_nodes=_radial_nodes_from(t))
 
 
 DATASETS: dict[str, Any] = {
@@ -366,6 +419,9 @@ class ProfileLikelihood:
     def _nodes(self, profile: BinnedProfile, pc_per_arcsec: float) -> tuple[np.ndarray, np.ndarray | None]:
         """Projected radii (pc) at which the model is needed for ``profile`` and the
         quadrature weights (``None`` for point-evaluated profiles)."""
+        if profile.r_nodes is not None:
+            # average over the stars actually measured: equal-count quantiles, equal weights
+            return profile.r_nodes.ravel() * pc_per_arcsec, np.full(profile.r_nodes.size, np.nan)
         if not profile.has_edges:
             return profile.r * pc_per_arcsec, None
         lo = profile.r_lower * pc_per_arcsec
@@ -384,7 +440,10 @@ class ProfileLikelihood:
     def _reduce(self, profile: BinnedProfile, m: dict[str, np.ndarray], R: np.ndarray,
                 w: np.ndarray | None, distance_kpc: float) -> np.ndarray:
         """Bin-average ``sigma^2`` with tracer weight ``Sigma R`` and convert units."""
-        if w is None:
+        if w is not None and profile.r_nodes is not None:
+            k = profile.r_nodes.shape[1]
+            value2 = self._sigma2(m, profile.kind).reshape(profile.n, k).mean(axis=1)
+        elif w is None:
             value2 = self._sigma2(m, profile.kind)
         else:
             shape = (profile.n, _BIN_NODES)

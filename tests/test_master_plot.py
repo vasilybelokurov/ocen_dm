@@ -28,7 +28,8 @@ def test_point_count_matches_the_likelihood():
     # 100 since 2026-09-19: HST moved from the published 40-point profile to our own 22-bin
     # measurement (per component, reaching 360 arcsec), and Gaia EDR3 split into its radial
     # and tangential components
-    assert data.n_points == 100
+    # 98 since the 2026-09-19 centre fix moved two HST bins below the minimum star count
+    assert data.n_points == 98
 
 
 def test_master_plot_renders(tmp_path):

@@ -3403,3 +3403,78 @@ The instrument overlap improves slightly: **1.011 +- 0.123** at 300-340 arcsec (
 0.125), 0.965 +- 0.069 at 300-380, 0.962 +- 0.029 for the corrected route.
 
 All products, the match and every figure regenerated.
+
+## 2026-09-20 -- the six review findings, applied
+
+### 1. Field template: parallax cut removed, template re-queried
+
+The query required `parallax_over_error < 5`; the science selection does not, so the template
+described a different population than the stars it was classifying. Cut removed, field
+re-queried: **192 054 -> 231 269 stars**.
+
+Effect on the dispersions: at most **0.33 sigma** (outermost tangential bin), nothing above
+0.15 sigma inside 1300 arcsec. Smaller than feared. My earlier inference about the direction
+of the bias was also wrong: I argued from the *science* sample split by parallax that the
+template overstated the field density at the cluster's proper motion by 2.4x, but measured on
+the template's own annulus the fraction within 1 mas/yr of systemic is **0.53 per cent either
+way**. The two populations differ in the science annulus, not in the template's.
+
+### 2. Rotation uncertainty now carried
+
+The curve is published with percentiles and we used only the median. An error `dv` moves the
+dispersion the model must predict by `v dv / sigma`; that is now added in quadrature.
+
+| dataset | bin | stat error | total after |
+|---|---|---|---|
+| HST tangential | 223.5" | 0.00088 | 0.00434 (x4.9) |
+| HST tangential | 270.5" | 0.00105 | 0.00604 (x5.7) |
+| HST tangential | 310.8" | 0.00244 | 0.00769 (x3.1) |
+| Gaia tangential | 436" | 0.01832 | 0.02486 (x1.36) |
+
+This was invisible while every error sat on the 1.4 per cent floor. It is a **floor** on the
+right correction: the rotation curve moves coherently between bins and is treated here as
+independent. A shared nuisance parameter would be correct and is a model change.
+
+### 3. Model averaged over the stars actually measured
+
+The likelihood averaged over complete annuli with `Sigma(R) R` weighting while the data
+average a selection whose coverage changes within the bin. Both products now store eight
+equal-count quantiles of the selected stars' radii, and `BinnedProfile.r_nodes` makes the
+likelihood average over those. HST's 300-340 arcsec bin has a star-weighted mean radius of
+**313.2 arcsec against the annulus midpoint of 320**. Effect on the prediction: up to
+**1.17 sigma** in the outer HST bins, as the review estimated.
+
+### 4. Shared calibration -- documented, not fixed
+
+The error-model systematic responds to one calibration choice and so moves every bin
+coherently, but it is added per bin in quadrature and consumed by a diagonal likelihood. The
+correct treatment is a shared nuisance parameter, which is a model change. Recorded in the
+write-up's limitations.
+
+### 5. Rotation figures corrected
+
+They subtracted streaming from data that were already dispersions about fitted means, and
+used the **combined** term for both components. Now they add the streaming back, per
+component, to show the second moment the model predicts. The radial term is ~0.002 and the
+tangential ~0.03-0.07 mas^2/yr^2, so the old figures moved the radial points by half the
+tangential streaming for no reason.
+
+### 6. Evidence comparisons bound to the observations
+
+`comparison_table` matched dataset *names*, so it would print a Bayes factor between a real
+run and a mock. It now fingerprints the datasets, the point count, the input hashes from
+`run.yaml` and the mock provenance. Verified: real vs mock now prints "n/a (different data)"
+plus an explicit warning; real vs real still gives Delta ln Z = -51.01.
+
+### Also
+
+* the failing point-count test fixed: **98**, not 100 -- the centre fix pushed two HST bins
+  below the minimum star count;
+* the tautological centre test replaced by one that matches the loader's radii star by star
+  against radii computed independently from the catalogue, and checks the old centre would
+  have failed it;
+* the centre literals carried to 8 decimals so the loader matches the derived value to a
+  milliarcsecond;
+* the three products predating the centre fix quarantined under
+  `data/processed/kinematics/_stale_pre_centre_fix/` with a README, rather than deleted, so
+  the older figures stay reproducible.

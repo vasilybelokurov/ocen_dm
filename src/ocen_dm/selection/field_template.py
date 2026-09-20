@@ -40,8 +40,17 @@ FROM gaia_dr3.gaia_source
 WHERE q3c_radial_query(ra, dec, {ra0}, {dec0}, {r_out})
   AND q3c_dist(ra, dec, {ra0}, {dec0}) > {r_in}
   AND pmra IS NOT NULL AND pmra <> 'NaN'::float8
-  AND phot_g_mean_mag < {g_max} AND parallax_over_error < 5
+  AND phot_g_mean_mag < {g_max}
 """
+
+#: The query above deliberately carries **no parallax cut**. Until 2026-09-20 it required
+#: ``parallax_over_error < 5``, which the science selection does not, so the template was
+#: built from a different population than the stars being classified. Measured in the
+#: outermost Gaia bin: 11.7 per cent of the stars that pass that cut sit within 1 mas/yr of
+#: the cluster's systemic motion against 1.9 per cent of those that fail it, so the template
+#: overstated the field density at the cluster's own proper motion by a factor 2.4 --
+#: precisely where the mixture has to decide. Cluster members in the template are not a
+#: worry at 0.75-1.6 deg, and `field_density_2d` measures beyond 1 deg in any case.
 
 PRODUCT = "ocen_field_template_dr3"
 
@@ -97,6 +106,7 @@ def build_product(g_max: float = 20.5, ruwe_max: float = 1.4, excess_noise_max: 
         "cuts": {"g_max": g_max, "ruwe_max": ruwe_max, "excess_noise_max": excess_noise_max,
                  "pm_error_max": pm_error_max, "parallax_over_error_max": 5},
         "annulus_deg": [R_INNER_DEG, R_OUTER_DEG], "area_arcmin2": float(area),
+        "parallax_cut": "none (removed 2026-09-20: it did not match the science selection)",
         "surface_density_per_arcmin2": float(keep.sum() / area),
         "frame": "systemic 3-D velocity projected star by star and subtracted, then radial/tangential "
                  "about the cluster centre; mu_sys = (%.4f, %.4f) mas/yr, v_los = %.1f km/s, D = %.2f kpc"

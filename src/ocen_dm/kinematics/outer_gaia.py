@@ -41,6 +41,21 @@ from .vb2021_replication import error_inflation, published_profile
 
 __all__ = ["PRODUCT", "R_MIN_ARCSEC", "DEFAULT_EDGES", "build_edr3_profile", "load_edr3_profile"]
 
+
+#: how many equal-count quantiles of the selected stars' radii to store per bin, so the
+#: likelihood can average the model over the radii actually observed rather than over a
+#: complete annulus. With coverage that changes inside a bin the two differ: in HST's
+#: 300-340 arcsec bin the selection-weighted mean radius is 310.8 arcsec against 319.5 for
+#: full-annulus tracer weighting, worth 1.3 statistical errors (Codex review, 2026-09-20).
+R_NODES = 8
+
+
+def _radial_nodes(r: "np.ndarray") -> "np.ndarray":
+    """Equal-count quantile midpoints of the selected radii: an unweighted average over
+    these reproduces an average over the stars themselves."""
+    q = (np.arange(R_NODES) + 0.5) / R_NODES
+    return np.quantile(np.asarray(r, float), q)
+
 PRODUCT = "ocen_pm_dispersion_edr3_ours"
 #: inside this radius the quality flag passes 5 stars in total: nothing to measure
 R_MIN_ARCSEC = 300.0
@@ -101,16 +116,18 @@ def build_edr3_profile(edges: np.ndarray | None = None, err_max_frac: float = 0.
             v = 0.5 * (out["raw"][f"sigma_{c}"] + out["eta"][f"sigma_{c}"])
             sy = 0.5 * abs(out["raw"][f"sigma_{c}"] - out["eta"][f"sigma_{c}"])
             comp[c] = (v, float(np.hypot(out["raw"][f"sigma_{c}_err"], sy)))
+        nodes = _radial_nodes(base.r_arcsec[m])
         rows.append((lo, float(np.median(base.r_arcsec[m])), hi, int(m.sum()), value, stat, sys_err,
                      float(np.hypot(stat, sys_err)), sig["raw"], sig["eta"],
                      comp["r"][0], comp["r"][1], comp["t"][0], comp["t"][1],
                      mean_r, mean_t, 0.5 * (mean_r ** 2 + mean_t ** 2),
                      0.5 * (out["raw"]["f"] + out["eta"]["f"]), float(np.median(eta[m])),
-                     float(np.median(base.g_mag[m]))))
+                     float(np.median(base.g_mag[m])), *nodes))
     t = Table(rows=rows, names=("r_lower", "r_median", "r_upper", "n_stars", "sigma_pm", "sigma_stat",
                                 "sigma_sys", "sigma_pm_err", "sigma_raw", "sigma_eta", "sigma_pmr",
                                 "sigma_pmr_err", "sigma_pmt", "sigma_pmt_err", "mean_pmr",
-                                "mean_pmt", "streaming2", "f_field", "median_eta", "median_g"))
+                                "mean_pmt", "streaming2", "f_field", "median_eta", "median_g",
+                                *[f"r_node{i}" for i in range(R_NODES)]))
     t.meta.update({
         "product": PRODUCT, "err_max_frac": err_max_frac, "r_min_arcsec": float(edges[0]),
         "distance_kpc": distance_kpc, "quality_bit": QUALITY_BIT,
