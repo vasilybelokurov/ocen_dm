@@ -4085,3 +4085,29 @@ factor 2 > non-Kepler corrections > initial anisotropy > the algebra, which is n
 then specifies N0-N6 with set-up, what each verifies, pass criteria and cost. N1 (the closed
 form) is done and passed. Minimum useful set N0+N2+N3 = one working day; N4 delivers
 rho_DM(20 pc) per orbital class for the WD comparison.
+
+## 2026-09-21 -- rung-0 analysis written up
+
+`docs/RUNG0_ANALYSIS.md`. Beyond the chi2 diagnosis already journalled, one new finding: the
+sigma_T/sigma_R ratio, corrected for the rotation the model already subtracts, is -8% at
+5.8-8 pc and +12 to +18% at 34-55 pc. Within Gaia alone the data ratio rises monotonically
+0.86 (11 pc) -> 1.18 (55 pc), crossing unity at ~27 pc. That is the classical anisotropy
+profile of a tidally limited cluster: isotropic core, radial at 4-20 pc (beta ~ +0.25),
+tangential beyond ~30 pc (beta ~ -0.2 to -0.4). A single rotation-curve normalisation error
+cannot produce the sign reversal, so anisotropy is the natural reading; the rotation variants
+remain the cheap competing test.
+
+Consequence: a constant beta (rung 1) cannot fit a sign reversal -- the deferred beta(r)
+turnover parameter is now required, and rung 2 is promoted from optional to necessary.
+
+Second new finding: the DM "evidence" decomposes as Delta chi2 = -10 total, of which Gaia
+tangential -14 and Gaia radial +6, both at 34-55 pc where the data demand beta < 0. The cored
+halo is acting as a proxy for tangential anisotropy; the +1.1 in ln Z is not a statement about
+dark matter. Rung-0 M_DM limits must not be quoted.
+
+Also recorded: kinematic distance 5.311-5.313 +- 0.021 kpc in all three runs, 2.4 prior sigma
+below the 5.43 +- 0.05 prior and 2.4x tighter -- to be re-checked at rung 1 since anisotropy
+changes the PM-to-LOS ratio; M_BH = 4.3-4.7e4 +- 8% in all three; total central mass stable at
+3.1-3.2e6 while the star/remnant split moves by 6e5 when a halo is added; and a note that the
+NFW family needs the ultranest step sampler at rungs 1-2 (20.6 h and 1.4e7 calls at rung 0,
+most of it on the M_DM-r_s ridge).
