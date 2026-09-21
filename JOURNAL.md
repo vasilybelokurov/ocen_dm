@@ -4008,3 +4008,35 @@ input hashes are now taken at launch, not at the end (the Gaia EDR3 profile was 
 17:22 during the test-suite run with identical numbers, which made the comparison table flag
 the two runs as "different observations" although they fitted the same data). Which code path
 rewrote the product is not identified (no test calls build_edr3_profile directly).
+
+## 2026-09-21 -- rung 0 complete (all three), and Section 11 experiment N1 done
+
+K2-NFW finished after 20.6 h / 1.43e7 calls: ln Z = -190.09 +- 0.35, chi2_ml 763.1/89,
+M_DM(<100 pc) = 5.3e5 [0.23, 11.9] x1e5 (95% upper limit 1.64e6), r_s 123 [7, 544] pc.
+
+Three-way (89 points, isotropic, no instrument scales):
+  K1 no DM     ln Z = -190.02 +- 0.48   max ln L -169.7   chi2 772
+  K2 cored     ln Z = -188.94 +- 0.36   max ln L -164.4   chi2 761
+  K2 NFW       ln Z = -190.09 +- 0.35   max ln L -165.5   chi2 763
+Delta ln Z: cored - K1 = +1.08 +- 0.60; NFW - K1 = -0.07 +- 0.59; cored - NFW = +1.15 +- 0.50.
+No evidence for dark matter at rung 0; the NFW form is indistinguishable from no halo. 95%
+upper limits on M_DM(<100 pc): 3.1e6 (cored), 1.6e6 (NFW).
+
+Comparability of the evidences verified directly: recomputing K1's chi2 at its stored ML point
+with today's files reproduces all five per-dataset values to 5 significant figures, so the
+Gaia-product hash change of 20 Sep 17:22 was cosmetic (metadata) and the three runs fitted
+identical data. The report's warning is therefore a false positive on these runs.
+
+All three fits are poor in the same place: HST tangential chi2 477-484 for 21 points, data
+below model by up to 10 sigma beyond ~100 arcsec, while HST radial is 150-160 and MUSE 76-77.
+The DM cannot fix it (it acts outward, the misfit is at 150-300 arcsec where it would need
+sigma_T < sigma_R). This is the anisotropy signal rung 1 (constant beta) is meant to absorb;
+until then the DM limits are conditional on isotropy.
+
+Section 11 experiment N1 (verification of F_gamma(x) = 1 - I_x(gamma-1/2, 3/2)): passed.
+Quadrature of the physical Eddington integral matches the closed form to 1e-15 for gamma = 1
+and 1.5; Monte Carlo with a numerical inverse-CDF agrees within 1.1 sigma at x = 0.1, 0.3, 0.6
+(now a test). Two sampler bugs found and fixed on the way -- a rejection envelope that is not an
+upper bound when gamma < 1.5 (biased the retained fraction 0.60 -> 0.87), and trapezoid CDF
+bias at the integrable endpoint singularity (0.6%); both would have poisoned N2-N4, which reuse
+this sampling machinery.
