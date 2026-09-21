@@ -4040,3 +4040,48 @@ and 1.5; Monte Carlo with a numerical inverse-CDF agrees within 1.1 sigma at x =
 upper bound when gamma < 1.5 (biased the retained fraction 0.60 -> 0.87), and trapezoid CDF
 bias at the integrable endpoint singularity (0.6%); both would have poisoned N2-N4, which reuse
 this sampling machinery.
+
+## 2026-09-21 -- where the rung-0 chi2 comes from
+
+Diagnosis at the K2-cored ML point (per-point residuals, chi2 split by radius):
+
+  dataset                 R<50"        50-150"        >150"
+  HST radial          12.9 (11 pts)  49.5 (5)     90.1 (5)
+  HST tangential      13.6 (11)     165.8 (5)    304.4 (5)
+  MUSE LOS             9.5 (13)      27.5 (10)    38.9 (6)
+
+Inside 50 arcsec the fit is excellent for all three datasets (1.2, 1.2, 0.7 per point). Every
+bit of the bad chi2 is beyond 50 arcsec, and two thirds of the total comes from the HST
+tangential component alone.
+
+The *physical* size of the misfit is small: HST radial data are +1.2% above the model at
+138-224", HST tangential -3.7 to -10% below at 108-311", MUSE -9.4% at 290". These become 6-11
+sigma only because the HST statistical errors there are 0.16-0.35%. A chi2 of 761 corresponds
+to a model wrong by a few per cent.
+
+The signature is a *ratio* error, not a mass error. sigma_T/sigma_R in the data falls from
+0.99 at 41" to 0.85 at 311"; the model (which already subtracts the published rotation from the
+tangential component) only falls to 0.92. The geometric mean of the two components is matched
+to 2-3%, i.e. the enclosed mass is fine; what is missing is either radial anisotropy
+(beta ~ 0.15-0.25 at 4-8 pc) or more tangential streaming (an extra 5.8 km/s in quadrature at
+223", on top of the 4.45 km/s the published curve already supplies -- i.e. a 64% larger rotation
+amplitude). The MUSE LOS deficit at the same radius favours anisotropy, since sigma_LOS at large
+projected R samples the tangential direction and is measured by an independent instrument.
+
+Error inflation alone cannot rescue it: adding a systematic floor in quadrature gives
+chi2(89) = 761 (raw), 428 (0.5%), 271 (1%), 144 (2%), and HST tangential remains the largest
+contributor at every floor. The shape is wrong, not just the error bars.
+
+Consequence: all three rung-0 models are misspecified in the same way, the evidence comparison
+is between three models that lack a needed degree of freedom, and the DM limits (3.1e6 cored,
+1.6e6 NFW within 100 pc) are conditional on isotropy. Rung 1 (constant beta) is required before
+any DM statement; the rotation alternative is testable with the --gaia-rotation ours variant and
+with the equivalent HST switch.
+
+## 2026-09-21 -- Section 11 test programme written up
+
+`docs/SECTION11_TESTS.md`: ranks the uncertainties in Section 11 (r_J definition 1.8x > gamma_ad
+factor 2 > non-Kepler corrections > initial anisotropy > the algebra, which is now verified),
+then specifies N0-N6 with set-up, what each verifies, pass criteria and cost. N1 (the closed
+form) is done and passed. Minimum useful set N0+N2+N3 = one working day; N4 delivers
+rho_DM(20 pc) per orbital class for the WD comparison.
