@@ -131,3 +131,7 @@ equilibria. They do not establish that the compact family fits Omega Cen or
 can recover dark density without bias. Matched and independent mock recovery,
 prior and outer-taper sensitivity, tracer-selection/equipartition checks,
 and subsequent rotation/flattening tests remain separate research stages.
+
+The next stage is the [matched-family compact DF recovery experiment](COMPACT_DF_RECOVERY.md),
+with noiseless no-DM and injected-halo mocks, two starting points, and separate
+checks of numerical accuracy, observable residuals, and physical mass recovery.
