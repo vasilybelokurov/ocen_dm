@@ -1,0 +1,88 @@
+{
+  "description": "Unfitted validation starting point and bounded optimizer coordinates; not calibrated inference priors. Gaussian halo taper r_t fixed at 1000 pc. Photometric light normalization is profiled by the pilot.",
+  "model": {
+    "schema_version": 1,
+    "family": "regularized_exponential",
+    "M_star": 3000000.0,
+    "stellar": {
+      "J0": 300.0,
+      "alpha": 1.5,
+      "b_out": 0.5,
+      "J_a": 300.0,
+      "b_outer": null,
+      "J_outer": null
+    },
+    "matter": {
+      "rho20": 0.0,
+      "r_s": 30.0,
+      "gamma": 0.0,
+      "r_t": 1000.0,
+      "M_rem": 300000.0,
+      "a_rem": 3.0
+    },
+    "numerics": {
+      "r_min": 0.0001,
+      "r_max": 10000.0,
+      "potential_nodes": 128,
+      "velocity_nodes": 32,
+      "moment_nodes": 240,
+      "projection_nodes": 128,
+      "max_iterations": 50,
+      "iteration_tolerance": 0.0005,
+      "closure_tolerance": 0.005,
+      "mass_tolerance": 0.005
+    },
+    "contours": {
+      "action_nodes": 192,
+      "circularity_nodes": 65,
+      "normalization_order": 160,
+      "ode_rtol": 2e-09,
+      "normalization_tolerance": 2e-05,
+      "frequency_mode": "exact"
+    },
+    "distance_kpc": 5.43,
+    "seed_radius": 5.0
+  },
+  "fit_coordinates": [
+    {
+      "path": "M_star",
+      "lower": 1000000.0,
+      "upper": 6000000.0,
+      "log": true
+    },
+    {
+      "path": "stellar.J0",
+      "lower": 100.0,
+      "upper": 800.0,
+      "log": true
+    },
+    {
+      "path": "stellar.alpha",
+      "lower": 0.6,
+      "upper": 3.0
+    },
+    {
+      "path": "stellar.b_out",
+      "lower": -1.0,
+      "upper": 1.0
+    },
+    {
+      "path": "stellar.J_a",
+      "lower": 50.0,
+      "upper": 3000.0,
+      "log": true
+    },
+    {
+      "path": "matter.M_rem",
+      "lower": 100.0,
+      "upper": 1000000.0,
+      "log": true
+    },
+    {
+      "path": "matter.a_rem",
+      "lower": 0.3,
+      "upper": 20.0,
+      "log": true
+    }
+  ]
+}

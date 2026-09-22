@@ -9,8 +9,11 @@
 \newcommand{\ocen}{$\omega$\,Cen}
 \title{\ocen: kinematic data preparation for the dark-matter inference}
 \author{oCen\_dm project notes}
-\date{2026 September 19}
+\date{2026 September 21}
 
+\usepackage{microtype}
+\usepackage{adjustbox}
+\setlength{\emergencystretch}{2em}
 \begin{document}
 \maketitle
 
@@ -27,7 +30,9 @@ quality-flagged \emph{Gaia} stars available there; a Pristine-based measurement 
 different membership definition agrees with \emph{Gaia} to $0.5\pm1.2$ per cent, though it
 is not an independent astrometric check because its proper motions are the same \emph{Gaia}
 measurements. Both published profiles are reproduced to a few tenths of a per cent. The
-final dataset is 127 binned points from five profiles spanning $0.05$--$57$\,pc.
+current dataset is 89 binned points from five profiles spanning approximately
+$0.1$--$55$\,pc at the rung-0 distance. The current selections are tested, but correlated
+systematics, tracer differences and the outer equilibrium assumption remain open.
 \end{abstract}
 
 \section{Scope and principle}
@@ -50,6 +55,7 @@ Such stars are therefore excluded rather than modelled.
 \begin{table}[h]
 \centering
 \small
+\begin{adjustbox}{max width=\linewidth}
 \begin{tabular}{llll}
 \toprule
 Dataset & Source & Content & Role \\
@@ -62,7 +68,8 @@ Pristine periphery & \citet{kuzma2025} & $1.57\times10^5$ stars to $5.1^\circ$ &
 Periphery spectroscopy & \citet{kuzma2026} & 592 LOS velocities to $3.15^\circ$ & external check \\
 \bottomrule
 \end{tabular}
-\caption{Catalogues used. Only the first four enter the likelihood.}
+\end{adjustbox}
+\caption{Catalogues used. Only the first three enter the current likelihood; Gaia DR2 remains a legacy comparison.}
 \end{table}
 
 \section{The cluster centre}
@@ -89,7 +96,10 @@ The underlying centre carries about $1''$ of its own uncertainty, which is not p
 \section{The dispersion estimator}
 \label{sec:estimator}
 
-All profiles measured in this project use the same estimator, applied per annulus.
+The current HST, Gaia and Pristine measurements use the same mixture estimator, applied
+per annulus. Published MUSE dispersions are ingested separately. Diagnostic examples below
+record the data-preparation sequence; the current Gaia table and the final likelihood table
+identify the products frozen for rung 0.
 
 \paragraph{Model.} Each star contributes a two-component mixture. The cluster is a
 two-dimensional Gaussian whose principal axes follow that star's own radial direction,
@@ -180,6 +190,7 @@ published profile across the full radial range:
 
 \begin{table}[h]
 \centering\small
+\begin{adjustbox}{max width=\linewidth}
 \begin{tabular}{rrrrr}
 \toprule
 $r$ ($''$) & $N$ & ours (\masyr) & published & ratio \\
@@ -194,6 +205,7 @@ $r$ ($''$) & $N$ & ours (\masyr) & published & ratio \\
 310.8 & 16912 & $0.5257\pm0.0020$ & 0.5199 & 1.011 \\
 \bottomrule
 \end{tabular}
+\end{adjustbox}
 \caption{Median ratio $1.0042$, scatter $2.5$ per cent, the scatter arising in the innermost
 bins where only a few hundred stars pass the flag.}
 \end{table}
@@ -251,43 +263,45 @@ $0.951$. Raw errors under-correct, the density-only $\eta$ over-corrects.
 
 \subsection{Our measurement}
 
-We therefore avoid depending on either. The profile uses quality-flagged stars with
+We reduce sensitivity to this choice by selecting stars with small errors. The profile uses quality-flagged stars with
 $\tfrac12(\epsilon_\alpha+\epsilon_\delta) < 0.4\,\sigma_{\rm pub}(R)$, where
 $\sigma_{\rm pub}$ is the published profile used only as a pilot. The intended bound is
 $\tfrac12(0.4)^2(\eta^2-1)\simeq2$ per cent; it is approximate rather than strict, because
 the threshold is applied to the arithmetic mean of the two component errors and against a
-pilot rather than the inferred dispersion, so an individual component may exceed it. The
-quoted value is the midpoint of the raw-error and $\eta$-inflated fits, with half their
-separation carried as a systematic. That half-separation is a \emph{sensitivity} to the
-choice of error model; it is not demonstrated to bracket the truth, since both endpoints
-share the same error-model assumptions.
+pilot rather than the inferred dispersion, so an individual component may exceed it. The default measurement uses raw errors. The $\eta$ fit is stored as a separate variant;
+half their separation is retained as a sensitivity diagnostic and is \emph{not} added to
+the current statistical error. Neither the two endpoints nor their midpoint is established
+to bracket the true dispersion.
 
 \begin{table}[h]
 \centering\small
+\begin{adjustbox}{max width=\linewidth}
 \begin{tabular}{rrrrrrr}
 \toprule
 $r$ ($''$) & $N$ & $\sigma$ (\masyr) & stat & sys & $\sigma_T/\sigma_R$ & $f_{\rm field}$ \\
 \midrule
-356 & 52 & 0.4790 & 0.0335 & 0.0001 & 0.949 & 0.04 \\
-437 & 276 & 0.4504 & 0.0141 & 0.0007 & 0.823 & 0.06 \\
-533 & 1477 & 0.4356 & 0.0064 & 0.0017 & 0.865 & 0.06 \\
-662 & 2754 & 0.4019 & 0.0046 & 0.0019 & 0.869 & 0.10 \\
-830 & 3176 & 0.3614 & 0.0040 & 0.0016 & 0.942 & 0.16 \\
-1043 & 2895 & 0.3204 & 0.0042 & 0.0012 & 0.985 & 0.34 \\
-1328 & 2552 & 0.2934 & 0.0050 & 0.0008 & 1.088 & 0.59 \\
-1690 & 2615 & 0.2523 & 0.0070 & 0.0005 & 1.081 & 0.85 \\
-2148 & 3261 & 0.2314 & 0.0117 & 0.0004 & 1.171 & 0.95 \\
+357 & 50 & 0.4925 & 0.0352 & 0.0002 & 0.931 & 0.04 \\
+436 & 267 & 0.4440 & 0.0142 & 0.0007 & 0.839 & 0.06 \\
+532 & 1474 & 0.4365 & 0.0062 & 0.0017 & 0.859 & 0.06 \\
+662 & 2764 & 0.4036 & 0.0042 & 0.0019 & 0.870 & 0.10 \\
+830 & 3182 & 0.3627 & 0.0037 & 0.0016 & 0.940 & 0.17 \\
+1044 & 2891 & 0.3222 & 0.0040 & 0.0012 & 0.988 & 0.34 \\
+1328 & 2556 & 0.2917 & 0.0049 & 0.0008 & 1.081 & 0.59 \\
+1692 & 2612 & 0.2546 & 0.0071 & 0.0004 & 1.103 & 0.85 \\
+2149 & 3294 & 0.2314 & 0.0115 & 0.0003 & 1.176 & 0.96 \\
 \bottomrule
 \end{tabular}
-\caption{The error-model systematic is $0.1$--$0.4$ per cent against $1.4$--$6$ per cent
-statistical, so the selection achieved its purpose. The anisotropy is radial inside
-$\sim1000''$ and tangential outside, which \citet{vasiliev2021} report independently.}
+\end{adjustbox}
+\caption{Current raw-error Gaia product, built 2026-09-20. The combined dispersion is
+shown for compactness; the likelihood uses the two components. ``sys'' is half the
+raw/eta separation, a diagnostic excluded from the default error. The ratio is projected
+and measured about fitted means; intrinsic anisotropy requires dynamical modelling.}
 \end{table}
 
-The inner edge is $300''$ because the flag passes five stars in total inside it. The two
-sparse inner bins are the most error-model-independent in the profile: 53 and 441 stars with
-errors of $0.025$--$0.044$\,\masyr\ against a dispersion near $0.47$, a ratio of 5--9 per
-cent.
+The inner edge is $300''$ because the flag passes five stars in total inside it. The current selected first two bins contain 50 and 267 stars. Earlier quality-flag
+counts quoted for different annuli or before the final error cut are not these fitted
+sample sizes. Their small errors make the innermost measurements relatively insensitive
+to the raw/eta choice.
 
 \section{Cross-validation}
 
@@ -298,6 +312,7 @@ $300$--$360''$. Three routes, differing in how HST's rejected stars are used, ag
 
 \begin{table}[h]
 \centering\small
+\begin{adjustbox}{max width=\linewidth}
 \begin{tabular}{lllc}
 \toprule
 Route & HST & \emph{Gaia} & \emph{Gaia}/HST \\
@@ -307,6 +322,7 @@ $300$--$380''$, both flagged & 16978 at $311''$ & 52 at $356''$ & $0.934\pm0.065
 $300$--$460''$, HST corrected & 92568 at $327''$ & 328 at $430''$ & $0.967\pm0.029$ \\
 \bottomrule
 \end{tabular}
+\end{adjustbox}
 \end{table}
 
 The three routes are not independent: they share the same HST stars and nest in radius, so
@@ -385,6 +401,7 @@ proper-motion cuts has not been established.
 
 \begin{table}[h]
 \centering\small
+\begin{adjustbox}{max width=\linewidth}
 \begin{tabular}{llrl}
 \toprule
 Key & Kind & $N$ & Radial span \\
@@ -396,6 +413,7 @@ Key & Kind & $N$ & Radial span \\
 \texttt{gaia\_edr3\_ours\_tangential} & PM tangential & 9 & $356$--$2148''$ \\
 \bottomrule
 \end{tabular}
+\end{adjustbox}
 \caption{89 points. HST is now our own measurement from flagged stars rather than the
 published profile, which reaches $360''$ instead of $300''$ and so genuinely overlaps
 \emph{Gaia}; and \emph{Gaia} enters as its two components rather than their combination, so
@@ -428,28 +446,28 @@ uniform $1.4$ per cent before.}
       massive ones, which have a lower dispersion.
 \item \textbf{Per-bin errors are treated as independent.} Shared stars between routes, a
       shared field template and spatially correlated \emph{Gaia} astrometric systematics are
-      not propagated. One case is specific and known: the error-model systematic (half the
-      separation between the raw-error and $\eta$-inflated fits) responds to a \emph{single}
-      calibration choice and therefore moves every bin coherently, but it is added to each
-      bin's error in quadrature and then consumed by a diagonal likelihood. A shared
-      nuisance parameter is the correct treatment; that is a change to the model and has not
-      been made.
+      not propagated. The raw/eta choice moves bins coherently and is now evaluated as separate fits;
+      its half-separation is no longer added in quadrature. Propagated rotation errors are
+      still treated independently across bins. Marginalisation over shared calibration
+      or rotation uncertainties is not implemented.
 \end{enumerate}
 
 \section{Rotation}
 
 The Jeans model predicts the full second moment, so each dataset is compared with
 $\sqrt{\sigma_{\rm model}^2-\langle\bar v^2\rangle}$. The streaming term is \emph{uncertain},
-and since 2026-09-20 that uncertainty is carried: an error $\delta v$ moves the dispersion
+and since 2026-09-20 that uncertainty is carried for our HST and Gaia profiles: an error $\delta v$ moves the dispersion
 the model must predict by $v\,\delta v/\sigma$, which is added in quadrature to the
-measurement error. It matters most where the statistical errors are smallest --- the HST
+measurement error. The MUSE rotation--dispersion covariance is unavailable and this
+propagation is not applied to MUSE. It matters most where the statistical errors are smallest --- the HST
 tangential uncertainties at $223$ and $270''$ grow by factors of $4.9$ and $5.7$ --- and it
 is a floor rather than the full correction, because the rotation curve moves coherently
 between bins and is here treated as independent. Where that streaming term comes from
 differs by instrument, and the difference is not cosmetic: it removes between 1 and 17 per
 cent of the squared dispersion in the \emph{Gaia} bins.
 
-\emph{Gaia} supplies its own: our estimator fits a mean motion per annulus. HST cannot.
+Gaia offers two choices: the default published rotation curve, or our fitted per-annulus
+means. HST cannot supply its own absolute rotation from these proper motions.
 Its proper motions are \emph{locally corrected}, with zero motion defined as the mean motion
 of the cluster stars in each patch, so the cluster's streaming has been spent on setting the
 reference frame. Measured directly, our mixture recovers a residual mean tangential motion of
@@ -458,14 +476,12 @@ $0.002$--$0.008$\,\masyr\ over $40$--$340''$ where the true rotation is $0.054$-
 \citet{vasiliev2021} curve, and our own cannot replace it, because we fit rotation only
 outside $356''$ where HST ends.
 
-The two available \emph{Gaia} curves agree closely (Figure~\ref{fig:audit}, lower right), and
-swapping one for the other moves the \emph{Gaia} points by $0.07$ to $0.49$ of their errors,
-$0.95\sigma$ in quadrature across nine points, with alternating signs. Figures
-\texttt{master\_datasets\_rotation\_ours.png} and
-\texttt{master\_datasets\_rotation\_published.png} show both, and the difference is
-invisible by eye because the largest shift is $0.30$\,\kms\ on an axis spanning $3$ to
-$26$\,\kms. Note that only the \emph{Gaia} points differ between those two figures: HST
-carries the published curve in both, so the ``ours'' variant is a hybrid.
+The two Gaia prescriptions change the model's streaming correction and propagated
+uncertainty; they leave the measured dispersions unchanged. The figures
+\path{master_datasets_rotation_ours.png} and
+\path{master_datasets_rotation_published.png} compare reconstructed second moments under
+the two choices. Only Gaia differs: HST carries the published curve in both. These
+figures are sensitivity diagnostics, not completed variant mass fits.
 
 \section{Choices left explicit}
 
@@ -482,13 +498,16 @@ switch, and the intention is to fit both and compare the mass models rather than
 \item \textbf{The rotation curve} (\texttt{--gaia-rotation}). The default is
       \texttt{published}: the \citet{vasiliev2021} curve, with its published percentiles
       propagated into the error. The alternative, \texttt{ours}, removes the mean motion our
-      own mixture fits in each annulus. The two agree to about 2 per cent in amplitude and
-      swapping them moves the data by $0.95\sigma$ in quadrature across nine points.
+      own mixture fits in each annulus. The measured dispersions stay fixed; the streaming variance and its propagated
+      uncertainty change. This is a sensitivity test, not an independent rotation dataset.
 \end{enumerate}
 
-The remaining known limitation is that both switches, and the rotation uncertainty now
-carried, act coherently across bins while the likelihood is diagonal. A shared nuisance
-parameter would be the correct treatment; comparing two fits is the chosen alternative.
+The calibration choices and rotation uncertainty can act coherently across bins while
+the likelihood is diagonal. Separate variant fits test sensitivity; they do not marginalise
+over that uncertainty. Reports now replay the saved likelihood arrays for new runs;
+legacy runs reload current products with their recorded Gaia options. Both paths check
+the saved best-sample likelihood before plotting (see \path{docs/CODE_ANALYSIS_AUDIT.md}).
+The CLI provides no HST rotation variant.
 
 \begin{figure}[p]
 \centering
@@ -496,7 +515,7 @@ parameter would be the correct treatment; comparing two fits is the chosen alter
 \caption{Every dataset in the likelihood, converted to \kms\ at $D=5.43$\,kpc so that proper
 motions and line-of-sight velocities share an axis. One symbol and colour per dataset
 throughout; the radial and tangential components of the same stars share that symbol and are
-distinguished by the marker fill. Middle: the anisotropy implied by those components. Bottom:
+distinguished by the marker fill. Middle: the projected component ratio used to diagnose anisotropy. Bottom:
 radial coverage and point count.}
 \end{figure}
 
@@ -514,7 +533,9 @@ rejected stars.}
 \includegraphics[width=0.98\textwidth]{pm_datasets_edr3_rebuild.png}
 \caption{The rebuilt \emph{Gaia} EDR3 measurement against the published spline and against
 our earlier version, which deconvolved the raw catalogue errors and ran 4--7 per cent high.
-The lower panel is the ratio to the published spline.}
+The lower panel is the ratio to the published spline. This is a historical preparation
+figure: its flagged-star counts and intermediate selections differ from the final fitted
+sample tabulated in this note.}
 \end{figure}
 
 \begin{figure}[p]
@@ -540,6 +561,7 @@ with the spectroscopic members overplotted. Right: their background-subtracted s
 density, truncating near the Jacobi radius.}
 \end{figure}
 
+\clearpage
 \begin{thebibliography}{9}
 \bibitem[Baumgardt et al.(2019)]{baumgardt2019} Baumgardt, H., Hilker, M., Sollima, A.,
   Bellini, A. 2019, MNRAS, 482, 5138.

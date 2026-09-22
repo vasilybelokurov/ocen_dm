@@ -37,7 +37,7 @@ import numpy as np
 from scipy import integrate, interpolate
 
 from ..mass_models.base import G, MassComponent
-from .anisotropy import Anisotropy
+from .anisotropy import Anisotropy, TurnoverAnisotropy
 
 __all__ = ["SphericalJeans", "KMS_PER_MASYR_KPC", "PROJECTIONS"]
 
@@ -71,7 +71,7 @@ class SphericalJeans:
 
     mass: MassComponent
     tracer: MassComponent
-    anisotropy: Anisotropy = Anisotropy()
+    anisotropy: Anisotropy | TurnoverAnisotropy = Anisotropy()
     r_max: float = 1e4
 
     # ------------------------------------------------------------ intrinsic ---

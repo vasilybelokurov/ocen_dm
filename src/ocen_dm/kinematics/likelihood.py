@@ -1,22 +1,18 @@
-"""Likelihood of the binned kinematic profiles given a spherical Jeans model.
+"""Binned dispersion likelihood for a spherical moment model.
 
-Three rules, each enforced in code rather than left to the user:
+The four measured HST/Gaia component profiles use equal-weight radial quantiles
+of selected stars. Other profiles use tracer-weighted annular averages where
+edges exist, or the published representative radius otherwise. Model second
+moments are converted to observed units and streaming variance is subtracted.
 
-1. **Bins, not bin centres.** A published dispersion is a statistic of the stars
-   between ``r_lower`` and ``r_upper``; the model is compared through the
-   tracer-weighted mean of ``sigma^2`` over the bin,
-   ``<sigma^2> = int Sigma(R) sigma^2(R) R dR / int Sigma(R) R dR``.
-   Profiles published without bin edges (a mean radius only) are evaluated at
-   that radius, and say so in their record.
-2. **Asymmetric errors** are used as published: a split normal with the upper
-   error when the model lies above the datum and the lower one below.
-3. **Independence.** The oMEGACat combined PM profile is built from the same
-   stars as its radial and tangential profiles; including it with either is
-   refused. Instrument-level nuisance scales exist for the Gaia profiles because
-   they disagree with HST by 20-25 per cent where they overlap (JOURNAL, 2026-09-16).
+Asymmetric errors use a continuous, normalised two-piece Gaussian. The default
+Gaia components use raw errors and published rotation; eta errors and measured
+Gaia streaming are explicit variants. HST always uses the external rotation
+curve. Rotation errors enter per bin for the measured PM profiles, not MUSE.
 
-Units: data radii in arcsec, LOS dispersions in km/s, PM dispersions in mas/yr;
-the model is converted at the model's distance, which is a parameter.
+Specific duplicate profile combinations are refused, but the likelihood is
+diagonal and does not establish independence of all allowed data. Instrument
+scales remain optional; the adopted ladder disables them explicitly.
 """
 
 from __future__ import annotations
@@ -253,13 +249,12 @@ def _vasiliev2021(r_min_arcsec: float = 0.0, n_max: int | None = 8) -> BinnedPro
 
 
 def _edr3_ours() -> BinnedProfile:
-    """Our own Gaia EDR3 dispersion profile, measured beyond 460 arcsec.
+    """Legacy combined Gaia profile, measured in annuli starting at 300 arcsec.
 
-    Replaces ``gaia_edr3_pm`` (a 2-5 node spline whose inner points are an inward
-    continuation over a region with no usable Gaia star). Built from quality-flagged stars
-    whose errors are small next to the signal, so the answer does not depend on the error
-    model; see :mod:`ocen_dm.kinematics.outer_gaia`. Bins are independent, the quoted error
-    already carries the error-model systematic, and rotation is returned as ``streaming2``.
+    The product now stores the raw-error value and statistical uncertainty.
+    The component loaders, used by the adopted fits, expose the error/rotation
+    choices explicitly. This legacy loader's note string still describes an
+    older midpoint construction; consult the product metadata and current docs.
     """
     from .outer_gaia import load_edr3_profile
     t = load_edr3_profile()

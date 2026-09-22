@@ -1,0 +1,14 @@
+# Fast software/integration check; particle count and duration are not scientific resolution.
+programme: remnant
+seed: 42
+components:
+  - name: dm
+    scale_pc: 20.0
+    cutoff_pc: 100.0
+    gamma: 1.0
+    mass_within_msun: 100000.0
+    radius_pc: 20.0
+    n_particles: 512
+    softening_pc: 0.2
+orbit: {kind: isolation, duration_myr: 0.2, sample_step_myr: 0.01}
+integrator: {max_step_myr: 0.001, levels: 2, output_step_myr: 0.05}

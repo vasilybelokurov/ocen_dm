@@ -1,5 +1,16 @@
 # N-body code for the host-disruption simulations: assessment (2026-09-20)
 
+> **Status, 2026-09-21:** this is a design/tool assessment, not a production simulation.
+> The current first experiments are [N0–N6](SECTION11_TESTS.md), beginning with a consistent
+> tidal radius and truncated equilibrium. Hardware timings below are historical measurements.
+> See the [audit](CODE_ANALYSIS_AUDIT.md) for limitations that remain unresolved.
+
+> **Implementation update:** use the in-repository
+> [dynamical experiment pipeline](DYNAMICAL_EXPERIMENTS.md), rather than the old
+> `satellite_experiment` scaffold. It includes joint equilibrium sampling, live and
+> frozen drivers, portable host inputs and identity-preserving diagnostics.
+
+
 ## What exists locally
 
 | item | state |
@@ -18,7 +29,7 @@
 
 ## Requirements of our problem
 
-1. Host: static axisymmetric (classes 1, 2) **and** time-dependent barred (class 3, slow-bar variants) potentials; semi-analytic dynamical friction for class 2 (falcON has no friction; add as a `UniformAcceleration`-type time series on the satellite's own orbit, or integrate the orbit with friction first and run the satellite in the frame moving on that orbit, as the AGAMA manual shows).
+1. Host: static axisymmetric (classes 1, 2) **and** time-dependent barred (class 3, slow-bar variants) potentials; semi-analytic dynamical friction for class 2 (falcON has no friction; add as a `UniformAcceleration`-type time series on the satellite's own orbit, with an explicit treatment of the corresponding bulk acceleration; a translating frame alone does not supply physical friction).
 2. Satellite: nucleus (3.6e6 Msun, r_h ~ 7 pc) + stars (1e8-1e9) + DM halo (1e10-1e11): three components, four decades in mass, three in size. Needs multi-mass particles with individual softening (falcON supports `eps<0`) and block time steps (`Nlev`, `fea`); the light nucleus particles will suffer heating from heavy DM particles unless the mass ratio is kept modest (~10-30) inside the nucleus's region.
 3. 8-10 Gyr, pericentres to 0.4 kpc; nucleus crossing time ~0.3 Myr -> smallest step ~0.02 Myr. With block steps only the ~2e4 nucleus particles take it.
 4. Output: bound mass of the nucleus + DM within its Jacobi radius vs time; needs snapshots every ~50 Myr.
@@ -38,4 +49,9 @@ Particle budget: nucleus 2e4 x 180 Msun, stars 1e5 x 1e3-1e4, DM 1e6 x 1e4-1e5 (
 
 ## Recommendation
 
-Use gyrfalcON with the AGAMA plug-in; rebuild the IC stage of `satellite_experiment` on AGAMA's self-consistent-model machinery (nucleus + stellar + DM components in equilibrium), and replace its analytic `Combined` host by the McMillan17 / Hunter24 INI files already used in `oCen_dm.tails`. Class-2 friction: run the satellite in the non-inertial frame of its friction orbit (AGAMA manual Sec. NEMO plugin), or accept the class-2 orbit as a prescribed path for the host potential's `center`. Keep pyfalcon as the fallback if per-particle control (friction on the bound mass only, custom outputs) turns out to matter.
+Use the new `ocen_dm.dynamics` driver with gyrfalcON and the AGAMA plug-in. Its
+McMillan17 and Hunter24 experiments use prescribed nucleus orbits without friction.
+Changing to a translating frame does not supply physical dynamical friction.
+Class-2 historical reconstructions still need a specified drag model coupled to
+the evolving bound mass, including a treatment of particles that escape. A Python
+force-driver interface remains an option when that per-particle control is needed.

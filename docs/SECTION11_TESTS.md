@@ -4,24 +4,54 @@
 truncated dark matter around a heavy nucleus"). Code: `src/ocen_dm/tails/truncated_equilibrium.py`;
 tests `tests/test_truncated_equilibrium.py`.*
 
-## What Section 11 claims, and what is actually uncertain
+## Status after the 2026-09-21 audit
 
-The section makes three quantitative claims:
+**Code update:** [DYNAMICAL_EXPERIMENTS.md](DYNAMICAL_EXPERIMENTS.md) describes the new
+initial-condition and live/frozen evolution drivers. The instantaneous tidal diagnostic
+has analytic circular-limit tests, and smoothly tapered joint equilibria have signed-DF
+and density-recovery checks. These provide machinery for the experiments below; the
+short software validation runs do not complete N2's hard energy-cut iteration or the
+long tidal experiments N3–N5.
+
+N1 is the only completed experiment in the full grid specified below. The energy-cut formula is verified for its stated
+Kepler, isotropic, power-law assumptions; it is not a validated tidal-loss prescription.
+At 20 pc the class-3 shock estimate accumulates to **0.112 over 66 identical passages**,
+not order unity. At 35 pc it reaches 1.52. Whether outer losses subsequently deplete the
+20-pc density is a question for N3/N4. The previous N2 setup also counted the cluster's
+stellar mass twice; the revised component definitions below remove that ambiguity.
+
+**Completed pilot comparison (21 September 2026).** Section 6 of
+[the dynamical write-up](dynamical_batch.pdf) now evaluates a fixed-potential
+energy cut in the actual cusp/core initial DFs and compares the scalar shock
+estimate with the completed 88-Myr live/frozen pilot. This supplies partial
+N2/N3/N5 evidence, without completing their proposed parameter grids or N2's
+self-consistent iteration. At 20 pc the instantaneous energy cut predicts
+10.18%/14.71% density loss, while the live simulations give 2.50%/4.66%.
+The scalar pericentre energy estimate is much smaller than the full-orbit
+mean; extended internal orbits, disc crossings and continued work on escapers
+prevent interpreting that discrepancy as a fitted adiabatic correction.
+See `results/plot_data/dynamical_analytics.json` and `bin/compare_dynamical_analytics.py`.
+
+## What Section 11 estimates, and what is actually uncertain
+
+The section uses three approximations:
 
 1. **Energy truncation.** A tracer ρ ∝ r^−γ in the nucleus's Kepler potential has the isotropic
    DF f(E) ∝ (−E)^(γ−3/2); truncating it at Φ(r_J) leaves the fraction
    F_γ(x) = 1 − I_x(γ−½, 3/2) of the initial density at r = x r_J. At 20 pc:
    0.35 (γ = 1, r_J = 70 pc), 0.14 (γ = 1, r_J = 35 pc), 0.60 / 0.28 for γ = 3/2.
-2. **Re-adjustment is small**, because the nucleus (3.55 × 10⁶ M☉ inside ~7 pc) dominates the
-   potential over the ≲ 10⁶ M☉ of DM inside 70 pc, and phase mixing takes ~10⁸ yr.
+2. **Re-adjustment is small**, because a nucleus with total mass 3.55 × 10⁶ M☉ and approximate 3-D half-mass radius 7 pc
+   can dominate low-DM models. Some grid choices have comparable DM mass; the small-response
+   approximation must be checked model by model. The phase-mixing estimate is ~10⁸ yr.
 3. **Shock heating** per pericentre is ΔE/|E| ≈ (Δv/σ)² (1 + ω²τ²)^−γ_ad with γ_ad ≈ 1.5, giving
-   20 pc adiabatically protected for classes 1–2 but eroded for class 3.
+   much stronger local heating in class 3. The current arithmetic does not establish
+   order-unity heating at 20 pc within that history.
 
 Ranked by how much they can move the answer, the uncertainties are:
 
 | rank | uncertainty | size of the effect on ρ_DM(20 pc) |
 |---|---|---|
-| 1 | **the definition of r_J** — the simple r_peri[M/3M_host]^{1/3} gives 33 pc at the class-3 pericentre, the form with the d ln M/d ln r term gives 59 pc | ~3× (through F_γ(r/r_J)) |
+| 1 | **the definition of r_J** — the simple r_peri[M/3M_host]^{1/3} gives 33 pc at the class-3 pericentre, a historical slope-corrected estimate was 59 pc, but has not been reproduced consistently | ~3× (through F_γ(r/r_J)) |
 | 2 | **γ_ad and the impulsive approximation** at ωτ ~ 1 | factor ~2 in the number of passages to erosion |
 | 3 | **departures from Kepler** (Plummer core inside ~10 pc, stars, DM self-gravity near r_J) | tens of per cent |
 | 4 | **anisotropy of the initial cusp** (radial loses more, tangential less) | tens of per cent |
@@ -41,9 +71,12 @@ without the substitution that produces the beta function.
 (b) Monte Carlo: sample p(v) ∝ v² (−E)^(γ−3/2) at fixed r by numerical inverse-CDF, cut
 E > Φ(r_J), measure the surviving fraction. Uses no beta-function identity.
 
-**Result — passed.** Quadrature agrees with 1 − I_x(γ−½, 3/2) to 2 × 10⁻¹⁶ (γ = 1) and
+**Result — passed in the recorded N1 experiment.** Quadrature agrees with 1 − I_x(γ−½, 3/2) to 2 × 10⁻¹⁶ (γ = 1) and
 6 × 10⁻¹⁷ (γ = 3/2) at x = 0.1, 0.3, 0.6. Monte Carlo with 4 × 10⁵ samples agrees within
-1.1 σ at all six points. Now a unit test (`test_truncation_formula_against_monte_carlo`).
+1.1 σ at all six points. The committed unit test (`test_truncation_formula_against_monte_carlo`) uses 4 × 10⁴
+samples per case and a four-sigma tolerance; it is a smaller regression check than the
+recorded 4 × 10⁵-sample experiment. The sampler is local to the test, not yet a reusable
+phase-space initial-condition generator.
 
 **Two sampler bugs found on the way**, both of which would have propagated into N2–N4 because
 they reuse this machinery:
@@ -58,21 +91,30 @@ they reuse this machinery:
 
 ## N0 — what is r_J, really? (minutes, no dynamics)
 
-**Set-up.** Along each of the nine orbits, evaluate the tidal tensor T_ij = −∂²Φ/∂x_i∂x_j from
-`agama.Potential.forceDeriv` in the frame co-rotating with the orbit, add the centrifugal term,
-diagonalise, and solve λ_max r³ = G M_nuc for the tidal radius. Compare with
-(i) r_peri [M_nuc/3M_host(<r_peri)]^{1/3} and (ii) the same with the (2 − d ln M/d ln r) factor.
+**Set-up.** First recover the circular, spherical reference
+`r_J³ = G M_sat / (Omega² - d²Phi/dR²)`, with `Omega² = G M_host(<R)/R³`.
+Thus the enclosed-mass denominator is **3 − d ln M_host/d ln R**, not 2 minus that slope.
+For a point-mass host the coefficient is 3; for a flat circular-speed curve it is 2.
+This follows by differentiating `dPhi/dR = GM_host/R²`; see the
+[galpy tidal-radius definition](https://docs.galpy.org/en/v1.5.0/reference/potentialrtide.html).
+
+Then evaluate the tidal tensor `T_ij = -d²Phi/dx_i dx_j` along each orbit, add the
+instantaneous centrifugal matrix for an explicitly defined rotating frame, and solve
+`lambda_max r³ = G M_sat(<r)` where a disruptive eigenvalue is positive. Compare with the
+existing coefficient-3 proxy and the circular spherical reference. An eccentric orbit in
+a slowing bar has no conserved Jacobi integral: this is an instantaneous scale, not an
+exact escape surface. Record the angular velocity and treatment of time-dependent terms.
 Report the value at pericentre and its variation around the orbit; do it in McMillan 2017,
 Hunter et al. 2024 axisymmetrised, and the barred Hunter potential at Ω_b = 24 (where the
 non-axisymmetric term contributes directly).
 
-**Verifies.** Rank-1 uncertainty. It is the input to every F_γ number in the section, and the two
-conventions currently in use differ by 1.8× at the class-3 pericentre (33 vs 59 pc), which is
-~3× in ρ_DM(20 pc).
+**Verifies.** Rank-1 uncertainty. It is the input to every F_γ number in the section, and the historical estimates differ by 1.8× (33 vs 59 pc), enough to change the retention
+factor substantially. Recalculate both under explicit conventions rather than treating
+the unverified 59-pc estimate as a validated reference.
 
-**Pass criterion.** A single stated convention with the spread between conventions quoted as a
-systematic; the barred-potential value within 20 % of the axisymmetric one (if not, class 3
-needs its own r_J).
+**Validation.** Recover the point-mass and flat-rotation circular limits and converge the
+force derivatives. Report the convention spread as a systematic. A barred/axisymmetric
+difference above 20% is a physical result to investigate, not a numerical test failure.
 
 **Cost.** Minutes. No new machinery beyond `forceDeriv`.
 
@@ -80,13 +122,23 @@ needs its own r_J).
 
 ## N2 — truncated equilibrium in the true potential (minutes, AGAMA, no dynamics)
 
-**Set-up.** Build the total potential: nucleus Plummer (3.55 × 10⁶ M☉, a = 5.4 pc if 7 pc is the
-3-D half-mass radius), stars (the project's MGE light model scaled to the rung-0 K1
-M★ = 2.9 × 10⁶ M☉), DM cusp (NFW 10⁹/10¹⁰/10¹¹ M☉ at z = 2 concentrations, plus c = 12 and a
-contracted γ = 3/2 and a cored γ = 0 variant). Obtain the DM distribution function by Eddington
-inversion **in the total potential** (`agama.DistributionFunction(type='QuasiSpherical')`), set
-f(E) = 0 above Φ(r_J) for the r_J values from N0, recompute ρ_DM(r), and iterate the potential
-once so the DM's own (small) contribution is consistent.
+**Set-up.** Define the baryonic mass once. Use either (a) a rigid Plummer approximation
+with total nucleus mass 3.55 × 10⁶ M☉ and a = 5.4 pc for a 7-pc 3-D half-mass radius, or
+(b) the full K1 stellar MGE + remnant + point-mass model, reconstructed from one saved
+parameter vector and its distance. **Do not add a 2.9 × 10⁶ M☉ cluster MGE on top of a
+3.55 × 10⁶ M☉ Plummer representing that same cluster.** An extra dwarf stellar envelope,
+if included, needs its own mass and profile.
+
+Add the DM model (NFW 10⁹/10¹⁰/10¹¹ M☉ with stated z = 2 concentrations, plus contracted
+and cored variants). Compute the DM DF in the combined potential, apply the energy cut
+at Phi(r_J), and iterate the DM potential to a stated convergence tolerance. Check
+recovered density and moments before and after sampling. AGAMA clips negative DF values,
+so a successful `QuasiSpherical` construction is not a positivity test. The gamma = 0
+variant cannot use the gamma > 1/2 Kepler power-law formula.
+
+Measure `M_DM(<r)/M_baryon(<r)` throughout the domain. If DM is not subdominant, bring
+self-gravity into the experiment at this stage; do not assume all grid points qualify
+for N3/N4's test-particle treatment and postpone the check until N5.
 
 **Variants.** (a) apocentre criterion r_apo(E, L) > r_J instead of the energy cut — these differ
 because a high-L orbit with E above Φ(r_J) never reaches r_J; the two bracket the truth.
@@ -118,8 +170,13 @@ the result is clean.
 
 **Pass criterion.** The impulsive scaling ΔE ∝ r² recovered where ωτ ≪ 1; the measured
 suppression at ωτ ≳ 1 within a factor 2 of (1 + ω²τ²)^−γ_ad; γ_ad fitted to ±0.3. A measured
-ΔE/|E| more than 3× the analytic value at 20 pc would overturn the "20 pc is protected"
-conclusion for classes 1–2.
+ΔE/|E| more than 3× the analytic value at 20 pc would reject the amplitude
+of that local approximation in a matched shock experiment. It would not
+by itself establish destruction of the 20-pc density. The completed pilot
+shows why: a small fraction of extended or escaping internal orbits can
+dominate the full-orbit cohort mean while most inner density remains.
+Isolated-shock calibration must match the forcing history, internal orbital
+frequencies, statistic and energy normalization before applying this criterion.
 
 **Cost.** ~1 h including set-up. This is the highest value-per-hour experiment in the list.
 
@@ -127,19 +184,29 @@ conclusion for classes 1–2.
 
 ## N4 — many passages: the number the WD comparison needs (hours)
 
+**Updated scope (21 September 2026).** The
+[long-term evolution plan](LIFETIME_EVOLUTION.md) specifies the density histories,
+stellar-survival comparisons and convergence controls now required. The frozen,
+rigid-nucleus experiments below establish conditional DM evolution. A present-day
+survival constraint additionally requires a responsive nucleus. The implemented
+class-3 history spans 8 natural units = 7.82234 Gyr; its original clock must be
+preserved. The costs below are planning estimates, not measured production runtimes.
+
 **Set-up.** As N3 but integrating the full histories: the class-1 orbit for 10 Gyr (~114
 pericentres) and the class-3 debris orbit for 8 Gyr (~66), the latter also once in the
 time-dependent barred potential of the companion note. Track the bound mass (energy in the
 nucleus frame < 0) and ρ_DM at 3, 10, 20, 35, 50, 70 pc as functions of time, with output every
 ~50 Myr and densely around pericentre.
 
-**Verifies.** The combination of truncation and shocks, i.e. the central claim of the section:
+**Tests.** The combination of truncation and shocks:
 whether the density at 20 pc is **truncation-limited** (classes 1–2 — the prediction is that it
-settles at F_γ × the initial cusp and then stays put) or **shock-limited** (class 3 — the
-prediction is continued erosion, with the effective boundary migrating inward from r_J).
+settles at F_γ × the initial cusp and then stays put) or continues to decline as outer orbits are heated (a class-3 hypothesis). The local
+20-pc heating estimate alone does not predict rapid erosion there.
 
-**Pass criterion.** ρ_DM(20 pc, t_final) within a factor 2 of F_γ × ρ_NFW for classes 1–2; a
-measurable decline for class 3. Convergence: two particle numbers (10⁴, 10⁵), two time steps.
+**Scientific comparison.** Test whether the final class-1/2 density lies within a factor
+2 of F_γ × ρ_initial, and measure rather than require a class-3 decline. Disagreement can
+falsify the approximation. **Numerical validation:** converge with two particle numbers
+(10⁴, 10⁵) and two time steps; separate numerical error from the physical discrepancy.
 
 **Deliverable.** The corrected ρ_DM(20 pc) per orbital class, which is what enters the white-dwarf
 heating comparison and the local DM mass fraction f_DM.
@@ -153,9 +220,8 @@ heating comparison and the local DM mass fraction f_DM.
 **Set-up.** Repeat one N4 case with a live DM component (10⁵ particles, pyfalcon or gyrfalcON,
 softening ≤ 1 pc) around the rigid nucleus potential.
 
-**Verifies.** That neglecting DM self-gravity is safe — justified a priori because the DM inside
-70 pc (≲ 10⁶ M☉) is subdominant to the nucleus (3.55 × 10⁶ M☉), but the re-adjustment claim
-(item 2 of Section 11) has not been tested.
+**Verifies.** That neglecting DM self-gravity is safe — checked first from N2's enclosed-mass ratios. Some initial profiles exceed 10⁶ M☉
+inside 70 pc, so this approximation is not valid across the grid by assumption.
 
 **Pass criterion.** Bound mass and ρ(20 pc) within 20 % of the test-particle run. If it passes,
 N3–N4 can be used for the full grid of halo masses and concentrations at negligible cost.

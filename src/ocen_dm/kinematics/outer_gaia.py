@@ -1,30 +1,18 @@
-"""Our own Gaia EDR3 proper-motion dispersion profile, built to be error-model independent.
+"""Measure Gaia EDR3 proper-motion dispersions with reduced error-model sensitivity.
 
-Why this exists, in one paragraph. The published EDR3 profile (Vasiliev & Baumgardt 2021,
-https://arxiv.org/abs/2102.09568) is a cubic spline with 2-5 nodes fitted over 0-2400 arcsec,
-so five of the eight points our likelihood took from it sit inside 380 arcsec where their own
-quality flag passes no star inside 200: an inward continuation, not a measurement. Our first
-replacement fixed that but deconvolved the **raw** Gaia uncertainties the catalogue carries,
-which are underestimated in crowded fields, and so ran 4-6 per cent high between 460 and 1000
-arcsec. Their density-dependent inflation removes that offset but over-corrects the faint end
-(:func:`~ocen_dm.kinematics.vb2021_replication.magnitude_consistency`). Neither error model is
-right, so this profile avoids depending on one:
+Quality-flagged stars are selected with mean component error below 0.4 times a
+pilot dispersion. This reduces, but does not eliminate, calibration sensitivity.
+The inner edge is 300 arcsec; the profile uses a two-dimensional empirical field
+model, full error covariance, and perspective/depth corrections.
 
-* **only stars whose errors are small next to the signal** (``err < err_max_frac * sigma(R)``,
-  default 0.4). A rescaling by ``eta`` can then move the deconvolved dispersion by at most
-  ``err_max_frac**2 (eta**2 - 1) / 2``, about 2 per cent, by construction;
-* the value quoted is the **midpoint** of the raw-error and inflated-error fits, and **half
-  their separation is carried as a systematic** added in quadrature to the statistical error.
-  The magnitude test shows the truth lies between the two;
-* **the inner edge is 300 arcsec**, where the quality flag first leaves anything at all: it
-  passes 5 stars inside 300, then 53 in 300-380 and 441 in 380-460. Those are few but they
-  are not nothing, and they are the *cleanest* stars in the whole Gaia sample -- errors of
-  0.025-0.044 mas/yr against a dispersion near 0.47, a ratio of 5-9 per cent, so the error
-  model is irrelevant there by a wide margin. They also fill the gap between HST's last
-  point at 311 arcsec and the bulk of the Gaia sample;
-* contamination is the two-dimensional empirical field template, and the fitted mean radial
-  and tangential motions absorb rotation, which is returned as ``streaming2`` so the Jeans
-  model can be compared with the full second moment.
+The default values and statistical errors are from the raw-error fit. The
+eta-inflated fit is stored separately. Half their separation is a diagnostic
+column, not an uncertainty added to the default errors and not a demonstrated
+bracket on the truth. The component likelihood selects the rotation prescription
+separately. Its default is the published curve.
+
+``build_edr3_profile`` writes the product. ``load_edr3_profile`` builds it if
+missing. Exact defaults and current counts are in ``docs/data_analysis.tex``.
 """
 
 from __future__ import annotations
@@ -109,8 +97,7 @@ def build_edr3_profile(edges: np.ndarray | None = None, err_max_frac: float = 0.
         stat = float(0.5 * np.hypot(out["raw"]["sigma_r_err"], out["raw"]["sigma_t_err"]))
         mean_r = 0.5 * (out["raw"]["mean_r"] + out["eta"]["mean_r"])
         mean_t = 0.5 * (out["raw"]["mean_t"] + out["eta"]["mean_t"])
-        # per-component values and errors: the midpoint of the two error models, with half
-        # their separation added in quadrature exactly as for the combined dispersion
+        # Store each error-model fit separately; the sensitivity is not added in quadrature.
         # Both error models are stored per component. The DEFAULT is the raw one: the
         # catalogue's own uncertainties, unmodified. The density-dependent inflation is kept
         # as an alternative to be refitted and compared, rather than folded into a midpoint

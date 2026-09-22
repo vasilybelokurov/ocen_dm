@@ -1,0 +1,17 @@
+# Matched to remnant_cusp in M_DM(<20 pc), scale and density taper.
+programme: remnant
+seed: 42
+nucleus: {mass_msun: 3550000.0, scale_pc: 5.4}
+components:
+  - name: dm
+    gamma: 0.0
+    outer_slope: 3.0
+    scale_pc: 20.0
+    cutoff_pc: 100.0
+    mass_within_msun: 100000.0
+    radius_pc: 20.0
+    beta: 0.0
+    n_particles: 100000
+    softening_pc: 0.2
+orbit: {kind: isolation, duration_myr: 20.0, sample_step_myr: 0.02}
+integrator: {max_step_myr: 0.02, levels: 4, output_step_myr: 0.5, theta: 0.5, accuracy: 0.00000001}

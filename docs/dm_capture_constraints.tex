@@ -11,8 +11,10 @@
 
 \title{Dark Matter Capture and Heating of White Dwarfs in Omega Centauri}
 \author{}
-\date{}
+\date{Updated 21 September 2026}
 
+\usepackage{adjustbox}
+\setlength{\emergencystretch}{2em}
 \begin{document}
 
 \maketitle
@@ -20,7 +22,9 @@
 \begin{abstract}
 White dwarfs (WDs) can act as calorimeters for dark matter (DM) in sufficiently dense environments. Dark matter particles passing through a WD can scatter, become gravitationally captured, thermalize, and, for annihilating DM, inject energy into the star. This can prevent old WDs from cooling below a characteristic luminosity or effective-temperature floor. Omega Centauri is a particularly interesting target because it is widely interpreted as the remnant nucleus of an accreted dwarf galaxy and may therefore retain some fraction of its original dark halo. At the same time, recent stellar-dynamical studies show that Omega Centauri contains a substantial population of centrally concentrated stellar remnants, potentially together with an intermediate-mass black hole, complicating attempts to infer the surviving particle-DM distribution from central kinematics.
 
-The deepest observed Omega Centauri WD cooling sequence, measured with HST by Scalco et al. (2024), lies at a projected radius of approximately 20 pc from the cluster centre and reaches the termination of the WD luminosity function at $m_{\rm F606W}=30.1\pm0.2$. The corresponding objects are old WDs with effective temperatures of order a few thousand kelvin and luminosities of order $10^{29}\,{\rm erg\,s^{-1}}$, although a quantitative conversion requires the appropriate WD cooling tracks and mass distribution. Existing kinematic and stripped-progenitor models suggest physically interesting DM densities at this radius of approximately $0.1$ to a few $M_\odot\,{\rm pc}^{-3}$, or several to approximately $100\,{\rm GeV\,cm^{-3}}$. The observed faint WD sequence therefore provides a potentially useful constraint on DM capture and heating at radii of order 20 pc, complementary to annihilation searches and central dynamical constraints.
+The deepest observed Omega Centauri WD cooling sequence, measured with HST by Scalco et al. (2024), lies at a projected radius of approximately 20 pc from the cluster centre and reaches the termination of the WD luminosity function at $m_{\rm F606W}=30.1\pm0.2$. The corresponding objects are old WDs with effective temperatures of order a few thousand kelvin and luminosities of order $10^{29}\,{\rm erg\,s^{-1}}$, although a quantitative conversion requires the appropriate WD cooling tracks and mass distribution. A working range of $0.1$ to a few $M_\odot\,{\rm pc}^{-3}$ is used for exploratory
+capture calculations. It is a scenario choice: the project's present kinematic fits and
+survival calculations do not yet establish a DM density posterior. The observed faint WD sequence therefore provides a potentially useful constraint on DM capture and heating at radii of order 20 pc, complementary to annihilation searches and central dynamical constraints.
 \end{abstract}
 
 
@@ -416,28 +420,37 @@ This should be treated as a physically motivated range for exploration, not as a
 \section{Predicted dark matter density inside Omega Centauri from the progenitor-orbit analysis}
 \label{sec:budget}
 
-The companion note (\texttt{progenitor\_orbits.pdf}) reconstructs three classes of orbital history for the host dwarf --- today's orbit throughout (class 1), infall from the virial radius under dynamical friction (class 2), and deposition by Gaia--Sausage--Enceladus followed by bar-driven migration (class 3) --- and walks Errani \& Navarro (2021) tidal tracks along them. Two results carry over.
+The companion note (\texttt{progenitor\_orbits.pdf}) reconstructs static, friction-driven
+and bar-migrating histories. Its tidal-track extrapolations lie outside the calibrated
+regime. The associated density comparison suggests that nuclear gravity may be important
+for retaining DM; it does not prove a surviving mass or the destruction of every bare halo.
 
-First, on every history a bare dark-matter halo is stripped far below the nucleus mass: a self-bound remnant would need a mean density $\simeq20$ times the Milky Way's mean density inside the pericentre, $1.7\times10^{10}$ (1.6\,kpc pericentres, classes 1--2) to $1.5\times10^{11}\,M_\odot\,{\rm kpc^{-3}}$ (0.4\,kpc, class 3), which an NFW cusp of $10^{10}\,M_\odot$ reaches only inside a few parsecs. Any dark matter around Omega Centauri today is therefore held by the nucleus's own potential.
-
-Second, the budget is then the initial dark matter inside the nucleus's Jacobi radius at the smallest pericentre, $r_J=r_{\rm peri}[M_{\rm nuc}/3M_{\rm MW}(<r_{\rm peri})]^{1/3}$: 33--36\,pc for class 3, 40--70\,pc for classes 1--2. For NFW haloes of $10^{9}$--$10^{11}\,M_\odot$ at $z=2$ this is $2\times10^{5}$--$1.2\times10^{6}\,M_\odot$ (class 3) and $0.3$--$4.4\times10^{6}\,M_\odot$ (classes 1--2).
+The tables estimate the \emph{initial} NFW mass inside a tidal-radius proxy at the smallest
+pericentre, $r_J=r_{\rm peri}[M_{\rm nuc}/3M_{\rm MW}(<r_{\rm peri})]^{1/3}$: 33--36\,pc for
+class 3 and 40--70\,pc for classes 1--2. The coefficient 3 is a point-mass circular-orbit
+approximation. The host slope, orbital angular speed and bar change this scale. Neither
+these aperture masses nor the profiles below are simulated bound remnants or posteriors.
+The programme in \texttt{docs/SECTION11\_TESTS.md} specifies the outstanding validation.
 
 \subsection{The density profile if the dark matter inside $r_J$ is retained}
 
-Figure~\ref{fig:dmrho} shows the simplest model consistent with these results: the initial NFW cusp, unchanged inside $r_J$ and exponentially truncated there,
+Figure~\ref{fig:dmrho} shows an illustrative spatial taper of the initial NFW cusp,
 \begin{equation}
 \rho_{\rm DM}(r)=\rho_{\rm NFW}(r;\,M_{200},c)\,e^{-r/r_J},
 \end{equation}
-for $M_{200}=10^{9},10^{10},10^{11}\,M_\odot$, concentrations $c=5,10,15$ and the two Jacobi radii, against the stellar density of the cluster (the project's MGE light model scaled to the fitted stellar mass $2.9\times10^{6}\,M_\odot$). The three radii of interest are marked: 3\,pc (where central kinematics and stellar remnants dominate), 10\,pc, and 20\,pc, the projected radius of the deep WD field.
+for $M_{200}=10^{9},10^{10},10^{11}\,M_\odot$, concentrations $c=5,10,15$ and the two Jacobi radii, against an illustrative stellar MGE scaled to $2.9\times10^{6}\,M_\odot$. This curve borrows
+the rung-0 stellar mass, but fixes $D=5.43$\,kpc and its own MGE grid; it does not replay
+the saved K1 model exactly. The three radii of interest are marked: 3\,pc (where central kinematics and stellar remnants dominate), 10\,pc, and 20\,pc, the projected radius of the deep WD field.
 
 \begin{figure}[h]\centering
 \includegraphics[width=\textwidth]{dm_density_in_rj_profiles.png}
-\caption{Dark matter retained inside the nucleus's Jacobi radius, $\rho_{\rm NFW}(r)\,e^{-r/r_J}$, for initial NFW haloes at $z=2$ (panels: $M_{200}$; colours: concentration; solid: $r_J=70$\,pc, classes 1--2; dashed: $r_J=35$\,pc, class 3), compared with the stellar density (black). Dotted lines mark 3, 10 and 20\,pc; the grey band is the $0.1$--$3\,M_\odot\,{\rm pc^{-3}}$ range discussed in Section~\ref{sec:whichrho}. Right axis in GeV\,cm$^{-3}$.}
+\caption{Illustrative DM density under a prescribed spatial taper, $\rho_{\rm NFW}(r)\,e^{-r/r_J}$, for initial NFW haloes at $z=2$ (panels: $M_{200}$; colours: concentration; solid: $r_J=70$\,pc, classes 1--2; dashed: $r_J=35$\,pc, class 3), compared with the stellar density (black). Dotted lines mark 3, 10 and 20\,pc; the grey band is the $0.1$--$3\,M_\odot\,{\rm pc^{-3}}$ range discussed in Section~\ref{sec:whichrho}. Right axis in GeV\,cm$^{-3}$.}
 \label{fig:dmrho}
 \end{figure}
 
 \begin{table}[h]\centering
-\caption{Retained dark matter density [$M_\odot\,{\rm pc^{-3}}$] at the three radii for $r_J=35$\,pc (class 3) / $70$\,pc (classes 1--2); stellar density $1230$, $117$, $9.1\,M_\odot\,{\rm pc^{-3}}$ at 3, 10, 20\,pc. Multiply by 38 for GeV\,cm$^{-3}$.}
+\caption{Illustrative spatially tapered dark matter density [$M_\odot\,{\rm pc^{-3}}$] at the three radii for $r_J=35$\,pc (class 3) / $70$\,pc (classes 1--2); stellar density $1230$, $117$, $9.1\,M_\odot\,{\rm pc^{-3}}$ at 3, 10, 20\,pc. Multiply by 38 for GeV\,cm$^{-3}$.}
+\begin{adjustbox}{max width=\linewidth}
 \begin{tabular}{lccc}\toprule
 initial halo & 3\,pc & 10\,pc & 20\,pc\\\midrule
 $10^{9}$, $c=5$ & 6.3 / 6.6 & 1.6 / 1.8 & 0.58 / 0.77\\
@@ -448,9 +461,20 @@ $10^{10}$, $c=15$ & 64 / 67 & 16 / 18 & 5.8 / 7.7\\
 $10^{11}$, $c=5$ & 30 / 31 & 7.2 / 8.4 & 2.7 / 3.6\\
 $10^{11}$, $c=15$ & 139 / 145 & 34 / 39 & 13 / 17\\
 \bottomrule\end{tabular}
+\end{adjustbox}
 \end{table}
 
-Three things follow. (i) Inside $r_J$ the density is the initial cusp, $\rho\simeq\rho_s r_s/r\propto M_{200}^{1/3}$ times a concentration factor; the Jacobi radius, and therefore the class of orbital history, changes the density at 20\,pc by at most a factor of two, whereas halo mass and concentration each span a factor of five. The orbital class controls the retained \emph{mass} (through $r_J^{3}$) much more than the local \emph{density} a WD sees. (ii) At 20\,pc the grid spans $0.6$--$17\,M_\odot\,{\rm pc^{-3}}$ ($23$--$640\,{\rm GeV\,cm^{-3}}$) against $9\,M_\odot\,{\rm pc^{-3}}$ in stars: dark matter comparable to or above the stars for $M_{200}\ge10^{10}$ with $c\ge10$, or any $10^{11}$ halo. The $0.1$--$3\,M_\odot\,{\rm pc^{-3}}$ range adopted in Section~\ref{sec:whichrho} covers only the low-mass, low-concentration corner; the physically plausible grid mostly predicts $1$--$17\,M_\odot\,{\rm pc^{-3}}$, so the capture calculation should be evaluated at $\rho_\chi\sim10\,M_\odot\,{\rm pc^{-3}}\simeq400\,{\rm GeV\,cm^{-3}}$ as well. (iii) At 3\,pc the stars dominate by $10$--$200$, at 10\,pc by $3$--$70$; the 20\,pc field is where an extended dark component is most detectable, kinematically as well as calorimetrically. In the language of the benchmark of Section~1.1, the local dark matter fraction at 20\,pc is $f_{\rm DM}=0.06$--$0.65$ across the grid, one to two orders of magnitude above the detectability boundary of that benchmark.
+At small radii the initial NFW cusp scales approximately as $\rho_s r_s/r$; the
+exponential already suppresses it inside $r_J$. For the plotted grid, the 20-pc density
+ranges from 0.58--12.64 for $r_J=35$\,pc and 0.77--16.83\,$M_\odot\,{\rm pc^{-3}}$ for
+70\,pc. These numbers depend on chosen masses, concentrations and taper. They are not
+constraints from kinematics or white dwarfs. The corresponding inner-cusp aperture mass
+scales approximately as $r_J^2$, not $r_J^3$, since $\rho\propto r^{-1}$.
+
+The table column \texttt{m\_dm\_in\_rj} in the code is the integral of the \emph{untruncated}
+NFW profile. It is a separate initial-aperture diagnostic, not the integral of the plotted
+taper. High-mass/high-concentration choices can have DM comparable to the nucleus, so a
+fixed nuclear potential is not justified for the entire grid.
 
 \subsection{What the frozen-cusp model leaves out}
 The profile inside $r_J$ is an assumption, not a result, and it is optimistic beyond $\sim10$\,pc for one reason and uncertain inside for two others. Pericentric tidal shocks act on material inside $r_J$ as well; over $\sim100$ passages (class 3 pericentres at 0.4\,kpc) they erode the outer part of the retained dark matter, which can only lower the profile near $r_J$. The dark matter was not a pristine cusp when stripping began: the nucleus's formation adiabatically contracted it (raising the inner densities), while baryonic feedback in the host may have cored it (lowering everything and making complete stripping possible). And inside a few parsecs two-body heating by stars and remnants diffuses the dark matter outward over 10\,Gyr. The first effect is what the planned $N$-body runs quantify; the second is an initial-condition choice to be bracketed.
@@ -459,11 +483,13 @@ The profile inside $r_J$ is an assumption, not a result, and it is optimistic be
 \section{An ab initio stripping experiment (from the presentation)}
 \label{sec:agama}
 
-The presentation also reports a first $N$-body experiment in the spirit of Pe\~narrubia, Navarro and McConnachie (2008) and Bekki and Freeman (2003): a progenitor built with \texttt{agama.SelfConsistentModel} --- Plummer nucleus, King-like stellar envelope and dark halo --- evolved with a kick-drift-kick leapfrog, self-gravity from \texttt{pyfalcon} and a static Milky Way (Bovy 2015). The stellar mass is set by requiring that the nucleus survive as today's cluster, $M_\star=M_\omega/[(1-f_{\rm lost})f_n]$ with $f_n=0.05$, $f_{\rm lost}=0.2$, and the halo by $M_{\rm halo}=(f_d-1)M_{\rm env}$ with $f_d=10$.
+This section summarises an external presentation; its simulation products are not
+implemented or independently reproduced in this repository. The presentation reports a first $N$-body experiment in the spirit of Pe\~narrubia, Navarro and McConnachie (2008) and Bekki and Freeman (2003): a progenitor built with \texttt{agama.SelfConsistentModel} --- Plummer nucleus, King-like stellar envelope and dark halo --- evolved with a kick-drift-kick leapfrog, self-gravity from \texttt{pyfalcon} and a static Milky Way (Bovy 2015). The stellar mass is set by requiring that the nucleus survive as today's cluster, $M_\star=M_\omega/[(1-f_{\rm lost})f_n]$ with $f_n=0.05$, $f_{\rm lost}=0.2$, and the halo by $M_{\rm halo}=(f_d-1)M_{\rm env}$ with $f_d=10$.
 
 \begin{table}[h]\centering
 \caption{Fiducial set-up of the presentation's experiment.}
-\begin{tabular}{ll}\toprule
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{lp{0.77\linewidth}}\toprule
 nucleus & $6.25\times10^{6}\,M_\odot$, Plummer $a_n=30$\,pc, 20\,000 particles, $\epsilon=10$\,pc\\
 envelope & $1.19\times10^{8}\,M_\odot$, scale length 770\,pc, 20\,000 particles, $\epsilon=50$\,pc\\
 halo & $1.07\times10^{9}\,M_\odot$, core 0.99\,kpc, truncation 6.16\,kpc, inner slope $\gamma=0$ (also 0.5, 1, 1.5), 30\,000 particles, $\epsilon=100$\,pc\\
@@ -471,6 +497,7 @@ orbit & start at 26\,kpc, 60\,km\,s$^{-1}$, $30^\circ$ tilt; 1\,Gyr (three peric
 integration & leapfrog, $\tau=2^{-13}\simeq0.12$\,Myr, output every 10\,Myr\\
 diagnostics & shrinking-sphere centre on the nucleus; iterative self-bound mass (three passes); mass within 100\,pc at the end\\
 \bottomrule\end{tabular}
+\end{adjustbox}
 \end{table}
 
 Results after 1\,Gyr and three pericentres: the nucleus is unaffected; the envelope keeps $10^{-4}$--$3\times10^{-2}$ of its mass (disc and spherical hosts respectively); the halo's bound fraction depends steeply on the inner slope, $3\times10^{-5}$ ($\gamma=0$, one particle), $3\times10^{-4}$ (0.5), $1.3\times10^{-3}$ (1.0), $5\times10^{-3}$ (1.5), and the dark matter within 100\,pc of the nucleus is $<10^{4}$, $5\times10^{4}$, $4\times10^{5}$ and $1.6\times10^{6}\,M_\odot$ respectively; Bekki and Freeman's 2.6\,Gyr value is $\simeq4\times10^{5}$. The presentation notes two numerical lessons: heavy particles ``slingshot'' light ones unless the softening is graded with particle mass, and the nucleus should be resolved with $\gtrsim2\times10^{4}$ particles.
@@ -481,14 +508,23 @@ Results after 1\,Gyr and three pericentres: the nucleus is unaffected; the envel
 \section{The equilibrium of tidally truncated dark matter around a heavy nucleus}
 \label{sec:equilibrium}
 
-Section~\ref{sec:budget} froze the initial cusp inside $r_J$. That is not what happens: tidal truncation acts in energy, not in radius, and the surviving dark matter settles into a new equilibrium whose density inside $r_J$ is lower than the initial one. This section sets out the physics, gives an analytic estimate for the case that matters here --- dark matter that is a minor component in the potential of a heavy nucleus --- and lists the numerical experiments that would test it. Code: \texttt{src/ocen\_dm/tails/truncated\_equilibrium.py}.
+Section~\ref{sec:budget} froze the initial cusp inside $r_J$. Particles found inside a spatial boundary need not remain there: their orbits can cross
+it. An energy cut is a useful equilibrium approximation to this loss, but is not an exact
+tidal-escape criterion on an eccentric orbit in a time-dependent potential. This section sets out the physics, gives an analytic estimate for the case that matters here --- dark matter that is a minor component in the potential of a heavy nucleus --- and lists the numerical experiments that would test it. Code: \path{src/ocen_dm/tails/truncated_equilibrium.py}.
 
 \subsection{Physical picture}
 Three processes act on dark matter that starts inside the nucleus's Jacobi radius.
 
-\emph{Energy truncation.} A particle at $r<r_J$ whose orbit reaches beyond $r_J$ is stripped at the next pericentre; a particle whose apocentre stays inside $r_J$ is not. Stripping therefore removes the high-energy end of the distribution function, and the material left at any radius $r<r_J$ is the low-energy part of what was there (Drakos, Taylor and Benson 2017; Errani et al.\ 2022, whose binding-energy filter is the calibrated form of this statement). By the shell theorem the removal of shells outside $r_J$ does not change the force inside, so the orbits of the survivors are unchanged to the extent that the removed particles' mass inside $r$ is negligible in the potential.
+\emph{Energy truncation.} Particles with large apocentres are more exposed to escape. Removal need not occur at
+the next passage, and a simple energy cut does not distinguish all angular momenta. Stripping therefore removes the high-energy end of the distribution function, and the material left at any radius $r<r_J$ is the low-energy part of what was there (Drakos, Taylor and Benson 2017; Errani et al.\ 2022, whose binding-energy filter is the calibrated form of this statement). By the shell theorem the removal of shells outside $r_J$ does not change the force inside, so the orbits of the survivors are unchanged to the extent that the removed particles' mass inside $r$ is negligible in the potential.
 
-\emph{Re-adjustment.} Where the removed particles did contribute to the potential inside $r$, the survivors expand slightly (a Kepler orbit's radius scales as $1/M$); this is the structural evolution encoded in the tidal tracks of Pe\~narrubia et al.\ (2010) and Errani and Navarro (2021). Around Omega Centauri the potential inside $\sim50$\,pc is the nucleus's ($3.6\times10^{6}\,M_\odot$ within $\sim7$\,pc) and the dark matter inside 70\,pc is $\lesssim10^{6}\,M_\odot$, so the re-adjustment is a correction of order the dark matter fraction times the fraction removed --- tens of per cent at most, and only near $r_J$. The relaxation is fast: the orbital period at 50\,pc around the nucleus is $\sim20$\,Myr, so the survivors phase-mix into the truncated equilibrium within $\sim10^{8}$\,yr.
+\emph{Re-adjustment.} Where the removed particles did contribute to the potential inside $r$, the survivors expand slightly (a Kepler orbit's radius scales as $1/M$); this is the structural evolution encoded in the tidal tracks of Pe\~narrubia et al.\ (2010) and Errani and Navarro (2021). A total nuclear mass of $3.55\times10^6\,M_\odot$ with a 3-D half-mass radius of
+about 7\,pc can dominate low-DM cases outside its core. Seven parsecs encloses half,
+not all, of that mass. Some halo choices contain comparable DM within 70\,pc, so small
+re-adjustment must be checked from each model's enclosed-mass ratios. For a point mass
+of this size the orbital period at 50\,pc is about 18\,Myr, suggesting a phase-mixing
+scale of order $10^8$\,yr. Neither this estimate nor a successful DF construction proves
+that the truncated system is self-consistent or stationary under tides.
 
 \emph{Impulsive shocks.} At each pericentre the changing tidal field heats the bound dark matter; orbits with periods shorter than the passage are protected adiabatically (Weinberg 1994; Gnedin and Ostriker 1997; Gnedin, Hernquist and Ostriker 1999). This is cumulative over the 60--120 passages of the reconstructed histories and is the one process that can remove dark matter well inside $r_J$.
 
@@ -497,16 +533,20 @@ Inside the nucleus's sphere of influence and outside its scale radius the potent
 \begin{equation}
 f(E)\propto(-E)^{\gamma-3/2},\qquad \gamma>\tfrac12,
 \end{equation}
-so the initial density is $\rho(r)=4\pi\int_{\Phi(r)}^{0}f(E)\sqrt{2[E-\Phi(r)]}\,dE$. Truncating at $E_t=\Phi(r_J)=-GM_{\rm n}/r_J$ (orbits that reach $r_J$ removed) and substituting $s=-Er/GM_{\rm n}$ gives the retained fraction at $r=x\,r_J$,
+so the initial density is $\rho(r)=4\pi\int_{\Phi(r)}^{0}f(E)\sqrt{2[E-\Phi(r)]}\,dE$. Truncating at $E_t=\Phi(r_J)=-GM_{\rm n}/r_J$ (a sufficient energy restriction for confinement in the spherical model, stricter than
+an apocentre cut at nonzero angular momentum) and substituting $s=-Er/GM_{\rm n}$ gives the retained fraction at $r=x\,r_J$,
 \begin{equation}
 F_\gamma(x)\equiv\frac{\rho_t(r)}{\rho(r)}
 =\frac{\int_x^1 s^{\gamma-3/2}(1-s)^{1/2}\,ds}{\int_0^1 s^{\gamma-3/2}(1-s)^{1/2}\,ds}
 =1-I_x\!\left(\gamma-\tfrac12,\tfrac32\right),
 \end{equation}
-with $I_x$ the regularised incomplete beta function. For an NFW-like cusp ($\gamma=1$) this is $1-I_x(1/2,3/2)$; for a contracted cusp ($\gamma=3/2$) it is $(1-x)^{3/2}$. The point of the formula is that a $\rho\propto r^{-1}$ tracer in a Kepler well is populated mostly by loosely bound orbits, so even deep inside $r_J$ a large part of the local density belongs to particles that visit $r_J$ and are removed:
+with $I_x$ the regularised incomplete beta function. For an NFW-like cusp ($\gamma=1$) this is $1-I_x(1/2,3/2)$; for a contracted cusp ($\gamma=3/2$) it is $(1-x)^{3/2}$. The point of the formula is that a $\rho\propto r^{-1}$ tracer in a Kepler well is populated mostly by loosely bound orbits, so cutting its weakly bound tail can reduce the density well inside $r_J$. Some removed
+high-angular-momentum orbits would remain inside an apocentre boundary, which motivates
+comparing the two cuts:
 
 \begin{table}[h]\centering
 \caption{Retained fraction of the initial density, $F_\gamma(r/r_J)$, against the $e^{-r/r_J}$ stand-in used in Fig.~\ref{fig:dmrho}.}
+\begin{adjustbox}{max width=\linewidth}
 \begin{tabular}{lccc|ccc}\toprule
 & \multicolumn{3}{c|}{$r_J=35$\,pc (class 3)} & \multicolumn{3}{c}{$r_J=70$\,pc (classes 1--2)}\\
 & 3\,pc & 10\,pc & 20\,pc & 3\,pc & 10\,pc & 20\,pc\\\midrule
@@ -514,15 +554,28 @@ $\gamma=1$ & 0.63 & 0.35 & 0.14 & 0.74 & 0.53 & 0.35\\
 $\gamma=3/2$ & 0.87 & 0.60 & 0.28 & 0.94 & 0.79 & 0.60\\
 $e^{-r/r_J}$ & 0.92 & 0.75 & 0.56 & 0.96 & 0.87 & 0.75\\
 \bottomrule\end{tabular}
+\end{adjustbox}
 \end{table}
 
-So the frozen-cusp densities of Section~\ref{sec:budget} at 20\,pc should be multiplied by $\simeq0.35$ (classes 1--2) and $\simeq0.14$ (class 3) for an NFW cusp, or $0.60$ and $0.28$ for a contracted one, before any shock heating --- the grid of $0.6$--$17\,M_\odot\,{\rm pc^{-3}}$ becomes $0.2$--$6$ (classes 1--2) and $0.1$--$2.4$ (class 3). The assumptions are isotropy, a pure Kepler potential (the Plummer core of the nucleus and the dark matter's own gravity modify $F$ inside $\sim10$\,pc and near $r_J$ respectively), and a sharp truncation at $\Phi(r_J)$; a radially anisotropic initial cusp loses more, a tangentially biased one less.
+The formula multiplies the \emph{initial} density: $\rho_t=F_\gamma\rho_{\rm initial}$.
+It replaces the exponential taper; it must not be multiplied directly into densities that
+already contain $e^{-r/r_J}$. Relative to the plotted profiles the multiplier is
+$F_\gamma e^{r/r_J}$, equal to 0.247 (35\,pc) or 0.470 (70\,pc) at 20\,pc for $\gamma=1$.
+The untruncated NFW grid at 20\,pc is 1.02--22.39\,$M_\odot\,{\rm pc^{-3}}$.
+Applying the local $\gamma=1$ Kepler approximation gives 0.14--3.12 for $r_J=35$\,pc and
+0.36--7.91 for 70\,pc, before shocks. These replace the earlier double-suppressed ranges.
+They remain conditional estimates: isotropy, a power-law cusp and a dominant point-mass
+potential are assumed. Extended baryons, DM self-gravity, angular-momentum-dependent
+escape and the actual tidal history require the numerical experiments. A contracted cusp
+also needs a specified normalisation; changing $\gamma$ in the retention factor alone
+is not a complete contracted-halo model.
 
 \subsection{Analytic estimate: shock heating per pericentre}
 For a particle at radius $r$ around the nucleus, a pericentre passage at $r_{\rm p}$ with speed $v_{\rm p}$ applies a tidal acceleration $\sim T r$ with $T=GM_{\rm host}(<r_{\rm p})/r_{\rm p}^{3}$ for a time $\tau\simeq r_{\rm p}/v_{\rm p}$, giving $\Delta v\simeq T\,r\,\tau$ against the local velocity scale $\sigma^2\simeq GM_{\rm n}/r$. The adiabatic correction $A=(1+\omega^2\tau^2)^{-\gamma_{\rm ad}}$ with $\omega=(GM_{\rm n}/r^3)^{1/2}$ and $\gamma_{\rm ad}\simeq1.5$ (Gnedin, Hernquist and Ostriker 1999 find 1.5--2.5 depending on the orbit family) suppresses the heating of orbits faster than the passage. With the reconstructed pericentres --- class 1: $r_{\rm p}=1.57$\,kpc, $v_{\rm p}=387$\,km\,s$^{-1}$, $M_{\rm host}(<r_{\rm p})=1.4\times10^{10}\,M_\odot$; class 3: $0.42$\,kpc, $507$\,km\,s$^{-1}$, $2.2\times10^{9}\,M_\odot$ ---
 
 \begin{table}[h]\centering
 \caption{Heating per pericentre passage, $\Delta E/|E|\simeq(\Delta v/\sigma)^2A$, and the number of passages after which it reaches unity, for dark matter at radius $r$ around the nucleus. The class-1 history has $\sim114$ passages in 10\,Gyr, class 3 $\sim66$ in 8.}
+\begin{adjustbox}{max width=\linewidth}
 \begin{tabular}{lcccc|cccc}\toprule
 & \multicolumn{4}{c|}{classes 1--2, $r_{\rm p}=1.57$\,kpc} & \multicolumn{4}{c}{class 3, $r_{\rm p}=0.42$\,kpc}\\
 $r$ [pc] & $\Delta v$ & $\omega\tau$ & $\Delta E/|E|$ & passages & $\Delta v$ & $\omega\tau$ & $\Delta E/|E|$ & passages\\\midrule
@@ -531,9 +584,19 @@ $r$ [pc] & $\Delta v$ & $\omega\tau$ & $\Delta E/|E|$ & passages & $\Delta v$ & 
 50 & 3.1 & 1.4 & $6\times10^{-3}$ & 170 & 5.3 & 0.3 & $8\times10^{-2}$ & 12\\
 70 & 4.3 & 0.9 & $3.7\times10^{-2}$ & 27 & 7.4 & 0.2 & 0.24 & 4\\
 \bottomrule\end{tabular}
+\end{adjustbox}
 \end{table}
 
-For classes 1--2 the material at 20\,pc is adiabatically protected ($\omega\tau\simeq6$) and survives 10\,Gyr untouched, while the outer part of the retained dark matter (50--70\,pc) is eroded on a Gyr timescale: the effective boundary migrates inward from $r_J$ to $\sim40$--$50$\,pc. For class 3 the passages are short and violent: 35\,pc is eroded in $\sim40$ passages and even 20\,pc receives order-unity cumulative heating over the $\sim66$ passages, so the class-3 remnant is set by shocks rather than by the Jacobi radius. Combined with the truncation factors above, the class-3 dark matter density at 20\,pc is expected to be at least an order of magnitude below the frozen-cusp value, whereas for classes 1--2 the factor $\simeq0.35$ of energy truncation is the main correction. These estimates carry order-unity uncertainties (the $2/3$ geometric factor, the exponent $\gamma_{\rm ad}$, the impulsive approximation at $\omega\tau\sim1$) and are the quantities the experiments below are designed to calibrate.
+Multiplying the fixed local estimate by the stated passage count gives cumulative
+$\Delta E/|E|\simeq0.0012$ at 20\,pc for class 1, and 0.112 for class 3. The latter is
+\emph{not} order unity: at that radius the estimate needs about 588 identical passages,
+versus the 66 available. At 35\,pc class 3 reaches 1.52, so outer erosion is plausible.
+The class-1 values at 50 and 70\,pc are 0.67 and 4.22. This arithmetic suggests different
+outer responses, but does not establish a shock-limited 20-pc density or a final boundary.
+Orbits visit multiple radii, and both the structure and tidal field evolve. The local
+formula drops geometric factors and uses an approximate adiabatic correction; its
+cumulative extrapolation becomes unreliable once heating is large. N3/N4 must determine
+whether depletion of outer orbits substantially changes the density at 20\,pc.
 
 \begin{figure}[h]\centering
 \includegraphics[width=\textwidth]{truncated_equilibrium.png}
@@ -542,11 +605,16 @@ For classes 1--2 the material at 20\,pc is adiabatically protected ($\omega\tau\
 \end{figure}
 
 \subsection{Numerical experiments}
+The E1--E6 list below records the original design. The current ordering and corrected
+component definitions are N0--N6 in \texttt{docs/SECTION11\_TESTS.md}. Only N1, verification
+of the analytic energy-cut formula, is complete. A rigid nucleus and the full K1 baryonic
+model are alternatives: adding both would double-count the cluster's stars.
+
 \begin{enumerate}[label=E\arabic*.]
 \item \emph{Truncated equilibrium without tides.} Build the nucleus (Plummer, $3.55\times10^{6}\,M_\odot$, $a=5.4$\,pc) plus an NFW cusp ($10^{10}\,M_\odot$, $c=5.5$; also $c=12$ and a contracted $\gamma=3/2$ version) in AGAMA; obtain the isotropic dark matter distribution function in the combined potential by Eddington inversion (\texttt{agama.DistributionFunction(type='QuasiSpherical')}); set $f(E)=0$ for $E>\Phi(r_J)$ with $r_J=35$ and 70\,pc; recompute the density and iterate the potential once. Tests $F_\gamma(x)$ beyond the Kepler idealisation and gives the corrected profile for Fig.~\ref{fig:dmrho}. Cost: minutes. Variant: apocentre-based instead of energy-based truncation; radially and tangentially anisotropic initial DFs ($\beta=\pm0.3$).
 \item \emph{Relaxation in isolation.} Sample the truncated DF with $10^{5}$--$10^{6}$ dark matter particles around the analytic nucleus potential and evolve for 1\,Gyr (pyfalcon or gyrfalcON, softening $\le1$\,pc); verify that the density profile is stationary to a few per cent and measure any re-expansion. Tests the re-adjustment estimate and the phase-mixing time.
 \item \emph{Static tide.} The same system on a circular orbit at the class-1/2 pericentre (1.57\,kpc, McMillan 2017) and at the class-3 pericentre (0.42\,kpc, axisymmetrised Hunter et al.\ 2024) for 2\,Gyr; measure the self-bound mass, the radius at which the density is halved relative to E1, and $\rho(3,10,20\,{\rm pc})$ versus time. Tests whether the Jacobi criterion with $r_J=r_{\rm p}[M_{\rm n}/3M_{\rm host}]^{1/3}$ is the right truncation scale and whether energy truncation in the rotating frame matches E1.
-\item \emph{Eccentric orbits with shocks.} The same system on the class-1 orbit (1.6/7\,kpc) for 10\,Gyr and on the class-3 debris orbit (0.4/11\,kpc, static axisymmetrised potential) for 8\,Gyr, plus one class-3 run in the time-dependent barred potential of the companion note; measure $\rho(r,t)$ at 20, 35, 50, 70\,pc and the bound mass per passage. Tests the shock table above --- in particular the adiabatic protection of 20\,pc for classes 1--2 and its failure for class 3 --- and calibrates $\gamma_{\rm ad}$. Convergence: two particle numbers, two softenings, two time steps.
+\item \emph{Eccentric orbits with shocks.} The same system on the class-1 orbit (1.6/7\,kpc) for 10\,Gyr and on the class-3 debris orbit (0.4/11\,kpc, static axisymmetrised potential) for 8\,Gyr, plus one class-3 run in the time-dependent barred potential of the companion note; measure $\rho(r,t)$ at 20, 35, 50, 70\,pc and the bound mass per passage. Tests the shock table above --- in particular the adiabatic protection of 20\,pc for classes 1--2 and the stronger but sub-unity local heating for class 3 --- and calibrates $\gamma_{\rm ad}$. Convergence: two particle numbers, two softenings, two time steps.
 \item \emph{Initial cusp.} Repeat E1 and E4 for the uncontracted NFW, an adiabatically contracted cusp (nucleus grown slowly inside the halo; Blumenthal et al.\ 1986 prescription as the analytic reference) and a cored profile. Brackets the initial-condition uncertainty identified in Section~\ref{sec:budget}.
 \item \emph{Stellar heating (estimate only).} Two-body heating of the dark matter by the cluster's stars and remnants inside $\sim5$\,pc over 10\,Gyr, from the Spitzer diffusion coefficients with the K1 stellar density; an $N$-body treatment is out of scope.
 \end{enumerate}
@@ -734,20 +802,10 @@ The deep Scalco field is much farther out.
 
 There is therefore a particularly clean observational strategy.
 
-At present, the situation is approximately
-\begin{equation}
-r\sim20\,{\rm pc}:
-\qquad
-\text{deep WD luminosity function,
-moderate expected DM density},
-\end{equation}
-whereas
-\begin{equation}
-r\lesssim1-5\,{\rm pc}:
-\qquad
-\text{potentially much higher DM density,
-but no comparably deep WD cooling sequence}.
-\end{equation}
+The deep WD luminosity function is available near a projected radius of 20\,pc.
+The central 1--5\,pc could sample a different DM density, but lacks a comparably deep
+WD cooling sequence. Both statements concern the observational comparison; the density
+contrast itself depends on the assumed halo and remnant model.
 
 If deep and complete WD luminosity functions could be obtained in several radial bins, for example
 \begin{equation}
@@ -958,7 +1016,7 @@ R_{\rm proj}\simeq20\,{\rm pc},
 \end{equation}
 rather than in the central parsec.
 
-Sixth, physically plausible surviving-DM models and extrapolated phenomenological kinematic fits suggest DM densities at this radius of approximately
+Sixth, a working density range used for exploratory WD calculations is
 \begin{equation}
 \boxed{
 \rho_\chi(20\,{\rm pc})
@@ -975,7 +1033,10 @@ or
 }
 \end{equation}
 
-Seventh, the current WD observations therefore provide a potentially interesting calorimetric constraint on an extended surviving Omega Centauri dark halo at radii of order 20 pc.
+This range is a scenario choice, not a posterior from the present project. The revised
+89-point rung-0 fits do not yield an adopted DM constraint, and the survival calculations
+remain provisional. A WD constraint therefore requires an explicit assumed density and
+capture model, or a future validated dynamical posterior.
 
 Finally, the appropriate comparison should ultimately use the orbit-averaged dark matter capture rate rather than simply the instantaneous density at the observed projected radius, because old WDs complete thousands of internal Omega Centauri orbits over their cooling lifetimes.
 

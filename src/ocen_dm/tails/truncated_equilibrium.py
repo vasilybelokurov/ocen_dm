@@ -3,7 +3,9 @@
 Analytic pieces used in docs/dm_capture_constraints.tex:
 * a tracer with rho ~ r^-gamma in a Kepler potential Phi = -GM/r has the isotropic Eddington
   DF f(E) ~ (-E)^(gamma - 3/2)  (gamma > 1/2);
-* truncating the DF at E_t = -GM/r_J (orbits reaching r_J removed) leaves at radius r < r_J the
+* cutting the DF at E_t = -GM/r_J leaves at radius r < r_J the
+  following fraction. This energy cut is stricter than an apocentre cut: it can
+  also remove high-angular-momentum orbits confined inside r_J. The
   fraction  F_gamma(x) = 1 - I_x(gamma - 1/2, 3/2),  x = r / r_J,  I_x the regularised
   incomplete beta function  -- for gamma = 1: F = 1 - I_x(1/2, 3/2); gamma = 3/2: F = (1-x)^(3/2);
 * impulsive tidal heating per pericentre passage (Spitzer 1958; Gnedin & Ostriker 1997) with the

@@ -4,6 +4,13 @@
 → `results/tails/progenitor_orbits_summary.ecsv`, `results/tails/progenitor_orbit_tracks.npz`,
 `plots/progenitor_orbits.png`; tests: `tests/test_progenitor_orbits.py`.*
 
+**Audit status, 2026-09-21.** These are conditional orbital histories and screening
+experiments, not self-consistent disruption simulations. Saved products were inspected;
+this documentation audit did not reintegrate the orbit grid. The friction fractions do
+not define a universal retained-mass limit, and the tidal-track extrapolations are outside
+the calibrated regime. See [CODE_ANALYSIS_AUDIT.md](CODE_ANALYSIS_AUDIT.md) and
+[SECTION11_TESTS.md](SECTION11_TESTS.md).
+
 ## Purpose
 
 Constrain ω Cen's dark-matter content from the other end: simulate the tidal disruption of the
@@ -86,7 +93,11 @@ Consequences: a **Sequoia-scale 10¹⁰ M☉ halo reaches the virial radius only
 (τ ≳ 1.5 Gyr)**; a GSE-scale halo must be stripped fast (τ ≲ 1 Gyr) or it would have come from
 far outside the virial radius. In every viable history the satellite's bound mass is below
 10⁹ M☉ by 5 Gyr ago, and the orbit has essentially today's shape (apo 7–12 kpc) for the last
-3–5 Gyr: **the present orbit is a good proxy for the last half of the history in all cases**.
+3–5 Gyr: the selected histories approach the current orbit over their last several Gyr.
+These exponential histories are prescribed inputs, not simulated mass loss. The three
+picks end at about 6.74 × 10⁷, 1.01 × 10⁷ and 3.55 × 10⁶ M☉ respectively: the first two
+have not reached the present nucleus mass. Requiring the correct final bound mass is an
+additional constraint on any physical interpretation.
 
 ### Picked orbits
 
@@ -170,12 +181,15 @@ matches the paper's 9.6). Fraction inside GSE 8 Gyr ago:
 | M = 10⁸ | 0.00 | 0.07 | 0.47 | 0.15 | 0.44 | 0.34 | 0.00 | 0.00 | 0.00 |
 | M = 10⁹ | — | — | — | — | — | 0.00 (apo 79 kpc) | — | — | — |
 
-Transition between 10⁷ and 10⁸ M☉: at 10⁷ the system migrates like a particle (endpoint shifted
-by ΔE ≈ +0.12×10⁵, L_z unchanged); at 10⁸ capture is marginal (0.3–0.5 at Ω = 22–24, none at
-≥25); at 10⁹ friction dominates. **Class 3 is self-consistent only for a nucleus that had lost
-all but ≲10⁸ M☉ of its envelope before the bar slowed (~2.5 Gyr ago).** (Numbers regenerated
-after the leapfrog unit fix of 2026-09-20.) Figure `plots/friction_test_elz.png`; tables
-`results/tails/friction_test.ecsv`, `friction_test_grid.ecsv`.
+The response changes substantially between the 10⁷ and 10⁸ M☉ trials, but also depends
+strongly on pattern speed: even the 10⁷-M☉ row has a dip to 0.02 at 22.5. At 24, the
+10⁸-M☉ fraction is 0.34, not zero. These results suggest substantial envelope loss before
+bar migration; they do not establish a universal ≲10⁸-M☉ bound. A constant-mass trial
+can overstate or understate the cumulative drag of a real history depending on which
+mass it represents. Endpoint membership in the GSE contour is a diagnostic, not itself
+a demonstration of capture. Numbers are from the unit-corrected reruns of 2026-09-20.
+Figure: `plots/friction_test_elz.png`; tables: `results/tails/friction_test.ecsv` and
+`friction_test_grid.ecsv`.
 
 ### What is still not modelled
 
@@ -183,8 +197,8 @@ after the leapfrog unit fix of 2026-09-20.) Figure `plots/friction_test_elz.png`
   2021 fiducial: M★ = 5 × 10⁸, M_DM = 2 × 10¹¹, from R_vir at z ≈ 2, circularity 0.5,
   retrograde) and where ω Cen's host sat in it. The two readings of "deposited by GSE" (ω Cen
   = GSE's nucleus; or a smaller host in group infall) both start from the picked debris orbit.
-* Dynamical friction on the nucleus (negligible at 3.6 × 10⁶ M☉, as the paper notes) and on the
-  host while it still existed (class 2 covers this).
+* A self-consistent mass-loss/friction history. Class 2 prescribes mass loss; the class-3
+  friction tests use fixed masses. Neither evolves a live host and remnant together.
 * The bar-history caveat recorded in the oCen_bar journal: with fixed η = 0.003 a present-day
   Ω_b,0 = 35 implies an initial Ω₁ = 110 km/s/kpc, so the scan over Ω_b,0 is also a scan over
   implausible early histories; the low-Ω_b,0 requirement is tied to this slowdown law.

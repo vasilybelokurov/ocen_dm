@@ -1,23 +1,17 @@
-"""Alternative dynamical engines behind the same binned-profile likelihood.
+"""Alternative spherical engines behind the binned-profile likelihood.
 
-Every back-end exposes ``projected_moments(R_pc) -> {'Sigma', 'los', 'pmr', 'pmt'}``
-(tracer surface density and ``Sigma * sigma^2`` for the three projections, in
-tracer units / pc^2 and km^2/s^2) and ``_check_inside_tracer(R)``, exactly like
-:class:`~ocen_dm.kinematics.jeans.SphericalJeans`, so
-:class:`~ocen_dm.kinematics.likelihood.ProfileLikelihood` accepts any of them.
+Each exposes projected_moments(R_pc), surface density and projected second
+moments, plus the tracer-domain check used by ProfileLikelihood.
 
-* :class:`JamBackend` -- JamPy's spherical anisotropic Jeans solution
-  (Cappellari 2008 eq. 50; PMs from Cappellari 2020 App. B3). Same physics as our
-  solver, independent implementation. Mass components that are not Gaussian
-  (remnant Plummer, dark haloes) are projected numerically and fitted with a
-  projected MGE by NNLS before being handed over. JamPy is imported, never
-  vendored (non-commercial licence).
-* :class:`AgamaDFBackend` -- a positive distribution function of the
-  Cuddeford-Osipkov-Merritt family built by AGAMA for the tracer density in the
-  total potential (``beta(r) = (beta0 r_a^2 + r^2) / (r_a^2 + r^2)``), with the
-  projected moments from ``GalaxyModel.moments``. Different anisotropy family
-  from the Jeans models (beta -> 1 at large r unless r_a = inf), and it exists
-  only where a positive DF does.
+JamBackend uses JamPy's spherical Jeans solver with the same intended logistic
+anisotropy. Non-Gaussian mass components are approximated by projected MGEs;
+independent quadrature and this approximation prevent an exact identity check.
+JamPy is imported as an external non-commercial dependency, never vendored.
+
+AgamaDFBackend constructs a QuasiSpherical Cuddeford-Osipkov-Merritt DF in the
+combined potential, with a different anisotropy family. AGAMA clips negative DF
+values; successful construction does not certify positivity or recovery of the
+input density. The point mass is softened at 1e-4 pc. This is a limited diagnostic.
 """
 
 from __future__ import annotations
@@ -163,7 +157,8 @@ class AgamaDFBackend:
     Parameters
     ----------
     beta0 : float
-        Central anisotropy (<= 1/2 for a cored tracer to admit a positive DF).
+        Central anisotropy of the Cuddeford family. Positivity depends on the
+        tracer and potential; successful construction is not a certificate.
     r_a : float
         Anisotropy radius in pc; ``inf`` keeps ``beta = beta0`` everywhere.
     """
@@ -214,9 +209,9 @@ class AgamaDFBackend:
     def density_check(self, r: Any) -> np.ndarray:
         """Realised / input tracer density: 1 where a positive DF reproduces the tracer.
 
-        Departures mark where the requested anisotropy has no positive
-        distribution function for this tracer in this potential (An & Evans
-        2006); the Jeans equation still has a solution there, the DF does not.
+        Departures flag a failure to reproduce the tracer. Clipped negative DF
+        values can cause this, but interpolation and moment-integration errors
+        must be excluded before assigning a physical cause.
         """
         rr = np.atleast_1d(np.asarray(r, float))
         rho, _ = self._model.moments(np.column_stack([rr, 0 * rr, 0 * rr]), dens=True, vel=False, vel2=True)

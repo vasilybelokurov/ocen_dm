@@ -1,0 +1,74 @@
+{
+  "description": "Starting model for code validation and local pilot fitting; not a science result or inference prior",
+  "model": {
+    "schema_version": 1,
+    "M_star": 2700000.0,
+    "M_bh": 10000.0,
+    "M_rem": 500000.0,
+    "a_rem": 5.3,
+    "M_dm_100": 0.0,
+    "r_s": 30.0,
+    "gamma": 0.0,
+    "r_t": 1000.0,
+    "distance_kpc": 5.43,
+    "seed_radius": 5.0,
+    "components": [
+      {
+        "fraction": 1.0,
+        "J0": 300.0,
+        "slope_in": 0.0,
+        "slope_out": 7.0,
+        "steepness": 2.0,
+        "h_r": 1.5,
+        "g_r": 1.0
+      }
+    ],
+    "numerics": {
+      "r_min": 0.0001,
+      "r_max": 100000.0,
+      "potential_nodes": 160,
+      "velocity_nodes": 64,
+      "moment_nodes": 240,
+      "projection_nodes": 128,
+      "max_iterations": 50,
+      "iteration_tolerance": 0.0005,
+      "closure_tolerance": 0.005,
+      "mass_tolerance": 0.005
+    }
+  },
+  "fit_coordinates": [
+    {
+      "path": "M_star",
+      "lower": 1000000.0,
+      "upper": 6000000.0,
+      "log": true
+    },
+    {
+      "path": "components.0.J0",
+      "lower": 80,
+      "upper": 1000,
+      "log": true
+    },
+    {
+      "path": "components.0.slope_out",
+      "lower": 4.5,
+      "upper": 10
+    },
+    {
+      "path": "components.0.g_r",
+      "lower": 0.5,
+      "upper": 2.4
+    },
+    {
+      "path": "components.0.slope_in",
+      "lower": -2,
+      "upper": 1.5
+    },
+    {
+      "path": "M_bh",
+      "lower": 100,
+      "upper": 100000.0,
+      "log": true
+    }
+  ]
+}

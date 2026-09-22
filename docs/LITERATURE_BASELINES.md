@@ -1,5 +1,9 @@
 # Literature baselines for the Milestone 3 dynamical fits
 
+> **Scope:** this is the literature comparison assembled for the early fits, not a current
+> pipeline-status document or a new literature review. See [the audit](CODE_ANALYSIS_AUDIT.md)
+> before treating a preset or its report as an exact reproduction.
+
 *Compiled 2026-09-17 from ADS. Every entry below has a resolved bibcode; the numbers are
 taken from the papers' own abstracts (marked **A**) or from a catalogue product on disk
 (marked **C**). Nothing here is from memory. Where a paper's number lives only in its body

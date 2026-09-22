@@ -1,5 +1,17 @@
 # Proposal: particle-mass scheme and initial conditions for the host-disruption runs (2026-09-20, draft for discussion)
 
+> **Status, 2026-09-21:** this is a design/tool assessment, not a production simulation.
+> The current first experiments are [N0–N6](SECTION11_TESTS.md), beginning with a consistent
+> tidal radius and truncated equilibrium. Hardware timings below are historical measurements.
+> See the [audit](CODE_ANALYSIS_AUDIT.md) for limitations that remain unresolved.
+
+> **Implementation update:** the first controlled pipeline is documented in
+> [DYNAMICAL_EXPERIMENTS.md](DYNAMICAL_EXPERIMENTS.md). It implements both experiment
+> families, signed DF validation, optional pericentre-weighted particle refinement,
+> live gravity and matched frozen controls. The recipes below retain broader design
+> options; responsive nuclei and mass-dependent orbital decay are not implemented.
+
+
 Context: `docs/NBODY_CODE_ASSESSMENT.md` (code choice: gyrfalcON + AGAMA plug-in),
 `docs/PROGENITOR_ORBITS.md` and `docs/progenitor_orbits.pdf` (the nine orbital histories).
 Goal of the simulations: how much dark matter remains bound to omega Cen's nucleus after the
@@ -9,8 +21,10 @@ host dwarf is tidally disrupted, for each orbital class.
 
 1. Self-relaxation of a live N-body nucleus. omega Cen: N ~ 1e7 stars, t_relax ~ 10 Gyr. A live
    nucleus of 2e4 particles has t_relax ~ 0.1 N / ln N x t_cross ~ 0.1 x 2e4 / 10 x 0.3 Myr ~ 60 Myr:
-   it core-collapses and evaporates spuriously within a Gyr; 1e6 particles still give only ~3 Gyr.
-   Softening barely helps. A live nucleus over 10 Gyr is therefore wrong by construction.
+   this warns of artificial evolution within a Gyr; 1e6 particles still give only ~3 Gyr
+   under the same approximate scaling. These estimates do not predict a collapse time.
+   An under-resolved live nucleus can relax artificially over 10 Gyr. Softening changes
+   both the force and relaxation rate, so isolated convergence controls are required.
 2. Heating of a light species by a heavy one (Spitzer): rate ~ m_heavy rho_heavy, to be compared
    with self-relaxation ~ m_light rho_light. Inside the nucleus rho_star ~ 2500 Msun/pc^3 while an
    NFW halo of 1e10 Msun has rho_DM ~ 2 Msun/pc^3 at 10 pc; with m_DM = 1e3, m_star = 180 Msun the
@@ -32,8 +46,8 @@ host dwarf is tidally disrupted, for each orbital class.
 * Dwarf stars: 1e5 equal-mass particles (1e3-1e4 Msun for M* = 1e8-1e9), eps ~ 20-50 pc.
 * Dark matter: radially graded particle masses (Zemp et al. 2008 multimass): ~1e3 Msun inside
   ~0.3 kpc rising to 1e5-1e6 Msun outside; ~1e6 particles total; softening graded with mass;
-  implemented by sampling the AGAMA DF, thinning outer particles with probability p and
-  reweighting by 1/p. Keep mass ratios between species sharing a region <~ 10-30 and heavy-particle
+  implemented through a phase-space refinement scheme that protects low-pericentre
+  orbits; radius-only thinning and reweighting by 1/p is insufficient. Keep mass ratios between species sharing a region <~ 10-30 and heavy-particle
   softening >= the light species' inter-particle spacing.
 * Equilibrium: AGAMA self-consistent model of the three components (nucleus potential included as a
   fixed Plummer), sampled into particles; short isolated run (~10 dynamical times) to verify.
@@ -42,7 +56,7 @@ host dwarf is tidally disrupted, for each orbital class.
   Class-2 friction: a translating frame does NOT supply friction (the residual -a_df at the origin
   makes the satellite drift off the prescribed path; Codex). Instead run in the inertial frame and
   apply the precomputed Chandrasekhar acceleration a_df(t) as a `UniformAcceleration` time series to
-  the satellite particles; it is also applied to escaped debris (small) and is not self-consistent
+  the satellite particles; applying it to escaped debris is an unquantified approximation and it is not self-consistent
   with a changing bound mass -> iterate the orbit with the measured bound mass, or couple the drag
   online to the remnant's bulk motion.
 * Convergence checks: inner DM particle mass x3; nucleus softening x2; one short live-nucleus run

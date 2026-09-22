@@ -1,4 +1,7 @@
-"""The rungs of docs/MODELLING_PLAN.md all build, evaluate, and carry the right priors."""
+"""The implemented ladder and legacy scaled diagnostic build with the intended priors.
+
+The case numbered 3 below exercises the optional scale diagnostic; it is not an
+adopted rung for evidence comparison."""
 
 from __future__ import annotations
 
@@ -15,10 +18,10 @@ _HAS = (processed_dir() / "kinematics" / "ocen_pm_dispersion_edr3_ours.ecsv").ex
 RUNGS = {
     0: dict(constant_beta=True, fixed={"beta_0": 0.0}, instruments=()),
     1: dict(constant_beta=True, instruments=()),
-    2: dict(instruments=()),
+    2: dict(instruments=(), anisotropy_profile="turnover"),
     3: dict(),
 }
-EXPECTED_PARAMS = {0: (5, 7), 1: (6, 8), 2: (8, 10), 3: (11, 13)}
+EXPECTED_PARAMS = {0: (5, 7), 1: (6, 8), 2: (10, 12), 3: (11, 13)}
 
 
 @pytest.mark.parametrize("rung", sorted(RUNGS))
@@ -30,7 +33,7 @@ def test_parameter_counts_match_the_plan(rung):
 
 
 def test_an_evans_bound_applies_only_where_there_is_a_distinct_centre():
-    """A constant beta has no separate central value, so the central bound must not touch it."""
+    """Pin the adopted diagnostic prior policy, not an exemption from the physical DF bound."""
     varying = [p for p in NoDarkMatterModel(instruments=()).parameters if p.name == "beta_0"][0]
     assert varying.prior.hi == BETA0_MAX_CORED_TRACER_WITH_BH == -0.5
     constant = [p for p in NoDarkMatterModel(constant_beta=True, instruments=()).parameters
