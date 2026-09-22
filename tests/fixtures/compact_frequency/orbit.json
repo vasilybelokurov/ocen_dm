@@ -1,0 +1,9 @@
+{
+  "action_angles": [9.911050890959185e-06, 2.4039457821260765e-05, 0.0, 1.0, 1.0, 1.0],
+  "original_polar_xv": [0.0, 0.0, 0.001495402583200513, "-Infinity", "-Infinity", "NaN"],
+  "original_error": "integrateGL: order is too high (not implemented)",
+  "original_agama_version": "1.0.152 compiled on Jun  8 2025",
+  "units": "pc, solar masses, km/s; actions pc km/s",
+  "source_run": "results/diagnostics/compact_recovery_smoke_20260923_v1/fits/no_dm_free_halo_start0/best.json",
+  "note": "Potential export/reload changes rounding enough to make the old polar output finite but very close to the axis. The saved original failure and complete refined-model reproducer must not be confused with the rounded fixture replay."
+}

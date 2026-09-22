@@ -65,6 +65,7 @@ evidence difference remains small.
 | [Positive AGAMA DF models](docs/AGAMA_DF_MODELS.md) / [PDF](docs/agama_df_models.pdf) / [LaTeX](docs/agama_df_models.tex) | Self-consistent stellar action DFs, joint photometric/kinematic pilot fitting, numerical controls and scope |
 | [Independent DF flexibility challenge](docs/DF_CAPACITY_CHALLENGE.md) | Three physical mocks, one/two/three positive DFs in known gravity, multiple starts, wider-bound controls and PNG comparisons |
 | [Free-potential DF mass recovery](docs/DF_MASS_RECOVERY.md) / [live status](docs/DF_MASS_RECOVERY_STATUS.md) | Independent stellar mass/light weights, self-consistent gravity, noiseless recovery and gated noisy mock experiments |
+| [Compact DF recovery](docs/COMPACT_DF_RECOVERY.md) | Matched regularized-DF mocks with and without DM, multiple starts, checkpointed fits, and separate observable and mass-recovery checks |
 | [Lifetime batch](docs/LIFETIME_BATCH_REPORT.md) | Active queue, live stellar response, numerical gates, long orbital forcing and physical heating estimate |
 | [Modelling plan](docs/MODELLING_PLAN.md) | Adopted fit sequence and exact CLI choices |
 | [Data preparation](docs/data_analysis.pdf) / [source](docs/data_analysis.tex) | Selections, estimators and remaining systematics |
