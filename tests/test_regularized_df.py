@@ -1,6 +1,7 @@
 """Analytical and independent numerical controls for the compact stellar DF."""
 from dataclasses import replace
 import json
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -147,3 +148,27 @@ def test_frequency_interpolation_failure_regression(agama):
     ratio = SphericalFrequencyRatio(pot)
     values = ratio(np.array([575567.514, 2.9e-12, 0]), np.array([874.366, 1.1e-5, 100.]))
     assert np.all(np.isfinite(values) & (values >= 1) & (values <= 2.00001))
+
+
+def test_frequency_representative_preserves_angular_momentum(agama, monkeypatch):
+    # Original polar mapping reached R=0 with nonfinite velocities. Exporting
+    # the potential softens this to a 4e-4 angular-momentum error, still wrong.
+    fixture = Path(__file__).parent/"fixtures/compact_frequency"
+    record = json.loads((fixture/"orbit.json").read_text())
+    jr, angular = record["action_angles"][:2]
+    pot = agama.Potential(str(fixture/"potential.ini"))
+    original = agama.actions
+    recovered = []
+
+    def capture(potential, xv, **kwargs):
+        assert np.all(np.isfinite(xv))
+        result = original(potential, xv, **kwargs)
+        recovered.append(result[0])
+        return result
+
+    monkeypatch.setattr(agama, "actions", capture)
+    ratio = SphericalFrequencyRatio(pot)(jr, angular)
+    action = np.concatenate(recovered)
+    np.testing.assert_allclose(action[:, 0], jr, rtol=2e-6)
+    np.testing.assert_allclose(action[:, 1]+abs(action[:, 2]), angular, rtol=1e-6)
+    assert ratio == pytest.approx(2., rel=2e-5)

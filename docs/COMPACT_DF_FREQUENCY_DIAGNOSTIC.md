@@ -21,8 +21,14 @@ Representing the same Jr and L as Jz=0, Jphi=L puts the orbit in the equatorial
 plane of the spherical potential. A replay then returned finite coordinates,
 recovered the input actions, and gave Omega_r/Omega_t approximately 1.999999.
 Changing the orbital plane preserves the spherical invariants and frequencies.
-This suggests an equatorial representative as the fix; a full refined-model
-replay and regression checks are required before restarting the batch.
+The frequency calculation now uses that equatorial representative and rejects
+nonfinite mapped coordinates explicitly before calling the frequency integrator.
+
+The angular-momentum regression failed before the fix with relative error
+0.00042647 and passes afterwards at a tolerance of 1e-6. All 64 focused tests
+pass, and the complete refined-model reproduction that originally raised the
+exception now exits successfully. The original v1 mocks and failed smoke test
+are retained; a fresh v2 batch will use the corrected source.
 
 ## Preserved evidence
 

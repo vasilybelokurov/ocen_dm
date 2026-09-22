@@ -40,6 +40,12 @@ limit is distinct from the optional global `frequency_mode="epicycle"`
 approximation. That approximation is retained for comparison, not adopted as
 an exactly isotropic model.
 
+Frequency evaluation uses an equatorial representative with Jz=0 and Jphi=L.
+Spherical symmetry preserves Jr, L, and the frequencies while avoiding a polar
+coordinate singularity in the native action mapper. The
+[preserved failure and regression](COMPACT_DF_FREQUENCY_DIAGNOSTIC.md) document
+the issue found during the first recovery smoke test.
+
 Every self-gravity iteration rebuilds the contour map and its normalization
 in the updated total potential. The final density is checked between radial
 grid points with twice the velocity quadrature. Convergence includes stellar

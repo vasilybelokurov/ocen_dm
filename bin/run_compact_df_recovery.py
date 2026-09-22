@@ -69,8 +69,8 @@ def prepare(out, project):
     shutil.copytree(project/"src", frozen/"src", ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".DS_Store"))
     shutil.copy2(Path(__file__), frozen/"bin"/Path(__file__).name)
     shutil.copytree(project/"configs/df", frozen/"configs/df")
-    (frozen/"tests").mkdir()
-    shutil.copy2(project/"tests/test_compact_recovery.py", frozen/"tests/test_compact_recovery.py")
+    shutil.copytree(project/"tests", frozen/"tests",
+                    ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".DS_Store"))
     source = project/"results/df/pilot_no_dm_20260922"
     inputs = out/"inputs"
     inputs.mkdir()
