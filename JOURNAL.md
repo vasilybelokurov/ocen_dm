@@ -4846,3 +4846,26 @@ The new reporter writes PNGs under `plots/`, numerical/provenance records under
 `results/plot_data/`, and `docs/DF_MASS_RECOVERY_STATUS.md`. Methods and limitations
 are documented in `docs/DF_MASS_RECOVERY.md`. Previous fits and simulations were
 not restarted or stopped.
+
+## 2026-09-23 -- Compact DF matched-family recovery infrastructure
+
+Added `compact_recovery.py` and `bin/run_compact_df_recovery.py` for the next
+recovery stage. Two refined regularized-DF equilibria inject either zero DM or
+a cored halo with rho(20 pc)=2 solar masses per cubic parsec; both contain
+concentrated remnants. The planned six fits use two starts per experiment:
+free halo on each mock, plus a separate no-halo control on the no-DM mock.
+All five stellar controls and both remnant coordinates are free. Free-halo
+fits also vary rho20 (including exactly zero) and scale radius.
+
+The driver preserves source and mock snapshots, checkpoints each improved
+solution atomically, and resumes interrupted fits from their saved parameters.
+Two single-threaded workers and per-attempt evaluation budgets bound the run.
+Numerical convergence, observable residuals, and physical recovery have
+separate gates; an accurate observable fit cannot certify a correct mass split.
+The acceptance criteria and scope are in `docs/COMPACT_DF_RECOVERY.md`.
+
+The focused verification suite passed 63 tests, including five new checks of
+mock construction, asymmetric residuals, full resolution refinement, and the
+distinction between observable fit quality and physical recovery. End-to-end
+mock preparation and bounded fitting are the next launch checks. Independent
+stellar families, noisy mocks, and real-data inference remain later stages.
