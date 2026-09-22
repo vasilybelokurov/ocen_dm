@@ -1,28 +1,24 @@
-"""Model families, priors and the nested-sampling driver for the Jeans fits.
+"""Mass-model families, priors and the UltraNest driver for spherical Jeans fits.
 
-Experiments follow the specification (section 6):
+K1 combines an MGE stellar distribution, a Plummer remnant component and a
+central point mass. K2 adds a truncated gNFW halo with gamma fixed to 0 or 1,
+parametrised by log-uniform M_dm_100 and r_s. This cored family is not Burkert.
+Distance, anisotropy and optional instrument scales complete the model.
 
-* **K1** -- no dark matter: stars (Trager MGE scaled by ``M_star``), a
-  mass-segregated remnant Plummer sphere, a central point mass (``M_bh``, whose
-  log-uniform prior reaches down to a floor that is dynamically zero), the
-  three-parameter anisotropy and one multiplicative nuisance per Gaia instrument.
-* **K2** -- K1 plus a truncated generalized-NFW halo, cored (``gamma = 0``) or
-  cuspy (``gamma = 1``), parametrised by the halo mass within 100 pc and the
-  scale radius so that the prior is flat in the quantity the data constrain.
+The CLI defaults to the composite HST-count/Trager tracer; the Python family
+constructor retains its historical Trager default. Explicit ladder switches
+select isotropic or constant-beta models and remove scales. See
+``docs/MODELLING_PLAN.md`` for the adopted choices.
 
-Both are Bayesian models with the same likelihood; the sampler returns the
-evidence so the pair can be compared. All parameters are transformed from the
-unit hypercube, so the same families serve ultranest and dynesty.
-
-Provenance: every run writes ``run.yaml`` with the git commit, the sha256 of each
-processed table used, the prior table and the sampler settings.
+The driver reserves a new run directory and snapshots the resolved model, MGE,
+likelihood arrays, sampler settings and source identity before sampling. It then
+writes posterior samples, summary statistics and radial profiles. Existing run
+directories are preserved. There is no dynesty driver.
 """
 
 from __future__ import annotations
 
-import hashlib
 import json
-import subprocess
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -34,8 +30,7 @@ from scipy.special import erfinv
 
 from ..light_model import MGEFit, build_stellar_mge, fit_mge_projected, load_tracer_profile
 from ..mass_models import CompositeMassModel, PointMass, RemnantPlummer, TruncatedGNFW
-from ..paths import processed_dir, results_dir
-from .anisotropy import Anisotropy
+from .anisotropy import Anisotropy, TurnoverAnisotropy
 from .jeans import SphericalJeans
 from .likelihood import KinematicData, ProfileLikelihood
 
@@ -135,13 +130,9 @@ AGAMA_BETA0_MIN = -0.5
 #: prior. Narrowed from 0.0 on 2026-09-20; this REMOVES freedom from both families equally.
 BETA0_MAX_CORED_TRACER_WITH_BH = -0.5
 
-#: Prior range for a CONSTANT anisotropy. The An & Evans bound is a condition at r -> 0;
-#: a constant beta has no separate centre, so imposing -0.5 on it would force the
-#: tangential dispersion to exceed the radial one by 22 per cent at every radius, which the
-#: data never show (projected sigma_T/sigma_R runs 0.84-1.18, i.e. beta roughly -0.4 to
-#: +0.3). The constant-beta rung is a deliberately crude baseline that is not required to
-#: be DF-realisable at the centre; it gets a wide symmetric-ish range instead
-#: (2026-09-20, after a day on which the bound was briefly and wrongly applied to it).
+#: The central An & Evans condition also applies to constant beta. This deliberately
+#: broader prior defines a diagnostic Jeans baseline; it does not exempt that baseline
+#: from the physical condition or certify a non-negative DF (docs/MODELLING_PLAN.md).
 CONSTANT_BETA_RANGE = (-1.0, 0.5)
 
 
@@ -154,7 +145,7 @@ class NoDarkMatterModel:
                  distance_prior: Prior | None = "default", fix_distance: bool = False,
                  tracer: str = "trager", backend: str = "jeans", fixed: dict[str, float] | None = None,
                  constant_beta: bool = False, beta0_max: float = BETA0_MAX_CORED_TRACER_WITH_BH,
-                 distance_kpc: float | None = None) -> None:
+                 distance_kpc: float | None = None, anisotropy_profile: str = "monotonic") -> None:
         """
         Parameters
         ----------
@@ -171,9 +162,18 @@ class NoDarkMatterModel:
         distance_kpc : float, optional
             Fixed distance to use instead of :data:`OCEN_DISTANCE_KPC` when
             ``fix_distance`` is true.
+        anisotropy_profile : str
+            ``monotonic`` preserves the legacy single transition. ``turnover``
+            uses three beta levels and two ordered transition radii, with
+            either sign of curvature; available only for the Jeans backend.
         """
         if backend not in ("jeans", "jam", "agama"):
             raise ValueError("backend must be 'jeans', 'jam' or 'agama'")
+        if anisotropy_profile not in ("monotonic", "turnover"):
+            raise ValueError("anisotropy_profile must be 'monotonic' or 'turnover'")
+        if anisotropy_profile == "turnover" and (constant_beta or backend != "jeans"):
+            raise ValueError("turnover anisotropy requires varying beta and the jeans backend")
+        self.anisotropy_profile = anisotropy_profile
         self.backend = backend
         self.tracer = tracer
         self.fixed = dict(fixed or {})
@@ -209,21 +209,27 @@ class NoDarkMatterModel:
         ]
         b0max = getattr(self, "beta0_max", BETA0_MAX_CORED_TRACER_WITH_BH)
         if getattr(self, "backend", "jeans") == "agama":
-            # Cuddeford-Osipkov-Merritt family of the positive DF: beta -> 1 beyond r_a.
+            # Cuddeford-Osipkov-Merritt diagnostic: beta -> 1 beyond r_a; positivity is not certified.
             # AGAMA's implementation rejects beta_0 < -0.5 outright, so the prior is bounded
             # there rather than left to raise mid-run (2026-09-20).
             # AGAMA's Cuddeford DF is undefined below -0.5, and the An & Evans ceiling for a
             # cored tracer with a point mass is -0.5, so the two ranges meet at a single
-            # point. The AGAMA backend therefore CANNOT represent a physically admissible
-            # model of this kind. It keeps its own range and is a diagnostic only, never a
-            # family whose evidence is compared (2026-09-20).
+            # point in the unsoftened central limit. This is not a global DF-positivity
+            # test, and the backend softens the point mass. Its broader diagnostic prior
+            # is not used for the adopted evidence comparison.
             params += [Parameter("beta_0", Prior("uniform", AGAMA_BETA0_MIN, 0.0), "", r"\beta_0"),
                        Parameter("r_a", Prior("loguniform", 1.0, 1000.0), "pc", r"r_a")]
         elif getattr(self, "constant_beta", False):
             lo_c, hi_c = CONSTANT_BETA_RANGE
             params += [Parameter("beta_0", Prior("uniform", lo_c, hi_c), "", r"\beta")]
+        elif self.anisotropy_profile == "turnover":
+            params += [Parameter("beta_0", Prior("uniform", -1.0, b0max), "", r"\beta_0"),
+                       Parameter("beta_mid", Prior("uniform", -1.0, 1.0), "", r"\beta_{\rm mid}"),
+                       Parameter("beta_inf", Prior("uniform", -1.0, 1.0), "", r"\beta_\infty"),
+                       Parameter("r_beta", Prior("loguniform", 0.05, 30.0), "pc", r"r_1"),
+                       Parameter("delta_r_beta", Prior("loguniform", 0.5, 150.0), "pc", r"r_2-r_1")]
         else:
-            params += [Parameter("beta_0", Prior("uniform", -1.0, b0max), "", r"\beta_0"),      # An & Evans: cored tracer => beta_0 <= 0
+            params += [Parameter("beta_0", Prior("uniform", -1.0, b0max), "", r"\beta_0"),      # cored tracer plus central point mass: beta_0 <= -0.5
                        Parameter("beta_inf", Prior("uniform", -1.0, 1.0), "", r"\beta_\infty"),
                        Parameter("r_beta", Prior("loguniform", 0.5, 100.0), "pc", r"r_\beta")]
         return [p for p in params if p.name not in getattr(self, "fixed", {})]
@@ -272,7 +278,11 @@ class NoDarkMatterModel:
         if self.backend == "agama":
             from .backends import AgamaDFBackend
             return AgamaDFBackend(mass, stars, beta0=theta["beta_0"], r_a=theta["r_a"], distance_kpc=D), D, self.scales(theta)
-        anis = Anisotropy(theta["beta_0"], theta["beta_inf"], theta["r_beta"])
+        if self.anisotropy_profile == "turnover":
+            anis = TurnoverAnisotropy(theta["beta_0"], theta["beta_mid"], theta["beta_inf"],
+                                      theta["r_beta"], theta["delta_r_beta"])
+        else:
+            anis = Anisotropy(theta["beta_0"], theta["beta_inf"], theta["r_beta"])
         if self.backend == "jam":
             from .backends import JamBackend
             return JamBackend(mass, stars, anis, D), D, self.scales(theta)
@@ -294,8 +304,8 @@ class DarkMatterModel(NoDarkMatterModel):
     gamma : float
         Inner slope: 0 (cored) or 1 (NFW).
     r_t : float
-        Truncation radius in pc, fixed (the Jacobi radius is of order a few
-        hundred pc; the data end well inside it).
+        Fixed halo taper radius in pc (default 1000). This is a phenomenological
+        fit choice, not the Jacobi radius calculated from a Galactic orbit.
     """
 
     def __init__(self, gamma: float = 0.0, r_t: float = 1000.0, **kwargs: Any) -> None:
@@ -360,7 +370,12 @@ class FitProblem:
         return model.mass.radial_profile(grid)
 
     def mock_data(self, x: np.ndarray, rng: np.random.Generator) -> KinematicData:
-        """Data with the real bins and errors but values drawn from model ``x`` (injection tests)."""
+        """Injection values with symmetric Gaussian noise and a positive floor.
+
+        This historical generator averages the two error bars. It is a declared
+        approximation, not an exact generative model for the split-normal likelihood.
+        New mock runs record it as ``gaussian_average_errors_clipped_v1``.
+        """
         pred = self.predict(x)
         out = []
         for p in self.data.profiles:
@@ -397,25 +412,10 @@ def maximum_likelihood(problem: FitProblem, n_starts: int = 8, seed: int = 0,
 
 
 # ------------------------------------------------------------------ driver ---
-def _git_commit() -> str:
-    try:
-        return subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=True,
-                              cwd=str(results_dir().parent)).stdout.strip()
-    except Exception:                                  # noqa: BLE001 - provenance best effort
-        return "unknown"
-
-
-def _sha256(path: Path) -> str:
-    h = hashlib.sha256()
-    with open(path, "rb") as fh:
-        for chunk in iter(lambda: fh.read(1 << 20), b""):
-            h.update(chunk)
-    return h.hexdigest()
-
-
 def run_nested(problem: FitProblem, out_dir: Path, *, n_live: int = 400, dlogz: float = 0.5,
                max_ncalls: int | None = None, seed: int = 42, n_profile_samples: int = 300,
-               resume: str = "overwrite", verbose: bool = False, step_sampler: bool = False,
+               resume: str = "resume", verbose: bool = False, step_sampler: bool = False,
+               slice_nsteps: int | None = None,
                data_provenance: dict[str, Any] | None = None,
                dataset_options: dict[str, Any] | None = None) -> dict[str, Any]:
     """Run ultranest on ``problem`` and write posterior, summary and profiles to ``out_dir``.
@@ -423,21 +423,48 @@ def run_nested(problem: FitProblem, out_dir: Path, *, n_live: int = 400, dlogz: 
     Files written: ``posterior.ecsv`` (equally weighted samples), ``summary.json``
     (evidence, quantiles, chi2 per dataset at the maximum-likelihood sample),
     ``profiles.npz`` (``radial_profile`` on :data:`PROFILE_GRID_PC` for a random
-    subset of samples), ``run.yaml`` (provenance). ultranest's own output goes to
-    ``out_dir/ultranest``.
+    subset of samples), ``data_snapshot.json`` and ``run.yaml`` (launch provenance).
+    The directory must not exist, including for an interrupted earlier attempt.
+    ``resume`` controls UltraNest only inside this fresh directory; resuming an
+    existing project run is not implemented. UltraNest writes to ``out_dir/ultranest``.
+    ``slice_nsteps`` overrides the historical 2*ndim walk length when the slice
+    sampler is enabled; the resolved value is recorded in the launch manifest.
     """
     import ultranest
     import yaml
+    from .run_io import code_state, family_config, write_data_snapshot
+
+    if slice_nsteps is not None and (not step_sampler or not isinstance(slice_nsteps, int)
+                                    or slice_nsteps < 1):
+        raise ValueError("slice_nsteps requires the slice sampler and a positive integer")
+    actual_nsteps = (slice_nsteps or 2*len(problem.family.names)) if step_sampler else None
 
     out_dir = Path(out_dir)
-    # Input hashes are taken NOW, before sampling: a product regenerated while a long run is in
-    # flight (it happened on 2026-09-20 -- a test rewrote the Gaia profile mid-run) must not
-    # make two runs that read identical data look like they fitted different observations.
-    _kin_dir = processed_dir() / "kinematics"
-    inputs_at_launch = {f.name: _sha256(f) for f in sorted(_kin_dir.glob("*.ecsv"))}
-    out_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        out_dir.mkdir(parents=True, exist_ok=False)
+    except FileExistsError as exc:
+        raise FileExistsError(f"run directory already exists: {out_dir}; choose a new label") from exc
     fam = problem.family
     t0 = time.time()
+    model = family_config(fam)
+    snapshot = write_data_snapshot(problem.data, out_dir)
+    code = code_state()
+    run = {
+        "schema_version": 1, "status": "started", "family": fam.label,
+        "git_commit": code["git_commit"], "code": code, "model": model,
+        "data_snapshot": snapshot,
+        "started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(t0)),
+        "sampler": {"name": "ultranest", "version": ultranest.__version__,
+                    "n_live": n_live, "dlogz": dlogz, "seed": seed, "max_ncalls": max_ncalls,
+                    "step_sampler": step_sampler, "resume": resume,
+                    "slice_nsteps": actual_nsteps,
+                    "n_profile_samples": n_profile_samples},
+        "data": data_provenance or {"kind": "real"},
+        "dataset_options": dataset_options or {},
+        "priors": {p.name: p.prior.describe() for p in fam.parameters},
+        "distance_kpc": None if fam.distance_prior else fam.fixed_distance_kpc,
+    }
+    (out_dir / "run.yaml").write_text(yaml.safe_dump(run, sort_keys=False))
     np.random.seed(seed)
     sampler = ultranest.ReactiveNestedSampler(list(fam.names), problem.loglike_vector, fam.transform,
                                               log_dir=str(out_dir / "ultranest"), resume=resume)
@@ -447,10 +474,15 @@ def run_nested(problem: FitProblem, out_dir: Path, *, n_live: int = 400, dlogz: 
         # iteration whatever the region shape.
         import ultranest.stepsampler as uss
         sampler.stepsampler = uss.SliceSampler(
-            nsteps=2 * len(fam.names), generate_direction=uss.generate_mixture_random_direction)
+            nsteps=actual_nsteps, generate_direction=uss.generate_mixture_random_direction)
     result = sampler.run(min_num_live_points=n_live, dlogz=dlogz, max_ncalls=max_ncalls,
                          viz_callback=None, show_status=verbose)
     elapsed = time.time() - t0
+
+    if step_sampler and getattr(sampler.stepsampler, "logstat", None):
+        stats = np.asarray(sampler.stepsampler.logstat, float)
+        np.savez_compressed(out_dir / "slice_walk_statistics.npz", statistics=stats,
+                            columns=np.asarray(sampler.stepsampler.logstat_labels))
 
     samples = np.asarray(result["samples"])
     logl = np.asarray(result["weighted_samples"]["logl"])
@@ -466,6 +498,7 @@ def run_nested(problem: FitProblem, out_dir: Path, *, n_live: int = 400, dlogz: 
     chi2 = problem.chi2(x_ml)
     summary = {
         "family": fam.label, "logz": float(result["logz"]), "logzerr": float(result["logzerr"]),
+        "model": model, "data_snapshot": snapshot,
         "n_calls": int(result["ncall"]), "n_samples": int(len(samples)), "elapsed_s": round(elapsed, 1),
         "parameters": {n: {"p16": float(q[0, i]), "p50": float(q[1, i]), "p84": float(q[2, i]),
                            "ml": float(x_ml[i]), "unit": fam.parameters[i].unit,
@@ -492,19 +525,6 @@ def run_nested(problem: FitProblem, out_dir: Path, *, n_live: int = 400, dlogz: 
     stack = {k: np.array([p[k] for p in profs]) for k in profs[0] if k != "r"}
     np.savez_compressed(out_dir / "profiles.npz", r=PROFILE_GRID_PC, sample_index=idx, **stack)
 
-    kin = processed_dir() / "kinematics"
-    run = {
-        "family": fam.label, "git_commit": _git_commit(), "started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(t0)),
-        "elapsed_s": round(elapsed, 1), "sampler": {"name": "ultranest", "version": ultranest.__version__,
-                                                    "n_live": n_live, "dlogz": dlogz, "seed": seed, "max_ncalls": max_ncalls},
-        "data": data_provenance or {"kind": "real"},
-        # every switch that changes what the likelihood is shown. Recorded because file
-        # hashes alone do not distinguish two runs that read the same product differently
-        # (2026-09-20).
-        "dataset_options": dataset_options or {},
-        "priors": {p.name: p.prior.describe() for p in fam.parameters},
-        "distance_kpc": None if fam.distance_prior else OCEN_DISTANCE_KPC,
-        "inputs": inputs_at_launch,
-    }
+    run.update(status="complete", elapsed_s=round(elapsed, 1))
     (out_dir / "run.yaml").write_text(yaml.safe_dump(run, sort_keys=False))
     return summary

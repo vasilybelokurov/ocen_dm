@@ -4111,3 +4111,738 @@ changes the PM-to-LOS ratio; M_BH = 4.3-4.7e4 +- 8% in all three; total central 
 3.1-3.2e6 while the star/remnant split moves by 6e5 when a halo is added; and a note that the
 NFW family needs the ultranest step sampler at rungs 1-2 (20.6 h and 1.4e7 calls at rung 0,
 most of it on the M_DM-r_s ridge).
+
+## 2026-09-21 -- code/analysis audit and documentation corrections
+
+Read the data-to-likelihood pipeline, model families, fit/report machinery and the
+orbital/DM-survival calculations against their saved products. The findings and
+reproduction recipes are in `docs/CODE_ANALYSIS_AUDIT.md`. Updated the README,
+modelling and validation plans, current analyses, source docstrings/comments, and
+the four companion LaTeX/PDF notes. Earlier entries remain a chronological record;
+the qualifications below supersede their stronger interpretations.
+
+The maximum log likelihoods of all three 89-point rung-0 fits reproduce exactly
+with the current default inputs. From the unrounded stored evidences, Delta ln Z
+is +1.08 +/- 0.60 (cored minus K1), -0.08 +/- 0.59 (NFW minus K1), and
++1.16 +/- 0.50 (cored minus NFW). All remain poor fits. Reproduction supports the
+metadata-only explanation of the Gaia hash difference, but cannot prove that all
+original inputs were identical: complete input snapshots were not saved.
+
+The PM ratios motivate anisotropy tests; they do not recover intrinsic beta(r),
+establish enclosed mass to 2-3%, or rule out a refitted error model. The floor
+experiment used a fixed parameter vector. A central moment fit alone does not
+establish a robust IMBH detection. The positive-DF condition for a cored tracer
+in a Kepler potential applies to constant beta as well as varying beta. The
+current varying-beta law is monotonic; the proposed turnover is not implemented.
+There is a Gaia rotation switch but no equivalent HST switch in the present CLI.
+
+Corrected two material survival calculations: at 20 pc, the local class-3 shock
+estimate is 66 x 0.001701 = 0.112, not order unity; and the energy-cut retention
+factor multiplies the initial density, replacing the exponential taper rather
+than multiplying it again. The circular spherical tidal coefficient is
+3 - d ln M_host/d ln R. The old 59-pc alternative has not been reproduced.
+The N2 baryonic models are alternatives, avoiding the previous double counting
+of the cluster mass. Initial aperture budgets and extrapolated tidal tracks are
+not validated remnant masses or universal survival bounds.
+
+Confirmed software issues are documented for a separate implementation pass:
+report replay ignores saved Gaia variants; mock comparison reads obsolete
+metadata keys; mock generation does not inherit the generating model's rung;
+and provenance/family reconstruction does not capture all resolved inputs and
+settings. A bare fit also retains the legacy anisotropy/scale defaults, so the
+adopted recipes now show explicit flags and unique run labels.
+
+Validation: 104 focused tests passed; no full-suite or long-grid rerun. All four
+PDFs rebuilt and were visually inspected. The eleven changed Python files have
+identical executable syntax trees after removing docstrings, and all 39
+snapshotted processed-data and rung-0 result files retain their original hashes.
+No numerical behaviour, observations, posterior samples or orbit products changed.
+
+## 2026-09-21 -- reporting, mock handling and run preservation repaired
+
+The user approved this implementation pass and clarified the interpretation of rung 0:
+it was designed to establish a baseline and guide subsequent modelling. The documentation
+now leads with that purpose. Scientific extensions remain the planned research sequence.
+
+New runs snapshot the actual binned likelihood arrays and resolved model/MGE before
+sampling, with parameter order, priors, fixed values, distance, halo taper, engine,
+sampler settings, source hashes, git state and available package versions. Reports
+replay those inputs, verify checksums, and check the stored maximum likelihood before
+plotting. Legacy runs retain their original files and use recorded options with a
+warning; an inconsistent reconstruction raises an error.
+
+Mock generation from a saved run now uses that source's model independently of the
+fitted family/rung. Bare vectors require an explicit generating family. Mock evidence
+comparisons use the actual metadata schema; new runs compare saved observation arrays.
+The existing Gaussian-average-error/clipped mock generator is unchanged and named in
+provenance. The CLI and driver refuse existing run directories, and interrupted runs
+keep their launch snapshots.
+
+Validation: 78 focused tests passed, including 36 new regression cases; all 40 replay/CLI
+tests passed again after strengthening two checks. The three archived rung-0 maximum
+likelihoods reproduce exactly and all 39 snapshotted data/result files are unchanged.
+The data and mass-modelling PDFs were rebuilt and inspected. No production fit was run.
+Details, recipes and remaining historical limitations: `docs/CODE_ANALYSIS_AUDIT.md`
+and `docs/MODELLING_PLAN.md`.
+
+## 2026-09-21 -- rung-1 production fits launched
+
+User authorised the rung-1 fits while discussion of the two independent dynamical
+programmes continues: survival of an existing DM remnant, and disruption of a full
+nucleated progenitor. No dynamical simulation was launched in this step.
+
+At 10:46:47 UTC, started `rung1_K1`, `rung1_K2_cored` and `rung1_K2_nfw` in fresh
+directories under `results/fits/`, with PIDs 14568, 14570 and 14572 respectively.
+All three have one free constant anisotropy parameter, beta uniform on [-1, 0.5],
+no instrument scales, the composite tracer and Jeans backend, and the same 89
+measurements and remaining priors as rung 0. Gaia uses raw errors and published
+rotation. Each run uses 400 live points, dlogz = 0.5, seed 42 and no call limit;
+NFW uses the slice step sampler. Each process is restricted to one numerical
+library thread and has a job-lifetime idle-sleep inhibitor.
+
+Preflight: beta = 0 reproduces each corresponding rung-0 maximum log likelihood
+exactly. Launch metadata confirm 6/8/8 free parameters and identical saved data
+fingerprints: `37dfc7fa807b7f2f9862433d9bca9bba1224b5a2871c748a6529baff12aaad99`.
+All three processes were verified active, with UltraNest sampling the initial
+400 live points. These are launch checks, not convergence or fit results.
+
+Exact commands, environment overrides, PIDs, logs and a source archive are in
+`results/fits/rung1_launch_20260921T104646Z/`; each fit also has its own resolved
+model, data and source-hash snapshots in `run.yaml` and `data_snapshot.json`.
+The archived rung-0 run directories were not reused.
+
+## 2026-09-21 -- controlled dynamical experiment pipeline implemented
+
+Added `ocen_dm.dynamics` and the `ocen nbody prepare/run/analyse/plot` commands for
+the two independent programmes: survival of an existing compact DM remnant and
+disruption of a nucleated progenitor containing stars and DM. Usage, assumptions
+and reproducible commands are in `docs/DYNAMICAL_EXPERIMENTS.md`; four pilot
+templates and a short software-check configuration are in `configs/dynamics/`.
+
+Preparation builds spherical constant-beta DFs in the joint nucleus+DM+stellar
+potential, independently checks the signed inversion and verifies recovered
+densities and anisotropy. The Plummer nucleus is counted once. Optional importance
+sampling by orbital pericentre provides variable particle masses with inverse
+selection weights. It protects low-pericentre orbits rather than selecting by
+instantaneous radius; effective counts and later heavy-particle contamination
+are recorded. The templates still require particle-count/softening/time-step
+convergence before scientific use.
+
+The compact core/cusp pair is isotropic and matched in M_DM(<20 pc). The broad
+progenitor core fails the signed DF check when isotropic in this particular
+combined potential. Its tangential beta_DM=-0.3 variant passes; both progenitor
+templates use beta_DM=-0.3 to keep their anisotropy matched, with isotropic stars.
+They share total masses and scales, so their central DM masses differ.
+
+Live evolution uses gyrfalcON particle self-gravity and the analytic rigid nucleus;
+frozen controls retain the complete initial satellite potential. Isolation,
+McMillan17 class-1 and slowing-bar class-3 tracks preserve all Cartesian coordinates
+and the host's absolute clock. Force comparisons validate the saved host assets.
+Both modes use prescribed nucleus trajectories without dynamical friction or
+back-reaction on the nucleus. Those are explicit future extensions for historical
+reconstruction. No long production dynamical experiment was launched.
+
+Validation exposed and corrected three interface traps: AGAMA's generic export
+does not retain analytic Plummer parameters; gyrfalcON's output-key option alone
+does not read particle keys; NEMO's standalone time header rounds to six significant
+digits. Analytic potentials are now serialized explicitly, a run-local no-op
+manipulator requests input keys, and full-precision time columns are parsed.
+
+Each preparation and evolution has fresh-directory protection, saved configurations,
+input checksums, source archives, code metadata and status records. Live runs also
+record executable hashes and commands. Diagnostics include component mass and
+shell-density profiles, effective counts, anisotropy, mass-weighted energy changes,
+a spherical iterative bound-mass proxy and an explicitly defined tidal-tensor scale.
+All particles remain in the simulation.
+
+Validation: 124 focused tests passed in 45.70 seconds, including analytic Plummer
+inversion, circular point-mass and flat-rotation tidal scales, phase-space refinement,
+both progenitor templates, frozen energy conservation, and direct NEMO tests of
+external gravity, binary self-gravity and arbitrary particle IDs. A subsequent
+manifest/config-consistency guard passed its focused regression. Ten short
+end-to-end evolutions (five preparations, live and frozen) completed and were replayed:
+isolation, class 1, class 3 starting at 2000 Myr in the bar clock, and cored/cusped
+progenitors on class-1 orbits. Each spans about 0.1 Myr with 512 remnant particles or
+1000 particles per progenitor component. These validate software and integration,
+not long-term survival or numerical convergence. Products and the inspected comparison
+figure are in `results/dynamics/validation_20260921_v2/`.
+
+The three rung-1 fit processes were verified active while this work completed.
+
+## 2026-09-21 -- first isolation pilots launched
+
+Prepared all four dynamical templates at their configured particle counts and durations.
+Every model passed the signed-DF, density/beta recovery, saved-potential and input-checksum
+checks. Compact remnants have 100,000 DM particles and run for 20 Myr; progenitors have
+200,000 DM plus 100,000 stellar particles and run for 100 Myr. Each has a live evolution
+and a frozen control from the same saved particles. These runs test initial equilibrium
+and numerical drift before tidal passages; they do not establish resolution convergence.
+
+Two independent queues started at 11:32:26 UTC under
+`results/dynamics/isolation_20260921T113007Z/`: remnant worker PID 17802 and progenitor
+worker PID 17804. Each queue runs cusp live/frozen, then core live/frozen, and writes
+comparison figures. At most two evolutions run simultaneously, each using one numerical
+library thread and nice level 5. Job-lifetime sleep inhibitors are attached to the workers.
+The three rung-1 fits remain active at their existing priority.
+
+The full preparations expose a resolution limitation: the cored progenitor has only
+16 DM particles within 20 pc (the cusped progenitor has 539). The cored model's pilot
+can assess broader equilibrium behaviour, but its central density needs finer sampling.
+This limitation and all aperture effective counts are saved in the launch record.
+
+Both first live evolutions started gyrfalcON successfully, with the expected particle
+counts and external nucleus. Actual maximum/minimum steps are 0.0149199253 and
+0.00186499066 Myr. Commands, configurations, input/source hashes, logs, process IDs and
+queue statuses are preserved in the batch directory. A first startup attempt was blocked
+by the sandbox's process-priority restriction before any evolution began; its records
+are retained, and the authorised retry runs outside that sandbox. No tidal run was queued.
+
+## 2026-09-21 -- remnant single-passage pilots and numerical controls launched
+
+The user approved advancing remnant survival independently of progenitor isolation.
+At 11:53:05 UTC, launched three low-priority, single-threaded queues in
+`results/dynamics/remnant_passage_20260921T114939Z/`: cusp passage (worker 18978),
+core passage (18980), and numerical controls (18982). Both tidal live runs and
+the first timestep control were verified advancing in gyrfalcON. The existing
+progenitor queue and all three rung-1 fits remained active.
+
+The class-1 McMillan17 track starts at the nearest past apocentre of the nominal
+present orbit, refined by zero radial velocity. It spans one pericentre at
+1.99817 kpc, reached after 45.11369 Myr, and ends at the next apocentre after
+88.09158 Myr. Binary-step alignment makes the actual integration 88.10216 Myr.
+The initial/final apocentre radii are 6.95887/6.91760 kpc. Both profiles have
+byte-identical orbit and host assets; maximum sampled interpolation acceleration
+error is 4.01e-6. The selected phase-space state and orbit search are preserved.
+
+Each tidal model has 100,000 DM particles, 0.2 pc softening, and matched live/frozen
+evolutions. Both also have live/frozen isolation references spanning the same full
+88.10216 Myr, to distinguish tides from longer numerical drift. The initial models
+are spherical isolated equilibria placed at apocentre, without prior tidal relaxation
+or adiabatic growth of the host field. The nucleus remains rigid and prescribed.
+
+For each core/cusp model, three 20.00762 Myr isolation controls change one numerical
+setting: N=200,000 at fixed softening/timestep; softening=0.1 pc at fixed N/timestep;
+or half the maximum and minimum timesteps at fixed N/softening. The doubled-N models
+have their own frozen controls. Softening and timestep controls reproduce the original
+particle positions, velocities, masses and IDs exactly and reuse the original frozen
+reference. All 20 Myr controls share the completed baseline's exact endpoint.
+
+Ten preparations passed DF, density/anisotropy, input-checksum, particle-matching and
+orbit checks. The bounded batch contains 16 evolutions plus comparison figures, with
+at most three new evolutions at once. Commands, operational scripts, source hashes,
+resolved configurations, preflight records, process IDs and logs are preserved in the
+batch directory. These are sensitivity checks and first-passage pilots; convergence
+of tidal results still needs assessment from completed outputs and, if warranted,
+further resolution tests.
+
+## 2026-09-21 -- first tidal results, NFW rung-1 completion, and control failure
+
+Both remnant class-1 single-passage live/frozen pairs completed 88.10216 Myr.
+Diagnostics checksums were verified and the comparison figures inspected. Relative
+to their initial samples, live M_DM(<20 pc) changes by -1.205% (cusp) and -3.415%
+(core); the corresponding frozen changes are -1.343% and -2.521%. The live spherical
+bound-mass proxies decrease by 6.876% and 8.579%, respectively. These are preliminary
+single-passage results: the matched-duration isolation references are still running,
+and numerical sensitivity checks are incomplete. No escape fraction or converged
+survival limit is inferred from the spherical binding proxy.
+
+Both half-timestep isolation runs completed. At the common 20.00762 Myr endpoint,
+their M_DM(<20 pc) differs from the original live run by about +0.116% (cusp) and
+-0.062% (core). Maximum logged fractional energy drift fell to 6.17e-5 and 2.66e-5,
+compared with 2.93e-4 and 1.68e-4 in the original runs.
+
+The cusp 0.1-pc-softening control aborted in gyrfalcON with a NaN position for body
+96346, stopping the numerical-control queue. An unchanged rerun in a fresh
+`evolution_live_repeat` directory reproduced the same error. The final saved snapshot
+at 1.50691 Myr is finite; body 96346 belongs to its closest particle pair, separated
+by 0.01112 pc. This observation does not yet identify the numerical cause. Both
+failed runs and all logs remain preserved; this softening setting is not validated.
+
+The already-approved, unstarted doubled-N controls (both profiles, live/frozen),
+followed by the cored softening control, were moved to a separate bounded continuation
+queue in `results/dynamics/remnant_controls_continue_20260921T122459Z/`.
+Worker 29353 was verified running the cusp doubled-N case. Original queue records
+remain unchanged. The failure does not prevent these independent controls from running.
+
+The cusped progenitor completed 100.00826 Myr in live and frozen isolation; its bound
+DM and stellar mass proxies remain constant. Central shell estimates are noisy at
+roughly 200 effective DM particles. The cored progenitor remains in live isolation.
+
+The rung-1 NFW fit completed and its saved maximum likelihood replay passed. It has
+beta=0.10846 [0.10391, 0.11316] (median and 16th/84th percentiles), chi2=316.01 for
+89 measurements, and lnL_max=58.1051411. The corresponding rung-0 NFW chi2 was 763.12.
+Stored ln Z is 30.53163 +/- 0.40937. These are conditional results for the current
+constant-beta NFW model. K1 and cored rung-1 fits remain active but sample inefficiently;
+the three-family comparison is not yet available.
+
+## 2026-09-21 -- P1 overflow repaired and slow fits replaced with slice sampling
+
+The user authorised a bounded repair of the NaN failure and sampler inefficiency.
+Instrumenting the installed scalar P1 Taylor kernel identified the cause: at order 3,
+X=5.43901e7 and the preceding raw derivative=1.3316e30 produce an intermediate
+7*X*D3 about 5.07e38, exceeding float's range. Multiplication by eps^2/2 would bring
+the correction back into range, but the overflow had already occurred. The resulting
+NaN is numerical; neither the physical softening nor the timestep needed changing.
+
+The new coefficient helper evaluates the same P1 derivatives using a dimensionless
+correction, without forming the unnecessary next derivative. New live runs build a
+run-local falcON library that replaces only kernel.o, checks the upstream source
+block, and records compiler, source/object and library hashes. Unsupported source
+versions fail explicitly. Missing or altered runtime libraries also fail instead
+of silently falling back. The installed NEMO source and library remain unchanged,
+verified by hashes. The helper and builder are included in source archives.
+
+A 64-particle close-cell reproducer aborts with the original library and completes
+with the repaired library. Its maximum force error relative to direct P1 summation
+is 7.25e-5. The focused regression suite passed 95 tests, including real NEMO external
+gravity, binary self-gravity and the new force comparison. After strengthening the
+runtime integrity check, all five kernel/checksum tests passed.
+
+The original 100,000-particle, 0.1-pc-softening cusp configuration completed the full
+20.00762 Myr in `evolution_live_p1_fixed`, with 41 analysed snapshots and validated
+IDs, masses, endpoint and diagnostic checksum. M_DM(<20 pc) changes from 100128.84
+to 100435.89 Msun; the bound-mass proxy remains constant. Maximum logged fractional
+energy drift is 1.57e-4. At the final valid pre-crash snapshot, the repaired and old
+runs differ by at most 7.27e-5 pc in position and 2.47e-4 km/s in velocity. Both failed
+attempts remain preserved. The comparison figure was inspected. The doubled-N,
+cored-softening and full-duration remnant isolation controls have also completed.
+
+K1 and cored rung-1 replacements were launched as `rung1_K1_slice` (PID 30585) and
+`rung1_K2_cored_slice` (30587), using the existing SliceSampler with 2*ndim steps.
+Their exact saved observations, model, priors, seed and convergence settings match
+the old runs; beta=0 again reproduces the corresponding rung-0 likelihoods. After
+verifying replacement startup, the old jobs were stopped with SIGINT. Their readable
+HDF5 checkpoints were copied, hashed and retained, and their manifests now record
+the interruption and replacement labels. No existing project run was resumed.
+
+Early comparisons over matched likelihood ranges show about three times fewer
+likelihood evaluations per accepted iteration: 48.9 versus 145.7 for K1 and 53.1
+versus 163.6 for the cored model. These are stage-specific efficiency measurements,
+not completed fits or predicted total speedups. Both replacement fits remain active.
+Evidence, scripts, checkpoints and repair verification are under
+`results/repairs/numerics_20260921T125417Z/`. No new scientific grid was launched.
+
+## 2026-09-21 -- completed dynamical batch analysed
+
+Analysed all 24 completed evolutions from 14 preparations, including the repaired
+cusp softening control; excluded and preserved the three failed attempts. Verified
+prepared-input and diagnostic hashes, manifest links, durations, mass invariance,
+nested apertures and matched initial conditions. Independently reread 12 final
+snapshots, checked IDs/masses/epochs and reproduced the saved aperture masses.
+Extended the progenitor endpoint profiles to 10 kpc. The script is
+`bin/analyse_dynamical_batch.py`; results, source copy, six PNG/PDF figures and
+checksums are in `results/dynamics/batch_analysis_20260921_v2/`. The earlier analysis
+directory is retained. The full interpretation is in
+`docs/DYNAMICAL_BATCH_ANALYSIS.md`.
+
+At 88.10216 Myr, live M_DM(<20 pc) is 1.226% lower than its isolation control for
+the cusp and 3.386% lower for the core. Final-10-Myr median deficits are 1.406%
+and 3.309%; frozen medians are 1.430% and 3.028%. These temporal summaries are not
+confidence intervals. Live M_DM(<70 pc) endpoint deficits are 5.351% and 7.120%,
+and spherical bound-mass proxy declines are 6.876% and 8.579%. Final-10-Myr shell
+density depletion is about 17% at 70 pc; beta there is -0.298 and -0.285, versus
+near zero in isolation. The comparison fixes M_DM(<20 pc), not total DM mass.
+
+The saved orbit crosses the disc at 24.42066 and 53.27006 Myr, at cylindrical
+radii 5.09361 and 3.00873 kpc. Pericentre occurs at 45.11369 Myr. The largest
+compressive host-force-gradient pulse accompanies the second crossing, followed
+by the strongest outer depletion. The frozen 70-pc cohort gains much more
+reference energy than the 20-pc cohort. This suggests a disc-shocking contribution;
+the batch does not isolate it from the preceding pericentre response.
+
+Halving timestep or softening changes the 20-Myr remnant endpoint M20 by at most
+0.116%. Doubled-N live/frozen differences using their own matched samples are
++0.011% and -0.155%. Isolation energy drift decreases with half timesteps; the
+88-Myr baseline runs reach 0.135% and 0.0728%. Recommend extending timestep and
+particle-number controls to the full tidal interval before repeated passages.
+
+Both progenitor live/frozen pairs completed 100.00826 Myr. Bound component masses
+remain constant; no particles above ten times the minimum component mass enter
+the 100-pc protection aperture at saved epochs. At sampled radii from 100 pc to
+10 kpc, live/frozen endpoint masses differ by less than 1% in both components.
+The core has only 16 initial DM particles inside 20 pc, ending with 18 live and
+23 frozen; its large central fluctuations are unresolved sampling behaviour.
+The existing models support an extended-body disruption pilot, while central
+remnant measurements need improved sampling and its isolation validation. These
+programmes remain independent. No new evolution or fit was launched.
+
+## 2026-09-21 -- LaTeX report of the first dynamical batch
+
+Created `docs/dynamical_batch.tex` and `docs/dynamical_batch.pdf`: an
+11-page write-up with six vector figures, six tables, the initial-condition
+and diagnostic equations, complete batch specifications, numerical controls,
+force-kernel repair, interpretation and next experiments. Regenerated the six
+plots at page width using `bin/plot_dynamical_writeup.py`; their input and
+figure checksums are in `docs/dynamical_batch_figures/provenance.json`.
+The timestep setting `fea=0.2` was checked against the installed gyrfalcON
+manual and described as the acceleration-based timestep factor.
+
+The PDF compiled without warnings, unresolved references or overfull/underfull
+boxes. Rendered pages were inspected for table, equation and figure layout.
+The portable archive `output/source/dynamical_batch_latex.zip` contains the
+source, all six figures, provenance, checksums and build instructions. Its
+contents were verified and compiled independently. No simulation products or
+physical settings changed.
+
+## 2026-09-21 -- Add the 20-pc density summary to the write-up
+
+Added Section 8 and Figure 7 on page 11 of `docs/dynamical_batch.pdf`, with
+all 24 completed evolutions and their distinct comparison references. The
+text separates local shell density from enclosed mass, gives the tidal
+medians, and discusses positive isolation offsets and the unresolved core.
+`bin/plot_density_changes_20pc_paper.py` lays out the audited summary values
+at the report's text width. The updated report has 12 pages and seven figures.
+The PDF remains beside its LaTeX source. The portable LaTeX archive was updated
+and compiled independently; its PDF text matches the report. No simulations
+or fit settings changed.
+
+## 2026-09-21 -- Lifetime exposure and the surviving-cluster constraint
+
+The user requested multi-Gyr density evolution and stressed that Omega Cen
+must survive to the present. Recorded `docs/LIFETIME_EVOLUTION.md`, linked
+from the experiment guide and the earlier N4 plan. It separates stellar age,
+MW accretion, envelope loss and present-orbit exposure; specifies density,
+stellar-structure and joint-survival plots; and requires long numerical controls.
+The existing fixed nucleus cannot test stellar survival. A responsive nucleus
+and an assessment of physical relaxation are required for that inference.
+The class-1 10-Gyr experiment is a controlled baseline; the implemented bar
+history spans 7.82234 Gyr. Historical comparisons must end at the observed epoch.
+Published exposure/migration references were checked against ADS and arXiv.
+No long-duration run was launched and no lifetime density result was inferred
+from the first-passage percentages.
+
+## 2026-09-21 -- Responsive nuclei, staged lifetime queue, completed rung 1
+
+Implemented a live Plummer nucleus sampled in the combined potential, with its
+analytic gravity removed during self-gravitating evolution. Its signed DF and
+density/moment recovery are checked like the DM. An isotropic Plummer nucleus
+fails the cusp positivity check; β = −0.1 passes for both compact halos and is
+the common controlled choice. Stellar diagnostics follow a shrinking-sphere
+centre and include bound mass, three projected half-mass radii, 3D half-mass
+radius, velocity dispersions and displacement from the reference orbit.
+Initial/final kinematic residuals use archived observations and flag sparse
+bins; they are diagnostic Cartesian projections, not a survival classification.
+
+Added present-endpoint orbital rewinding, preserving the bar's absolute clock.
+At accuracy 1e-12 the 10-Gyr static reference returns within 0.0165 pc and
+0.000933 km/s; the 7.82234-Gyr bar track returns within 0.422 pc and 0.0161 km/s.
+Their measured pericentre/disc-crossing counts are 114/209 and 67/135. The
+local physical DM-heating estimate uses the initial DF and an explicit stellar
+mass-spectrum bracket, without treating simulation particles as real stars or
+turning the timescale into a depletion law. Orbital averaging remains needed.
+
+Launched `results/dynamics/lifetime_20260921T162000Z` with controller PID 44098
+and four workers. It has 12 full-passage controls, 16 live-nucleus 500.004-Myr
+experiments, then eight conditional 7.822/10-Gyr frozen-potential comparisons.
+Failed runs or numerical checks prevent stage advancement. The controller
+executes preserved, hashed source; existing experiments are unchanged. Initial
+verification found all four first-stage runs active with growing snapshots.
+No new long-duration density or stellar-survival result is claimed yet.
+
+Verified 54 focused tests in total: the existing dynamics/kernel checks and
+12 lifetime cases, including actual NEMO integration in isolation and a host,
+DF rejection, centring, units, observational bins, numerical-gate failure and
+checksum rejection. The new compiled isolation test checks total momentum
+rather than imposing an arbitrary tolerance on the noisy low-N density centre.
+Plots and current run state are in `docs/LIFETIME_BATCH_REPORT.md`; refresh it
+with `bin/report_lifetime_batch.py` and the batch path.
+
+All three rung-1 models are complete and their maximum likelihoods replay
+exactly on the same 89 data points. χ² is 342.51 (K1), 316.01 (NFW), 315.29
+(cored), compared with 771.53, 763.12, 761.10 at rung 0. Cored versus NFW gives
+Δln Z = 0.93 ± 0.54. Added `docs/RUNG1_COMPARISON.md`, profile figures and a
+rung-0/rung-1 χ² comparison. The results support the intended next step in the
+modelling ladder; constant anisotropy still leaves structured outer residuals.
+
+## 2026-09-21 -- PNG plot convention and the Gaia anisotropy tradeoff
+
+Moved analysis figures to `plots/` and adopted PNG as the sole plot format,
+including the older diagnostic figures stored in result directories. Converted
+the paper figures at 300 dpi and removed PDF plot exports after verifying their
+PNG replacements. Numerical simulation inputs and fit products were preserved.
+Updated generators, Markdown/LaTeX references, README and project AGENTS.md;
+`results/maintenance/plot_location_migration.json` records old locations and checksums.
+The 12-page dynamical document remains beside its LaTeX source. Rebuilt and
+visually checked all pages, then verified the portable archive compiles with
+its seven PNGs and reproduces the document text.
+
+Investigated the rung-1 Gaia tangential deterioration by replaying the fits.
+Cored χ² changes from 23.56 at rung 0 to 58.50 at rung 1. Holding rung-1 masses
+and distance fixed and changing only β to zero gives χ² = 14.93 for Gaia
+tangential, while HST radial/tangential worsen to 666.41/362.91. The equivalent
+NFW check gives 17.78 instead of 62.23. The fixed-mass check is not a new fit.
+Saved the bin-level diagnostics in
+`results/fits/gaia_rung_anisotropy_check_20260921.json` and expanded the rung-1
+comparison. The worst cored Gaia tangential residual is 4.31σ at 662 arcsec.
+
+Confirmed that rung 2 introduces β(r), but the existing form is monotonic and
+uses β(0) <= -0.5. It cannot combine a tangential centre, radial intermediate
+region and an outer decline. Documented the distinction between a turnover
+extension and a broad-central-prior monotonic diagnostic. No rung-2 fit was
+launched while answering this modelling question.
+
+## 2026-09-21 -- Analytical predictions versus the completed dynamical pilot
+
+Added `bin/compare_dynamical_analytics.py` and three PNG figures under `plots/`.
+The actual initial-DF energy cut predicts 20-pc density losses of 10.18%/14.71%
+for cusp/core, compared with live losses of 2.50%/4.66%. It over-removes phase
+space relative to the finite first passage. The scalar pericentre heating
+formula, evaluated on the actual 1.998-kpc orbit, instead underpredicts the
+full-orbit energy increment. Initial-radius cohorts contain extended internal
+orbits; their contribution, and continued work on escaping particles, separates
+the mean from the median. A large mean/prediction ratio is not a density-loss
+fraction or a calibration of the adiabatic index.
+
+The analysis checks saved-particle IDs, masses, epochs and input hashes,
+reproduces the existing energy medians, subtracts matched isolation energy
+drift, and verifies the independent signed-DF density integration with a finer
+grid. Three tests pass for exact Kepler limits and finite-shell averaging.
+Expanded `docs/dynamical_batch.tex` with equations, two tables and three figures;
+updated the companion Markdown analysis and the interpretation of the proposed
+N3 criterion. No simulation or rung-2 fit was launched for this analysis.
+
+## 2026-09-21 -- Flexible rung-2 fits launched
+
+Implemented the authorised two-transition stellar anisotropy profile with
+three independent beta control levels and two ordered radial scales. Convex
+weights prevent overshoot; the exact integrating factor supports the existing
+spherical Jeans solver. The profile allows peaks, troughs and monotonic shapes.
+The central prior retains beta_0 in [-1, -0.5] for the current cored MGE plus
+point mass; this necessary condition is not a global DF-positivity certificate.
+Legacy profiles and replay remain supported, and unsupported JAM/AGAMA or
+constant-beta combinations fail explicitly. The full prior specification is
+in `docs/MODELLING_PLAN.md`.
+
+Verified 105 focused tests, including 27 new tests for the profile, numerical
+Jeans integration, special-case projections, validation and saved-model replay.
+Rechecked the 10 ladder tests after adopting the new rung-2 parameter counts.
+The launcher independently replayed all three completed rung-1 likelihoods
+and checked 258 finite prior points per rung-2 family. It preserves the same
+89 measurements, MGE, mass and distance priors, rotation/error options, and
+excludes instrument scales. The central-beta prior is explicitly different
+from the diagnostic rung-1 prior.
+
+Launched `rung2_K1_turnover` (PID 48144), `rung2_K2_nfw_turnover` (48150)
+and `rung2_K2_cored_turnover` (48152), with 400 live points, dlogz=0.5,
+seed 42 and 2*ndim slice steps. All three use preserved source and one numerical
+library thread; the separate dynamical queue is unchanged. Manifests and logs
+are in `results/launches/rung2_turnover_20260921/`. Initial checks found all
+three samplers advancing past several thousand likelihood evaluations with
+the exact common data fingerprint. No result or completion-time estimate is
+inferred from this early progress.
+
+## 2026-09-21 -- Simple single-transition companion fits launched
+
+Following the agreed intermediate step, launched the existing smooth profile
+`beta(r) = beta_0 + (beta_inf-beta_0) r²/(r²+r_beta²)` with both endpoints
+uniform on [-1, 0.5] and `r_beta` log-uniform on [0.5, 100] pc. This retains
+rung 1's diagnostic central assumptions; the central DF restriction is a
+separate control. The five-parameter turnover runs retain their own priors.
+
+Extended `bin/run_rung2_fits.py` with `--profile simple`, preserving its default
+turnover recipe. The driver copies each saved rung-1 mass/distance model and
+89-point data snapshot, stores the full resolved priors, and checks the
+constant-beta maximum-likelihood limit at transition radii 0.5, 10 and 100 pc.
+Global solver and constructor defaults are unchanged. Custom parent mass
+priors survive reconstruction, and existing batch/output directories are
+refused before any worker starts.
+
+All 115 focused tests passed, including 10 new tests covering endpoint priors,
+saved-model replay, all three projected velocity moments in the constant-beta
+limit, preservation of custom parent settings, the turnover recipe, and run
+preservation. Each production family passed 258 finite prior likelihood
+checks and reproduced its parent likelihood in the constant limit. The
+launched configurations and data fingerprints were checked independently.
+
+The new labels are `rung2_K1_simple_beta` (PID 52088, 8 parameters),
+`rung2_K2_nfw_simple_beta` (52090, 10), and `rung2_K2_cored_simple_beta`
+(52092, 10). All use 400 live points, dlogz=0.5, seed 42, 2*ndim slice steps,
+archived source and one numerical-library thread. Records, logs and test
+verification are in `results/launches/rung2_simple_beta_20260921/`. Initial
+checks found all three sampling beyond 3,000 likelihood evaluations, with no
+tracebacks. The turnover K1 fit had already completed in 5,999.7 seconds;
+the two turnover halo fits and the dynamical controller remain active.
+The existing turnover source/configuration hashes were verified unchanged.
+
+## 2026-09-21 -- Keep the plots directory image-only
+
+Moved the nine JSON/ECSV plot-support files to `results/plot_data/` and the
+earlier location-migration log and Finder metadata to `results/maintenance/`.
+Updated all seven figure/report generators, current document references,
+README and AGENTS output conventions. The dynamical report's portable LaTeX
+bundle uses the same separation: PNGs in `plots/`, JSON in `results/plot_data/`.
+The compiled report remains beside its LaTeX source in `docs/`.
+
+All 112 PNG files and both numerical ECSV tables remain byte-for-byte
+unchanged. Three generators were exercised against the relocated inputs;
+all seven updated scripts parse. Migration checksums and the distinction
+between regenerated metadata and historical generator hashes are recorded in
+`results/maintenance/plots_support_migration_20260921.json`. Fit and simulation
+run directories, including archived source used by active jobs, were untouched.
+
+## 2026-09-22 -- Independent and conditional DM-density posterior checks
+
+Launched two flexible-core fits at 06:52:53 UTC in batch
+`results/fits/densitycheck_20260922T065245Z`: a free-density repeat (PID 77776)
+and a rho20 = 2 solar-mass-per-cubic-parsec conditional posterior (PID 77778).
+Both use 800 live points, dlogz 0.25, four times ndim slice steps, independent
+seeds 1729/1730, archived source/data and one numerical-library thread.
+Original model priors, including the million-solar-mass stellar floor, remain.
+
+Added an explicitly serialised conditional model. Conditioning the original
+log-uniform halo-mass prior leaves the scale-radius prior unchanged here;
+full mass support is checked before sampling. The conditional/free evidence
+ratio will estimate the marginal posterior PDF at density 2. It is not a
+probability atom or a replacement for DM/no-DM model averaging.
+
+All 71 targeted tests and a limited conditional UltraNest smoke test passed.
+Both production workers were verified alive and advancing beyond their prior
+initialisation. Original fits and the four active dynamical simulations were
+preserved. See `docs/DM_DENSITY_POSTERIOR_CHECKS.md` for the prior derivation,
+file locations, checks and interpretation planned after completion.
+
+## 2026-09-22 -- Spatial density and stellar DF audit
+
+Added `df_consistency.py`, the all-run driver `bin/audit_df_consistency.py`,
+and `docs/DF_CONSISTENCY_AUDIT.md`. Inventoried 29 run records, including two
+interrupted attempts and two still-active posterior checks. Checked 358,746
+saved posterior rows (103,468 unique vectors), 800 checkpoint live points,
+and 30 saved density-profile/repeat-start optima. All spatial densities are
+non-negative. Reconstructed all 7,202 archived mass-profile draws exactly;
+legacy likelihood replay differences are recorded separately.
+
+Twenty of the 23 completed fits outside the invalid old solver archive fail
+the cored-tracer/central-black-hole necessary condition beta0 <= -1/2. All
+three turnover best samples pass that central bound but fail P'' >= 0 near
+0.085--0.18 pc under a separable augmented-density assumption. Approximately
+87--90% of their posterior samples fail the same screen. This excludes that
+DF construction, not every nonseparable DF. No passing necessary-condition
+screen is labelled a DF-positivity certificate. The checks concern the stellar
+tracer; dark-matter/remnant DFs are unspecified by the Jeans fits.
+
+All 71 focused tests passed (DF consistency, turnover anisotropy and run
+replay). Best-sample classifications agree after doubling the radial grid.
+Repeating all turnover posterior checks at 1,024 and 2,048 points changes
+failure fractions by at most 0.11 percentage points relative to 512 points;
+narrow negative intervals account for the borderline changes. The PNG figure
+was inspected, and all numerical products live outside plots/. Existing fit
+samples, priors and active workers were not changed.
+
+## 2026-09-22 -- Positive stellar action-DF branch in AGAMA
+
+Implemented a separate stellar DF model and joint photometric/kinematic pilot
+fitter. Analytic AGAMA DoublePowerLaw DFs and their positive mixtures generate
+both stellar density and anisotropy, with self-consistent stellar gravity.
+The gravitational model retains an exact point-mass BH and optional static
+Plummer remnants and truncated cored/cusped DM. Positivity is established for
+the stellar DF; static remnants/DM do not yet have specified DFs.
+
+An independent velocity integral exposed a central density discrepancy in
+the standard AGAMA self-consistency helper. The new branch uses explicit
+spherical velocity quadrature and AGAMA actions/potential construction,
+checking off-grid density closure at doubled velocity order and total mass.
+No negative DF or density values are clipped. The saved streaming subtraction
+remains an explicitly documented moment approximation, with impossible values
+rejected. Photometric errors must be supplied explicitly; the diagnostic pilot
+adopts 0.1 mag / sqrt(relative weight), with one profiled zero-point.
+
+All 94 focused tests passed (23 new controls plus 71 previous consistency,
+anisotropy and replay tests). Four real-data evaluations -- no DM, cored DM,
+cusped DM and a two-component stellar mixture -- passed independent projection
+and complete resolution-doubling checks. The largest dispersion change was
+0.011 observational errors. The mixture generates intermediate radial and
+outer tangential anisotropy while keeping its DF positive.
+
+A 96-call no-DM local fitting pilot completed in 294 seconds. Kinematic chi2
+fell from 15881.77 to 761.52, with photometric chi2 662.30. The optimizer hit
+its evaluation limit, so these are workflow-validation results, not converged
+fits or new DM/BH constraints. The pilot's numerical checks passed. Added
+`docs/AGAMA_DF_MODELS.md`, example configs, snapshots and PNG figures under
+the established output conventions. Previous Jeans fits and dynamical runs
+were not modified or restarted.
+
+Mixture weights can also be fitted through log mass ratios followed by a
+softmax, keeping every DF coefficient positive and the fractions normalized.
+An independent fresh-process replay of the pilot reproduces its joint
+objective and all 89 predictions exactly from the saved inputs.
+
+## 2026-09-22 -- DF infrastructure methods note
+
+Added `docs/agama_df_models.tex` and its 11-page compiled PDF beside the
+source. The note derives the positive action-DF family, mixture weights,
+self-consistent gravity, velocity integrals, projection and joint data
+objective. It documents the numerical controls, the 94-test verification
+record, the bounded unconverged no-DM pilot and current model scope.
+
+Four numbered figures show example density/anisotropy profiles, numerical
+accuracy, optimizer progress and the pilot against the data. The six-panel
+data comparison occupies a landscape page. Added `bin/plot_df_writeup.py`
+to regenerate the two new diagnostic figures from saved results, with
+source checksums and plotted arrays in `results/plot_data/`. All figures
+are PNGs under `plots/`. The LaTeX build has no unresolved references or
+box warnings; all pages were rendered and inspected. No fits were launched
+or modified for this documentation task.
+
+## 2026-09-22 -- Independent fixed-potential DF flexibility challenge
+
+Implemented an independent positive energy-based mock generator. Its
+Osipkov--Merritt lowered-isothermal populations solve Poisson's equation jointly,
+including luminous stars, concentrated dark remnants and an optional extended
+dark component. The three cases comprise a single isotropic population and
+two stellar mixtures with and without a halo. Their exact projected expectations
+are evaluated at the saved 89 kinematic bins and 82 photometric radii; error
+scales are adopted from the existing data/pilot, with no random noise or rotation.
+
+Added a fixed-potential action-DF fitter with cached actions and analytic
+derivatives. One, two and three positive DoublePowerLaw shapes were fitted from
+three starts each. Wider-bound controls repeated the one- and two-DF fits.
+All six batches finished: 45 starts, 6,605 evaluations, 44 optimizer terminations
+and one capped alternative start whose solution was superseded. Each selected
+fit passed resolution, outer-domain, independent AGAMA projection, true-potential
+and mock-projection controls. The 104 focused tests passed.
+
+Three DFs meet the predefined accuracy target in all mocks. At doubled
+resolution the RMS/worst-bin residuals, in adopted observational errors, are
+0.0346/0.1735 (single isotropic truth), 0.0098/0.0452 (mixed stars/remnants) and
+0.0231/0.1135 (mixture plus halo). Two DFs approach this accuracy but retain
+worst-bin residuals of 0.45--0.63 errors even with wider search bounds. One DF
+performs substantially worse. Some parameters still contact the wider bounds,
+so this is an attained-capacity comparison, not an impossibility theorem.
+
+Added `docs/DF_CAPACITY_CHALLENGE.md`, five inspected PNGs in `plots/`, combined
+plot data/checksums in `results/plot_data/df_capacity_20260922.json`, and preserved
+run/code/input histories under `results/df/capacity*_20260922_*`. Components of
+the fitted light DF are basis functions, not identified physical populations.
+The fixed true potential already contains all gravity; these runs do not infer
+DM or remnant masses. Noisy mass recovery, independent mass/light weighting,
+instrument population selection and real-data fitting remain subsequent stages.
+
+## 2026-09-22 -- Free-potential DF mass recovery launched
+
+Implemented independent positive stellar mass and light mixtures in
+`df_mass_recovery.py`. Each trial solves stellar self-consistency from the
+mass DF and projects the light DF. Added explicit, separately serialized
+dark-template masses and radial dilations. The first recovery test gives the
+fitter matched dark density families while freeing their amplitudes/scales;
+stellar action shapes are independent of the positive energy-based mock truth.
+Dark spatial density is positive, but fitted dark DFs are not certified.
+
+The 111 focused tests passed; a further seven-test rerun checked the added
+shared-M/L path. Both mock starting models passed resolution, native projection
+and cold replay controls. A four-evaluation, fixed-shape optimizer smoke test
+reduced Q from 13.647 to 0.0901 and passed the same numerical checks. That smoke
+test was deliberately capped and is not a completed mass-recovery inference.
+
+Launched the preserved batch `results/df/mass_recovery_20260922T151408Z/` with
+two single-threaded workers. Six noiseless fits (two injected clusters, three
+starts each) fit weights, then action scales, then all 27 coordinates. For each
+case passing a converged, numerically checked noiseless accuracy gate, the batch
+adds one shared-M/L control and eight noise realizations with two starts each.
+The full planned batch has 40 jobs. The noise ensemble is a pilot study of
+recovery scatter, not a posterior-coverage certification or a real-data fit.
+
+All workers import frozen scientific source and saved data/initial-shape inputs.
+The new reporter writes PNGs under `plots/`, numerical/provenance records under
+`results/plot_data/`, and `docs/DF_MASS_RECOVERY_STATUS.md`. Methods and limitations
+are documented in `docs/DF_MASS_RECOVERY.md`. Previous fits and simulations were
+not restarted or stopped.

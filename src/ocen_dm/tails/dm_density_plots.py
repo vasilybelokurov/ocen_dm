@@ -4,6 +4,11 @@ the sharp-cut alternative is rho_NFW for r < r_J, 0 outside). Compared with the 
 of the rung-0 K1 model and the 0.1-3 Msun/pc^3 range discussed in docs/dm_capture_constraints.tex
 for the deep white-dwarf field at 20 pc.
 
+These curves are illustrative spatial tapers, not calculated equilibria or posteriors.
+The m_dm_in_rj table column integrates the initial untruncated NFW profile, not rho_retained.
+The stellar comparison borrows the K1 mass but uses a fixed distance and its own MGE grid;
+it does not replay the saved K1 model exactly. See docs/CODE_ANALYSIS_AUDIT.md.
+
 Usage: PYTHONPATH=src python -m ocen_dm.tails.dm_density_plots
 """
 from __future__ import annotations

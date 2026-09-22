@@ -1,0 +1,65 @@
+{
+  "verified_utc": "2026-09-21T21:09:25.453609+00:00",
+  "pages": 17,
+  "figures": 10,
+  "tables": 8,
+  "pdf_path": "docs/dynamical_batch.pdf",
+  "source_path": "docs/dynamical_batch.tex",
+  "pdf_sha256": "7f3dd87caf6bf4d485dc332a4acae486099479d35d85b75ffa20eda502a16819",
+  "source_sha256": "dd4ac7949229e6c797d9c197b7f9c748828a25939be6bff309335b277f1c3a53",
+  "archive_sha256": "c927805393a224650665b5d32c7a5042c042e1da1537b0db95db204cf61787b3",
+  "clean_latex_build": true,
+  "portable_archive_compiles": true,
+  "portable_pdf_text_identical": true,
+  "rendered_pages_visually_checked": true,
+  "original_analysis_numerical_inputs_unchanged": true,
+  "figure_format": "PNG",
+  "figure_directory": "plots/",
+  "project_plot_count": 112,
+  "density_summary": {
+    "section": 9,
+    "figure": 10,
+    "page": 16,
+    "completed_evolutions": 24
+  },
+  "analytical_comparison": {
+    "section": 6,
+    "figures": [
+      4,
+      5,
+      6
+    ],
+    "tested_cases": 6,
+    "raw_input_hashes_rechecked": 55,
+    "numerical_record_sha256": "ac8f1885c5aaf8f73464c85a32c5890a78c994186b56be71770bd74a0f656640",
+    "median_energy_reproduction": true,
+    "isolation_subtracted": true
+  },
+  "paper_figure_provenance_sha256": "784b826e36c64c970f843972010dce5db1ea0b2bf2283d1236444b765317d9c6",
+  "plot_support_directory": "results/plot_data/",
+  "plot_directory_images_only": true,
+  "layout_verification": {
+    "unchanged_pages": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16
+    ],
+    "changed_pages_visually_checked": [
+      17
+    ],
+    "method": "95-dpi pixel comparison of all 17 pages; changed page inspected"
+  }
+}

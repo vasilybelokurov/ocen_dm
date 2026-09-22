@@ -5,6 +5,12 @@ table `results/fits/comparison.md`; figures `plots/fit_posterior_profiles.png`,
 `plots/fit_rung0_*_posterior_profiles.png`. Plan: `docs/MODELLING_PLAN.md`; data:
 `docs/data_analysis.pdf`; method: `docs/mass_modelling.pdf`.*
 
+**Baseline stage complete (2026-09-21).** These runs establish the intended reference
+for the next modelling steps. All three saved maximum-likelihood values reproduce
+exactly with the current code and data. Their residuals guide tests of anisotropy,
+rotation and other extensions. No new posterior was sampled during the audit or
+subsequent reporting repairs; see [CODE_ANALYSIS_AUDIT.md](CODE_ANALYSIS_AUDIT.md).
+
 ## 1. What was run
 
 Rung 0 of the ladder: the simplest defensible model. Isotropic (β ≡ 0), no instrument scale
@@ -39,18 +45,20 @@ parameters), K2-cored and K2-NFW (K1 plus a two-parameter halo, `M_dm_100` and `
 | 95 % upper limit M_DM(<100 pc) | — | 3.13 ×10⁶ | 1.64 ×10⁶ |
 | likelihood calls / wall time | 3.2 ×10⁶ / 4.0 h | 6.6 ×10⁶ / 10.0 h | 14.3 ×10⁶ / 20.6 h |
 
-**Δ ln Z**: cored − K1 = +1.08 ± 0.60; NFW − K1 = −0.07 ± 0.59; cored − NFW = +1.15 ± 0.50.
-A Bayes factor of 2.9 is "barely worth mentioning" on the Jeffreys scale. **There is no
-evidence for dark matter at rung 0, and the NFW form is indistinguishable from no halo.**
+**Δ ln Z**: cored − K1 = +1.08 ± 0.60; NFW − K1 = −0.08 ± 0.59; cored − NFW = +1.16 ± 0.50.
+The cored-to-K1 Bayes factor is about 2.9. **Neither halo family is persuasively preferred
+within this baseline.** Because all three models fit poorly, these evidence differences
+cannot establish the physical presence or absence of a halo.
 
-**Comparability verified.** The report flagged the three runs as fitted to different
-observations, because the Gaia product's file hash changed on 20 Sep 17:22 between the K1 and
-K2 launches. Recomputing K1's χ² at its stored maximum-likelihood point with today's files
-reproduces all five per-dataset values to five significant figures, so the change was metadata
-only and the evidences are comparable. (`run.yaml` now hashes inputs at launch rather than at
-the end of a run, so this cannot recur.)
+**Input-hash discrepancy.** The report flags the runs because the Gaia product's hash
+changed between launches. Re-evaluating the three saved best samples now reproduces their
+stored log likelihoods exactly and all per-dataset χ² values to their recorded precision.
+This supports the journal's interpretation of a metadata-only change. It is not a proof
+that every original likelihood input was identical: the run directories do not contain
+immutable copies of the fitted arrays. The report warning is retained. Launch-time hashes
+now reduce this risk, but do not freeze inputs or cover the tracer source files.
 
-## 3. Goodness of fit: the χ² is entirely beyond 50″
+## 3. Goodness of fit: the excess χ² is concentrated beyond 50″
 
 χ² at the K2-cored maximum-likelihood point, split by projected radius:
 
@@ -60,8 +68,8 @@ the end of a run, so this cannot recur.)
 | HST tangential | 13.6 (11 pts, 1.2/pt) | 165.8 (5) | 304.4 (5, 61/pt) |
 | MUSE LOS | 9.5 (13 pts, 0.7/pt) | 27.5 (10) | 38.9 (6) |
 
-**Inside 50″ the model is an excellent fit to all three datasets.** Every part of the bad χ²
-comes from larger radii, and two thirds of the total from the HST tangential component alone.
+Inside 50″ the residuals are consistent with the adopted uncertainties. Most of the excess
+χ² comes from larger radii; HST tangential contributes 484 of the total 761.
 
 The misfit is small in physical terms. Fractional residuals (data − model)/data:
 
@@ -72,13 +80,16 @@ The misfit is small in physical terms. Fractional residuals (data − model)/dat
 | statistical error | 0.26–0.30 % | 0.24–0.35 % | 0.20–0.49 % | 0.16–0.79 % | 0.21–1.19 % | 0.51–1.61 % |
 
 χ² = 761 corresponds to a model wrong by 1 % in one component and 5–10 % in another. It looks
-catastrophic only because the HST errors are 0.16–0.35 % in those bins. In this regime χ² is a
-statement about unmodelled systematics and missing degrees of freedom, not about the mass.
+catastrophic only because the HST errors are 0.16–0.35 % in those bins. The fit errors also include propagated rotation uncertainty where applicable; the table
+shows statistical errors alone. The large χ² establishes model/data tension. Missing
+anisotropy and calibration or selection effects are possible causes, and mass estimates
+can remain biased until those causes are tested.
 
-## 4. The misfit is in the ratio of the two components, not in the mass
+## 4. Component ratios motivate anisotropy tests
 
-The geometric mean of the two PM components is matched to 2–3 % at 150–300″, so the enclosed
-mass is essentially right. What is wrong is σ_T/σ_R. The isotropic model does not predict
+The geometric mean of the two PM components is matched to 2–3 % at 150–300″, while their
+ratio has a stronger radial residual. Matching that mean is not an independent measurement
+of enclosed mass: projection, tracer density, anisotropy and streaming also enter. The isotropic model does not predict
 exactly 1 for this ratio, because the tangential model has the published rotation subtracted;
 the residual excess (data ratio over model ratio) is the part that needs new physics:
 
@@ -91,18 +102,16 @@ the residual excess (data ratio over model ratio) is the part that needs new phy
 (The first four columns are HST, the rest Gaia EDR3; 9.2 pc onwards is a different instrument,
 so the step at 8 → 9 pc should not be over-interpreted.)
 
-**This is the classical anisotropy profile of a tidally limited star cluster**: isotropic in the
-core, radially anisotropic in the intermediate region (β ≈ +0.2 to +0.3 at 4–8 pc), turning
-tangential in the outskirts (β ≈ −0.2 to −0.4 beyond ~30 pc), because radial orbits are the
-ones that reach the tidal boundary and are preferentially stripped. The sign reversal is
-visible within the Gaia data alone, where σ_T/σ_R rises monotonically from 0.86 at 11 pc to
-1.18 at 55 pc and crosses unity near 27 pc.
+This pattern is consistent with radial anisotropy at intermediate radii and tangential
+anisotropy farther out, as expected if tides preferentially remove radial orbits. The
+projected ratios do not directly recover intrinsic β(r), and the radii are projected.
+Within Gaia alone, the measured ratio rises from 0.86 near 11 pc to 1.18 near 55 pc,
+crossing unity around 27 pc. That observation motivates a turnover model; it does not
+uniquely determine one.
 
-The MUSE line-of-sight dispersion is consistent with the same picture: at 290″ (7.5 pc) it is
-9.4 % below the model (−4.9 σ), and at large projected radius the line of sight samples the
-tangential direction, so radial anisotropy at 4–8 pc must suppress it. That an independent
-instrument with independent systematics shows the same deficit at the same radius is the
-strongest argument that this is dynamics and not a proper-motion artefact.
+MUSE is also below the isotropic prediction at large projected radius (9.4% at 290″).
+Its response to radial anisotropy makes this a useful independent-instrument check.
+Different tracer populations and the approximate rotation treatment remain alternatives.
 
 ### The alternative reading
 
@@ -112,11 +121,13 @@ requires an extra 5.8 km/s in quadrature on top of the 4.45 km/s the published c
 supplies there, i.e. a ~64 % larger rotation amplitude at 5.8 pc; and reconciling the outer
 Gaia points requires *less* rotation than the model subtracts at 34–55 pc. A single
 normalisation error cannot do both — it would need the shape of the rotation curve to be wrong
-in opposite directions at 6 and 40 pc. The anisotropy reading needs no such conspiracy, but the
-rotation reading is cheap to test (`--gaia-rotation ours`, and the HST equivalent), and should
-be, because the two are not mutually exclusive.
+in opposite directions at 6 and 40 pc. This makes a common amplitude error an incomplete explanation. Test the Gaia alternative
+with `--gaia-rotation ours`; there is no equivalent HST switch. HST needs an external
+absolute rotation estimate because local corrections removed its streaming. Reports now
+replay saved Gaia options and check the stored likelihood. Anisotropy and rotation
+errors can coexist.
 
-## 5. Error inflation cannot rescue the fit
+## 5. Error-floor sensitivity at the existing best sample
 
 χ² at the same best model with a systematic floor added in quadrature (not refitted):
 
@@ -131,8 +142,9 @@ be, because the two are not mutually exclusive.
 
 A 0.5 % floor fixes the HST radial component almost completely (152 → 38): that misfit really
 is error-bar-driven. The tangential component is not: it still contributes 63 of the 144 at a
-2 % floor. The shape is wrong, not just the uncertainties. The planned error-model variant
-(`--gaia-errors eta`) therefore cannot substitute for the missing anisotropy.
+2 % floor. The structured residual remains. This calculation does not refit the model and therefore
+does not rule out every alternative error model. `--gaia-errors eta` changes the Gaia
+measurements; it does not add an HST systematic floor or directly address this HST pattern.
 
 ## 6. What the "evidence for dark matter" is actually made of
 
@@ -146,9 +158,9 @@ The halo buys Δχ² ≈ 10 for two parameters, and the gain comes almost entire
 Gaia points: the tangential ones improve by 14 and the radial ones worsen by 6. Those are the
 same 34–55 pc points that demand β < 0. An isotropic model can only raise both components
 together, and raising them helps the tangential data (which sit above the model) more than it
-hurts the radial data (which sit below). **In other words, the halo is being recruited as a
-proxy for tangential anisotropy in the outskirts.** Until β is free, the two are degenerate and
-the ln Z difference of +1.1 cannot be read as a statement about dark matter.
+hurts the radial data (which sit below). **The improvement is consistent with the halo compensating for missing outer tangential
+anisotropy.** That mechanism needs a fit with the additional orbital freedom to establish
+it. The evidence difference of +1.1 is insufficient for a DM claim.
 
 ## 7. Other parameters
 
@@ -162,9 +174,10 @@ bias D.
 **Central mass.** The total M★ + M_rem + M_BH is 3.23 ×10⁶ (K1) and 3.12 ×10⁶ (K2-cored), i.e.
 stable, but the split moves a lot: adding a halo moves 6 ×10⁵ M☉ from the stars to the
 remnants. M_BH is 4.3–4.7 ×10⁴ M☉ with an 8 % error in all three runs; the inner fit is good
-(χ²/point = 1.2), so this is the most robust number in the table — but the classical degeneracy
-between a central point mass and central tangential anisotropy is not tested at rung 0, where
-β ≡ 0 everywhere.
+(χ²/point = 1.2), but this does not make the point-mass estimate robust. The central mass–anisotropy
+degeneracy is untested. Moreover, an exactly cored tracer in a central point-mass potential
+requires β(0) ≤ −1/2 for a non-negative DF; the isotropic moment baseline violates that
+necessary condition in the central limit.
 
 **Halo parameters.** r_s is unconstrained in both K2 runs (46–663 pc cored, 7–544 pc NFW),
 which is expected: the data end at 55 pc and the halo is a small perturbation there.
@@ -178,9 +191,12 @@ Evaluating each best sample with JamPy instead of our Jeans solver:
 | K1 | ln L = −169.66 | −170.35 |
 | K2-cored | −164.44 | −165.08 |
 
-Agreement to ~0.7 in ln L. The per-dataset shifts are ±18 in χ² between the HST radial and
-tangential components and < 1 elsewhere, which is the known difference in how the two engines
-project the velocity ellipsoid; it does not affect any conclusion here.
+The total log likelihoods differ by about 0.7. Individual HST χ² terms shift by roughly
+18 and largely cancel; the other terms shift by less than 1. The engines share the intended
+spherical moment equations, but JamPy uses an MGE approximation to non-Gaussian mass
+components and independent numerical integration. This audit has not isolated the cause
+of the residual difference. Total-likelihood agreement alone is not a per-component
+accuracy certificate.
 
 ## 9. Sampling cost
 
@@ -188,33 +204,26 @@ K1 took 4 h and 3.2 ×10⁶ likelihood calls; K2-cored 10 h / 6.6 ×10⁶; K2-NF
 14.3 ×10⁶. The NFW run spent most of its time crawling along the M_DM–r_s degeneracy ridge
 (one accepted draw per ~4000 calls for several hours, with 82 % of the evidence still in the
 live points after 12 h). For rungs 1 and 2, which add one and three parameters, the NFW family
-should be launched with ultranest's step sampler (`step_sampler=True` in `run_nested`) or the
-r_s prior narrowed on physical grounds; otherwise the cost will become prohibitive.
+should test UltraNest's step sampler (`--step-sampler`) and check convergence. A prior
+change requires scientific justification and changes the evidence; it is not a numerical
+substitute for improving sampling.
 
-## 10. Conclusions
+## 10. Conclusions and next experiments
 
-1. Rung 0 is a **good fit inside 50″ and a bad fit outside**, for all three families.
-2. The bad fit is a **ratio error between the two PM components**, not a mass error: the
-   enclosed mass is matched to 2–3 % where the data are most precise.
-3. The pattern — isotropic core, radial at 4–20 pc, tangential beyond ~30 pc — is the
-   **textbook anisotropy profile of a tidally limited cluster**, and it is coherent across
-   HST, MUSE and Gaia.
-4. **A constant β cannot fit it.** Rung 1 will improve matters but cannot reproduce a sign
-   reversal; the β(r) family of rung 2, with the turnover parameter that was deferred, is what
-   the data are asking for. The trigger for that deferred item has fired.
-5. The apparent preference for a cored halo (Δ ln Z = +1.1) is **degenerate with tangential
-   anisotropy in the outskirts** and should not be quoted.
-6. Error inflation cannot substitute for the missing freedom.
+1. All three isotropic models have acceptable central residuals and a poor outer fit.
+2. The strongest residual is in the relative PM components. It motivates radial variation
+   in anisotropy, but does not independently certify the mass profile.
+3. A model with intermediate radial and outer tangential anisotropy is a testable
+   interpretation. Rotation, tracer selection and correlated errors remain relevant.
+4. The small cored-halo preference may compensate for missing orbital freedom. It is
+   not a DM detection; retain the table's limits only as conditional baseline outputs.
 
-## 11. What to do next, in order
+Follow [MODELLING_PLAN.md](MODELLING_PLAN.md): constant-β controls first, then a specified
+turnover extension. The existing three-parameter β(r) is monotonic and is not the proposed
+turnover model. Neither rung 1 nor the extension has yet superseded these runs with a
+completed current-data posterior.
 
-1. **Rung 1** (constant β, 6 and 8 parameters) on the same 89 points — as planned, and now also
-   as a diagnostic: the fitted β will be a compromise between +0.25 at 6 pc and −0.3 at 40 pc,
-   and the residuals should retain the sign reversal.
-2. **Rung 2** (β(r) with a turnover) — promoted from "deferred" to "required" by §4 above.
-3. **Rotation variants** (`--gaia-rotation ours` and the HST equivalent) to separate anisotropy
-   from an error in the rotation curve. Cheap, and it is the only competing explanation.
-4. Only then: the error-model variant, the prior-sensitivity run, the injection test, and the
-   one diagnostic run with instrument scales free.
-5. Do not quote M_DM limits from rung 0 in any document; the numbers in §2 are conditional on
-   isotropy and are superseded by rung 1/2.
+Gaia rotation/error variants, an independently defined HST rotation test, prior sensitivity
+and injection recovery follow. The report replay and mock-generator repairs are complete;
+use the source-run recipes in the modelling plan. Instrument scales remain a separate diagnostic, outside the
+compared sequence. New fits require an explicit request.

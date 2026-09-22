@@ -1,5 +1,10 @@
 # Omega Centauri Dark-Matter/Tidal-Tail Inference Project
 
+> **Status note, 2026-09-21:** This is the original roadmap. Its proposed layout, CLI and
+> immediate Milestone-1 task are historical targets. See [README.md](README.md),
+> [the current modelling plan](docs/MODELLING_PLAN.md) and
+> [the code/analysis audit](docs/CODE_ANALYSIS_AUDIT.md) for implemented behaviour and next work.
+
 > **For Codex CLI / Claude Code:** Treat this file as the project specification and implementation roadmap. Work incrementally, keep all scientific calculations in importable/testable modules, and do not replace missing data or metadata with invented values. Every external dataset must have a provenance record, URL/DOI, checksum when available, and a script that reproduces the local processed product from the raw download.
 
 ## Goal

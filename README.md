@@ -1,84 +1,176 @@
-# oCen_dm — dark matter in Omega Centauri from its tidal tails
+# oCen_dm — dark matter in Omega Centauri
 
-Can the observed tidal tails of Omega Centauri break the mass-decomposition
-degeneracy left by its internal stellar kinematics, and so constrain a surviving
-dark-matter halo?
+Can Omega Centauri's tidal debris distinguish an extended dark-matter halo from
+the stars, remnants and central mass that fit its internal kinematics?
 
-The full specification, experiment sequence and milestone list live in
-[`OCEN_DM_TAILS_PROJECT.md`](OCEN_DM_TAILS_PROJECT.md). Running notes are in
-[`JOURNAL.md`](JOURNAL.md).
+The project has two connected approaches: infer the present mass distribution
+from stellar kinematics, and estimate how much dark matter could survive the
+progenitor dwarf's disruption. The eventual joint kinematic-and-tail inference
+is still to be built.
 
-Repository: https://github.com/vasilybelokurov/ocen_dm
+## Current state — 21 September 2026
 
-**Current state: Milestones 1–2 done** — all four primary datasets ingested and
-validated; the mass-profile library (`src/ocen_dm/mass_models/`) verified against
-quadrature and against AGAMA. No scientific inference is implemented yet; the
-kinematic fit (Milestone 3) is next. Overview figures of every dataset are in
-[`plots/`](plots/) and are regenerated with `ocen plot-data`.
+Data ingestion, mass components, a spherical Jeans likelihood and nested sampling
+are implemented. The current comparison uses **89 binned measurements**: HST
+radial and tangential proper motions (21 each), MUSE line-of-sight dispersions
+(29), and our Gaia EDR3 radial and tangential profiles (9 each). Pristine,
+periphery spectroscopy and Fimbulthul support the outer-cluster work; they do
+not enter this likelihood.
 
-## Quick start
+Three isotropic, no-instrument-scale fits (rung 0) are complete:
+
+| Family | Halo added to stars, remnants and a point mass | ln Z | χ² / number of points |
+|---|---|---:|---:|
+| K1 | none | −190.02 ± 0.48 | 772 / 89 |
+| K2-cored | truncated gNFW, γ = 0 | −188.94 ± 0.36 | 761 / 89 |
+| K2-NFW | truncated gNFW, γ = 1 | −190.09 ± 0.35 | 763 / 89 |
+
+Rung 0 establishes the intended reference for the modelling sequence. There is
+no persuasive halo preference within this baseline, and the structured residuals
+outside the central 50 arcsec identify where additional freedom should be tested.
+The component ratios motivate radial anisotropy at intermediate radii and tangential
+anisotropy farther out, with rotation as a competing explanation. The baseline
+posteriors and these diagnostics guide the next controlled modelling step.
+
+Orbital histories, bar migration, friction experiments and approximate stripping
+calculations are available. The Kepler energy-truncation formula has passed an
+independent check. The [dynamical experiment pipeline](docs/DYNAMICAL_EXPERIMENTS.md)
+now prepares joint spherical equilibria and runs live or frozen-potential remnant
+and progenitor experiments on prescribed orbits. The first remnant single-passage
+pilots, numerical controls and progenitor isolation runs have completed. The
+[batch analysis](docs/DYNAMICAL_BATCH_ANALYSIS.md) finds mild inner remnant depletion
+after one passage and stable progenitor profiles on well-sampled scales; the
+progenitor core needs better central particle sampling. Longer tidal experiments, converged
+survival predictions, particle-spray predictions and a tail likelihood remain
+outstanding. The [lifetime batch](docs/LIFETIME_BATCH_REPORT.md) is running full-passage
+controls, with responsive stellar-nucleus experiments and multi-Gyr frozen-potential
+comparisons queued behind numerical checks. All three [rung-1 fits](docs/RUNG1_COMPARISON.md)
+have completed: χ² = 342.51 (K1), 316.01 (NFW), 315.29 (core), for 89 measurements.
+The constant-anisotropy extension improves substantially on rung 0; the core–NFW
+evidence difference remains small.
+
+## Reading guide
+
+| Document | Purpose |
+|---|---|
+| [Code and analysis audit](docs/CODE_ANALYSIS_AUDIT.md) | Verified implementation, numerical checks, and unresolved issues |
+| [Rung-0 analysis](docs/RUNG0_ANALYSIS.md) | Latest fit results and their interpretation |
+| [Rung-1 comparison](docs/RUNG1_COMPARISON.md) | All three completed constant-anisotropy fits, rung-0 comparison and plots |
+| [Data and models across all rungs](docs/RUNG_MODEL_COMPARISON.md) | Best-fit no-DM and DM profiles, including both rung-2 variants, with residuals |
+| [DM density probability at 20 pc](docs/DM_DENSITY_POSTERIOR.md) | Evidence-weighted rung-2 density distributions, explicit model priors and a probability at zero for no DM |
+| [Which data constrain DM density?](docs/DM_DENSITY_DATA_CONSTRAINTS.md) | Dataset and radial-bin sensitivity, Gaia residuals and the tradeoff with stellar/remnant mass |
+| [Testing densities above the DM limit](docs/DM_DENSITY_PROFILE_LIMIT.md) | Fixed-density refits distinguish the Bayesian upper limit from fit deterioration and stellar-mass bounds |
+| [High-density posterior checks](docs/DM_DENSITY_POSTERIOR_CHECKS.md) | Independent 800-live-point core repeat and rho20 = 2 conditional run; prior derivation, launch records and validation |
+| [Density and DF consistency audit](docs/DF_CONSISTENCY_AUDIT.md) | All runs and reruns: positive spatial densities, central DF condition, and finite-radius tests with explicit separability assumptions |
+| [Positive AGAMA DF models](docs/AGAMA_DF_MODELS.md) / [PDF](docs/agama_df_models.pdf) / [LaTeX](docs/agama_df_models.tex) | Self-consistent stellar action DFs, joint photometric/kinematic pilot fitting, numerical controls and scope |
+| [Independent DF flexibility challenge](docs/DF_CAPACITY_CHALLENGE.md) | Three physical mocks, one/two/three positive DFs in known gravity, multiple starts, wider-bound controls and PNG comparisons |
+| [Free-potential DF mass recovery](docs/DF_MASS_RECOVERY.md) / [live status](docs/DF_MASS_RECOVERY_STATUS.md) | Independent stellar mass/light weights, self-consistent gravity, noiseless recovery and gated noisy mock experiments |
+| [Lifetime batch](docs/LIFETIME_BATCH_REPORT.md) | Active queue, live stellar response, numerical gates, long orbital forcing and physical heating estimate |
+| [Modelling plan](docs/MODELLING_PLAN.md) | Adopted fit sequence and exact CLI choices |
+| [Data preparation](docs/data_analysis.pdf) / [source](docs/data_analysis.tex) | Selections, estimators and remaining systematics |
+| [Mass modelling](docs/mass_modelling.pdf) / [source](docs/mass_modelling.tex) | Model, priors, likelihood and limitations |
+| [Progenitor orbits](docs/PROGENITOR_ORBITS.md) | Orbital-history classes and assumptions |
+| [DM survival and WD note](docs/dm_capture_constraints.pdf) | Conditional density estimates and white-dwarf applications |
+| [Section-11 tests](docs/SECTION11_TESTS.md) | Numerical work needed to validate survival predictions |
+| [Dynamical experiments](docs/DYNAMICAL_EXPERIMENTS.md) | Initial conditions, live/frozen drivers, controls and diagnostics |
+| [Dynamical batch analysis](docs/DYNAMICAL_BATCH_ANALYSIS.md) / [PDF](docs/dynamical_batch.pdf) / [LaTeX](docs/dynamical_batch.tex) | First-passage response, isolation controls, resolution and next experiments |
+| [Original specification](OCEN_DM_TAILS_PROJECT.md) | Long-term scope; proposed interfaces are not implemented commands |
+| [Journal](JOURNAL.md) | Chronological record; later entries can supersede earlier results |
+
+Keep compiled PDFs in the same directory as their LaTeX sources.
+Save all analysis plots as PNGs in `plots/`; do not export plots as PDFs or place
+them in `docs/` or `results/`.
+Keep `plots/` image-only. Plotted tables and JSON provenance belong in
+`results/plot_data/`; migration and housekeeping records belong in
+`results/maintenance/`.
+
+## Use the existing checkout
+
+The working environment is `~/Work/venvs/.venv`. From the repository root:
 
 ```bash
 source ~/Work/venvs/.venv/bin/activate
-cd "$HOME/Work/Code/oCen_dm"
-
-export PYTHONPATH=src            # the package is used in place, not installed
-python -m ocen_dm.cli inventory              # dataset inventory (no inference)
-python -m ocen_dm.cli fetch-data             # download + checksum + manifest
-python -m ocen_dm.cli preprocess             # standardize -> data/processed
-python -m ocen_dm.cli inspect-omegacat --columns
-python -m ocen_dm.cli plot-data              # PNG figures -> plots/
-python -m pytest tests -q                    # 201 tests, no network needed
+export PYTHONPATH=src
+python -m ocen_dm.cli --help
+python -m ocen_dm.cli inventory
+python -m ocen_dm.cli fit --help
 ```
 
-Two datasets are journal supplementary material and must be fetched by hand:
-see [`docs/MANUAL_DOWNLOADS.md`](docs/MANUAL_DOWNLOADS.md).
+The installed console entry point is **`ocen`**, declared in `pyproject.toml`.
+`python -m ocen_dm.cli` works without installing the package. `ocen-dm` is not a
+declared command.
 
-## Layout
+Data-building commands write products:
+
+```bash
+python -m ocen_dm.cli fetch-data
+python -m ocen_dm.cli preprocess
+python -m ocen_dm.cli plot-data
+```
+
+Journal supplements need [manual retrieval](docs/MANUAL_DOWNLOADS.md).
+`preprocess` standardises catalogues and published profiles; our measured HST
+and Gaia products have separate builders in `kinematics/hst_profile.py` and
+`kinematics/outer_gaia.py`. Their loaders build missing products automatically,
+so fitting or plotting can write data on an incomplete checkout.
+
+**Fits are launched only when requested, one rung at a time.** A bare `fit`
+command still selects the older varying-anisotropy model with instrument scales.
+Use explicit switches and unique output labels as shown in the
+[modelling plan](docs/MODELLING_PLAN.md). Fitting refuses an existing run directory,
+including an interrupted run; choose a fresh label.
+
+## Code and products
 
 ```text
-configs/       data.yaml (which file holds which product), column_maps.yaml
-provenance/    datasets.yaml (registry), manifest.json + checksums.txt (written)
-data/raw/      downloads, never edited by hand, never committed
-data/processed/ validated ECSV products
-src/ocen_dm/   package: paths, provenance, data loaders, mass_models, plotting, CLI
-plots/         PNG overview figures of the ingested data
-tests/         pytest suite on synthetic fixtures only
-docs/          manual retrieval instructions
+configs/                 dataset locations and column mappings
+provenance/              source registry, download manifest and checksums
+data/raw/                source downloads (not committed)
+data/processed/          standardised and measured products (not committed)
+src/ocen_dm/data/        retrieval, schema validation and catalogue loaders
+src/ocen_dm/selection/   covariance joins, field templates and crossmatches
+src/ocen_dm/kinematics/  estimators, dynamical engines, fits and reports
+src/ocen_dm/mass_models/ stellar, remnant, point-mass and halo components
+src/ocen_dm/tails/       orbital histories and exploratory survival models
+src/ocen_dm/dynamics/    controlled remnant/progenitor initial conditions and evolution
+results/                local fits, orbit tables and diagnostics (not committed)
+results/plot_data/      plotted tables and figure provenance
+results/maintenance/    migration and housekeeping records
+plots/                  PNG figures only
+docs/                   current notes, plans and dated reviews
+tests/                  synthetic tests plus tests requiring local inputs
 ```
 
-## Design rules enforced in code
+`workflows/` and `notebooks/` are placeholders. There is no complete Snakemake
+workflow, environment lockfile, axisymmetric inference, or joint tail fit.
 
-- **No invented metadata.** A checksum without a stated source is rejected by
-  the registry loader. Column roles resolve only against documented candidate
-  names; an unresolved or ambiguous role raises and prints the table's real
-  columns instead of guessing (`src/ocen_dm/data/schema.py`).
-- **Provenance for every file.** `fetch-data` verifies the published MD5,
-  records SHA-256 and byte counts in `provenance/manifest.json`, and stores the
-  interpreter and package versions used.
-- **Nothing is faked on failure.** A failed download leaves no partial file; a
-  manual dataset is reported as `manual`, not substituted.
-- **Likelihood rules travel with the data.** Each processed table carries
-  `meta['ocen_likelihood_rule']` recording the spec's usage restriction
-  (membership probabilities are diagnostic only; spectroscopy is conditional on
-  target positions; Fimbulthul is a track constraint, not a density).
+Internal dynamics use pc, M☉ and km/s; Galactic-orbit modules use their own
+explicit conversions. The main engine is the local spherical Jeans solver.
+JamPy supplies a numerical cross-check. The legacy AGAMA inversion backend is
+a restricted diagnostic; the separate [positive stellar DF branch](docs/AGAMA_DF_MODELS.md)
+derives density and anisotropy from action DFs and fits photometry jointly.
+JamPy is an external non-commercial dependency and is not
+redistributed here. UltraNest drives production sampling; a dynesty driver
+is not implemented.
 
-## Environment
+## Validation and provenance
 
-Python 3.13.5 in `~/Work/venvs/.venv`. Present: numpy 1.26.4, scipy 1.16.1,
-astropy 7.1.0, pandas 2.3.2, pyarrow 21.0.0, h5py 3.14.0, matplotlib 3.10.3,
-corner 2.2.3, pyyaml 6.0.2, emcee 3.1.6, agama 1.0.152, galpy 1.9.2, gala 1.9.1,
-ultranest 4.5.0, dynesty 3.1.0, jampy 9.0.2.
+Column roles resolve against documented candidates and fail on ambiguity.
+Downloads record source information and hashes; processed tables carry their
+likelihood-use restrictions. Fit outputs record posterior samples, priors,
+settings and summary statistics. New runs save the actual likelihood arrays and
+resolved model, including the tracer MGE, before sampling. Reports verify the
+snapshot and reproduce the saved best-sample likelihood before plotting. Older
+runs use recorded options and current products, with an explicit warning.
+The [audit](docs/CODE_ANALYSIS_AUDIT.md) distinguishes its original findings from
+the completed reporting, mock-handling and run-preservation repairs.
 
-**JamPy licence.** JamPy (Cappellari) is non-commercial and **may not be
-redistributed**. It is a dependency installed into the environment, never copied
-into this repository.
+```bash
+python -m pytest tests -q
+```
 
-## Mass models
+The full suite includes local-data and optional-engine tests and can take tens
+of minutes. Some tests skip without those inputs. See the dated audit for the
+checks actually run; an old test count or saved log is not a current pass claim.
 
-Internal units are pc, Msun and km/s (`G = 4.300917270036e-3`, asserted against
-`astropy.constants`). Components with closed forms use them; the truncated halos
-are tabulated once per parameter set on a 2000-point log grid and splined,
-which costs ~0.5 ms per composite model (adaptive quadrature took 256 ms). The
-quadrature paths remain as the independent reference that `verify()` checks
-against.
+Repository: <https://github.com/vasilybelokurov/ocen_dm>

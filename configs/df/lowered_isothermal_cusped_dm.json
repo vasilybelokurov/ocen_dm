@@ -1,0 +1,88 @@
+{
+  "description": "Unfitted validation starting point and bounded optimizer coordinates; not calibrated inference priors. Gaussian halo taper r_t fixed at 1000 pc. Photometric light normalization is profiled by the pilot.",
+  "model": {
+    "schema_version": 1,
+    "family": "lowered_isothermal",
+    "W0": 7.0,
+    "velocity_scale": 15.0,
+    "rho0": 4000.0,
+    "anisotropy_radius": 40.0,
+    "truncation_index": 1.0,
+    "matter": {
+      "rho20": 2.0,
+      "r_s": 30.0,
+      "gamma": 1.0,
+      "r_t": 1000.0,
+      "M_rem": 300000.0,
+      "a_rem": 3.0
+    },
+    "numerics": {
+      "r_min": 0.0001,
+      "r_max": 100000.0,
+      "potential_nodes": 160,
+      "velocity_nodes": 64,
+      "moment_nodes": 240,
+      "projection_nodes": 128,
+      "max_iterations": 50,
+      "iteration_tolerance": 0.0005,
+      "closure_tolerance": 0.005,
+      "mass_tolerance": 0.005
+    },
+    "distance_kpc": 5.43,
+    "poisson_rtol": 2e-09
+  },
+  "fit_coordinates": [
+    {
+      "path": "W0",
+      "lower": 3.0,
+      "upper": 12.0
+    },
+    {
+      "path": "velocity_scale",
+      "lower": 8.0,
+      "upper": 30.0,
+      "log": true
+    },
+    {
+      "path": "rho0",
+      "lower": 100.0,
+      "upper": 30000.0,
+      "log": true
+    },
+    {
+      "path": "anisotropy_radius",
+      "lower": 10.0,
+      "upper": 1000.0,
+      "log": true
+    },
+    {
+      "path": "truncation_index",
+      "lower": 0.1,
+      "upper": 3.0
+    },
+    {
+      "path": "matter.rho20",
+      "lower": 0.001,
+      "upper": 100.0,
+      "log": true
+    },
+    {
+      "path": "matter.r_s",
+      "lower": 3.0,
+      "upper": 300.0,
+      "log": true
+    },
+    {
+      "path": "matter.M_rem",
+      "lower": 100.0,
+      "upper": 1000000.0,
+      "log": true
+    },
+    {
+      "path": "matter.a_rem",
+      "lower": 0.3,
+      "upper": 20.0,
+      "log": true
+    }
+  ]
+}

@@ -20,12 +20,13 @@ def test_fit_cli_writes_all_products(tmp_path, monkeypatch):
     x = fam.transform(np.full(len(fam.names), 0.5))
     np.save(tmp_path / "x.npy", x)
     monkeypatch.setattr("ocen_dm.paths.results_dir", lambda: tmp_path / "results")   # results -> tmp, data untouched
+    monkeypatch.setattr("ocen_dm.kinematics.report.results_dir", lambda: tmp_path / "results")
     rc = main(["fit", "--family", "K1", "--datasets", "hst_pm_radial,muse_los_dispersion",
-               "--mock-from", str(tmp_path / "x.npy"), "--n-live", "40", "--max-ncalls", "1200",
+               "--mock-from", str(tmp_path / "x.npy"), "--mock-family", "K1", "--n-live", "40", "--max-ncalls", "1200",
                "--label", "smoke", "--seed", "3"])
     assert rc == 0
     out = tmp_path / "results" / "fits" / "smoke"
-    for f in ("posterior.ecsv", "summary.json", "profiles.npz", "run.yaml", "ml_x.npy"):
+    for f in ("posterior.ecsv", "summary.json", "profiles.npz", "run.yaml", "ml_x.npy", "data_snapshot.json"):
         assert (out / f).exists(), f
     summary = json.loads((out / "summary.json").read_text())
     assert summary["family"] == "K1_noDM_composite" and set(summary["parameters"]) == set(fam.names)   # default tracer
@@ -36,8 +37,9 @@ def test_fit_cli_writes_all_products(tmp_path, monkeypatch):
     assert prov["truth"] == pytest.approx({n: float(v) for n, v in zip(fam.names, x)})
     from ocen_dm.kinematics import FitProblem
     from ocen_dm.kinematics.report import data_for
-    mock, prov2 = data_for(summary)
-    real, _ = data_for({**summary, "data": {"kind": "real"}})
+    mock, prov2 = data_for(summary, run_dir=out)
+    from ocen_dm.kinematics import KinematicData
+    real = KinematicData.load(list(summary["datasets"]))
     assert prov2["kind"] == "mock"
     by_mock = {p.name: p for p in mock.profiles}; by_real = {p.name: p for p in real.profiles}
     for name in by_mock:
@@ -86,4 +88,8 @@ def test_fit_cli_preset_runs_and_prints_comparison(tmp_path, monkeypatch, capsys
     out = capsys.readouterr().out
     assert "preset watkins2013" in out and "like-for-like comparison" in out
     assert "ML_V" in out and "published 2.71" in out and "beta_0" in out
-    assert (tmp_path / "results" / "fits" / "preset_watkins2013" / "summary.json").exists()
+    run_dir = tmp_path / "results" / "fits" / "preset_watkins2013"
+    from ocen_dm.kinematics.report import load_run_metadata, problem_for
+    problem = problem_for(load_run_metadata(run_dir))
+    assert problem.family.fixed_distance_kpc == 4.59
+    assert problem.family.fixed == {"M_rem": 1e4, "a_rem": 1.0, "M_bh": 1e2}
