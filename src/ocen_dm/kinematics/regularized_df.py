@@ -104,9 +104,14 @@ class SphericalFrequencyRatio:
                 omega2 = -force[:, 0]/r
                 ratio[circular] = np.sqrt((-deriv[:, 0]+3*omega2)/omega2)
             aa = np.zeros((int(general.sum()), 6))
-            aa[:, 0], aa[:, 1], aa[:, 3:] = jr[general], angular[general], 1.
+            # Spherical frequencies depend on Jr and L, not the orbital plane.
+            # Use Jz=0, Jphi=L: the polar representative Jz=L, Jphi=0 can
+            # hit R=0 in AGAMA's map and divide by R in its velocity transform.
+            aa[:, 0], aa[:, 2], aa[:, 3:] = jr[general], angular[general], 1.
             if len(aa):
                 xv = self.mapper(aa)
+                if np.any(~np.isfinite(xv)):
+                    raise DFConvergenceError("nonfinite mapped orbit in spherical frequency calculation")
                 # Interpolated Hamiltonian derivatives may turn negative on
                 # very eccentric weakly bound orbits. Use direct integration.
                 _, omega = self.agama.actions(self.potential, xv, frequencies=True)

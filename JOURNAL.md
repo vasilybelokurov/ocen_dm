@@ -4869,3 +4869,24 @@ mock construction, asymmetric residuals, full resolution refinement, and the
 distinction between observable fit quality and physical recovery. End-to-end
 mock preparation and bounded fitting are the next launch checks. Independent
 stellar families, noisy mocks, and real-data inference remain later stages.
+
+## 2026-09-23 -- Recovery smoke test exposed a polar-mapper singularity
+
+Both v1 mock truths passed refinement checks (maximum shifts 0.00703 and
+0.00686 adopted errors). The two-evaluation optimizer smoke test saved its
+checkpoints but failed while refining the selected perturbed model. The
+native action mapper had returned infinite velocities at cylindrical R=0
+for a polar representative, causing the downstream frequency integration to
+raise `integrateGL: order is too high (not implemented)`.
+
+Preserved the diagnostic scripts, model checkpoint, potential, and input orbit
+in version control. The first diagnostic was incorrectly placed in `/tmp`;
+it has been moved into the repository and AGENTS.md now records the requirement
+that scientific/debugging code remain reviewable, together with regular commits
+and pushes. No experiment code will rely on that removed temporary script.
+
+The frequency evaluator now uses an equatorial orbit with the same Jr and L.
+A new regression catches the angular-momentum error in the old polar mapping.
+All 64 focused tests pass, and the previously failing complete refined-model
+rebuild succeeds. V1 inputs and the failed smoke-test record remain preserved.
+The corrected source will be frozen for a fresh v2 recovery batch.
