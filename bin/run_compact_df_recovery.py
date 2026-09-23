@@ -288,7 +288,12 @@ def prepare_real(out, project, fitting, starts, bounds=None, n_random=0, dataset
     everything = override_bounds(spec["fit_coordinates"]+[
         dict(path="matter.rho20", lower=0., upper=10.),
         dict(path="matter.r_s", lower=5., upper=150., log=True)]+extra, bounds or {})
-    coords, extra = everything[:len(everything)-len(extra)], everything[len(everything)-len(extra):]
+    # A value held fixed (--fix) is not a fitting coordinate; the halo pair keeps its slot logic.
+    n_extra = len(extra)
+    everything = [c for c in everything if c["path"] not in (fixed or {})]
+    extra = [c for c in everything if c["path"] in {e["path"] for e in extra}]
+    coords = [c for c in everything if c["path"] not in {e["path"] for e in extra}]
+    halo_paths = [c["path"] for c in coords if c["path"] in ("matter.rho20", "matter.r_s")]
     manifest.update(bound_overrides={k: list(v) for k, v in (bounds or {}).items()},
                     n_random_starts=n_random, datasets=datasets, gaia_error_floor_masyr=gaia_error_floor,
                     free_distance=free_distance,  # fixed.distance_kpc is then the start/plot scale
@@ -300,7 +305,7 @@ def prepare_real(out, project, fitting, starts, bounds=None, n_random=0, dataset
     starts += [dict(zip(paths, v)) for v in latin_starts(everything, n_random)]
     manifest["starts"] = starts
     for branch in branches:
-        chosen = (coords if branch == "free_halo" else coords[:-2])+extra
+        chosen = (coords if branch == "free_halo" else [c for c in coords if c["path"] not in halo_paths])+extra
         cc = [FitCoordinate(**row) for row in chosen]
         for index, values in enumerate(starts):
             start = config_at(base, cc, [q.encode(values[q.path]) if q.path in values else q.get(base)
@@ -399,14 +404,19 @@ def prepare_mock(out, project, fitting, truth_spec, inject, seed, branches, n_ra
     everything = override_bounds(spec["fit_coordinates"]+[
         dict(path="matter.rho20", lower=0., upper=10.),
         dict(path="matter.r_s", lower=5., upper=500., log=True)]+extra, bounds or {})
-    coords, extra = everything[:len(everything)-len(extra)], everything[len(everything)-len(extra):]
+    # A value held fixed (--fix) is not a fitting coordinate; the halo pair keeps its slot logic.
+    n_extra = len(extra)
+    everything = [c for c in everything if c["path"] not in (fixed or {})]
+    extra = [c for c in everything if c["path"] in {e["path"] for e in extra}]
+    coords = [c for c in everything if c["path"] not in {e["path"] for e in extra}]
+    halo_paths = [c["path"] for c in coords if c["path"] in ("matter.rho20", "matter.r_s")]
     paths = [c["path"] for c in everything]
     starts = [dict(zip(paths, v)) if isinstance(v, tuple) else dict(v) for v in starts]
     starts += [dict(zip(paths, v)) for v in latin_starts(everything, n_random)]
     manifest.update(starts=starts, bound_overrides={k: list(v) for k, v in (bounds or {}).items()}, n_random_starts=n_random,
                     two_transition=two_transition, free_distance=free_distance)
     for branch in branches:
-        chosen = (coords if branch == "free_halo" else coords[:-2])+extra
+        chosen = (coords if branch == "free_halo" else [c for c in coords if c["path"] not in halo_paths])+extra
         cc = [FitCoordinate(**row) for row in chosen]
         for index, values in enumerate(starts):
             start = config_at(base, cc, [q.encode(values[q.path]) if q.path in values else q.get(base) for q in cc])
@@ -788,6 +798,8 @@ def main():
                    help="comma-separated Poisson count products replacing the magnitude photometry (prepare-real)")
     p.add_argument("--distance-prior", default=None, metavar="MU:SIGMA",
                    help="Gaussian prior on distance_kpc, used with --free-distance (prepare-real)")
+    p.add_argument("--hand-starts", type=int, default=2,
+                   help="how many of the built-in hand-picked starts to keep (prepare-real/prepare-mock)")
     p.add_argument("--start-from", default=None, metavar="BATCH::JOB",
                    help="prepend that fit's best configuration as start 0 (prepare-real)")
     p.add_argument("--fix", action="append", default=[], metavar="PATH=VALUE",
@@ -855,6 +867,7 @@ def main():
                       {"M_star": 2.8e6, "stellar.J0": 130., "stellar.alpha": 1.14, "stellar.b_out": .3,
                        "stellar.J_a": 50., "matter.M_rem": 4e5, "matter.a_rem": 2., "matter.rho20": 1.,
                        "matter.r_s": 40., "stellar.b_outer": -1.5, "stellar.log_J_outer_ratio": float(np.log(8.))}]
+        starts = starts[:args.hand_starts]
         if args.start_from:
             batch, job = args.start_from.split("::")
             best = read(Path(batch)/"fits"/job/"summary.json")["best"]["config"]
