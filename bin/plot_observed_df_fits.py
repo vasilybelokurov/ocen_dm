@@ -30,8 +30,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from ocen_dm.kinematics.compact_recovery import refined_config
+from ocen_dm.kinematics.counts import CountProfile
 from ocen_dm.kinematics.df_fit import DFJointProblem, PhotometricData, model_config_from_dict
 from ocen_dm.kinematics.run_io import read_data_snapshot
+
+
+def load_observed_problem(d):
+    """Observed-data problem from a batch's observed/ directory (photometry and/or counts)."""
+    record = read(d/"problem.json")
+    photometry = (PhotometricData.from_dict(read(d/"photometry.json"))
+                  if (d/"photometry.json").exists() and record.get("photometry", True) else None)
+    counts = [CountProfile.from_dict(read(d/f"{n}.json")) for n in record.get("counts", [])]
+    return DFJointProblem(read_data_snapshot(d, record["data_snapshot"]), photometry, counts)
 
 PANELS = [("phot", r"$\mu$ [mag]", "surface brightness"), ("los", r"$\sigma_{\rm los}$ [km s$^{-1}$]", "line of sight"),
           ("pmr", r"$\sigma_{\rm pm,R}$ [mas yr$^{-1}$]", "PM radial"),
@@ -51,8 +61,7 @@ def main():
     out = args.batch.resolve()
     manifest = read(out/"batch.json")
     d = out/"observed"
-    problem = DFJointProblem(read_data_snapshot(d, read(d/"problem.json")["data_snapshot"]),
-                             PhotometricData.from_dict(read(d/"photometry.json")))
+    problem = load_observed_problem(d)
     pc = manifest["fixed"]["distance_kpc"]*1e3*np.pi/(180*3600)
     fits = []
     for job in manifest["jobs"]:
@@ -71,23 +80,37 @@ def main():
     colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
     for col, (kind, ylabel, title) in enumerate(PANELS):
         ax, rx = axes[0, col], axes[1, col]
-        if kind == "phot":
+        if kind == "phot" and problem.photometry is not None:
             ph = problem.photometry
             ax.errorbar(ph.r_arcsec*pc, ph.mu, yerr=ph.sigma_mag, fmt=".", color="0.4", ms=3, lw=.6, label="observed")
             ax.invert_yaxis()
+        elif kind == "phot":  # Poisson count profiles: surface number density
+            for c, mk in zip(problem.counts, ("o", "s")):
+                ax.errorbar(c.r_median*pc, c.counts/c.area_arcsec2*3600., np.sqrt(np.maximum(c.counts, 1))/c.area_arcsec2*3600.,
+                            fmt=mk, color="0.4", ms=3, mfc="white", lw=.6, label=c.name.split("_")[2]+" counts")
+            ax.set_yscale("log")
         for p in (p for p in problem.data.profiles if p.kind == kind):
             ax.errorbar(p.r*pc, p.value, yerr=[p.err_lo, p.err_hi], fmt=".", color="0.4", ms=3, lw=.6,
                         label="observed" if p is next(q for q in problem.data.profiles if q.kind == kind) else None)
         for i, (name, s, ev) in enumerate(fits):
             gates = s["gates"]
             label = f"{name}: $\\chi^2_{{kin}}/N$={gates['chi2_kin_per_point']:.2f}"
-            if kind == "phot":
+            if kind == "phot" and problem.photometry is not None:
                 ph = problem.photometry
                 order = np.argsort(ph.r_arcsec)
                 ax.plot(ph.r_arcsec[order]*pc, ev["photometry"]["prediction"][order], color=colors[i], lw=1, label=label)
                 rx.plot(ph.r_arcsec*pc, ph.mu-ev["photometry"]["prediction"], ".", color=colors[i], ms=3)
                 rx.set_ylabel("data - model [mag]")
                 record["fits"].setdefault(name, {})["photometry"] = ev["photometry"]["prediction"].tolist()
+                continue
+            if kind == "phot":
+                for c, ls in zip(problem.counts, ("-", "--")):
+                    cnt = ev["counts"][c.name]
+                    ax.plot(c.r_median*pc, cnt["mu"]/c.area_arcsec2*3600., ls=ls, color=colors[i], lw=1,
+                            label=f"{label} ({c.name.split('_')[2]} dev {cnt['deviance']:.0f}/{c.n})")
+                    rx.plot(c.r_median*pc, cnt["residual"], ls=ls, marker=".", color=colors[i], ms=3, lw=.6)
+                    record["fits"].setdefault(name, {})[c.name] = np.asarray(cnt["mu"]).tolist()
+                rx.set_ylabel("deviance residual")
                 continue
             for j, p in enumerate(q for q in problem.data.profiles if q.kind == kind):
                 m = ev["predictions"][p.name]
@@ -97,7 +120,7 @@ def main():
                 record["fits"].setdefault(name, {})[p.name] = m.tolist()
             rx.set_ylabel("(data - model) / error")
         rx.axhline(0, color="black", lw=.8)
-        ax.set(xscale="log", ylabel=ylabel, title=title)
+        ax.set(xscale="log", ylabel=ylabel if not (kind == "phot" and problem.photometry is None) else r"stars per arcmin$^2$", title=title)
         rx.set(xscale="log", xlabel="Projected radius [pc]")
         ax.legend(fontsize=6)
     fig.suptitle(f"Compact regularized DF fits to observed Omega Cen data ({out.name}); adopted errors")

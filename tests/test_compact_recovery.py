@@ -194,3 +194,31 @@ def test_data_gates_with_counts_only():
     assert g["deviance_per_bin_by_counts"]["c"] == pytest.approx(1.5) and g["passed"]
     ev["counts"]["c"]["deviance"] = 25.
     assert not data_fit_gates(True, True, ev, dict(chi2_kin_per_point=1.3, chi2_per_point_any_dataset=2., deviance_per_bin_counts=2.))["passed"]
+
+
+def test_mock_counts_problem_noiseless_and_poisson():
+    from ocen_dm.kinematics.compact_recovery import mock_counts_problem
+    p, profile = problem()
+    c = _count_profile()
+    truth = ToyModel()
+    noiseless = mock_counts_problem(p.data, [c], truth, {"toy_counts": 50.})
+    assert noiseless.photometry is None and noiseless.counts[0].counts.sum() > 0
+    ev = noiseless.evaluate(ToyModel.config, truth)
+    assert ev["deviance_counts"] < .5          # rounding only
+    assert ev["chi2_kinematic"] == pytest.approx(0., abs=1e-10)
+    rng = np.random.default_rng(5)
+    noisy = mock_counts_problem(p.data, [c], truth, {"toy_counts": 50.}, rng=rng)
+    assert not np.array_equal(noisy.counts[0].counts, noiseless.counts[0].counts)
+    assert noisy.data.profiles[0].value.shape == profile.value.shape
+    np.testing.assert_array_equal(noisy.counts[0].r_nodes, c.r_nodes)
+
+
+def test_noisy_recovery_gates_require_fit_and_physics():
+    from ocen_dm.kinematics.compact_recovery import noisy_recovery_gates
+    ev = dict(terms=dict(a=dict(chi2=10., n=10)), photometry=None,
+              counts=dict(c=dict(deviance=12., n=10, amplitude=1., field_density_per_arcmin2=0.)))
+    thr = dict(chi2_kin_per_point=1.3, chi2_per_point_any_dataset=2., deviance_per_bin_counts=2.)
+    good = dict(physical_accuracy_passed=True); bad = dict(physical_accuracy_passed=False)
+    assert noisy_recovery_gates(True, True, ev, thr, good)["passed"]
+    assert not noisy_recovery_gates(True, True, ev, thr, bad)["passed"]
+    assert not noisy_recovery_gates(False, True, ev, thr, good)["passed"]
