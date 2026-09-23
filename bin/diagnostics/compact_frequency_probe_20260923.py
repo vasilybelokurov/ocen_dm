@@ -14,7 +14,7 @@ ag = agama_pc()
 original = ag.actions
 original_mapper = ag.ActionMapper
 out = Path('results/diagnostics/compact_frequency_failure_20260923')
-out.mkdir(exist_ok=True)
+out.mkdir(parents=True, exist_ok=True)
 class Mapper:
     def __init__(self, pot):
         self.pot = pot

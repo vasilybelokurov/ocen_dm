@@ -4890,3 +4890,19 @@ A new regression catches the angular-momentum error in the old polar mapping.
 All 64 focused tests pass, and the previously failing complete refined-model
 rebuild succeeds. V1 inputs and the failed smoke-test record remain preserved.
 The corrected source will be frozen for a fresh v2 recovery batch.
+
+## 2026-09-23 -- Compact recovery v2 launched
+
+Regenerated both mock truths from corrected commit `01992f0`; nominal-resolution
+shifts remain 0.00703 and 0.00686 adopted errors. A separate two-evaluation smoke
+test completed its checkpoint, budget-stop, cold-replay, and refined validation
+workflow. Its numerical checks passed: maximum cold shift 0.0228 errors,
+refinement shift 0.0000662 errors, and native projection discrepancy 0.0326%.
+It is deliberately unconverged and is not a successful mass-recovery result.
+
+Launched `results/df/compact_recovery_20260923_v2/` at 00:02:56 UTC with two
+single-threaded workers, six jobs, and 180 trial equilibrium evaluations per
+job. The first jobs fit a free halo to the cored-DM and no-DM mocks. Results,
+checkpoints, and source/input snapshots remain in the batch directory; the
+progress PNG and its data follow the project output convention. Scientific
+recovery gates remain pending until the full fits and validations finish.
