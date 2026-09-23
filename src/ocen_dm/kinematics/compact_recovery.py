@@ -28,6 +28,42 @@ def mock_problem(template, photometry, truth):
     return DFJointProblem(data, photo)
 
 
+def mock_counts_problem(template, counts, truth, amplitudes, fields=None, rng=None, kinematic_noise=True):
+    """Realistic mock: model kinematics with published errors, Poisson star counts.
+
+    ``template`` keeps every bin, selection node and asymmetric error of the real
+    kinematic data; values become the truth's predictions plus, if
+    ``kinematic_noise``, Gaussian noise with the bin's mean published error.
+    Streaming terms are dropped (the truth is non-rotating). Each count profile
+    keeps its bins, areas and nodes; counts are Poisson draws from
+    ``A_i (a Sigma_i + b)`` with the profiled amplitude ``a`` (stars per unit
+    model surface density) and field ``b`` taken from a real-data fit, so the
+    mock has the observed number of stars. ``rng=None`` gives noiseless means
+    (rounded counts).
+    """
+    data = KinematicData(tuple(replace(p, streaming2=None) for p in template.profiles))
+    predictions = ProfileLikelihood(data).predict(truth, truth.config.distance_kpc)
+    profiles = []
+    for p in data.profiles:
+        value = predictions[p.name].copy()
+        if rng is not None and kinematic_noise:
+            value = value+rng.normal(0., .5*(p.err_lo+p.err_hi))
+        if np.any(value <= 0):
+            raise ValueError(f"{p.name}: non-positive mock dispersion")
+        profiles.append(replace(p, value=value, note="Compact DF mock" + (" with Gaussian noise" if rng is not None else ", noiseless")
+                                + "; no streaming"))
+    pc_per_arcsec = truth.config.distance_kpc*1000/ARCSEC_PER_RAD
+    mocks = []
+    for c in counts:
+        sigma = truth.projected_moments(np.asarray(c.r_nodes).ravel()*pc_per_arcsec)["Sigma"].reshape(c.r_nodes.shape).mean(axis=1)
+        b = (fields or {}).get(c.name, 0.) if c.fit_field else 0.
+        mu = c.area_arcsec2*(amplitudes[c.name]*sigma+b)
+        n = rng.poisson(mu) if rng is not None else np.round(mu).astype(int)
+        mocks.append(replace(c, counts=np.asarray(n, int), note=f"Compact DF mock counts (a={amplitudes[c.name]:.4g}, b={b:.4g}); "
+                             + ("Poisson" if rng is not None else "noiseless")))
+    return DFJointProblem(KinematicData(tuple(profiles)), None, mocks)
+
+
 def residual_vector(problem, evaluation, priors=None):
     """Signed residuals whose squared norm equals the joint objective (+ Gaussian priors).
 
@@ -217,3 +253,17 @@ def difference_column(base, step, forward=None, backward=None):
 def stopped_near_rejection(rejected_calls, calls, window):
     """True if any rejected evaluation lies within the last ``window`` calls."""
     return any(c > calls-window for c in rejected_calls)
+
+
+def noisy_recovery_gates(optimizer_success, numerical_passed, evaluation, thresholds, metrics):
+    """Gates for mocks with realistic noise: statistical fit quality plus physical recovery.
+
+    The noiseless observable-accuracy gate (residual RMS < 0.1) does not apply
+    when the mock carries the published noise; a correct model then has
+    chi2/N ~ 1. The physical criteria (stellar mass, total mass profile, rho20)
+    are those of ``recovery_metrics``.
+    """
+    out = data_fit_gates(optimizer_success, numerical_passed, evaluation, thresholds)
+    out.update(physical_accuracy_passed=bool(metrics["physical_accuracy_passed"]),
+               passed=bool(out["passed"] and metrics["physical_accuracy_passed"]))
+    return out

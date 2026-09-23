@@ -40,6 +40,7 @@ from astropy.table import Table
 from scipy import stats
 
 from ocen_dm.kinematics.compact_recovery import mass_profiles, refined_config, residual_vector
+from ocen_dm.kinematics.counts import CountProfile
 from ocen_dm.kinematics.df_fit import DFJointProblem, PhotometricData, build_df_model, model_config_from_dict
 from ocen_dm.kinematics.run_io import read_data_snapshot
 
@@ -72,11 +73,14 @@ def main():
     args = parser.parse_args()
     entries = [tuple(e.split("::")) for e in args.specs]
     d = Path(entries[0][0])/"observed"
-    problem = DFJointProblem(read_data_snapshot(d, read(d/"problem.json")["data_snapshot"]),
-                             PhotometricData.from_dict(read(d/"photometry.json")))
+    record0 = read(d/"problem.json")
+    photometry = (PhotometricData.from_dict(read(d/"photometry.json"))
+                  if (d/"photometry.json").exists() and record0.get("photometry", True) else None)
+    counts = [CountProfile.from_dict(read(d/f"{n}.json")) for n in record0.get("counts", [])]
+    problem = DFJointProblem(read_data_snapshot(d, record0["data_snapshot"]), photometry, counts)
     pc = 5.43e3*np.pi/(180*3600)
     jeans = Table.read(ROOT/"results/plot_data/rung0_rung1_rung2_no_dm_vs_dm.ecsv")
-    names = [p.name for p in problem.data.profiles]+["photometry"]
+    names = [p.name for p in problem.data.profiles]+(["photometry"] if problem.photometry is not None else [])+[c.name for c in problem.counts]
     radii = np.geomspace(.5, 80., 64)
     fits = []
     for batch, job, label in entries:
@@ -88,12 +92,16 @@ def main():
         split, i = {}, 0
         for p in problem.data.profiles:
             split[p.name] = res[i:i+p.n]; i += p.n
-        # Radius order (the photometric splice is interleaved) so the runs test sees the profile.
-        split["photometry"] = res[i:][np.argsort(problem.photometry.r_arcsec)]
+        if problem.photometry is not None:
+            # Radius order (the photometric splice is interleaved) so the runs test sees the profile.
+            npho = len(problem.photometry.mu)
+            split["photometry"] = res[i:i+npho][np.argsort(problem.photometry.r_arcsec)]; i += npho
+        for c in problem.counts:
+            split[c.name] = res[i:i+c.n]; i += c.n
         fits.append(dict(label=label, config=s["best"]["config"], ev=ev, res=res, split=split,
                          beta=model.intrinsic_moments(np.geomspace(.05, 80., 200))["beta"],
                          mass=mass_profiles(model, radii)))
-        print(label, "chi2_kin %.1f chi2_phot %.1f" % (ev["chi2_kinematic"], ev["photometry"]["chi2"]), flush=True)
+        print(label, "chi2_kin %.1f density term %.1f" % (ev["chi2_kinematic"], (ev["photometry"] or {}).get("chi2", 0.)+ev.get("deviance_counts", 0.)), flush=True)
     colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
 
     # ---------------- figure 1: data, models, residuals
@@ -101,7 +109,7 @@ def main():
                              gridspec_kw=dict(height_ratios=[3, 1.5]))
     for col, (kind, ylabel, title) in enumerate(KINDS):
         ax, rx = axes[0, col], axes[1, col]
-        if kind == "phot":
+        if kind == "phot" and problem.photometry is not None:
             ph = problem.photometry
             ax.errorbar(ph.r_arcsec*pc, ph.mu, yerr=ph.sigma_mag, fmt=".", color="0.35", ms=3, lw=.6, label="observed")
             order = np.argsort(ph.r_arcsec)
@@ -110,6 +118,16 @@ def main():
                         label=f["label"])
                 rx.plot(np.sort(ph.r_arcsec)*pc, f["split"]["photometry"], ".", color=colors[i], ms=3)
             ax.invert_yaxis()
+        elif kind == "phot":
+            for c, mk in zip(problem.counts, ("o", "s")):
+                ax.errorbar(c.r_median*pc, c.counts/c.area_arcsec2*3600., np.sqrt(np.maximum(c.counts, 1))/c.area_arcsec2*3600.,
+                            fmt=mk, color="0.35", ms=3, mfc="white", lw=.6, label=c.name.split("_")[2]+" counts")
+                for i, f in enumerate(fits):
+                    out = f["ev"]["counts"][c.name]
+                    ax.plot(c.r_median*pc, out["mu"]/c.area_arcsec2*3600., color=colors[i], lw=1.2,
+                            label=f["label"] if c is problem.counts[0] else None)
+                    rx.plot(c.r_median*pc, f["split"][c.name], ".-", color=colors[i], ms=3, lw=.6)
+            ax.set_yscale("log")
         profiles = [p for p in problem.data.profiles if p.kind == kind]
         for j, p in enumerate(profiles):
             ax.errorbar(p.r*pc, p.value, yerr=[p.err_lo, p.err_hi], fmt=".", color="0.35", ms=3, lw=.6,
@@ -186,8 +204,9 @@ def main():
     fig.savefig(plot2, dpi=160)
 
     record = dict(created_utc=datetime.now(timezone.utc).isoformat(), fits=[e for e in args.specs], table=table,
-                  totals={f["label"]: dict(chi2_kin=f["ev"]["chi2_kinematic"], chi2_phot=f["ev"]["photometry"]["chi2"],
-                                           config=f["config"]) for f in fits},
+                  totals={f["label"]: dict(chi2_kin=f["ev"]["chi2_kinematic"],
+                                           chi2_phot=(f["ev"]["photometry"] or {}).get("chi2"),
+                                           deviance_counts=f["ev"].get("deviance_counts"), config=f["config"]) for f in fits},
                   plots={str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in (plot1, plot2)})
     (ROOT/"results/plot_data"/(args.name+".json")).write_text(json.dumps(record))
     for label, per in table.items():

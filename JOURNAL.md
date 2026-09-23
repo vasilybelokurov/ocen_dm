@@ -5480,3 +5480,20 @@ Launched `results/df/dftwo_counts_20260923/` at 16:25 UTC from commit `36bca6f`:
 two-transition DF, no halo, Poisson counts (HST F625W<19, Gaia G<17) instead
 of magnitude photometry, distance free with the 5.43 +- 0.05 kpc prior,
 2 hand-picked + 4 Latin starts, 2 jobs x 5 probe workers, cap 600.
+
+## 2026-09-23 -- Mock machinery for realistic counts-based mocks; plotting updates
+
+- `mock_counts_problem` (compact_recovery.py): kinematic bins with the truth's
+  predictions plus Gaussian noise at the published errors, Poisson counts
+  from the truth with the amplitude and field profiled in a real-data fit.
+  `noisy_recovery_gates`: statistical fit quality plus physical recovery
+  (noiseless residual-RMS gates do not apply to noisy mocks). Driver command
+  `prepare-mock --truth BATCH::JOB [--inject PATH=VALUE] [--seed N]`.
+  Smoke: a noisy mock from the 12-evaluation counts smoke fit with an
+  injected rho20 = 1, r_s = 30 halo gave nominal chi2_kin 68.1 (89 bins) and
+  count deviance 25.4 (32 bins); a 12-evaluation recovery fit ran and
+  validated. 2 new tests (25 focused tests pass).
+- `plot_observed_df_fits.py` and `plot_best_fit_performance.py` handle count
+  profiles (surface number density panel, deviance residuals) and problems
+  without magnitude photometry. `--start-from BATCH::JOB` seeds a batch from
+  a previous best fit (for the rho20 scan).

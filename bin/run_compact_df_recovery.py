@@ -28,7 +28,7 @@ from scipy.optimize import least_squares
 
 from ocen_dm.kinematics.compact_recovery import (
     AbsoluteStop, Converged, data_fit_gates, data_radius_pc, difference_column, mass_profiles,
-    stopped_near_rejection, mock_problem, recovery_gates, recovery_metrics,
+    mock_counts_problem, noisy_recovery_gates, stopped_near_rejection, mock_problem, recovery_gates, recovery_metrics,
     refined_config, residual_vector,
 )
 from ocen_dm.kinematics.df_fit import (
@@ -313,6 +313,110 @@ def prepare_real(out, project, fitting, starts, bounds=None, n_random=0, dataset
     dump(out/"batch.json", manifest)
 
 
+def prepare_mock(out, project, fitting, truth_spec, inject, seed, branches, n_random, bounds,
+                 two_transition, free_distance, distance_prior, fixed, starts):
+    """Realistic mock from a fitted observed-data model: its kinematic bins and count
+    profiles, the truth's predictions with the published noise, Poisson counts with the
+    fitted amplitudes, optional injected halo values, then the same fitting jobs as
+    ``prepare-real``. Recovery is judged with ``noisy_recovery_gates``."""
+    import numpy.random
+    src_batch, src_job = truth_spec.split("::")
+    src_batch = Path(src_batch).resolve()
+    src_summary = read(src_batch/"fits"/src_job/"summary.json")
+    src_manifest = read(src_batch/"batch.json")
+    out.mkdir(parents=True, exist_ok=False)
+    frozen = out/"code"
+    (frozen/"bin").mkdir(parents=True)
+    shutil.copytree(project/"src", frozen/"src", ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".DS_Store"))
+    shutil.copy2(Path(__file__), frozen/"bin"/Path(__file__).name)
+    shutil.copytree(project/"configs/df", frozen/"configs/df")
+    shutil.copytree(project/"tests", frozen/"tests", ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".DS_Store"))
+    template = load_problem(src_batch/"observed")
+    if not template.counts:
+        raise ValueError("prepare-mock requires a counts-based source batch")
+    truth_config = model_config_from_dict(src_summary["best"]["config"])
+    truth_dict = truth_config.to_dict()
+    for path, value in inject.items():
+        node = truth_dict
+        keys = path.split(".")
+        for key in keys[:-1]:
+            node = node[key]
+        node[keys[-1]] = value
+    truth_config = with_fitting_numerics(model_config_from_dict(truth_dict), fitting)
+    t0 = time.monotonic()
+    print("Building refined mock truth", flush=True)
+    truth = build_df_model(refined_config(truth_config))
+    amplitudes = {n: c["amplitude"] for n, c in src_summary["refined_counts"].items()}
+    fields = {n: c["field"] for n, c in src_summary["refined_counts"].items()}
+    rng = None if seed is None else numpy.random.default_rng(seed)
+    problem = mock_counts_problem(template.data, template.counts, truth, amplitudes, fields, rng)
+    d = out/"mocks"/"mock"
+    d.mkdir(parents=True)
+    snapshot = write_data_snapshot(problem.data, d)
+    count_sha = {}
+    for c in problem.counts:
+        (d/f"{c.name}.json").write_text(json.dumps(c.to_dict()))
+        count_sha[c.name] = sha256(d/f"{c.name}.json")
+    nominal = problem.evaluate(truth_config)
+    nominal_r = residual_vector(problem, nominal)
+    radii = np.geomspace(.5, 80., 64)
+    record = dict(config=truth.config.to_dict(), nominal_config=truth_config.to_dict(), diagnostics=truth.diagnostics,
+                  data_snapshot=snapshot, counts=[c.name for c in problem.counts], counts_sha256=count_sha,
+                  photometry=False, profiles=mass_profiles(truth, radii), noisy=seed is not None, seed=seed,
+                  injected=inject, amplitudes=amplitudes, fields=fields,
+                  truth_source=dict(batch=str(src_batch), job=src_job, commit=src_manifest.get("source_commit")),
+                  nominal_chi2_kin=float(nominal["chi2_kinematic"]), nominal_deviance=float(nominal["deviance_counts"]),
+                  nominal_residual_sigma=nominal_r.tolist(), seconds=time.monotonic()-t0)
+    dump(d/"mock.json", record)
+    print(f"mock truth saved: nominal chi2_kin {nominal['chi2_kinematic']:.1f}, count deviance {nominal['deviance_counts']:.1f}"
+          + (" (noisy)" if seed is not None else " (noiseless)"), flush=True)
+    spec = read(frozen/"configs/df/regularized_no_dm.json")
+    model_spec = spec["model"]
+    if two_transition:
+        model_spec = dict(model_spec, stellar=dict(model_spec["stellar"], b_outer=-1., J_outer=10*model_spec["stellar"]["J_a"]))
+    for path, value in (fixed or {}).items():
+        node = model_spec
+        keys = path.split(".")
+        for key in keys[:-1]:
+            node = node[key]
+        node[keys[-1]] = value
+    base = with_fitting_numerics(model_config_from_dict(model_spec), fitting)
+    manifest = dict(schema_version=1, status="preparing", created_utc=now(), runtime=code_state(),
+                    project_root=str(project), source_commit=subprocess.check_output(
+                        ["git", "rev-parse", "HEAD"], cwd=project, text=True).strip(),
+                    scope="Realistic mock (published kinematic noise, Poisson counts) from a fitted model; "
+                          "recovery of the injected mass components",
+                    fixed=dict(distance_kpc=base.distance_kpc, gamma=0, halo_taper_pc=base.matter.r_t),
+                    fitting=fitting, priors={k: list(v) for k, v in (distance_prior and {"distance_kpc": distance_prior} or {}).items()},
+                    fixed_overrides=dict(fixed or {}), truth=truth_spec, injected=inject, seed=seed,
+                    gates=dict(chi2_kin_per_point=1.3, chi2_per_point_any_dataset=2.0, deviance_per_bin_counts=2.0,
+                               M_star_fraction=.05, total_mass_profile_fraction=.1, rho20_fraction_if_DM=.1,
+                               rho20_absolute_if_no_DM=.1, numerical_shift_sigma=.1),
+                    source_sha256={str(q.relative_to(frozen)): sha256(q) for q in frozen.rglob("*") if q.is_file()},
+                    input_sha256={}, jobs=[])
+    extra = (TWO_TRANSITION_COORDS if two_transition else [])+(
+        [dict(path="distance_kpc", lower=free_distance[0], upper=free_distance[1])] if free_distance else [])
+    everything = override_bounds(spec["fit_coordinates"]+[
+        dict(path="matter.rho20", lower=0., upper=10.),
+        dict(path="matter.r_s", lower=5., upper=500., log=True)]+extra, bounds or {})
+    coords, extra = everything[:len(everything)-len(extra)], everything[len(everything)-len(extra):]
+    paths = [c["path"] for c in everything]
+    starts = [dict(zip(paths, v)) if isinstance(v, tuple) else dict(v) for v in starts]
+    starts += [dict(zip(paths, v)) for v in latin_starts(everything, n_random)]
+    manifest.update(starts=starts, bound_overrides={k: list(v) for k, v in (bounds or {}).items()}, n_random_starts=n_random,
+                    two_transition=two_transition, free_distance=free_distance)
+    for branch in branches:
+        chosen = (coords if branch == "free_halo" else coords[:-2])+extra
+        cc = [FitCoordinate(**row) for row in chosen]
+        for index, values in enumerate(starts):
+            start = config_at(base, cc, [q.encode(values[q.path]) if q.path in values else q.get(base) for q in cc])
+            manifest["jobs"].append(dict(id=f"mock_{branch}_start{index}", case="mock", branch=branch, start=index,
+                                          data_dir="mocks/mock", config=start.to_dict(), coordinates=chosen))
+    manifest.update(status="prepared", prepared_utc=now(),
+                    mock_sha256={str(q.relative_to(out)): sha256(q) for q in d.rglob("*.json")})
+    dump(out/"batch.json", manifest)
+
+
 def evaluate_trial(problem, config, seed, radii, priors=None):
     """One equilibrium and its residuals; pure, so it can run in a worker process."""
     try:
@@ -535,7 +639,10 @@ def fit(out, job_id, max_calls):
         fine_shift = float(np.max(abs(fr-cr)))
         numerical = bool(cold_shift < .1 and fine_shift < .1 and max(projection.values()) < .005)
         profiles = mass_profiles(fine["model"], radii)
-        if truth:
+        if truth and truth.get("noisy"):
+            metrics = recovery_metrics(truth["profiles"], profiles)
+            gates = noisy_recovery_gates(optimizer["success"], numerical, fine, manifest["gates"], metrics)
+        elif truth:
             metrics = recovery_metrics(truth["profiles"], profiles)
             gates = recovery_gates(optimizer["success"], numerical, fr, metrics)
         else:
@@ -658,7 +765,11 @@ def report(out):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("command", choices=("prepare", "prepare-real", "run", "fit", "report"))
+    p.add_argument("command", choices=("prepare", "prepare-real", "prepare-mock", "run", "fit", "report"))
+    p.add_argument("--truth", default=None, metavar="BATCH::JOB", help="fitted model to use as mock truth (prepare-mock)")
+    p.add_argument("--inject", action="append", default=[], metavar="PATH=VALUE",
+                   help="override a truth value, e.g. matter.rho20=1 (prepare-mock)")
+    p.add_argument("--seed", type=int, default=None, help="noise seed; omit for a noiseless mock (prepare-mock)")
     p.add_argument("--stop-delta", type=float, default=None,
                    help="absolute objective change over --stop-window accepted steps that ends a fit")
     p.add_argument("--stop-window", type=int, default=2)
@@ -677,6 +788,8 @@ def main():
                    help="comma-separated Poisson count products replacing the magnitude photometry (prepare-real)")
     p.add_argument("--distance-prior", default=None, metavar="MU:SIGMA",
                    help="Gaussian prior on distance_kpc, used with --free-distance (prepare-real)")
+    p.add_argument("--start-from", default=None, metavar="BATCH::JOB",
+                   help="prepend that fit's best configuration as start 0 (prepare-real)")
     p.add_argument("--fix", action="append", default=[], metavar="PATH=VALUE",
                    help="hold a config value at VALUE for every start (prepare-real), e.g. matter.rho20=0.5")
     p.add_argument("--probe-workers", type=int, default=1,
@@ -704,6 +817,29 @@ def main():
         fitting["absolute_stop"] = dict(delta=args.stop_delta, window=args.stop_window)
     if args.command == "prepare":
         prepare(out, args.project.resolve(), fitting)
+    elif args.command == "prepare-mock":
+        if not args.truth:
+            p.error("prepare-mock requires --truth BATCH::JOB")
+        starts = [(3.6e6, 160., 1.2, 0., 180., 3e5, 1.5, 1., 40.),
+                  (3.0e6, 190., 1.7, .1, 400., 1e5, .6, 1.5, 20.)]
+        if args.two_transition:
+            starts = [{"M_star": 3.1e6, "stellar.J0": 120., "stellar.alpha": 1.24, "stellar.b_out": .39,
+                       "stellar.J_a": 32., "matter.M_rem": 1.7e5, "matter.a_rem": 1.3, "matter.rho20": 1.,
+                       "matter.r_s": 40., "stellar.b_outer": -1., "stellar.log_J_outer_ratio": float(np.log(15.))},
+                      {"M_star": 2.8e6, "stellar.J0": 130., "stellar.alpha": 1.14, "stellar.b_out": .3,
+                       "stellar.J_a": 50., "matter.M_rem": 4e5, "matter.a_rem": 2., "matter.rho20": 1.,
+                       "matter.r_s": 40., "stellar.b_outer": -1.5, "stellar.log_J_outer_ratio": float(np.log(8.))}]
+        bounds = {}
+        for item in args.bound:
+            path, _, rng_ = item.partition("=")
+            lo, _, hi = rng_.partition(":")
+            bounds[path] = (float(lo), float(hi))
+        prepare_mock(out, args.project.resolve(), fitting, args.truth,
+                     {k: float(v) for k, v in (item.split("=") for item in args.inject)}, args.seed,
+                     tuple(args.branches.split(",")), args.n_starts, bounds, args.two_transition,
+                     tuple(map(float, args.free_distance.split(":"))) if args.free_distance else None,
+                     tuple(map(float, args.distance_prior.split(":"))) if args.distance_prior else None,
+                     {k: float(v) for k, v in (item.split("=") for item in args.fix)}, starts)
     elif args.command == "prepare-real":
         # Two starts bracketing an Omega Cen-like mass and compactness (v2 mocks were too
         # light and extended): M_star, J0, alpha, b_out, J_a, M_rem, a_rem, rho20, r_s.
@@ -719,6 +855,21 @@ def main():
                       {"M_star": 2.8e6, "stellar.J0": 130., "stellar.alpha": 1.14, "stellar.b_out": .3,
                        "stellar.J_a": 50., "matter.M_rem": 4e5, "matter.a_rem": 2., "matter.rho20": 1.,
                        "matter.r_s": 40., "stellar.b_outer": -1.5, "stellar.log_J_outer_ratio": float(np.log(8.))}]
+        if args.start_from:
+            batch, job = args.start_from.split("::")
+            best = read(Path(batch)/"fits"/job/"summary.json")["best"]["config"]
+            def _get(cfg, path):
+                node = cfg
+                for key in path.split("."):
+                    node = node[key]
+                return node
+            paths = ["M_star", "stellar.J0", "stellar.alpha", "stellar.b_out", "stellar.J_a", "matter.M_rem",
+                     "matter.a_rem", "matter.rho20", "matter.r_s", "distance_kpc"]
+            seed = {k: float(_get(best, k)) for k in paths}
+            if best["stellar"].get("J_outer") is not None:
+                seed["stellar.b_outer"] = float(best["stellar"]["b_outer"])
+                seed["stellar.log_J_outer_ratio"] = float(np.log(best["stellar"]["J_outer"]/best["stellar"]["J_a"]))
+            starts = [seed]+list(starts)
         bounds = {}
         for item in args.bound:
             path, _, rng = item.partition("=")
