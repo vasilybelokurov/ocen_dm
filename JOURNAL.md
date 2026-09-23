@@ -5172,3 +5172,17 @@ dispersion is too high at 3-7 pc (to -6 errors) and too low beyond 12 pc (to
 2-5 errors too high beyond 20 pc. The outer model is thus too radially
 anisotropic, consistent with J_a pinned at its lower bound. The LOS comparison
 includes the moment-level MUSE streaming subtraction.
+
+## 2026-09-23 -- Wide-bound observed-data batch finished: the DF cannot fit the data
+
+`results/df/observed_df_wide_20260923/` finished at 11:01 UTC (12 jobs, 2 h).
+All 10 valid starts converged to their branch minima: five free-halo starts
+to refined objective 623.3 (chi2_kin/N 4.80) and five no-halo starts to 698.1
+(5.12). Every fit has J_a at its new lower bound of 5 pc km/s. Widening the
+bounds changed chi2_kin by only 29 and 20. The worst datasets are the Gaia
+PM components (free halo: tangential 13.6, radial 10.1; no halo: 20.2, 2.6).
+Two starts were lost to fitter defects: a rejected probe corrupted one
+Jacobian, and one start was infeasible. Neither affects the minima. Full
+write-up with test design, conclusions, and the required next steps:
+`docs/OBSERVED_DF_FLEXIBILITY.md`. Figure:
+`plots/observed_df_wide_20260923_best_fits.png`.
