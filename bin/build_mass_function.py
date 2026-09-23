@@ -151,6 +151,8 @@ def main():
     parser.add_argument("--age", type=float, default=12.5, help="Gyr")
     parser.add_argument("--distance", type=float, default=5.43, help="kpc")
     parser.add_argument("--ebv", type=float, default=.12)
+    parser.add_argument("--feh", type=float, default=None,
+                        help="force the isochrone [Fe/H] instead of the ridge-line best fit (systematic variant)")
     parser.add_argument("--tag", default="20260923")
     args = parser.parse_args()
     R, f6, f8 = load_catalogue()
@@ -166,11 +168,13 @@ def main():
         fits.append((float(np.sqrt(np.mean(resid**2))), float(feh), float(np.mean(resid))))
     fits.sort()
     rms_best, feh_best, _ = fits[0]
+    if args.feh is not None:
+        feh_best = args.feh
     iso = Isochrone(args.age, feh_best, args.distance, args.ebv)
     print(f"ridge-line fit at {args.age:g} Gyr, (m-M)0 {iso.dm0:.3f}, A_V {iso.av:.3f} (A_625 {iso.a625:.3f}, A_814 {iso.a814:.3f}):")
     for rms, feh, mean in fits:
         print(f"   [Fe/H] {feh:+.2f}: colour rms {rms:.4f} mag, mean offset {mean:+.4f}")
-    print(f"   adopted [Fe/H] = {feh_best:+.2f}; turnoff mass {iso.m_to:.3f} Msun; F625W(0.5 Msun) = {iso.mag_at(.5):.2f}")
+    print(f"   adopted [Fe/H] = {feh_best:+.2f} ({'forced' if args.feh is not None else 'ridge best fit'}); turnoff mass {iso.m_to:.3f} Msun; F625W(0.5 Msun) = {iso.mag_at(.5):.2f}")
 
     # ---- 2. per-zone luminosity and mass functions
     zones_out = []
