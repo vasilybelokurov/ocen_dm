@@ -34,7 +34,7 @@ points). Photometry is always included. Each batch uses two hand-picked
 starts and wide search bounds (J0 30-800, J_a 5-3000 pc km/s). Fits use
 parallel base-seeded Jacobians, iteration tolerance 5e-5, an absolute stop
 of 0.01, and a 600-evaluation cap. Runner: `bin/run_df_step1_diagnostics.sh`.
-Batches: `results/df/dfdiag_*_20260923/`, commit `8a7e377`.
+Batches: `results/df/dfdiag_*_20260923/`, frozen at commit `1e246bd` (the runner commit on top of `8a7e377`).
 
 | Batch | Kinematic data | Change | Purpose |
 |---|---|---|---|
