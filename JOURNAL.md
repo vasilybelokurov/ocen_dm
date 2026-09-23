@@ -5612,3 +5612,21 @@ next steps now (i) r_s >= stellar half-mass radius on physical grounds (DM
 is not mass-segregated), (ii) M_star prior from the present-day mass
 function (oMEGACat photometry complete to F625W ~ 23, ~0.45 Msun), (iii)
 repeat mocks. Figure `plots/mock_coverage_20260923.png`.
+
+## 2026-09-23 -- Groundwork for a stellar-mass prior from the oMEGACat mass function
+
+Catalogue: 1.28 M stars with both F625W and F814W. The luminosity function
+turns over at F625W ~ 23 (22.5-23 inside 60 arcsec, 23-23.5 outside 150),
+the turnoff is at ~17.8; the main sequence is clean to ~22 (0.5 Msun) and
+usable to ~23 (`plots/omegacat_cmd_20260923.png`). The quality flags are
+strongly magnitude- and radius-dependent (fraction flagged 0.89-0.95 at the
+turnoff, 0.13-0.55 at F625W 23.5-24), so the mass function must use the
+unflagged sample with its own completeness limit. Filters: F625W is ACS/WFC;
+F814W combines ACS/WFC and WFC3/UVIS (oMEGACat II, arXiv:2404.03722). Harris
+catalogue values verified: [Fe/H] -1.53, E(B-V) 0.12, (m-M)_V 13.94,
+M_V -10.26. MIST via minimint 0.5.1 is installed; the prepared grid in
+~/data/isochrones/minimint lacks HST filters. `minimint.bolom.prepare` can
+add them from the BC tables alone (no EEP re-download): needs
+HST_ACSWF.txz and HST_WFC3.txz from waps.cfa.harvard.edu, to be prepared
+into a separate prefix so the shared grid is untouched. Awaiting approval
+for the download.
