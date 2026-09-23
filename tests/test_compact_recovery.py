@@ -94,3 +94,39 @@ def test_absolute_stop_continues_while_improving_and_validates():
         stop.update(value)
     with pytest.raises(ValueError):
         AbsoluteStop(delta=0)
+
+
+def _evaluation(kin_chi2, phot_residual, sigma):
+    phot_residual, sigma = np.asarray(phot_residual, float), np.asarray(sigma, float)
+    return dict(terms=dict(a=dict(chi2=kin_chi2, n=10)),
+                photometry=dict(chi2=float(np.sum((phot_residual/sigma)**2)), prediction=phot_residual),
+                photometry_mu=np.zeros_like(phot_residual), photometry_sigma=sigma)
+
+
+GATES = dict(chi2_kin_per_point=1.3, chi2_per_point_any_dataset=2., chi2_phot_per_point=2.)
+
+
+def test_data_gate_uses_weighted_photometry_not_raw_rms():
+    from ocen_dm.kinematics.compact_recovery import data_fit_gates
+    # A 1 mag outlier with 0.58 mag error is within 2 sigma: raw RMS is large, fit is fine.
+    ev = _evaluation(10., [0., .05, -.05, 1.], [.1, .1, .1, .58])
+    g = data_fit_gates(True, True, ev, GATES)
+    assert g["chi2_phot_per_point"] < 2 and g["data_fit_passed"] and g["passed"]
+    raw_rms = float(np.sqrt(np.mean(np.array([0., .05, .05, 1.])**2)))
+    assert g["photometric_weighted_rms_mag"] < raw_rms
+
+
+def test_data_gate_fails_on_any_dataset_or_optimizer():
+    from ocen_dm.kinematics.compact_recovery import data_fit_gates
+    assert not data_fit_gates(True, True, _evaluation(25., [0.], [.1]), GATES)["data_fit_passed"]
+    g = data_fit_gates(False, True, _evaluation(10., [0.], [.1]), GATES)
+    assert g["data_fit_passed"] and not g["passed"]
+
+
+def test_data_radius_covers_bin_edges_and_photometry():
+    from ocen_dm.kinematics.compact_recovery import data_radius_pc
+    from ocen_dm.kinematics.likelihood import ARCSEC_PER_RAD
+    p, _ = problem()
+    edged = replace(p.data.profiles[0], r_lower=np.array([5., 20.]), r_upper=np.array([20., 40.]))
+    p.data = KinematicData((edged,))
+    assert data_radius_pc(p, 5.) == pytest.approx(40.*5000/ARCSEC_PER_RAD)

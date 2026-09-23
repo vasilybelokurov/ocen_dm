@@ -129,3 +129,45 @@ class AbsoluteStop:
                 self.history[-1-self.window]-self.history[-1] < self.delta:
             raise Converged(f"objective improved by less than {self.delta:g} over "
                             f"{self.window} accepted steps")
+
+
+def data_fit_gates(optimizer_success, numerical_passed, evaluation, thresholds):
+    """Goodness of fit to observed data; says nothing about the mass decomposition.
+
+    Photometry is judged by chi2/N with its adopted errors. The observed splice
+    (oMEGACat counts plus the Trager et al. 1995 compilation) has errors of
+    0.1-0.58 mag and 0.13 mag scatter between duplicate full-weight points, so an
+    unweighted magnitude RMS is not a meaningful criterion. The error-weighted
+    RMS in mag is reported for reference only. Legacy threshold sets that name
+    ``photometric_rms_mag`` apply it to the weighted RMS.
+    """
+    terms = evaluation["terms"]
+    n_kin = sum(t["n"] for t in terms.values())
+    chi2_kin = sum(t["chi2"] for t in terms.values())
+    photo = evaluation["photometry"]
+    residual = np.asarray(photo["prediction"])-np.asarray(evaluation["photometry_mu"])
+    sigma = np.asarray(evaluation.get("photometry_sigma", np.ones_like(residual)))
+    weighted_rms = float(np.sqrt(np.average(residual**2, weights=sigma**-2)))
+    n_phot = residual.size
+    per_term = {k: t["chi2"]/t["n"] for k, t in terms.items()}
+    phot_ok = (photo["chi2"]/n_phot < thresholds["chi2_phot_per_point"]
+               if "chi2_phot_per_point" in thresholds
+               else weighted_rms < thresholds["photometric_rms_mag"])
+    fit_ok = bool(chi2_kin/n_kin < thresholds["chi2_kin_per_point"] and
+                  max(per_term.values()) < thresholds["chi2_per_point_any_dataset"] and phot_ok)
+    return dict(optimizer_terminated=bool(optimizer_success), numerical_passed=bool(numerical_passed),
+                chi2_kinematic=chi2_kin, n_kinematic=n_kin, chi2_kin_per_point=chi2_kin/n_kin,
+                chi2_per_point_by_dataset=per_term, chi2_photometric=photo["chi2"],
+                n_photometric=n_phot, chi2_phot_per_point=photo["chi2"]/n_phot,
+                photometric_weighted_rms_mag=weighted_rms, data_fit_passed=fit_ok,
+                passed=bool(optimizer_success and numerical_passed and fit_ok))
+
+
+def data_radius_pc(problem, distance_kpc):
+    """Outermost projected radius (pc) used by any kinematic bin edge or photometric point."""
+    arcsec = [problem.photometry.r_arcsec.max()]
+    for p in problem.data.profiles:
+        arcsec.append((p.r_upper if p.r_upper is not None else p.r).max())
+        if p.r_nodes is not None:
+            arcsec.append(np.max(p.r_nodes))
+    return float(max(arcsec)*distance_kpc*1000/ARCSEC_PER_RAD)
