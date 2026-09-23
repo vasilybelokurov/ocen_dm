@@ -4970,3 +4970,27 @@ exact degeneracies. However, these objective differences are far below the
 chi-square scatter expected with real noise (sqrt(2 x 171) = 18.5). The
 stellar-mass/halo-density split is thus practically unconstrained by these
 observables. A fixed-rho20 profile scan would measure that constraint directly.
+
+## 2026-09-23 -- Compact recovery v2 mocks compared with the observed data
+
+Added `bin/plot_compact_mocks.py` (reads saved snapshots only). Output:
+`plots/compact_recovery_20260923_v2_mocks.png`, with data in
+`results/plot_data/compact_recovery_20260923_v2_mocks.json`. It shows both
+noiseless mocks with their adopted errors, the observed values they replace,
+and (cored - no DM)/error per bin. The data span 0.05-68 pc projected, at
+0.0263 pc per arcsec for 5.43 kpc.
+
+The injected truths are not Omega Cen-like. Central mock dispersions are
+12.8 km/s (LOS) and 0.49 mas/yr (PM) for no DM, against about 18-21 km/s and
+0.76-0.86 mas/yr observed, roughly 35-40% low. The mock surface-brightness
+profile has a flat core out to about 10 pc and falls later than observed.
+The observed profile declines from about 3 pc. The 3e6 Msun stellar mass
+with J0 = 300 pc km/s therefore gives a cluster too light and extended for
+the real data. The recovery test is a self-consistency check of the
+machinery; its degeneracy amplitude need not transfer to the observed regime.
+
+The two mocks are strongly separable bin by bin. The HST PM dispersions differ
+by up to 43 (radial) and 20 (tangential) adopted errors near 3-6 pc, and the
+Gaia PM, MUSE LOS, and outer photometry by about 5. The fitted degeneracy is
+therefore not a failure to see the halo's effect on the data. The stellar DF
+and remnant parameters absorb that effect instead.
