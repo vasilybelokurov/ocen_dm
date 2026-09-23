@@ -103,3 +103,29 @@ def recovery_gates(optimizer_success, numerical_passed, residual, metrics):
                 physical_accuracy_passed=metrics["physical_accuracy_passed"],
                 passed=bool(optimizer_success and numerical_passed and observable
                             and metrics["physical_accuracy_passed"]))
+
+
+class Converged(Exception):
+    """Raised by the fitter when the absolute objective-change rule is met."""
+
+
+class AbsoluteStop:
+    """Stop when accepted iterates improve the objective by < delta over `window` steps.
+
+    The trust-region optimizer evaluates the Jacobian only at accepted iterates,
+    so `update` is called there with the objective sum(residual**2). An absolute
+    rule is used because relative tolerances are unreachable near a noiseless
+    minimum, where evaluation noise is comparable to the objective itself.
+    """
+
+    def __init__(self, delta=0.01, window=2):
+        if delta <= 0 or window < 1:
+            raise ValueError("delta must be positive and window at least one")
+        self.delta, self.window, self.history = float(delta), int(window), []
+
+    def update(self, objective):
+        self.history.append(float(objective))
+        if len(self.history) > self.window and \
+                self.history[-1-self.window]-self.history[-1] < self.delta:
+            raise Converged(f"objective improved by less than {self.delta:g} over "
+                            f"{self.window} accepted steps")

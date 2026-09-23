@@ -76,3 +76,21 @@ def test_capped_run_cannot_pass_and_injection_uses_relative_error():
     assert metrics["physical_accuracy_passed"]
     assert not recovery_gates(False, True, np.zeros(10), metrics)["passed"]
     assert recovery_gates(True, True, np.zeros(10), metrics)["passed"]
+
+
+def test_absolute_stop_needs_full_window_of_small_changes():
+    from ocen_dm.kinematics.compact_recovery import AbsoluteStop, Converged
+    stop = AbsoluteStop(delta=.01, window=2)
+    for value in (100., 10., 1., .995):  # last window change is 0.005 + big step before
+        stop.update(value)
+    with pytest.raises(Converged):
+        stop.update(.994)  # 1.0 -> 0.994 over two steps < 0.01
+
+
+def test_absolute_stop_continues_while_improving_and_validates():
+    from ocen_dm.kinematics.compact_recovery import AbsoluteStop
+    stop = AbsoluteStop(delta=.01, window=2)
+    for value in (1., .5, .25, .12, .06, .03):
+        stop.update(value)
+    with pytest.raises(ValueError):
+        AbsoluteStop(delta=0)
