@@ -35,6 +35,7 @@ from ocen_dm.kinematics.df_fit import (
     DFJointProblem, FitCoordinate, PhotometricData, build_df_model, config_at,
     model_config_from_dict,
 )
+from ocen_dm.kinematics.counts import CountProfile
 from ocen_dm.kinematics.likelihood import KinematicData
 from ocen_dm.kinematics.regularized_df import RegularizedDFModel
 from ocen_dm.kinematics.run_io import code_state, read_data_snapshot, sha256, write_data_snapshot
@@ -60,8 +61,15 @@ def read(path):
 
 def load_problem(directory):
     record = read(directory/("mock.json" if (directory/"mock.json").exists() else "problem.json"))
-    return DFJointProblem(read_data_snapshot(directory, record["data_snapshot"]),
-                          PhotometricData.from_dict(read(directory/"photometry.json")))
+    photometry = (PhotometricData.from_dict(read(directory/"photometry.json"))
+                  if (directory/"photometry.json").exists() and record.get("photometry", True) else None)
+    counts = []
+    for name in record.get("counts", []):
+        path = directory/f"{name}.json"
+        if sha256(path) != record["counts_sha256"][name]:
+            raise ValueError(f"count profile changed: {path}")
+        counts.append(CountProfile.from_dict(read(path)))
+    return DFJointProblem(read_data_snapshot(directory, record["data_snapshot"]), photometry, counts)
 
 
 def prepare(out, project, fitting=None):
@@ -217,7 +225,7 @@ TWO_TRANSITION_COORDS = [dict(path="stellar.b_outer", lower=-4., upper=2.),
 
 def prepare_real(out, project, fitting, starts, bounds=None, n_random=0, datasets=None,
                  gaia_error_floor=0., free_distance=None, branches=("free_halo", "no_halo"),
-                 two_transition=False):
+                 two_transition=False, counts=(), distance_prior=None, fixed=None):
     """Fit the observed data (pilot snapshot) with free-halo and no-halo branches."""
     out.mkdir(parents=True, exist_ok=False)
     frozen = out/"code"
@@ -230,7 +238,15 @@ def prepare_real(out, project, fitting, starts, bounds=None, n_random=0, dataset
     source = project/"results/df/pilot_no_dm_20260922"
     d = out/"observed"
     d.mkdir()
-    shutil.copy2(source/"photometry.json", d/"photometry.json")
+    # Tracer density: Poisson count profiles (data/processed/kinematics/<name>.json) replace
+    # the adopted-error magnitude profile when given.
+    count_sha = {}
+    for name in counts:
+        src_json = project/"data/processed/kinematics"/f"{name}.json"
+        shutil.copy2(src_json, d/f"{name}.json")
+        count_sha[name] = sha256(d/f"{name}.json")
+    if not counts:
+        shutil.copy2(source/"photometry.json", d/"photometry.json")
     original = read_data_snapshot(source, read(source/"summary.json")["data_snapshot"])
     if datasets is None and not gaia_error_floor:
         shutil.copy2(source/"data_snapshot.json", d/"data_snapshot.json")
@@ -238,12 +254,19 @@ def prepare_real(out, project, fitting, starts, bounds=None, n_random=0, dataset
     else:
         snapshot = write_data_snapshot(observed_variant(original, datasets, gaia_error_floor), d)
     dump(d/"problem.json", dict(data_snapshot=snapshot, source=str(source), datasets=datasets,
-                                gaia_error_floor_masyr=gaia_error_floor))
+                                gaia_error_floor_masyr=gaia_error_floor, photometry=not counts,
+                                counts=list(counts), counts_sha256=count_sha))
     spec = read(frozen/"configs/df/regularized_no_dm.json")
     model_spec = spec["model"]
     if two_transition:  # placeholder second transition; every start sets its own values
         model_spec = dict(model_spec, stellar=dict(model_spec["stellar"], b_outer=-1.,
                                                    J_outer=10*model_spec["stellar"]["J_a"]))
+    for path, value in (fixed or {}).items():  # e.g. matter.rho20 held at a grid value
+        node = model_spec
+        keys = path.split(".")
+        for key in keys[:-1]:
+            node = node[key]
+        node[keys[-1]] = value
     base = with_fitting_numerics(model_config_from_dict(model_spec), fitting)
     load_problem(d)  # checksum and fingerprint of the observed snapshot
     manifest = dict(schema_version=1, status="preparing", created_utc=now(), runtime=code_state(),
@@ -252,9 +275,10 @@ def prepare_real(out, project, fitting, starts, bounds=None, n_random=0, dataset
                     scope="Observed-data flexibility test of the regularized stellar DF; "
                           "fit quality only, not a mass decomposition or posterior",
                     fixed=dict(distance_kpc=base.distance_kpc, gamma=0, halo_taper_pc=base.matter.r_t),
-                    fitting=fitting,
+                    fitting=fitting, priors={k: list(v) for k, v in (distance_prior and {"distance_kpc": distance_prior} or {}).items()},
+                    fixed_overrides=dict(fixed or {}),
                     gates=dict(chi2_kin_per_point=1.3, chi2_per_point_any_dataset=2.0,
-                               chi2_phot_per_point=2.0, numerical_shift_sigma=.1),
+                               chi2_phot_per_point=2.0, deviance_per_bin_counts=2.0, numerical_shift_sigma=.1),
                     source_sha256={str(p.relative_to(frozen)): sha256(p)
                                    for p in frozen.rglob("*") if p.is_file()},
                     input_sha256={p.name: sha256(p) for p in d.iterdir()}, jobs=[])
@@ -289,12 +313,12 @@ def prepare_real(out, project, fitting, starts, bounds=None, n_random=0, dataset
     dump(out/"batch.json", manifest)
 
 
-def evaluate_trial(problem, config, seed, radii):
+def evaluate_trial(problem, config, seed, radii, priors=None):
     """One equilibrium and its residuals; pure, so it can run in a worker process."""
     try:
         model = RegularizedDFModel(config, initial_stellar_potential=seed)
         ev = problem.evaluate(config, model)
-        residual = residual_vector(problem, ev)
+        residual = residual_vector(problem, ev, priors)
         return dict(residual=residual, score=float(residual @ residual),
                     iterations=model.diagnostics["iterations"], diagnostics=model.diagnostics,
                     profiles=mass_profiles(model, radii), potential=model.stellar_potential)
@@ -305,10 +329,10 @@ def evaluate_trial(problem, config, seed, radii):
 _WORKER = {}
 
 
-def _init_probe_worker(data_dir, radii):
+def _init_probe_worker(data_dir, radii, priors=None):
     for key in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "VECLIB_MAXIMUM_THREADS"):
         os.environ[key] = "1"
-    _WORKER.update(problem=load_problem(Path(data_dir)), radii=radii)
+    _WORKER.update(problem=load_problem(Path(data_dir)), radii=radii, priors=priors)
 
 
 def _probe(config_dict, seed_file):
@@ -316,7 +340,8 @@ def _probe(config_dict, seed_file):
     exported file (round trip exact to ~3e-14) and the potential is not returned."""
     from ocen_dm.kinematics.positive_df import agama_pc
     seed = agama_pc().Potential(file=seed_file)
-    result = evaluate_trial(_WORKER["problem"], model_config_from_dict(config_dict), seed, _WORKER["radii"])
+    result = evaluate_trial(_WORKER["problem"], model_config_from_dict(config_dict), seed, _WORKER["radii"],
+                            _WORKER.get("priors"))
     result.pop("potential", None)
     return result
 
@@ -335,6 +360,7 @@ def fit(out, job_id, max_calls):
     radii = truth["profiles"]["r_pc"] if truth else np.geomspace(.5, 80., 64).tolist()
     fitting = manifest.get("fitting", {})
     stop = AbsoluteStop(**fitting["absolute_stop"]) if "absolute_stop" in fitting else None
+    priors = {k: tuple(v) for k, v in manifest.get("priors", {}).items()}
     base_seeded = fitting.get("jacobian_seed", "chained") == "base"
     probe_workers = int(fitting.get("probe_workers", 1))
     if probe_workers > 1 and not base_seeded:
@@ -344,7 +370,7 @@ def fit(out, job_id, max_calls):
         import multiprocessing
         from concurrent.futures import ProcessPoolExecutor
         pool = ProcessPoolExecutor(max_workers=probe_workers, mp_context=multiprocessing.get_context("spawn"),
-                                   initializer=_init_probe_worker, initargs=(str(data_dir), radii))
+                                   initializer=_init_probe_worker, initargs=(str(data_dir), radii, priors))
     coords = [FitCoordinate(**c) for c in job["coordinates"]]
     base = model_config_from_dict(job["config"])
     low, high = np.array([c.bounds for c in coords]).T
@@ -374,7 +400,7 @@ def fit(out, job_id, max_calls):
         if "rejected" in result:
             row["rejected"] = result["rejected"]
             rejected[key] = calls
-            residual = np.full(problem.data.n_points+len(problem.photometry.mu), 1e6)
+            residual = np.full(problem.n_residuals+len(priors), 1e6)
         else:
             residual, score = result["residual"], result["score"]
             if result.get("potential") is not None:
@@ -409,7 +435,7 @@ def fit(out, job_id, max_calls):
         if calls >= max_calls:
             raise EvaluationBudget()
         config = config_of(x)
-        return record(x, config, evaluate_trial(problem, config, warm if seed is None else seed, radii))
+        return record(x, config, evaluate_trial(problem, config, warm if seed is None else seed, radii, priors))
 
     def jacobian(x):
         # An absolute step in normalized coordinates stays resolved at rho20=0.
@@ -495,9 +521,10 @@ def fit(out, job_id, max_calls):
         c = model_config_from_dict(best["config"])
         cold = problem.evaluate(c)
         fine = problem.evaluate(refined_config(c))
-        fine["photometry_mu"] = problem.photometry.mu
-        fine["photometry_sigma"] = problem.photometry.sigma_mag
-        cr, fr = residual_vector(problem, cold), residual_vector(problem, fine)
+        if problem.photometry is not None:
+            fine["photometry_mu"] = problem.photometry.mu
+            fine["photometry_sigma"] = problem.photometry.sigma_mag
+        cr, fr = residual_vector(problem, cold, priors), residual_vector(problem, fine, priors)
         # Validate over the projected radii the data use (fast projection has an
         # edge effect near its outer grid, e.g. 0.8% at 80 pc beyond the 68 pc data).
         R = np.geomspace(.05, data_radius_pc(problem, c.distance_kpc), 12)
@@ -515,8 +542,10 @@ def fit(out, job_id, max_calls):
             metrics = None
             gates = data_fit_gates(optimizer["success"], numerical, fine, manifest["gates"])
         summary = dict(job=job, optimizer=optimizer, calls=calls, seconds=time.monotonic()-started,
-                       refined_terms=fine["terms"], refined_photometry={k: v for k, v in fine["photometry"].items()
-                                                                        if not hasattr(v, "__len__")},
+                       refined_terms=fine["terms"],
+                       refined_photometry={k: v for k, v in (fine["photometry"] or {}).items() if not hasattr(v, "__len__")},
+                       refined_counts={n: {k: v for k, v in c.items() if not hasattr(v, "__len__")}
+                                       for n, c in fine.get("counts", {}).items()},
                        best=best, cold_score=float(cr@cr), refined_score=float(fr@fr),
                        refined_residual_sigma=fr.tolist(), refined_profiles=profiles,
                        validation=dict(cold_shift_sigma=cold_shift, refinement_shift_sigma=fine_shift,
@@ -644,6 +673,12 @@ def main():
     p.add_argument("--branches", default="free_halo,no_halo", help="comma-separated (prepare-real)")
     p.add_argument("--two-transition", action="store_true",
                    help="free b_outer and ln(J_outer/J_a) (prepare-real)")
+    p.add_argument("--counts", default=None,
+                   help="comma-separated Poisson count products replacing the magnitude photometry (prepare-real)")
+    p.add_argument("--distance-prior", default=None, metavar="MU:SIGMA",
+                   help="Gaussian prior on distance_kpc, used with --free-distance (prepare-real)")
+    p.add_argument("--fix", action="append", default=[], metavar="PATH=VALUE",
+                   help="hold a config value at VALUE for every start (prepare-real), e.g. matter.rho20=0.5")
     p.add_argument("--probe-workers", type=int, default=1,
                    help="processes for the Jacobian probes of one fit (needs --jacobian-seed base)")
     p.add_argument("--iteration-tolerance", type=float, default=None,
@@ -693,7 +728,10 @@ def main():
                      datasets=args.datasets.split(",") if args.datasets else None,
                      gaia_error_floor=args.gaia_error_floor,
                      free_distance=tuple(map(float, args.free_distance.split(":"))) if args.free_distance else None,
-                     branches=tuple(args.branches.split(",")), two_transition=args.two_transition)
+                     branches=tuple(args.branches.split(",")), two_transition=args.two_transition,
+                     counts=tuple(args.counts.split(",")) if args.counts else (),
+                     distance_prior=tuple(map(float, args.distance_prior.split(":"))) if args.distance_prior else None,
+                     fixed={k: float(v) for k, v in (item.split("=") for item in args.fix)})
     elif args.command == "fit":
         if args.job is None:
             p.error("fit requires --job")

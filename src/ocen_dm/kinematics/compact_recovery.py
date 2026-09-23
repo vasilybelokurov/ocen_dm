@@ -28,15 +28,28 @@ def mock_problem(template, photometry, truth):
     return DFJointProblem(data, photo)
 
 
-def residual_vector(problem, evaluation):
-    """Signed residuals whose squared norm equals the existing joint objective."""
+def residual_vector(problem, evaluation, priors=None):
+    """Signed residuals whose squared norm equals the joint objective (+ Gaussian priors).
+
+    Order: kinematic profiles, photometry (if any), count deviance residuals (if
+    any), then one residual (value - mu)/sigma per Gaussian prior on a config
+    coordinate, e.g. ``{"distance_kpc": (5.43, 0.05)}``.
+    """
     rows = []
     for p in problem.data.profiles:
         prediction = evaluation["predictions"][p.name]
         error = np.where(prediction > p.value, p.err_hi, p.err_lo)
         rows.append((prediction-p.value)/error)
-    rows.append((evaluation["photometry"]["prediction"]-problem.photometry.mu)
-                / problem.photometry.sigma_mag)
+    if problem.photometry is not None:
+        rows.append((evaluation["photometry"]["prediction"]-problem.photometry.mu)
+                    / problem.photometry.sigma_mag)
+    for c in problem.counts:
+        rows.append(np.asarray(evaluation["counts"][c.name]["residual"], float))
+    for path, (mu, sigma) in (priors or {}).items():
+        node = evaluation["model"].config.to_dict()
+        for key in path.split("."):
+            node = node[key]
+        rows.append(np.array([(float(node)-mu)/sigma]))
     residual = np.concatenate(rows)
     if not np.all(np.isfinite(residual)):
         raise ValueError("nonfinite mock residual")
@@ -144,28 +157,41 @@ def data_fit_gates(optimizer_success, numerical_passed, evaluation, thresholds):
     terms = evaluation["terms"]
     n_kin = sum(t["n"] for t in terms.values())
     chi2_kin = sum(t["chi2"] for t in terms.values())
-    photo = evaluation["photometry"]
-    residual = np.asarray(photo["prediction"])-np.asarray(evaluation["photometry_mu"])
-    sigma = np.asarray(evaluation.get("photometry_sigma", np.ones_like(residual)))
-    weighted_rms = float(np.sqrt(np.average(residual**2, weights=sigma**-2)))
-    n_phot = residual.size
     per_term = {k: t["chi2"]/t["n"] for k, t in terms.items()}
-    phot_ok = (photo["chi2"]/n_phot < thresholds["chi2_phot_per_point"]
-               if "chi2_phot_per_point" in thresholds
-               else weighted_rms < thresholds["photometric_rms_mag"])
+    out = dict(optimizer_terminated=bool(optimizer_success), numerical_passed=bool(numerical_passed),
+               chi2_kinematic=chi2_kin, n_kinematic=n_kin, chi2_kin_per_point=chi2_kin/n_kin,
+               chi2_per_point_by_dataset=per_term)
+    density_ok = True
+    photo = evaluation.get("photometry")
+    if photo is not None:
+        residual = np.asarray(photo["prediction"])-np.asarray(evaluation["photometry_mu"])
+        sigma = np.asarray(evaluation.get("photometry_sigma", np.ones_like(residual)))
+        weighted_rms = float(np.sqrt(np.average(residual**2, weights=sigma**-2)))
+        n_phot = residual.size
+        density_ok &= bool(photo["chi2"]/n_phot < thresholds["chi2_phot_per_point"]
+                           if "chi2_phot_per_point" in thresholds
+                           else weighted_rms < thresholds["photometric_rms_mag"])
+        out.update(chi2_photometric=photo["chi2"], n_photometric=n_phot,
+                   chi2_phot_per_point=photo["chi2"]/n_phot, photometric_weighted_rms_mag=weighted_rms)
+    counts = evaluation.get("counts") or {}
+    if counts:
+        # Poisson deviance per bin; a correct model with N >~ 5 per bin gives ~1.
+        per_count = {k: c["deviance"]/c["n"] for k, c in counts.items()}
+        out.update(deviance_counts={k: c["deviance"] for k, c in counts.items()},
+                   deviance_per_bin_by_counts=per_count,
+                   count_amplitudes={k: c["amplitude"] for k, c in counts.items()},
+                   count_field_per_arcmin2={k: c["field_density_per_arcmin2"] for k, c in counts.items()})
+        density_ok &= bool(max(per_count.values()) < thresholds.get("deviance_per_bin_counts", 2.))
     fit_ok = bool(chi2_kin/n_kin < thresholds["chi2_kin_per_point"] and
-                  max(per_term.values()) < thresholds["chi2_per_point_any_dataset"] and phot_ok)
-    return dict(optimizer_terminated=bool(optimizer_success), numerical_passed=bool(numerical_passed),
-                chi2_kinematic=chi2_kin, n_kinematic=n_kin, chi2_kin_per_point=chi2_kin/n_kin,
-                chi2_per_point_by_dataset=per_term, chi2_photometric=photo["chi2"],
-                n_photometric=n_phot, chi2_phot_per_point=photo["chi2"]/n_phot,
-                photometric_weighted_rms_mag=weighted_rms, data_fit_passed=fit_ok,
-                passed=bool(optimizer_success and numerical_passed and fit_ok))
+                  max(per_term.values()) < thresholds["chi2_per_point_any_dataset"] and density_ok)
+    out.update(data_fit_passed=fit_ok, passed=bool(optimizer_success and numerical_passed and fit_ok))
+    return out
 
 
 def data_radius_pc(problem, distance_kpc):
     """Outermost projected radius (pc) used by any kinematic bin edge or photometric point."""
-    arcsec = [problem.photometry.r_arcsec.max()]
+    arcsec = [problem.photometry.r_arcsec.max()] if problem.photometry is not None else []
+    arcsec += [float(np.max(c.r_upper)) for c in problem.counts]
     for p in problem.data.profiles:
         arcsec.append((p.r_upper if p.r_upper is not None else p.r).max())
         if p.r_nodes is not None:
