@@ -5316,3 +5316,14 @@ value). beta(r) follows the Jeans turnover to ~30 pc. f(J_r, L) is smooth.
 The structural criteria pass except Gaia T > 3; the statistical criterion is
 not met with raw errors. Details and figures in
 `docs/DF_ANISOTROPY_DIAGNOSTICS.md`.
+
+## 2026-09-23 -- Gaia error floors withdrawn; step 3 launched
+
+The user rejected ad hoc Gaia error floors as a fudge. They are withdrawn
+from model assessment; all fits use published errors. A calibrated Gaia
+error model remains a separate, unapproved data task.
+Launched `results/df/dftwo_halo_20260923/` at 15:15 UTC from commit `bb40db1`:
+two-transition DF plus free cored halo (rho20 0-10, r_s 5-500 pc), raw
+errors, 2 hand-picked starts (rho20 = 1, r_s = 40) plus 4 Latin starts,
+2 jobs x 5 probe workers, cap 600. Question: does rho20 > 0 improve on the
+no-halo two-transition fit (chi2_kin 159.2, refined objective 378.3)?

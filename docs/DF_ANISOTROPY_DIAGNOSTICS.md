@@ -308,3 +308,14 @@ and the remnants collapse. The exception is Gaia tangential at chi2/n = 3.7,
 against a limit of 3, with a mildly coherent residual at 4-20 pc. The
 statistical criterion is not met (chi2_kin/N 1.79 > 1.3); with raw Gaia
 errors it is reported, not required.
+
+### Decision on Gaia error floors (23 September)
+
+The 0.01/0.02 mas/yr floors above were ad hoc, not a calibrated error model.
+They are withdrawn as a tool for judging models and will not be used again.
+All fits use the published (raw) errors. The incompleteness of the Gaia
+error model stays an open caveat. The proper remedy is a separate data task:
+re-derive the Gaia dispersion profiles with a literature-based per-star error
+calibration, or calibrate against HST in the overlap. Its method needs
+approval before implementation. Step 3 (two transitions plus free halo)
+therefore runs with raw errors.
