@@ -5166,3 +5166,9 @@ evaluations, xtol) matches no-halo start0: chi2_kin/N 5.35, chi2_phot/N 2.95,
 Gaia PM_T chi2/n 20.1, J_a at its lower bound, M_star 3.33e6. Both branches
 converged to one solution per branch from two starts. Data-model figure:
 `plots/observed_df_20260923_fits.png`.
+The residual pattern is common to all four fits. The tangential PM
+dispersion is too high at 3-7 pc (to -6 errors) and too low beyond 12 pc (to
++6). The LOS dispersion is 3-5 errors too high at 5-8 pc, and the radial PM
+2-5 errors too high beyond 20 pc. The outer model is thus too radially
+anisotropic, consistent with J_a pinned at its lower bound. The LOS comparison
+includes the moment-level MUSE streaming subtraction.
