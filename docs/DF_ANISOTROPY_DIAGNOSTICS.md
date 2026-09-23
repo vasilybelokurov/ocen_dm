@@ -319,3 +319,49 @@ re-derive the Gaia dispersion profiles with a literature-based per-star error
 calibration, or calibrate against HST in the overlap. Its method needs
 approval before implementation. Step 3 (two transitions plus free halo)
 therefore runs with raw errors.
+
+## Step 3: two transitions plus free cored halo (23 September)
+
+Batch `results/df/dftwo_halo_20260923/`, raw errors. Three of six starts
+were infeasible at their initial point. Two failed numerically (action
+normalization error 5.1e-5 above the 2e-5 tolerance; a density-closure
+failure) and one physically (streaming exceeded the DF second moment). All
+three valid starts reached one minimum: refined objective 346.9 (no halo:
+378.3), chi2_kin 143.3 (159.2). By dataset (chi2/n): HST R 1.02, HST T
+1.39, MUSE 1.83, Gaia R 2.04 (was 0.93), Gaia T 2.34 (was 3.7); chi2_phot/N
+is 2.48.
+
+Not a clean DM result:
+- **Two coordinates are at bounds.** r_s = 500 pc (upper), so the halo is
+  effectively uniform (rho20 = 0.92 Msun/pc^3) inside the data.
+  J_outer/J_a = 2 (lower), so the transitions are pushed together.
+- **The anisotropy re-arranges** (b_out 0.46 -> 1.76, J_a 27 -> 101,
+  b_outer -1.26 -> -0.25): a mass-anisotropy trade.
+- **The halo is < 1% of the enclosed mass at 20 pc**, 8% at 42 pc and 32% at
+  80 pc. It again trades misfit between the Gaia R and T components.
+
+The gain (Delta objective 31, Delta chi2_kin 16, for two extra parameters)
+cannot be read as a DM preference. A DM constraint needs a rho20 profile
+likelihood with all other parameters refitted, then mock validation.
+
+## Central point mass: is there evidence? (23 September)
+
+`plots/central_bh_evidence_20260923.png` (script
+`bin/plot_central_bh_evidence.py`, data in `results/plot_data/`) compares
+the 43 kinematic bins inside 2 pc: HST PM R and T, and MUSE LOS.
+
+| Model | central chi2 / 43 | HST R | HST T | MUSE |
+|---|---:|---:|---:|---:|
+| DF two transitions, no BH, no halo | **48.8** | 11.7 | 12.5 | 24.6 |
+| Jeans turnover + BH (M_bh 4.4e4), no DM | 59.0 | 21.5 | 16.7 | 20.8 |
+| Jeans turnover + BH (M_bh 4.4e4), cored DM | 59.3 | 23.7 | 14.1 | 21.4 |
+
+The binned data give no evidence that the DF needs a point mass. Only the
+HST bins at 0.12-0.16 pc lie 1-2 errors above the no-BH DF, and the
+innermost bin (0.10 pc) lies below it. The comparison is not controlled,
+since the Jeans fits also differ in anisotropy (beta_0 = -0.5 imposed) and
+mass model. A matched DF with and without a BH would be the clean test. The
+binned profiles start at 0.1 pc, inside r_infl ~ 0.4 pc for 4e4 Msun, and
+contain none of the individual fast central stars behind the IMBH claim of
+Haeberle et al. 2024 ([arXiv:2405.06015](https://arxiv.org/abs/2405.06015)).
+The BH is therefore dropped from the objective-1 list.
