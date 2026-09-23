@@ -252,3 +252,59 @@ Jeans beta(r).
 - **Fails in both runs:** a rotating DF with mean velocities fitted jointly
   (step 4), then separate tracer and mass DFs (step 5). An axisymmetric DF
   is the last resort (step 6).
+
+## Result of the two-transition, no-halo fit (23 September)
+
+Batch `results/df/dftwo_20260923/` (commit `f6ce414`), 6 starts, raw errors.
+Two Latin starts were infeasible at their initial point and recorded as such.
+The other four reached the same minimum (refined objective 378.3-378.4,
+Delta chi2_kin <= 0.6). Starts 0 and 1 terminated by the absolute rule after
+502 and 492 evaluations; starts 3 and 5 reached the cap at the same point.
+No evaluation was rejected, and no coordinate is at a bound. Validation
+passed (start 0: cold shift 0.0010, refinement 0.0003 errors, projection
+0.03%).
+
+| Quantity | One transition | **Two transitions** |
+|---|---:|---:|
+| chi2_kin (N = 89) | 456.1 | **159.2** |
+| chi2_kin/N | 5.12 | **1.79** |
+| HST R / HST T / MUSE, chi2/n | 2.1 / 6.2 / 2.7 | **1.0 / 1.8 / 2.0** |
+| Gaia R / Gaia T, chi2/n | 2.6 / 20.2 | **0.9 / 3.7** |
+| chi2_phot/N | 2.95 | 2.67 |
+
+Best-fit parameters: M_star = 3.25e6 Msun, J0 = 65 pc km/s, alpha = 0.85,
+b_out = +0.46, J_a = 27 pc km/s, b_outer = -1.26, J_outer = 812 pc km/s,
+M_rem = 1.72e5 Msun, a_rem = 1.27 pc.
+
+Figures: `plots/dftwo_20260923_best_fits.png` (data and residuals),
+`plots/dftwo_beta_20260923.png` (beta vs the one-transition DF and Jeans),
+and `plots/df_structure_dftwo_20260923_observed_no_halo_start0.png`
+(intrinsic moments, b(q) over sampled actions, f(J_r, L); script
+`bin/plot_df_structure.py`).
+
+- **Anisotropy:** beta(r) = 0.02, 0.14, 0.16, 0.06, -0.13, -0.55 and -1.27
+  at 1, 6, 10, 20, 30, 45 and 63 pc. Inside ~30 pc this reproduces the Jeans
+  turnover shape (radial peak near 6-10 pc, zero near 20 pc). Beyond ~40 pc
+  it falls faster (-2.1 at 80 pc, outside the data). There sigma_t exceeds
+  sigma_r.
+- **Bias vs coverage:** b(q) peaks at +0.41 at q = 103 pc km/s, where the
+  HST/MUSE tracers sit (q 5/50/95% = 56/170/379). It crosses zero at
+  q = 488, inside the Gaia tracers (183/347/650). Both transitions act on
+  sampled actions. The negative asymptote b_outer is reached only beyond the
+  Gaia q range, so the steep outer beta is extrapolation.
+- **DF shape:** f(J_r, L) is smooth and monotonic, with no ridge at either
+  transition scale.
+- **Remnants:** M_rem and a_rem return to the HST+MUSE-only values
+  (1.7e5 Msun, 1.3 pc). The 6.6e5 Msun extended remnant of the Gaia-only fit
+  was compensating for the missing tangential outskirts.
+- **Remaining residuals:** tangential PM -2.5 errors at 4-7 pc and +3.5 at
+  15-20 pc (first Gaia bins). LOS is 2-3.6 errors high at 5-8 pc (MUSE outer
+  edge, where the rotation subtraction is largest). The three innermost HST
+  PM bins (0.1-0.2 pc) lie above the model; there is no central point mass.
+
+**Against the criteria:** the structural criteria pass except one. Starts
+converge, nothing is at a bound, the beta shape is correct, the DF is smooth,
+and the remnants collapse. The exception is Gaia tangential at chi2/n = 3.7,
+against a limit of 3, with a mildly coherent residual at 4-20 pc. The
+statistical criterion is not met (chi2_kin/N 1.79 > 1.3); with raw Gaia
+errors it is reported, not required.
