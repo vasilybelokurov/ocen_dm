@@ -27,7 +27,7 @@ import numpy as np
 from scipy.optimize import least_squares
 
 from ocen_dm.kinematics.compact_recovery import (
-    AbsoluteStop, Converged, mass_profiles, mock_problem, recovery_gates, recovery_metrics,
+    AbsoluteStop, Converged, data_fit_gates, data_radius_pc, mass_profiles, mock_problem, recovery_gates, recovery_metrics,
     refined_config, residual_vector,
 )
 from ocen_dm.kinematics.df_fit import (
@@ -161,25 +161,36 @@ def with_fitting_numerics(config, fitting):
                    iteration_tolerance=float(fitting["iteration_tolerance"])))
 
 
-def data_fit_gates(optimizer_success, numerical_passed, evaluation, thresholds):
-    """Goodness of fit to observed data; says nothing about the mass decomposition."""
-    terms = evaluation["terms"]
-    n_kin = sum(t["n"] for t in terms.values())
-    chi2_kin = sum(t["chi2"] for t in terms.values())
-    photo = evaluation["photometry"]
-    rms_mag = float(np.sqrt(np.mean((photo["prediction"]-np.asarray(evaluation["photometry_mu"]))**2)))
-    per_term = {k: t["chi2"]/t["n"] for k, t in terms.items()}
-    fit_ok = bool(chi2_kin/n_kin < thresholds["chi2_kin_per_point"] and
-                  max(per_term.values()) < thresholds["chi2_per_point_any_dataset"] and
-                  rms_mag < thresholds["photometric_rms_mag"])
-    return dict(optimizer_terminated=bool(optimizer_success), numerical_passed=bool(numerical_passed),
-                chi2_kinematic=chi2_kin, n_kinematic=n_kin, chi2_kin_per_point=chi2_kin/n_kin,
-                chi2_per_point_by_dataset=per_term, chi2_photometric=photo["chi2"],
-                photometric_rms_mag=rms_mag, data_fit_passed=fit_ok,
-                passed=bool(optimizer_success and numerical_passed and fit_ok))
+def override_bounds(coords, overrides):
+    """Apply explicit {path: (lower, upper)} search-bound changes; unknown paths are errors."""
+    coords = [dict(c) for c in coords]
+    known = {c["path"] for c in coords}
+    for path, (lo, hi) in overrides.items():
+        if path not in known:
+            raise ValueError(f"no fit coordinate {path}")
+        for c in coords:
+            if c["path"] == path:
+                c.update(lower=float(lo), upper=float(hi))
+    return coords
 
 
-def prepare_real(out, project, fitting, starts):
+def latin_starts(coords, n, seed=20260923, margin=.2):
+    """n reproducible Latin-hypercube starts inside the central box of each coordinate."""
+    from scipy.stats import qmc
+    if n <= 0:
+        return []
+    u = margin+(1-2*margin)*qmc.LatinHypercube(d=len(coords), seed=seed).random(n)
+    out = []
+    for row in u:
+        values = []
+        for c, v in zip(coords, row):
+            lo, hi = c["lower"], c["upper"]
+            values.append(float(np.exp(np.log(lo)+v*(np.log(hi)-np.log(lo))) if c.get("log") else lo+v*(hi-lo)))
+        out.append(tuple(values))
+    return out
+
+
+def prepare_real(out, project, fitting, starts, bounds=None, n_random=0):
     """Fit the observed data (pilot snapshot) with free-halo and no-halo branches."""
     out.mkdir(parents=True, exist_ok=False)
     frozen = out/"code"
@@ -207,17 +218,21 @@ def prepare_real(out, project, fitting, starts):
                     fixed=dict(distance_kpc=base.distance_kpc, gamma=0, halo_taper_pc=base.matter.r_t),
                     fitting=fitting,
                     gates=dict(chi2_kin_per_point=1.3, chi2_per_point_any_dataset=2.0,
-                               photometric_rms_mag=.05, numerical_shift_sigma=.1),
+                               chi2_phot_per_point=2.0, numerical_shift_sigma=.1),
                     source_sha256={str(p.relative_to(frozen)): sha256(p)
                                    for p in frozen.rglob("*") if p.is_file()},
                     input_sha256={p.name: sha256(p) for p in d.iterdir()}, jobs=[])
-    coords = spec["fit_coordinates"]+[
+    coords = override_bounds(spec["fit_coordinates"]+[
         dict(path="matter.rho20", lower=0., upper=10.),
-        dict(path="matter.r_s", lower=5., upper=150., log=True)]
+        dict(path="matter.r_s", lower=5., upper=150., log=True)], bounds or {})
+    manifest.update(bound_overrides={k: list(v) for k, v in (bounds or {}).items()},
+                    n_random_starts=n_random)
+    starts = list(starts)+latin_starts(coords, n_random)
     for branch in ("free_halo", "no_halo"):
         chosen = coords if branch == "free_halo" else coords[:-2]
         cc = [FitCoordinate(**row) for row in chosen]
         for index, values in enumerate(starts):
+            values = values[:len(cc)]
             start = config_at(base, cc, [q.encode(v) for q, v in zip(cc, values)])
             manifest["jobs"].append(dict(id=f"observed_{branch}_start{index}", case="observed",
                                           branch=branch, start=index, data_dir="observed",
@@ -225,6 +240,38 @@ def prepare_real(out, project, fitting, starts):
     manifest.update(status="prepared", prepared_utc=now(),
                     mock_sha256={str(q.relative_to(out)): sha256(q) for q in d.rglob("*.json")})
     dump(out/"batch.json", manifest)
+
+
+def evaluate_trial(problem, config, seed, radii):
+    """One equilibrium and its residuals; pure, so it can run in a worker process."""
+    try:
+        model = RegularizedDFModel(config, initial_stellar_potential=seed)
+        ev = problem.evaluate(config, model)
+        residual = residual_vector(problem, ev)
+        return dict(residual=residual, score=float(residual @ residual),
+                    iterations=model.diagnostics["iterations"], diagnostics=model.diagnostics,
+                    profiles=mass_profiles(model, radii), potential=model.stellar_potential)
+    except (ValueError, FloatingPointError) as exc:
+        return dict(rejected=repr(exc))
+
+
+_WORKER = {}
+
+
+def _init_probe_worker(data_dir, radii):
+    for key in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "VECLIB_MAXIMUM_THREADS"):
+        os.environ[key] = "1"
+    _WORKER.update(problem=load_problem(Path(data_dir)), radii=radii)
+
+
+def _probe(config_dict, seed_file):
+    """Worker task: AGAMA potentials are not picklable, so the seed travels as an
+    exported file (round trip exact to ~3e-14) and the potential is not returned."""
+    from ocen_dm.kinematics.positive_df import agama_pc
+    seed = agama_pc().Potential(file=seed_file)
+    result = evaluate_trial(_WORKER["problem"], model_config_from_dict(config_dict), seed, _WORKER["radii"])
+    result.pop("potential", None)
+    return result
 
 
 def fit(out, job_id, max_calls):
@@ -242,6 +289,15 @@ def fit(out, job_id, max_calls):
     fitting = manifest.get("fitting", {})
     stop = AbsoluteStop(**fitting["absolute_stop"]) if "absolute_stop" in fitting else None
     base_seeded = fitting.get("jacobian_seed", "chained") == "base"
+    probe_workers = int(fitting.get("probe_workers", 1))
+    if probe_workers > 1 and not base_seeded:
+        raise ValueError("parallel Jacobian probes require --jacobian-seed base")
+    pool = None
+    if probe_workers > 1:
+        import multiprocessing
+        from concurrent.futures import ProcessPoolExecutor
+        pool = ProcessPoolExecutor(max_workers=probe_workers, mp_context=multiprocessing.get_context("spawn"),
+                                   initializer=_init_probe_worker, initargs=(str(data_dir), radii))
     coords = [FitCoordinate(**c) for c in job["coordinates"]]
     base = model_config_from_dict(job["config"])
     low, high = np.array([c.bounds for c in coords]).T
@@ -258,36 +314,33 @@ def fit(out, job_id, max_calls):
                   resume="new optimizer from saved best; no restored Hessian" if best else None)
     dump(d/"status.json", status)
 
-    def fun(x, seed=None):
+    def config_of(x):
+        return config_at(base, coords, low+x*(high-low))
+
+    def record(x, config, result):
+        """Main-process bookkeeping for one evaluation, serial or parallel."""
         nonlocal calls, warm, best
         key = tuple(x)
-        if key in cache:
-            return cache[key].copy()
-        if calls >= max_calls:
-            raise EvaluationBudget()
         calls += 1
         row = dict(attempt=attempt, call=calls, x=x.tolist())
-        config = config_at(base, coords, low+x*(high-low))
-        try:
-            model = RegularizedDFModel(config, initial_stellar_potential=warm if seed is None else seed)
-            ev = problem.evaluate(config, model)
-            residual = residual_vector(problem, ev)
-            score = float(residual @ residual)
-            warm = model.stellar_potential
-            potentials[key] = warm
-            while len(potentials) > 16:
-                potentials.pop(next(iter(potentials)))
-            row.update(score=score, iterations=model.diagnostics["iterations"],
+        if "rejected" in result:
+            row["rejected"] = result["rejected"]
+            residual = np.full(problem.data.n_points+len(problem.photometry.mu), 1e6)
+        else:
+            residual, score = result["residual"], result["score"]
+            if result.get("potential") is not None:
+                warm = result["potential"]
+                potentials[key] = warm
+                while len(potentials) > 16:
+                    potentials.pop(next(iter(potentials)))
+            row.update(score=score, iterations=result["iterations"],
                        rho20=config.matter.rho20, M_star=config.M_star)
             if best is None or score < best["score"]:
                 best = dict(score=score, x=x.tolist(), config=config.to_dict(),
-                            residual_sigma=residual.tolist(), diagnostics=model.diagnostics,
-                            profiles=mass_profiles(model, radii),
+                            residual_sigma=residual.tolist(), diagnostics=result["diagnostics"],
+                            profiles=result["profiles"],
                             attempt=attempt, call=calls, saved_utc=now())
                 dump(checkpoint, best)
-        except (ValueError, FloatingPointError) as exc:
-            row["rejected"] = repr(exc)
-            residual = np.full(problem.data.n_points+len(problem.photometry.mu), 1e6)
         row["seconds"] = time.monotonic()-started
         with (d/"evaluations.jsonl").open("a") as stream:
             stream.write(json.dumps(row, allow_nan=False)+"\n")
@@ -300,6 +353,15 @@ def fit(out, job_id, max_calls):
         cache[key] = residual.copy()
         return residual
 
+    def fun(x, seed=None):
+        key = tuple(x)
+        if key in cache:
+            return cache[key].copy()
+        if calls >= max_calls:
+            raise EvaluationBudget()
+        config = config_of(x)
+        return record(x, config, evaluate_trial(problem, config, warm if seed is None else seed, radii))
+
     def jacobian(x):
         # An absolute step in normalized coordinates stays resolved at rho20=0.
         base_residual = fun(x)
@@ -307,13 +369,30 @@ def fit(out, job_id, max_calls):
             stop.update(base_residual @ base_residual)
         # "base": every probe starts from the base point's converged stars,
         # so column noise does not depend on the order of the probes.
-        seed = potentials.get(tuple(x)) if base_seeded else None
-        columns = []
+        seed = None
+        if base_seeded:
+            seed = potentials.get(tuple(x))
+            if seed is None:
+                # The base point was rejected or evicted: no converged stars to seed from.
+                raise ValueError("base-seeded Jacobian requested but base potential unavailable")
+        trials, steps = [], []
         for j in range(len(x)):
             trial = x.copy()
             step = .002 if x[j] + .002 <= 1 else -.002
             trial[j] += step
-            columns.append((fun(trial, seed)-base_residual)/step)
+            trials.append(trial)
+            steps.append(step)
+        if pool is not None:
+            pending = [t for t in trials if tuple(t) not in cache]
+            if calls+len(pending) > max_calls:
+                raise EvaluationBudget()  # never start a Jacobian that cannot finish
+            seed_file = d/"jacobian_seed.ini"
+            seed.export(str(seed_file))
+            configs = [config_of(t) for t in pending]
+            futures = [pool.submit(_probe, c.to_dict(), str(seed_file)) for c in configs]
+            for t, c, f in zip(pending, configs, futures):  # logged in probe order
+                record(t, c, f.result())
+        columns = [(fun(t, seed)-base_residual)/step for t, step in zip(trials, steps)]
         return np.column_stack(columns)
 
     try:
@@ -336,8 +415,11 @@ def fit(out, job_id, max_calls):
         cold = problem.evaluate(c)
         fine = problem.evaluate(refined_config(c))
         fine["photometry_mu"] = problem.photometry.mu
+        fine["photometry_sigma"] = problem.photometry.sigma_mag
         cr, fr = residual_vector(problem, cold), residual_vector(problem, fine)
-        R = np.geomspace(.05, 80., 12)
+        # Validate over the projected radii the data use (fast projection has an
+        # edge effect near its outer grid, e.g. 0.8% at 80 pc beyond the 68 pc data).
+        R = np.geomspace(.05, data_radius_pc(problem, c.distance_kpc), 12)
         fast = cold["model"].projected_moments(R)
         direct = cold["model"].direct_projected_moments(R)
         projection = {k: float(np.max(abs(fast[k]/direct[k]-1))) for k in fast}
@@ -366,6 +448,9 @@ def fit(out, job_id, max_calls):
         dump(d/"status.json", dict(status, status="interrupted" if isinstance(exc, KeyboardInterrupt)
                                    else "failed", error=repr(exc), calls=calls))
         raise
+    finally:
+        if pool is not None:
+            pool.shutdown(cancel_futures=True)
 
 
 def run(out, workers, max_calls):
@@ -467,6 +552,12 @@ def main():
                    help="absolute objective change over --stop-window accepted steps that ends a fit")
     p.add_argument("--stop-window", type=int, default=2)
     p.add_argument("--jacobian-seed", choices=("chained", "base"), default="chained")
+    p.add_argument("--bound", action="append", default=[], metavar="PATH=LO:HI",
+                   help="override a fit coordinate's search bounds (prepare-real)")
+    p.add_argument("--n-starts", type=int, default=0,
+                   help="extra Latin-hypercube starts per branch (prepare-real)")
+    p.add_argument("--probe-workers", type=int, default=1,
+                   help="processes for the Jacobian probes of one fit (needs --jacobian-seed base)")
     p.add_argument("--iteration-tolerance", type=float, default=None,
                    help="override the fitting equilibrium iteration tolerance (config default 5e-4)")
     p.add_argument("--out", type=Path, required=True)
@@ -476,10 +567,14 @@ def main():
     p.add_argument("--max-calls", type=int, default=180)
     p.add_argument("--detach", action="store_true")
     args = p.parse_args()
+    if args.command == "run":
+        pw = int(read(args.out/"batch.json").get("fitting", {}).get("probe_workers", 1))
+        if args.workers*(pw+1) > (os.cpu_count() or 1):
+            p.error(f"{args.workers} jobs x ({pw} probe workers + 1) exceeds {os.cpu_count()} cores")
     if not 1 <= args.workers <= 2 or args.max_calls < 1:
         p.error("use one or two workers and a positive evaluation budget")
     out = args.out.resolve()
-    fitting = dict(jacobian_seed=args.jacobian_seed)
+    fitting = dict(jacobian_seed=args.jacobian_seed, probe_workers=args.probe_workers)
     if args.iteration_tolerance is not None:
         fitting["iteration_tolerance"] = args.iteration_tolerance
     if args.stop_delta is not None:
@@ -492,7 +587,12 @@ def main():
         # Initial objectives on the observed data: 2604 and 8943 (checked 2026-09-23).
         starts = [(3.6e6, 160., 1.2, 0., 180., 3e5, 1.5, 1., 40.),
                   (3.0e6, 190., 1.7, .1, 400., 1e5, .6, 1.5, 20.)]
-        prepare_real(out, args.project.resolve(), fitting, starts)
+        bounds = {}
+        for item in args.bound:
+            path, _, rng = item.partition("=")
+            lo, _, hi = rng.partition(":")
+            bounds[path] = (float(lo), float(hi))
+        prepare_real(out, args.project.resolve(), fitting, starts, bounds, args.n_starts)
     elif args.command == "fit":
         if args.job is None:
             p.error("fit requires --job")

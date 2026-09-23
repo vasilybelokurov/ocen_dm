@@ -5088,3 +5088,65 @@ test_hst_profile) also pass alone; their full-suite cause is not yet
 identified. Proposed fix, not implemented: run AGAMA-unit-dependent test
 modules in separate processes (e.g. a conftest marker plus two pytest
 invocations, or pytest-forked).
+
+## 2026-09-23 -- Test isolation, photometric gate, and projection-check fixes
+
+- Test isolation: `tests/conftest.py` gains a module-scoped autouse fixture
+  that restores AGAMA's global units after each module. The reproducer
+  (`test_bar_migration.py` followed by a DF test) now passes. The three non-DF
+  "failures" were stale pytest last-failed cache entries for test names that
+  no longer exist. All 25 real failures were the unit clash.
+- Photometric gate: `data_fit_gates` moved to `compact_recovery.py`. It uses
+  chi2_phot/N < 2 with adopted errors and reports an error-weighted RMS for
+  reference only (2 new tests).
+- Projection check: `bin/probe_projection_accuracy.py` rebuilt the v2 cored
+  start1 fit (record in
+  `results/maintenance/projection_accuracy_compact_recovery_20260923_v2_cored_dm_free_halo_start1.json`).
+  Fast and direct projected moments agree to <= 0.02% at every radius up to
+  58 pc, at both resolutions. The failure is confined to R = 80 pc, the last
+  point of the fixed validation grid and outside the data (outermost 68.1 pc):
+  pmr 0.81%, los 0.46%, Sigma 0.13%, unchanged by refinement. This is an
+  outer-grid edge effect of the fast projection, not a resolution failure.
+  Validation now spans 0.05 pc to the outermost data radius
+  (`data_radius_pc`, 1 new test). The v2 record is unchanged; cored start1
+  also failed its optimizer and physical gates.
+
+Full test suite with the isolation fix: 630 passed, 5 skipped, 0 failed
+(42 min, `results/maintenance/full_test_suite_20260923.log`). Tests edited
+after its collection (`test_compact_recovery.py`, new `test_compact_driver.py`)
+and `test_regularized_df.py` then passed on the final code: 31 tests.
+
+## 2026-09-23 -- Parallel Jacobian, multi-start, and first observed-data fits
+
+Driver additions (`bin/run_compact_df_recovery.py`):
+- `--probe-workers N`: the Jacobian probes of one fit run in N spawned
+  processes. AGAMA potentials are not picklable, so the base potential is
+  exported to `jacobian_seed.ini`. The round trip is exact to 3e-14, and
+  converged models seeded from it agree to 4e-10. This requires
+  `--jacobian-seed base`. A Jacobian that cannot finish within the budget is
+  not started.
+- `--n-starts N`: reproducible Latin-hypercube starts (seed 20260923) in the
+  central 60% of each coordinate's range. `--bound PATH=LO:HI`: explicit
+  search-bound overrides, recorded in the manifest.
+- `run` refuses jobs x (probe workers + 1) above the core count.
+
+Equivalence check (`results/df/parallel_check_20260923_pw{1,9}`, same job,
+11 evaluations): the starting point and all nine probes coincide in x, with
+objectives equal to 2.4e-9 relative. The subsequent trial step differs by
+2e-6 in scaled x and 4e-7 in objective. Probe wall time fell from 128.9 s
+to 28.3 s (4.6x) on a loaded machine.
+
+First observed-data batch (`results/df/observed_df_20260923/`, 3 of 4 fits
+done; amended photometric gate):
+
+| Fit | Evals | Stop | chi2_kin/N | chi2_phot/N | Gaia PM_T chi2/n | At bound |
+|---|---|---|---|---|---|---|
+| free halo start0 | 140 | xtol | 5.12 | 2.41 | 15.1 | J0 low, J_a low, r_s high |
+| free halo start1 | 244 | xtol | 5.12 | 2.41 | 15.1 | same |
+| no halo start0 | 104 | ftol+xtol | 5.34 | 2.95 | 20.1 | J_a low |
+
+Both free-halo starts reach the same solution (M_star 3.23e6, rho20 1.51).
+All fits fail the fit-quality gates while a coordinate sits at a search bound,
+chiefly the anisotropy action scale J_a. That makes this a bound-limited fit,
+not yet evidence against the DF family. The user approved wider bounds
+(J0 >= 30, J_a >= 5, r_s <= 500) for the next batch.
