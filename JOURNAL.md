@@ -5160,3 +5160,9 @@ absolute stop 0.01 over two accepted steps, base-seeded Jacobians, and
 iteration tolerance 5e-5. Several Latin starts are far from the data (e.g.
 M_star 1.4e6 with rho20 7.8); they test for other minima and will need more
 evaluations.
+
+The first observed-data batch finished at 09:36 UTC. No-halo start1 (146
+evaluations, xtol) matches no-halo start0: chi2_kin/N 5.35, chi2_phot/N 2.95,
+Gaia PM_T chi2/n 20.1, J_a at its lower bound, M_star 3.33e6. Both branches
+converged to one solution per branch from two starts. Data-model figure:
+`plots/observed_df_20260923_fits.png`.
