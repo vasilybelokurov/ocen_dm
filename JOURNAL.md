@@ -5398,3 +5398,11 @@ bound from the An & Evans (2006) condition for a cored tracer around a point
 mass (ML -0.503, on the bound). Implication: adding a BH to the DF requires
 re-deriving regularity for a Kepler centre (derivative ratio 1), not only a
 point-mass potential. The write-up wording is corrected accordingly.
+
+Correction (same day): the entry above is wrong. beta is intrinsic, and the
+projected sigma_T/sigma_R tends to 1 as R -> 0 for any intrinsic anisotropy,
+so the HST central ratio 1.000 +- 0.007 carries no information on beta(0).
+The oMEGACat "isotropic centre" is model-based. beta(0) = 0 in the DF is an
+assumption not tested by these data. Central anisotropy enters through the
+radial run of the dispersions and the LOS/PM ratio, which is degenerate with
+distance. The write-up is corrected.
