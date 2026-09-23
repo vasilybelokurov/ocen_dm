@@ -5497,3 +5497,29 @@ of magnitude photometry, distance free with the 5.43 +- 0.05 kpc prior,
   profiles (surface number density panel, deviance residuals) and problems
   without magnitude photometry. `--start-from BATCH::JOB` seeds a batch from
   a previous best fit (for the rho20 scan).
+
+## 2026-09-23 -- Counts-based two-transition fit finished; halo scan launched
+
+`results/df/dftwo_counts_20260923/` finished at 16:54 UTC. All four valid
+starts (two hand-picked, two Latin) converged to one minimum, refined
+objective 285.6 = chi2_kin 158.2 + HST count deviance 98.8 (20 bins) + Gaia
+count deviance 26.3 (12 bins) + distance prior 2.2. Two Latin starts were
+infeasible (streaming term above the DF second moment). No coordinate at a
+bound; validation passed.
+- Kinematics chi2/n: HST R 2.07, HST T 1.95, MUSE 1.31, Gaia R 1.55,
+  Gaia T 2.42 (was 3.7 with the old photometry). chi2_kin/N 1.78.
+- Counts: HST deviance 4.9 per bin, structured (model ~4% low at 2-4 pc,
+  ~4% high at 5-6.5 pc, low inside 0.1 pc); Gaia 2.2 per bin.
+- Parameters: M_star 3.00e6, J0 54, alpha 0.80, b_out +0.74, J_a 64,
+  b_outer -0.33, J_outer 319, M_rem 2.62e5 at 2.15 pc, D = 5.356 kpc
+  (1.5 sigma below the prior). The anisotropy solution differs from the
+  Trager-photometry fit (b_out 0.46, J_a 27, b_outer -1.26, J_outer 812):
+  inside 30 pc the beta(r) curves agree, beyond they diverge (-0.45 vs
+  -2.1 at 80 pc), i.e. the outer asymptote is set by data weighting.
+Figures: `plots/dftwo_counts_20260923_best_fits.png`,
+`plots/dftwo_counts_beta_20260923.png`,
+`plots/df_structure_dftwo_counts_20260923_observed_no_halo_start0.png`.
+Launched `bin/run_rho20_profile_scan.sh` at 16:54 UTC (log
+`results/df/rho20scan_runner_20260923.log`): a free-halo batch
+(`rho20free_20260923`), then rho20 fixed at 0.25, 0.5, 1, 2, 4 with all other
+coordinates refitted from this best fit plus one Latin start each.
