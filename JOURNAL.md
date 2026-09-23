@@ -5150,3 +5150,13 @@ All fits fail the fit-quality gates while a coordinate sits at a search bound,
 chiefly the anisotropy action scale J_a. That makes this a bound-limited fit,
 not yet evidence against the DF family. The user approved wider bounds
 (J0 >= 30, J_a >= 5, r_s <= 500) for the next batch.
+
+Launched `results/df/observed_df_wide_20260923/` at 09:02 UTC from commit
+`5486309`. It has 12 jobs: free halo and no halo, each with the two
+hand-picked starts plus four Latin-hypercube starts. Search bounds are
+J0 30-800, J_a 5-3000, and r_s 5-500 pc; all others are unchanged. The batch
+runs two jobs at a time with five probe workers each, a 600-evaluation cap,
+absolute stop 0.01 over two accepted steps, base-seeded Jacobians, and
+iteration tolerance 5e-5. Several Latin starts are far from the data (e.g.
+M_star 1.4e6 with rho20 7.8); they test for other minima and will need more
+evaluations.
