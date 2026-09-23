@@ -5055,3 +5055,20 @@ Launched `results/df/observed_df_20260923/` at 07:43 UTC from commit `bd17811`:
 four jobs (free halo and no halo, two starts each), two workers, cap 600
 evaluations, absolute stop 0.01 over two accepted steps, base-seeded Jacobians,
 and iteration tolerance 5e-5. The worst-case duration is about 5 h.
+
+## 2026-09-23 -- Photometric gate amended before observed-data results
+
+The observed photometry is a splice of oMEGACat star counts (inside 25
+arcsec) and the Trager, King & Djorgovski (1995) V-band compilation outside.
+Its 82 points carry adopted errors of 0.1 to 0.58 mag; 48 have 0.1 mag.
+Ten pairs of full-weight points at the same radius differ by up to 0.40 mag,
+giving an intrinsic scatter of 0.13 mag per point. The planned unweighted
+RMS < 0.05 mag criterion is therefore unattainable by any model and counts
+low-weight Trager points equally. Before any production result, the
+photometric criterion is replaced by chi2_phot/N_phot < 2 with the adopted
+errors, matching the per-dataset kinematic criterion. The 0.13 mag pair
+scatter implies a perfect-model value near 1.7 on full-weight points, an
+estimate from only 10 pairs. The frozen batch still reports the old RMS gate;
+the analysis applies the amended one from the stored chi2_photometric.
+Smoke figure: `plots/observed_df_smoke_20260923_fits.png` (script
+`bin/plot_observed_df_fits.py`).
