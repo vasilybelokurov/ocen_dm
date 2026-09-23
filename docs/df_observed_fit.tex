@@ -1,0 +1,795 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.15cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,microtype}
+\usepackage{amsmath,amssymb,graphicx,booktabs,tabularx,array}
+\usepackage{caption,placeins,xcolor,hyperref,xurl,needspace,xspace}
+\usepackage[round,authoryear]{natbib}
+\hypersetup{colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,
+ urlcolor=blue!50!black,pdftitle={Fitting Omega Centauri with a compact action DF},
+ pdfauthor={oCen dm project notes}}
+\graphicspath{{../plots/}}
+\captionsetup{font=small,labelfont=bf,skip=6pt}
+\setlength{\emergencystretch}{3em}
+\setlength{\parskip}{3pt}
+\clubpenalty=10000
+\widowpenalty=10000
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\Msun}{\ensuremath{\mathrm{M}_\odot}\xspace}
+\newcommand{\pc}{\ensuremath{\,\mathrm{pc}}\xspace}
+\newcommand{\kms}{\ensuremath{\,\mathrm{km\,s^{-1}}}\xspace}
+\newcommand{\masyr}{\ensuremath{\,\mathrm{mas\,yr^{-1}}}\xspace}
+\newcommand{\Jact}{\ensuremath{\,\mathrm{pc\,km\,s^{-1}}}\xspace}
+\newcommand{\dm}{\mathrm{DM}}
+\newcommand{\remn}{\mathrm{rem}}
+\newcommand{\chikin}{\ensuremath{\chi^2_{\rm kin}}\xspace}
+\newcommand{\mnras}{MNRAS}
+\newcommand{\apj}{ApJ}
+\newcommand{\aap}{A\&A}
+\newcommand{\aj}{AJ}
+\newcommand{\apjl}{ApJL}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\title{\vspace{-1cm}Fitting $\omega$ Centauri with a compact action-based\\
+distribution function\\[6pt]
+\large Model, data issues, fitting performance and the status of the dark-matter question}
+\author{oCen\_dm project notes}
+\date{23 September 2026}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We fit the surface-brightness profile and 89 binned velocity-dispersion
+measurements of $\omega$ Centauri (HST and Gaia EDR3 proper motions, MUSE
+line-of-sight velocities) with a self-consistent spherical equilibrium. Its
+stars follow a positive, regularized exponential action distribution
+function (DF); stellar remnants and an optional cored dark-matter (DM) halo
+enter as prescribed densities. The original DF, with a single orbital-anisotropy
+transition, cannot fit the combined data: the best fit has $\chikin/N=4.80$.
+All valid starts converge to the same branch minima, so the optimizer is not
+the cause. Wider search bounds, free distance and the HST/Gaia boundary are
+also excluded. The model fits HST+MUSE alone ($\chikin/N=1.43$) and Gaia alone
+(0.88), but these subsets demand opposite anisotropy: radial at small actions,
+tangential at large actions. A second anisotropy transition, already part of
+the model definition, removes most of the conflict. Without a halo it reaches
+$\chikin=159.2$ for 89 bins ($\chikin/N=1.79$), better than the best existing
+Jeans fit to the same bins ($\chi^2=190.0$). Its intrinsic anisotropy
+reproduces the independently inferred Jeans turnover out to $\sim30\pc$.
+Remaining misfits are localized: the outer edge of the MUSE field and the
+tangential proper motions at 4--20\pc. Adding a free cored halo lowers the
+objective by 31 but drives two coordinates to their bounds and rearranges the
+anisotropy. This is a mass--anisotropy trade, not a DM measurement. We document
+the data issues that limit a statistical verdict: very small formal errors,
+approximate rotation corrections, a heterogeneous photometric splice and
+correlated bins. We also document the numerical defects found and fixed, and
+the programme needed to turn a good fit into a meaningful DM constraint.
+\end{abstract}
+
+\tableofcontents
+
+\section{Aims}
+\label{sec:aims}
+
+The project has two objectives, reported separately throughout:
+\begin{enumerate}
+\item \textbf{Fit the data well}: find a physically admissible equilibrium
+  model that reproduces the light profile and all kinematic profiles within
+  their uncertainties.
+\item \textbf{Place meaningful constraints on the DM content}, chiefly the
+  DM density at 20\pc, $\rho_{20}$.
+\end{enumerate}
+The two objectives pull against each other. A more flexible stellar DF fits
+better, but it can also mimic a halo, which weakens the DM constraint. A
+model must pass objective~1 before any DM statement from it is meaningful. It
+should also be no more flexible than the data require.
+
+This note covers the observed-data fits of 23 September 2026. The model
+definition is in \path{docs/compact_df_model.tex}, the implementation
+tests in \path{docs/REGULARIZED_DF_IMPLEMENTATION.md}, and the full log in
+\path{JOURNAL.md}.
+
+\section{Data}
+\label{sec:data}
+
+\subsection{Datasets}
+
+All fits use one frozen data snapshot (fingerprint
+\texttt{37dfc7fa\ldots}, file \path{results/df/pilot_no_dm_20260922/}).
+The same snapshot was used by the earlier Jeans fits, so their $\chi^2$ values
+are directly comparable. Radii are converted at $0.02633\pc$ per arcsec,
+i.e.\ $D=5.43$~kpc
+\citep[the project's adopted distance, from][]{2021MNRAS.505.5957B}.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\caption{The observational inputs. $R$ gives the range of bin centres, with
+bin edges in parentheses. ``Rel.\ err'' is the range of the published
+dispersion uncertainty relative to the dispersion. $\bar v^2/\sigma^2$ is the
+largest ratio of the adopted mean-streaming term to the squared dispersion
+(Section~\ref{sec:rotation}).}
+\label{tab:data}
+\begin{tabularx}{\linewidth}{lrlllY}
+\toprule
+Dataset & $n$ & $R$ [pc] & Rel.\ err & max $\bar v^2/\sigma^2$ & Provenance\\
+\midrule
+HST PM radial & 21 & 0.10--9.0 (0.09--9.5) & 0.2--7.1\% & 0 & Our measurement, \texttt{selection\_hq\_astrometry}, cluster+field mixture, to 360 arcsec\\
+HST PM tangential & 21 & 0.10--9.0 (0.09--9.5) & 0.3--7.1\% & 0.25 & As above; the \citet{2021MNRAS.505.5978V} rotation curve is added to the model\\
+MUSE LOS & 29 & 0.15--7.6 (0--8.7) & 1.4--11\% & 0.14 & oMEGACat VI adaptive bins \citep{2025ApJ...983...95H}, dispersion about the fitted rotation curve\\
+Gaia EDR3 PM radial & 9 & 9.4--56.6 (7.9--63.2) & 1.4--10\% & 0 & Our measurement, one component, raw errors\\
+Gaia EDR3 PM tangential & 9 & 9.4--56.6 (7.9--63.2) & 1.9--10\% & 0.38 & As above, published rotation\\
+Surface brightness & 82 & 0.045--68.1 & 0.10--0.58 mag & -- & oMEGACat star counts ($F625W<19$, 129{,}074 stars) inside 25 arcsec, \citet{1995AJ....109..218T} $V$ band outside\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The kinematic likelihood uses the published asymmetric uncertainties in a
+split-normal $\chi^2$. For bin $i$, with model $m_i$, datum $d_i$ and errors
+$(\sigma_{i,-},\sigma_{i,+})$,
+\begin{equation}
+ \chikin=\sum_i\left(\frac{m_i-d_i}{\sigma_{i,\pm}}\right)^2,
+ \qquad \sigma_{i,\pm}=\begin{cases}\sigma_{i,+}, & m_i>d_i\\ \sigma_{i,-}, & m_i\le d_i\end{cases}.
+ \label{eq:chi2}
+\end{equation}
+Model predictions are averaged over each bin's saved radial selection
+nodes, in the units of the data. The photometric term uses a single profiled
+magnitude zero point (constant stellar mass-to-light ratio) and the adopted
+magnitude errors. The fitted objective is
+$\chikin+\chi^2_{\rm phot}$.
+
+\subsection{Data issues}
+\label{sec:data-issues}
+
+The following properties of the data limit how the goodness of fit can be
+interpreted. None of them was altered in the fits reported here: all fits use
+the published errors (Section~\ref{sec:floors}).
+
+\paragraph{Very small formal kinematic errors.}
+The HST PM dispersions reach 0.2--0.3\% precision (e.g.\
+$0.592\pm0.001\masyr$ at 7.1\pc). The Gaia dispersions have 1--2\% errors
+($0.005$--$0.007\masyr$) at 17--35\pc. The Gaia errors are purely statistical.
+Gaia EDR3 has spatially correlated astrometric systematics on small angular
+scales and underestimated per-star uncertainties in crowded fields
+\citep{2021A&A...649A...2L,2021MNRAS.505.5978V}. If per-star errors
+$\epsilon$ are underestimated, the deconvolved dispersion
+$\sigma^2_{\rm true}=\sigma^2_{\rm obs}-\epsilon^2$ is biased high. The
+effect is a bias in the measurement, not only in its error bar. At this
+precision, small calibration effects can dominate $\chi^2$. We have not
+re-derived either profile with a calibrated error model. That is an open,
+separate data task.
+
+\paragraph{Heterogeneous photometry.}
+The photometric profile splices oMEGACat star counts (inside 25 arcsec,
+zero point offset by $+16.991$~mag over 30--100 arcsec) with the
+\citet{1995AJ....109..218T} compilation. Its errors are adopted weights,
+$0.1\,{\rm mag}/\sqrt{w}$, not measured uncertainties; the splice covariance
+is omitted. Ten pairs of full-weight (0.1~mag) points at the same radius
+differ by up to 0.40~mag, i.e.\ 0.13~mag per point. A perfect model would
+therefore give $\chi^2_{\rm phot}/N\simeq1.7$ on full-weight points (an
+estimate from ten pairs). Section~\ref{sec:performance} shows that the
+photometric misfit comes mainly from points of opposite sign at the same
+radii at 10--40\pc.
+
+\paragraph{Rotation is subtracted, not modelled.}
+\label{sec:rotation}
+The DF is non-rotating (even in $L_z$). The published dispersions are
+measured about a mean motion, so each model second moment is corrected as
+$\sigma_{\rm model}=\sqrt{\langle v^2\rangle-\bar v^2}$. For MUSE this uses
+$\bar v^2=v_{\rm rot}^2/2$ from the fitted rotation curve; for the tangential
+PMs it uses the \citet{2021MNRAS.505.5978V} curve. Adding an odd-$L_z$ part
+to an even DF leaves the second moments unchanged. The subtraction is
+therefore exact for that model class, provided the measured dispersion is
+taken about the correct local mean. The approximations are geometric: the
+annular average, inclination, and sphericity. MUSE also reveals a
+counter-rotating core \citep{2024MNRAS.528.4941P}. The correction is largest
+exactly where the fits are worst: $\bar v^2/\sigma^2$ reaches 0.38 in the
+Gaia tangential bins and 0.14 at the MUSE outer edge.
+
+\paragraph{Correlated bins.}
+The HST radial and tangential profiles are built from the same stars, as are
+the two Gaia components. Treating bins as independent makes absolute
+$\chi^2/N$ values and $p$-values indicative only.
+
+\paragraph{The HST/Gaia boundary.}
+The HST bins end at 9.5\pc and the Gaia bins begin at 7.9\pc (bin edges). In
+the one near-coincident pair of bins (9.0 and 9.4\pc) the surveys agree
+within errors: $\sigma_T=0.465\pm0.027$ vs $0.474\pm0.049\masyr$ and
+$\sigma_R=0.531\pm0.029$ vs $0.510\pm0.052\masyr$. Both errors are large, so
+this is only a weak consistency check.
+
+\paragraph{Fixed distance.} $D=5.43$~kpc throughout, except in one diagnostic
+fit (Section~\ref{sec:diag}).
+
+\section{Model}
+\label{sec:model}
+
+\subsection{Stellar distribution function}
+
+Following \path{compact_df_model.tex} (Section~2), the stars follow a
+positive DF of the radial action $J_r$ and total angular momentum
+$L=J_z+|J_\phi|$ in the total potential. Constant-DF contours are obtained
+by integrating
+\begin{equation}
+ \frac{\dd L}{\dd J_r}=-g(J_r,L),\qquad
+ g=g_H(J_r,L)\exp\left[-b(q)\sin\left(\frac{\pi c}{2}\right)\right],\qquad
+ q=J_r+L,\quad c=\frac{L}{q},
+ \label{eq:g}
+\end{equation}
+to the $L$ axis, which defines a label $L_c(J_r,L)$. The DF is
+\begin{equation}
+ f_\star(J_r,L)=A_\star\exp\left[-\left(\frac{L_c(J_r,L)}{J_0}\right)^\alpha\right],
+ \qquad A_\star=\frac{M_\star}{(2\pi)^3\mathcal I_\star},
+ \label{eq:df}
+\end{equation}
+where $\mathcal I_\star$ is the numerically converged action-space normalization.
+The reference $g_H=\Omega_r/\Omega_t$ uses the exact frequencies of the
+current potential, making the $b=0$ contours energy surfaces. The sine factor
+enforces the regularity condition $g\to2$ as $L\to0$ at any anisotropy
+amplitude \citep{2026MNRAS.549ag854B}. $b>0$ favours radial orbits and $b<0$
+tangential orbits. $b(q)$ is an orbital-weight prescription, not $\beta(r)$.
+
+The \textbf{one-transition} model (the original baseline) has
+\begin{equation}
+ b(q)=b_{\rm out}\,S(q;J_a),\qquad S(q;J_t)=\frac{q^2}{q^2+J_t^2},
+ \label{eq:b1}
+\end{equation}
+so $b\to0$ for $q\ll J_a$ and $b\to b_{\rm out}$ for $q\gg J_a$. The
+\textbf{two-transition} model is
+\begin{equation}
+ b(q)=b_{\rm out}\,S(q;J_a)+(b_{\rm outer}-b_{\rm out})\,S(q;J_{\rm outer}),
+ \qquad J_{\rm outer}>J_a,
+ \label{eq:b2}
+\end{equation}
+with limits $0$, $b_{\rm out}$ and $b_{\rm outer}$. Both forms were defined in
+the model proposal; eq.~\eqref{eq:b2} was implemented and unit-tested before
+this work. Stars carry both mass and light (mass follows light). There is one
+stellar population.
+
+\subsection{Dark components}
+
+Dark mass enters as prescribed spherical densities in the same potential:
+\begin{itemize}
+\item \textbf{Remnants}: a Plummer sphere with mass $M_\remn$ and scale $a_\remn$.
+\item \textbf{Halo} (free-halo branch only): a cored profile ($\gamma=0$)
+  normalized at 20\pc,
+  $\rho_\dm(r)=\rho_{20}\,h(r/r_s)T(r/r_t)/[h(20\pc/r_s)T(20\pc/r_t)]$,
+  with $h(x)=(1+x)^{-3}$ and $T(y)=e^{-y^2}$. The scale $r_s$ is free and the
+  taper $r_t=1000\pc$ is fixed. The no-halo branch sets $\rho_{20}=0$.
+\item \textbf{No central point mass} (Section~\ref{sec:bh}).
+\end{itemize}
+
+\subsection{Equilibrium, projection and numerics}
+
+For every trial, the stellar DF is rebuilt and iterated with Poisson's
+equation, with the dark densities held fixed, until the stellar density
+closes \citep[AGAMA:][]{2019MNRAS.482.1525V}. Projected surface density and
+LOS/PM second moments follow from the intrinsic moments, averaged over each
+bin's selection nodes. The fitting resolution uses 128 potential nodes, 32
+velocity nodes, 240 moment nodes, 128 projection nodes and 192 action-contour
+nodes. The equilibrium iteration tolerance is $5\times10^{-5}$
+(Section~\ref{sec:numerics}). Every selected solution is validated at doubled
+resolution.
+
+\section{Fitting method and validation}
+\label{sec:method}
+
+\subsection{Optimizer}
+
+Fits use bounded trust-region least squares (SciPy \texttt{least\_squares},
+TRF) on the residual vector of eq.~\eqref{eq:chi2} plus photometry. All
+coordinates are scaled to $[0,1]$; mass and action scales are logarithmic.
+Jacobians are forward differences with step 0.002, each probe seeded with the
+base point's converged stellar potential. The 9--11 probes of a Jacobian run
+in parallel worker processes. A fit stops when the objective improves by less
+than 0.01 over two accepted steps (well below a meaningful
+$\Delta\chi^2\sim1$), when SciPy's own tests are met, or at 600 equilibrium
+evaluations. Stops that follow closely after rejected equilibria are recorded
+as unconverged. Several starting points are used for each model: two
+hand-picked and, for the wide-bound and two-transition runs, four
+Latin-hypercube starts (seed 20260923) in the central 60\% of each range.
+
+The second transition is parametrized by $\Delta=\ln(J_{\rm outer}/J_a)\in[\ln2,\ln100]$,
+applied after all other coordinates, so $J_{\rm outer}>J_a$ holds for every
+trial. The search bounds are listed in Table~\ref{tab:bounds}. They are
+optimizer limits, not priors.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Search bounds. The ``default'' bounds were used in the first batch
+only.}
+\label{tab:bounds}
+\begin{tabular}{lll}
+\toprule
+Coordinate & Bounds & Notes\\
+\midrule
+$M_\star$ & $10^6$--$6\times10^6\,\Msun$ (log) & \\
+$J_0$ & 30--800\Jact\ (log) & default 100--800\\
+$\alpha$ & 0.6--3 & \\
+$b_{\rm out}$ & $-2$ to $+2$ & $\pm1$ in one-transition runs\\
+$J_a$ & 5--500\Jact\ (log) & default 50--3000; 5--3000 in wide one-transition runs\\
+$b_{\rm outer}$ & $-4$ to $+2$ & two-transition only\\
+$\ln(J_{\rm outer}/J_a)$ & $\ln2$--$\ln100$ & two-transition only\\
+$M_\remn$, $a_\remn$ & $10^2$--$10^6\,\Msun$, 0.3--20\pc\ (log) & \\
+$\rho_{20}$, $r_s$ & 0--10\,$\Msun\pc^{-3}$, 5--500\pc\ (log) & free-halo only; default $r_s\le150$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Numerical checks}
+\label{sec:numerics}
+
+\begin{itemize}
+\item \textbf{Evaluation noise.} At a converged model, repeating the
+  equilibrium with different seeds shifted residuals by up to 0.0060 errors at
+  the original tolerance ($5\times10^{-4}$), and Jacobian columns by 0.1--7\%.
+  At $5\times10^{-5}$ these fall to 0.00059 errors and 0.01--0.65\%, at 23\%
+  higher cost per evaluation. The tighter tolerance is used throughout.
+\item \textbf{Parallel Jacobians} reproduce serial ones: all probe objectives
+  agree to $2.4\times10^{-9}$ relative. The potential is transferred by file,
+  a round trip exact to $3\times10^{-14}$. Probe wall time drops 4.6-fold.
+\item \textbf{Validation of each selected fit}: a cold replay, a rebuild at
+  doubled resolution, and an independent direct projection over the data
+  radii (0.05--68\pc). The thresholds are shifts below 0.1 errors and
+  projection agreement within 0.5\%. All solutions reported here pass. The
+  largest values are a cold shift of 0.0046, a refinement shift of 0.012
+  errors, and a projection difference of 0.11\%.
+\end{itemize}
+
+\subsection{Acceptance criteria}
+
+The formal errors are known to be incomplete (Section~\ref{sec:data-issues}),
+so structural and statistical success are judged separately.
+\begin{itemize}
+\item \textbf{Structural pass:} independent starts converge; no coordinate at
+  a search bound; no coherent residual pattern; no dataset with $\chi^2/n>3$;
+  a physically smooth DF.
+\item \textbf{Statistical pass:} $\chikin/N<1.3$, every dataset $\chi^2/n<2$,
+  $\chi^2_{\rm phot}/N<2$. This is required only under a justified error
+  model; with the published errors it is reported, not required.
+\end{itemize}
+
+\section{Results}
+\label{sec:results}
+
+\subsection{The one-transition DF fails}
+\label{sec:one}
+
+Table~\ref{tab:one} summarizes the one-transition fits. In every branch, all
+valid starts converge to the same minimum; five of five do so in each
+wide-bound branch. The kinematic fit remains poor. The anisotropy scale $J_a$
+sits at its lower bound in every fit, whether that bound is 50 or 5\Jact.
+Widening the bounds changes $\chikin$ by only 29 (free halo) and 20 (no
+halo). Figure~\ref{fig:one} shows the residual pattern. The tangential PM
+dispersion is too high at 3--7\pc (to $-6$ errors) and too low beyond 12\pc
+(to $+6$). The LOS dispersion is 3--5 errors too high at 5--8\pc, and the
+radial PM 2--5 errors too high beyond 20\pc.
+
+\begin{table}[htbp]
+\centering\small
+\caption{One-transition fits. The objective is $\chikin+\chi^2_{\rm phot}$
+after refinement. Dataset columns give $\chi^2/n$.}
+\label{tab:one}
+\begin{tabular}{lrrrrrrrrl}
+\toprule
+Fit & Obj. & $\chikin$ & $\chikin/N$ & HST R & HST T & MUSE & Gaia R & Gaia T & At bound\\
+\midrule
+Default, free halo & 653.6 & 456.1 & 5.12 & 2.5 & 5.6 & 2.7 & 8.2 & 15.1 & $J_0$, $J_a$, $r_s$\\
+Default, no halo & 717.6 & 475.7 & 5.34 & 2.3 & 6.8 & 2.8 & 2.6 & 20.1 & $J_a$\\
+Wide, free halo & 623.3 & 427.5 & 4.80 & 2.1 & 4.5 & 2.6 & 10.1 & 13.6 & $J_a$\\
+Wide, no halo & 698.1 & 456.1 & 5.12 & 2.1 & 6.2 & 2.7 & 2.6 & 20.2 & $J_a$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=\linewidth]{observed_df_wide_20260923_best_fits.png}
+\caption{Best one-transition fits (wide bounds) with and without a halo.
+Top: surface brightness, LOS and PM dispersions with published errors.
+Bottom: normalized residuals (data$-$model)/error.}
+\label{fig:one}
+\end{figure}
+
+\subsection{Why it fails: diagnostic fits}
+\label{sec:diag}
+
+Diagnostic fits of the same no-halo DF (Table~\ref{tab:diag}) isolate the
+cause.
+
+\begin{table}[htbp]
+\centering\footnotesize
+\caption{Diagnostic fits of the one-transition, no-halo DF. Both starts of
+every fit converged to the same solution. The Jeans row is the rung-2
+turnover fit (with a point mass, no DM) on the same 89 bins. (b): at a search bound.}
+\label{tab:diag}
+\begin{tabular}{lrrrrrrrr}
+\toprule
+Fit & $\chikin/N$ & HST R & HST T & MUSE & Gaia R & Gaia T & $b_{\rm out}$ & $J_a$\\
+\midrule
+All data & 5.12 & 2.1 & 6.2 & 2.7 & 2.6 & 20.2 & $+0.18$ & 5\,(b)\\
+HST+MUSE only (71 bins) & \textbf{1.43} & 1.0 & 1.1 & 2.0 & -- & -- & $+0.39$ & 32\\
+Gaia only (18 bins) & \textbf{0.88} & -- & -- & -- & 0.8 & 1.0 & $-1.00$\,(b) & 1665\\
+All data, distance free & 4.78 & 1.8 & 6.6 & 1.6 & 2.6 & 19.6 & $+0.18$ & 5\,(b)\\
+\emph{Jeans turnover (ref.)} & \emph{2.13} & \emph{2.9} & \emph{1.7} & \emph{1.8} & \emph{1.9} & \emph{2.6} & & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{enumerate}
+\item \textbf{The DF fits each half of the data.} HST+MUSE and Gaia are each
+  fitted well by the same family. Only their combination fails.
+\item \textbf{The halves demand opposite anisotropy.} The inner data want
+  radial bias switching on at small actions ($b_{\rm out}=+0.39$,
+  $J_a=32\Jact$). The outer data want strongly tangential bias
+  ($b_{\rm out}=-1$). One transition cannot supply both.
+\item \textbf{Distance is not the cause.} Freeing $D$ gives $D=5.30$~kpc and
+  lowers $\chikin$ by only 31. Changing $D$ rescales both PM components
+  equally and cannot change $\sigma_T/\sigma_R$.
+\item \textbf{An independent Jeans fit needs the same shape.} The rung-2 Jeans
+  turnover fit prescribes
+  $\beta(r)=1-\sigma_t^2/\sigma_r^2$ with two transitions. It finds
+  $\beta\simeq+0.15$ near 6\pc, zero near 20\pc, and $-0.6$ to $-0.7$ at
+  80\pc. Its central value, $\beta_0=-0.50$, sits at its prior limit
+  (Figure~\ref{fig:beta-subsets}).
+\end{enumerate}
+The tangential turn lies at $\sim20\pc$, inside the Gaia coverage, not at the
+HST/Gaia boundary.
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=.72\linewidth]{df_subset_beta_20260923.png}
+\caption{Intrinsic anisotropy $\beta(r)$ of the one-transition DF fitted to
+HST+MUSE only, to Gaia only, and to all data, compared with the rung-2 Jeans
+turnover fits. Shading marks the radial coverage of the two surveys.}
+\label{fig:beta-subsets}
+\end{figure}
+
+\paragraph{Action coverage.} The anisotropy acts on $q=J_r+L$. Sampling
+$2\times10^5$ tracers from the best all-data DF shows that the data sample
+$q\simeq20$--$730\Jact$ (5--95\%; Figure~\ref{fig:coverage}). The Gaia-only
+$J_a=1665$ lies above even the outermost bin's 95th percentile. That fit
+therefore used only the low-$q$ tail, $b\simeq b_{\rm out}(q/J_a)^2$, where
+only $b_{\rm out}/J_a^2$ is constrained. Neighbouring radial ranges overlap
+strongly in $q$, so a transition in $q$ is soft in radius. These results set
+the bounds for the second transition (Table~\ref{tab:bounds}).
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=.72\linewidth]{action_coverage_observed_df_wide_20260923.png}
+\caption{Distribution of $q=J_r+L$ of DF tracers against projected radius,
+with 5--95\% quantiles. Horizontal lines mark the $J_a$ of the HST+MUSE-only
+(32) and Gaia-only (1665) fits.}
+\label{fig:coverage}
+\end{figure}
+
+\subsection{The two-transition DF without a halo}
+\label{sec:two}
+
+Six starts were run: the two hand-picked starts combine the two subset
+solutions, and four are Latin-hypercube starts. Two Latin starts were
+infeasible at their initial point. The four valid starts converged to one
+minimum (refined objective 378.3--378.4, $\Delta\chikin\le0.6$), with no
+coordinate at a bound and no rejected evaluation. The best-fit parameters are
+$M_\star=3.25\times10^6\,\Msun$, $J_0=65\Jact$, $\alpha=0.85$,
+$b_{\rm out}=+0.46$, $J_a=27\Jact$, $b_{\rm outer}=-1.26$,
+$J_{\rm outer}=812\Jact$, $M_\remn=1.72\times10^5\,\Msun$ and $a_\remn=1.27\pc$.
+
+$\chikin$ falls from 456.1 to \textbf{159.2} ($\chikin/N=1.79$). Gaia
+tangential improves from $\chi^2/n=20.2$ to 3.7 (Table~\ref{tab:perf}). The
+intrinsic $\beta(r)$ follows the Jeans turnover to $\sim30\pc$
+(Figure~\ref{fig:beta-two}): $\beta=0.02$, 0.14, 0.16, 0.06 and $-0.13$ at
+1, 6, 10, 20 and 30\pc. Beyond $\sim40\pc$ it falls faster, reaching
+$-1.27$ at 63\pc. That region is driven by the $b_{\rm outer}$ asymptote,
+which acts only beyond the sampled $q$, so it is an extrapolation. The bias
+$b(q)$ peaks at $+0.41$ at $q=103\Jact$, where the HST/MUSE tracers lie
+($q$ 5/50/95\% $=56/170/379$). It crosses zero at $q=488$, inside the Gaia
+tracers ($183/347/650$; Figure~\ref{fig:structure}). The DF is smooth and
+monotonic in the $(J_r,L)$ plane, with no ridge at either transition. The
+remnant component returns to the inner-data values: the $6.6\times10^5\,\Msun$
+remnant of the Gaia-only fit was compensating for the missing tangential
+outskirts.
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=.72\linewidth]{dftwo_beta_20260923.png}
+\caption{Intrinsic anisotropy of the two-transition fit (no halo) against the
+one-transition fit and the Jeans turnover fits.}
+\label{fig:beta-two}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=\linewidth]{df_structure_dftwo_20260923_observed_no_halo_start0.png}
+\caption{Structure of the two-transition fit (no halo). (a) Intrinsic
+$\sigma_r$, one-component $\sigma_t$ and $\beta(r)$. (b) The bias $b(q)$ over
+the $q$ distributions of tracers in the HST/MUSE and Gaia projected ranges.
+(c) $\log_{10}f$ in the $(J_r,L)$ plane ($J_z=0$); dotted lines mark
+$q=J_a$ and $q=J_{\rm outer}$.}
+\label{fig:structure}
+\end{figure}
+
+\subsection{Adding a free cored halo}
+\label{sec:halo}
+
+With a free halo, three of six starts were infeasible at their initial
+point: two numerically (an action-normalization error of $5.1\times10^{-5}$
+above the $2\times10^{-5}$ tolerance, and a density-closure failure) and one
+physically (the streaming term exceeded the DF second moment). The three
+valid starts converged to one minimum. The refined objective is 346.9, against
+378.3 without a halo, and $\chikin=143.3$. The fitted parameters are
+$\rho_{20}=0.92\,\Msun\pc^{-3}$, $M_\star=3.21\times10^6\,\Msun$,
+$b_{\rm out}=1.76$, $J_a=101\Jact$, $b_{\rm outer}=-0.25$ and
+$J_{\rm outer}=203\Jact$. However:
+\begin{itemize}
+\item \textbf{Two coordinates are at bounds}: $r_s=500\pc$ (upper), making
+  the halo effectively uniform inside the data, and
+  $J_{\rm outer}/J_a=2$ (lower), pushing the two transitions together.
+\item \textbf{The anisotropy rearranges}: $b_{\rm out}$ changes from $0.46$
+  to $1.76$ and $b_{\rm outer}$ from $-1.26$ to $-0.25$.
+\item \textbf{The halo acts only in the outskirts}: it is under 1\% of the
+  enclosed mass at 20\pc, 8\% at 42\pc and 32\% at 80\pc. It trades misfit
+  between the Gaia components: tangential improves from 3.7 to 2.3 while
+  radial worsens from 0.9 to 2.0.
+\end{itemize}
+This is the classic mass--anisotropy trade. The objective gain (31, with
+$\Delta\chikin=16$ for two extra coordinates) cannot be read as a DM
+preference (Section~\ref{sec:dm}).
+
+\subsection{Performance of the best-fit models}
+\label{sec:performance}
+
+Table~\ref{tab:perf} and Figures~\ref{fig:perf-data}--\ref{fig:perf-diag}
+summarize the two best fits. The runs test counts sign changes of the
+residuals along radius; $z<-2$ means too few runs, i.e.\ coherent residuals.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Performance of the two-transition fits with published errors.
+$p$ is the $\chi^2$ survival probability for $n$ independent bins (indicative
+only). The last column gives the largest absolute normalized residual.}
+\label{tab:perf}
+\begin{tabular}{lrrrrrr}
+\toprule
+& \multicolumn{2}{c}{no halo} & \multicolumn{2}{c}{free halo} & runs $z$ & max$|r|$\\
+Dataset ($n$) & $\chi^2/n$ & $p$ & $\chi^2/n$ & $p$ & (no halo / halo) & (no halo / halo)\\
+\midrule
+HST PM R (21) & 1.01 & 0.45 & 1.02 & 0.43 & $-0.9$ / $0.0$ & 2.0 / 2.0\\
+HST PM T (21) & 1.81 & 0.013 & 1.39 & 0.11 & $-1.1$ / $-1.1$ & 2.6 / 2.1\\
+MUSE LOS (29) & 2.01 & 0.001 & 1.84 & 0.004 & $+0.5$ / $+0.5$ & 3.6 / 3.2\\
+Gaia PM R (9) & 0.93 & 0.50 & 2.04 & 0.03 & $-2.3$ / $-1.2$ & 1.9 / 2.2\\
+Gaia PM T (9) & 3.70 & $10^{-4}$ & 2.34 & 0.01 & $-0.8$ / $-1.0$ & 3.6 / 2.7\\
+Photometry (82) & 2.67 & $2\times10^{-14}$ & 2.48 & $3\times10^{-12}$ & $-1.2$ / $-2.1$ & 5.7 / 5.8\\
+\midrule
+$\chikin$ (89) & \multicolumn{2}{c}{159.2} & \multicolumn{2}{c}{143.3} & & \\
+$\chi^2_{\rm phot}$ (82) & \multicolumn{2}{c}{219.1} & \multicolumn{2}{c}{203.6} & & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=\linewidth]{best_fit_performance_20260923_data.png}
+\caption{Best two-transition fits without (blue) and with (orange) a halo,
+and the rung-2 Jeans turnover fit (dashed; kinematics only). Bottom:
+(data$-$model)/error, with $\pm2$ lines.}
+\label{fig:perf-data}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=\linewidth]{best_fit_performance_20260923_diagnostics.png}
+\caption{Diagnostics of the two best fits: (a) kinematic residuals against
+$N(0,1)$; (b) $\chi^2/n$ per dataset; (c) runs-test $z$ per dataset;
+(d) intrinsic $\beta(r)$; (e) enclosed mass by component (total, stars,
+remnants, halo).}
+\label{fig:perf-diag}
+\end{figure}
+
+\begin{itemize}
+\item \textbf{The kinematics are now fitted better than by the best Jeans
+  model} ($\chikin=159.2$ and 143.3, against 190.0), with a positive,
+  self-consistent DF. All profiles are tracked over 0.1--63\pc. The residual
+  distribution is somewhat wider than $N(0,1)$, with tails to $\pm3.6$.
+\item \textbf{The remaining structured misfits are localized.} The MUSE LOS
+  is 2--3.6 errors too high at its outer edge (5--8\pc), where the streaming
+  correction is largest. The tangential PMs are 2--2.6 errors too high at
+  4--7\pc and up to 3.5 errors too low at 15--20\pc (the first Gaia bins).
+  With the halo, the outer Gaia radial PM becomes $\sim2$ errors too high.
+\item \textbf{The photometric misfit} is dominated by 10--40\pc points with
+  residuals of opposite sign at similar radii ($-3$ to $-6$ and $+2$ to $+4$).
+  This is consistent with the internal scatter of the compilation
+  (Section~\ref{sec:data-issues}); this interpretation has not been tested.
+\item \textbf{The two models are nearly identical inside the data}: $\beta(r)$
+  and the total $M(<r)$ coincide to $\sim25\pc$.
+\end{itemize}
+
+\textbf{Verdict on objective 1.} The two-transition DF is a structural
+near-pass. The only structural criterion it misses is Gaia tangential at
+$\chi^2/n=3.7$ (without a halo), against a limit of 3. It is not a
+statistical pass under the published errors: $\chikin/N=1.79$ and 1.61.
+
+\subsection{Is a central point mass needed?}
+\label{sec:bh}
+
+The model has no central black hole. Figure~\ref{fig:bh} compares the 43
+kinematic bins inside 2\pc with the no-BH two-transition DF and the rung-2
+Jeans fits, which include a free point mass with maximum-likelihood
+$M_\bullet=4.4\times10^4\,\Msun$ (16--84\%: 3.9--$4.6\times10^4$).
+
+\begin{table}[htbp]
+\centering\small
+\caption{$\chi^2$ of the 43 kinematic bins inside 2\pc.}
+\label{tab:bh}
+\begin{tabular}{lrrrr}
+\toprule
+Model & total & HST R (13) & HST T (13) & MUSE (17)\\
+\midrule
+DF, two transitions, no BH, no halo & \textbf{48.8} & 11.7 & 12.5 & 24.6\\
+Jeans turnover + BH, no DM & 59.0 & 21.5 & 16.7 & 20.8\\
+Jeans turnover + BH, cored DM & 59.3 & 23.7 & 14.1 & 21.4\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The binned data give no evidence that the DF needs a point mass. Only two HST
+bins (0.12--0.16\pc) lie 1--2 errors above the no-BH model, and the innermost
+bin (0.10\pc) lies below it. The comparison is not controlled: the Jeans fits
+also differ in anisotropy (with $\beta_0=-0.5$ imposed) and in mass model.
+The clean test would be the same DF with and without a BH. The binned profiles
+also cannot test the published IMBH evidence. That evidence rests on
+individual fast-moving stars inside $\sim0.1\pc$, which set a lower limit of
+$\sim8200\,\Msun$ \citep{2024Natur.631..285H}, and those stars are not in
+these profiles. Adding a BH is therefore deferred.
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=\linewidth]{central_bh_evidence_20260923.png}
+\caption{Central kinematics ($R\le2\pc$) with the no-BH two-transition DF and
+the Jeans turnover fits with a point mass. Bottom: (data$-$model)/error.}
+\label{fig:bh}
+\end{figure}
+
+\section{The dark-matter question: what can and cannot be said}
+\label{sec:dm}
+
+\paragraph{No DM constraint yet.} The halo improves the objective by 31. This
+cannot be read as a detection or as a preference. The halo solution has two
+coordinates at bounds; the anisotropy rearranges to accommodate it; the halo
+acts mainly beyond the outermost data; and the likelihood is not calibrated
+(Section~\ref{sec:data-issues}).
+
+\paragraph{The stellar/DM split is weakly identified.} Noiseless mock tests with
+the one-transition family fitted a matched family
+(\path{docs/COMPACT_DF_RECOVERY.md}). The fits reproduced the observables
+to 0.006--0.02 errors RMS and recovered the total mass within 5\%. They did
+not recover the split. In a no-DM mock the fits found
+$\rho_{20}=1.4$--$2.3\,\Msun\pc^{-3}$ with 15--24\% less stellar mass; in a
+cored mock ($\rho_{20}=2$) they found 2.5 and 3.1. The objective at the
+injected truth ($2.3\times10^{-4}$) was lower than at the fitted solutions
+($6\times10^{-3}$--0.1), but by amounts far below the $\chi^2$ scatter
+expected with real noise, $\sqrt{2\times171}\simeq18.5$. Those mocks were
+also not $\omega$ Cen-like: their dispersions were 35--40\% too low.
+
+\paragraph{What a meaningful constraint requires.}
+\begin{enumerate}
+\item A model that passes objective~1, with no coordinate at a bound.
+\item A \textbf{profile likelihood in $\rho_{20}$}: fix $\rho_{20}$ on a grid
+  (e.g.\ 0, 0.25, 0.5, 1, 2, 4\,$\Msun\pc^{-3}$), refit all other coordinates
+  including the anisotropy, and record the objective. $r_s$ is a nuisance
+  parameter that the data do not constrain; the quoted quantity should be
+  $\rho_{20}$ or $M_\dm(<r)$ within the data range.
+\item \textbf{Validation on realistic mocks} built from the best no-halo and
+  halo fits, with noise, to measure identifiability and coverage.
+\item A \textbf{calibrated likelihood} before converting $\Delta\chi^2$ into
+  intervals. Until the Gaia error model is settled, mock-calibrated
+  thresholds are the substitute.
+\end{enumerate}
+
+\section{Numerical and software issues found and fixed}
+\label{sec:fixes}
+
+\begin{itemize}
+\item \textbf{Optimizer budget and tolerances.} The first recovery batch
+  capped fits at 180 evaluations, about 18 Gauss--Newton steps with nine
+  coordinates. Its relative tolerances were tighter than the evaluation
+  noise. An absolute stopping rule, a 600-evaluation cap and a tenfold
+  tighter equilibrium tolerance fixed both problems.
+\item \textbf{Rejected equilibria in Jacobians.} A rejected probe previously
+  entered as a $10^6$ residual. That corrupted the Jacobian and collapsed the
+  trust region to a spurious ``converged'' stop. Rejected probes are now
+  retried in the opposite direction (the column is zeroed if both fail), and
+  stops close to rejections are flagged. Infeasible starting points are
+  recorded instead of crashing.
+\item \textbf{Projection check range.} A 0.8\% fast-vs-direct projection
+  difference occurred only at 80\pc, beyond the data (68\pc). Validation now
+  covers the data radii.
+\item \textbf{Test isolation.} One test module set AGAMA's global units to
+  kpc, so later DF tests refused to run (25 failures and errors in the full
+  suite). A fixture now restores units; the full suite passes (630 passed,
+  5 skipped).
+\item \textbf{Remaining numerical limitation.} In strongly DM-dominated
+  regions ($M_\star\sim1.4\times10^6\,\Msun$, $\rho_{20}\sim8$) the
+  self-consistency iteration can diverge. The normalization tolerance also
+  rejected some extreme starts. Neither affects the minima reported here.
+\end{itemize}
+
+\subsection*{Withdrawn: Gaia error floors}
+\label{sec:floors}
+Two diagnostic fits added 0.01 and 0.02\masyr\ in quadrature to the Gaia
+errors. They showed that the size of the combined misfit depends strongly on
+the Gaia errors ($\chikin/N$ falls from 5.12 to 2.09 with 0.02\masyr),
+while the anisotropy conflict persists. Such floors are ad hoc, not a
+calibrated error model. They have been withdrawn from all model assessment
+and will not be used. The error-model question is left to a separate,
+calibrated treatment.
+
+\section{Conclusions and next steps}
+\label{sec:conclusions}
+
+\begin{enumerate}
+\item The single-transition regularized DF cannot fit the combined $\omega$
+  Cen data. The inner and outer data demand radial and tangential anisotropy
+  respectively. This is established by converged multi-start fits, subset
+  fits and an independent Jeans analysis.
+\item The two-transition DF, with no halo and no BH, fits the kinematics
+  better than the best existing Jeans model ($\chikin=159.2$ vs 190.0 for
+  89 bins). Its anisotropy follows the Jeans turnover inside $\sim30\pc$, and
+  its DF is smooth. It is a structural near-pass, not a statistical pass.
+\item The remaining misfits are localized at the MUSE outer edge and in the
+  4--20\pc tangential PMs, where the rotation correction is largest. The
+  photometric misfit appears to be dominated by internal scatter in the
+  compilation.
+\item Adding a halo trades against the anisotropy. Its preference is not
+  interpretable yet; no DM constraint is claimed.
+\end{enumerate}
+
+\paragraph{Objective 1 (fit), proposed.}
+(i) Model rotation with an odd-$L_z$ DF component and fit the mean
+velocities jointly, instead of subtracting published curves.
+(ii) Calibrate the Gaia (and HST) error models from literature systematics
+or from the HST/Gaia overlap, as a separate data task whose method needs
+approval.
+(iii) Examine the photometric compilation for internally inconsistent
+sources.
+A central BH, separate tracer and mass DFs, and an axisymmetric DF remain
+later options, to be introduced only when the data demand them.
+
+\paragraph{Objective 2 (DM), proposed.}
+(i) A $\rho_{20}$ profile likelihood with the two-transition DF.
+(ii) Realistic mocks (v3) from the best fits, with noise, to validate
+identifiability and coverage.
+(iii) Intervals only after the likelihood is calibrated.
+
+\appendix
+\section{Reproducibility}
+
+\begin{table}[htbp]
+\centering\small
+\caption{Batches reported here (under \texttt{results/df/}). Each batch
+freezes its source code, configuration, tests and inputs.}
+\begin{tabularx}{\linewidth}{llY}
+\toprule
+Batch & Commit & Content\\
+\midrule
+\texttt{observed\_df\_20260923} & \texttt{bd17811} & One transition, default bounds, 2 branches $\times$ 2 starts\\
+\texttt{observed\_df\_wide\_20260923} & \texttt{5486309} & One transition, wide bounds, 2 branches $\times$ 6 starts\\
+\texttt{dfdiag\_\{hst\_muse,gaia,freedist\}\_20260923} & \texttt{1e246bd} & Diagnostic subset and distance fits\\
+\texttt{dftwo\_20260923} & \texttt{f6ce414} & Two transitions, no halo, 6 starts\\
+\texttt{dftwo\_halo\_20260923} & \texttt{bb40db1} & Two transitions + free cored halo, 6 starts\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The driver is \path{bin/run_compact_df_recovery.py} (\texttt{prepare-real},
+\texttt{run}). The figures come from \path{bin/plot_observed_df_fits.py},
+\path{plot_beta_profiles.py}, \path{plot_action_coverage.py},
+\path{plot_df_structure.py}, \path{plot_best_fit_performance.py} and
+\path{plot_central_bh_evidence.py}. Plotted data and checksums are in
+\path{results/plot_data/}. Markdown records are in
+\path{docs/OBSERVED_DF_FLEXIBILITY.md} and
+\path{docs/DF_ANISOTROPY_DIAGNOSTICS.md}. Example of the two-transition
+run:
+\begin{verbatim}
+PY=/Users/vasilybelokurov/Work/venvs/.venv/bin/python
+$PY bin/run_compact_df_recovery.py prepare-real --out results/df/NAME \
+  --two-transition --branches no_halo --n-starts 4 --stop-delta 0.01 \
+  --jacobian-seed base --probe-workers 5 --iteration-tolerance 5e-5 \
+  --bound stellar.J0=30:800 --bound stellar.J_a=5:500 \
+  --bound stellar.b_out=-2:2 --bound matter.r_s=5:500
+$PY bin/run_compact_df_recovery.py run --out results/df/NAME \
+  --workers 2 --max-calls 600 --detach
+\end{verbatim}
+
+\bibliographystyle{plainnat}
+\bibliography{df_model_literature,df_observed_fit_extra}
+\end{document}

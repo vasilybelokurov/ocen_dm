@@ -5353,3 +5353,22 @@ The photometric chi2/N of 2.5-2.7 comes from mutually inconsistent 10-40 pc
 compilation points (hypothesis, untested). An earlier draft of this figure
 plotted (model-data) under a (data-model) label; it was corrected before
 recording. Table in `docs/DF_ANISOTROPY_DIAGNOSTICS.md`.
+
+Correction to earlier entries: the step-1 diagnostic batches were frozen at
+commit `1e246bd` (runner commit on top of `8a7e377`), and
+`dftwo_halo_20260923` at `bb40db1` (not `d540222`), per each batch's
+`source_commit`.
+
+## 2026-09-23 -- LaTeX write-up of the observed-data DF fits
+
+Added `docs/df_observed_fit.tex` (compiled `docs/df_observed_fit.pdf`, 14
+pages) with a small extra bibliography, `docs/df_observed_fit_extra.bib`
+(Lindegren et al. 2021; Baumgardt & Vasiliev 2021; Haeberle et al. 2024;
+Trager et al. 1995; arXiv/DOI checked). Contents: the two objectives; the
+data and their issues (small formal errors, heterogeneous photometry,
+rotation subtraction, correlated bins, HST/Gaia boundary); the model;
+fitting and validation; the one-transition failure; diagnostics; the
+two-transition fits with and without halo; performance; the central
+point-mass check; the status of the DM question; defects fixed; the
+withdrawn error floors; next steps; and reproducibility (batch commits taken
+from each batch's `source_commit`).
