@@ -4994,3 +4994,25 @@ by up to 43 (radial) and 20 (tangential) adopted errors near 3-6 pc, and the
 Gaia PM, MUSE LOS, and outer photometry by about 5. The fitted degeneracy is
 therefore not a failure to see the halo's effect on the data. The stellar DF
 and remnant parameters absorb that effect instead.
+
+## 2026-09-23 -- Why the v2 fits hit the budget
+
+With 9 free coordinates, each forward-difference Jacobian costs 10 equilibrium
+evaluations, so 180 evaluations allow only about 18 Gauss-Newton steps (about
+28 min per fit). The best objective was still falling at the cap in every fit:
+between evaluations 150 and 180, cored start0 went from 0.016 to 0.0038 and
+cored start1 from 0.12 to 0.0072.
+
+The scipy tolerances (ftol=1e-5 relative, xtol=2e-4, gtol=2e-3) are tighter
+than the evaluation noise floor. Warm-started and cold-replayed objectives at
+the same parameters differ by up to 0.0025 (cored start0: 0.00377 warm,
+0.00629 cold), with maximum residual shifts of 0.002-0.02 errors. Over the
+0.002 finite-difference step, that noise enters the Jacobian at order 1-10
+per unit coordinate. Near the minimum the relative-ftol test cannot be
+satisfied reliably, so a larger budget alone may still end at the cap.
+
+Proposal, not implemented: an absolute stopping rule (e.g. objective change
+below 0.01 over two successive accepted steps, well below a meaningful
+delta-chi2 of 1), a larger cap (about 600 evaluations), and cold or tighter
+equilibrium solves inside the Jacobian so that its noise stays below the
+tolerance.
