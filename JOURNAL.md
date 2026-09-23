@@ -5302,3 +5302,5 @@ b_out -2 to 2, b_outer -4 to 2, J_a 5-500. Acceptance is split into
 structural and statistical passes (`docs/DF_ANISOTROPY_DIAGNOSTICS.md`).
 A 12-evaluation smoke run validated with no rejected evaluations. 35
 focused tests pass.
+Launched `results/df/dftwo_20260923/` at 12:55 UTC from commit `f6ce414`:
+6 no-halo two-transition fits, raw errors, 2 jobs x 5 probe workers, cap 600.
