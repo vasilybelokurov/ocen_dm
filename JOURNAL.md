@@ -5596,3 +5596,19 @@ Implication: the observed rho20 profile (Delta = 2.2 at rho20 = 1) is
 within the estimator's noise scatter and cannot be quoted as a rho20 limit;
 the data identify the total mass profile, not the star/DM split at 20 pc.
 Remaining seeds 14-15 running.
+
+## 2026-09-23 -- Coverage test complete: rho20 not identified with a free halo scale
+
+Coverage runner finished 22:11 UTC (seeds 11-15, both truths). With the
+earlier single runs, 12 mocks: truth rho20 = 0 recovered as 0.00, 0.01,
+0.12, 0.21, 0.67, 1.33 (mean 0.39, sd 0.52); truth 1 as 0.00, 0.16, 0.46,
+0.79, 2.06, 2.15 (mean 0.94, sd 0.94). Total mass within +-3% at 20 pc and
++-5% over 2-40 pc in all; M_star within +-6%, M_rem within +-23%,
+anti-correlated with the fitted halo. Conclusion: the observed profile's
+Delta = 2.2 at rho20 = 1 is within estimator noise; no rho20 limit is
+claimed. Write-up (`docs/df_observed_fit.pdf`) updated: mock section
+replaced by the coverage result, abstract/conclusions/can-cannot revised,
+next steps now (i) r_s >= stellar half-mass radius on physical grounds (DM
+is not mass-segregated), (ii) M_star prior from the present-day mass
+function (oMEGACat photometry complete to F625W ~ 23, ~0.45 Msun), (iii)
+repeat mocks. Figure `plots/mock_coverage_20260923.png`.
