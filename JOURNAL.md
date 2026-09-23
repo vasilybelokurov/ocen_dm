@@ -5286,3 +5286,19 @@ Correction to an earlier reply: the Gaia floor does matter. A 0.02 floor
 halves chi2_kin/N, but the structural conflict remains. Write-up and
 proposed two-transition model (awaiting approval):
 `docs/DF_ANISOTROPY_DIAGNOSTICS.md`.
+
+## 2026-09-23 -- Two-transition DF: action coverage, parametrization, launch
+
+An external review endorsed the two-transition, no-halo test and asked for
+the sampled action range first. `bin/plot_action_coverage.py` sampled
+200,000 tracers from the all-data no-halo DF. q = J_r + L spans 22-734
+pc km/s (5-95%) over 0.1-63 pc, and neighbouring radial ranges overlap
+strongly. The Gaia-only J_a = 1665 lies outside this range, so that fit used
+only the b_out (q/J_a)^2 tail. New coordinate `stellar.log_J_outer_ratio`
+(Delta = ln(J_outer/J_a), bounds ln 2 to ln 100) keeps J_outer > J_a
+(1 new test). `prepare-real --two-transition` uses dict-keyed starts: two
+hand-picked starts combining the subset fits, plus 4 Latin starts. Bounds:
+b_out -2 to 2, b_outer -4 to 2, J_a 5-500. Acceptance is split into
+structural and statistical passes (`docs/DF_ANISOTROPY_DIAGNOSTICS.md`).
+A 12-evaluation smoke run validated with no rejected evaluations. 35
+focused tests pass.

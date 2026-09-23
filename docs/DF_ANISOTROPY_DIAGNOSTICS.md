@@ -1,7 +1,7 @@
 # Why the compact DF fails, and the proposed anisotropy extension
 
-Status: 23 September 2026. The diagnostics below are complete, and the model
-adjustment in the final section awaits approval. This follows
+Status: 23 September 2026. The diagnostics below are complete. The model
+adjustment in the final section was approved after external review and launched. This follows
 [OBSERVED_DF_FLEXIBILITY.md](OBSERVED_DF_FLEXIBILITY.md). That test showed
 the current DF cannot fit the combined Omega Cen data: the best fit has
 chi2_kin/N = 4.80 with every valid start converged.
@@ -151,7 +151,7 @@ and the error-floor tests all point to this. Distance, the optimizer, the
 search bounds and the HST/Gaia boundary do not explain it. The Gaia error
 model sets how large the misfit looks, not whether it exists.
 
-## Proposed model adjustment (awaiting approval)
+## Model adjustment: second anisotropy transition (approved)
 
 ### Model
 
@@ -169,42 +169,76 @@ b_outer < 0 (tangential). Nothing else changes: mass follows light, no
 rotation, fixed distance, and **no halo** (rho20 = 0). Freezing the halo
 keeps it from absorbing DF inadequacy.
 
-### Required code change
+### Action coverage of the data
 
-The constraint J_outer > J_a makes independent box bounds on J_a and J_outer
-produce invalid trials. Proposal: fit a ratio coordinate
-`stellar.J_outer_ratio = J_outer / J_a` (log, 2-1000), decoded in
-`config_at`, with unit tests. This changes the fitting coordinates, not the
-model.
+`plots/action_coverage_observed_df_wide_20260923.png` (script
+`bin/plot_action_coverage.py`) shows 200,000 tracers sampled from the
+all-data no-halo DF. The bias acts on q = J_r + L. The 5/50/95% quantiles of
+q per projected-radius range, in pc km/s:
 
-### Fit setup
+| Projected radius | q 5% | q 50% | q 95% |
+|---|---:|---:|---:|
+| 0.1-1 pc | 22 | 101 | 320 |
+| 1-3 pc | 38 | 119 | 311 |
+| 3-9.5 pc | 81 | 187 | 390 |
+| 9.4-20 pc | 174 | 303 | 517 |
+| 20-63 pc | 313 | 476 | 734 |
 
-| Coordinate | Bounds | Hand-picked starts |
-|---|---|---|
-| M_star | 1e6-6e6 Msun (log) | 3.1e6, 2.8e6 |
-| J0 | 30-800 pc km/s (log) | 120, 130 |
-| alpha | 0.6-3 | 1.24, 1.14 |
-| b_out | -2 to +2 (widened from +-1) | +0.39, +0.3 |
-| J_a | 5-3000 pc km/s (log) | 32, 50 |
-| b_outer | -3 to +1 | -1.0, -1.5 |
-| J_outer/J_a | 2-1000 (log) | 52, 30 |
-| M_rem | 1e2-1e6 Msun (log) | 1.7e5, 4e5 |
-| a_rem | 0.3-20 pc (log) | 1.3, 2.0 |
+Two consequences for the parametrization:
 
-The two starts combine the HST+MUSE-only and Gaia-only solutions. Four
-Latin-hypercube starts are added (6 in total), with the same stopping rules,
-cap and parallel Jacobian. Primary errors are raw; the 0.02 mas/yr Gaia
-floor is repeated as a sensitivity run. The estimated cost is about 1 h
-for the primary run.
+- The Gaia-only J_a = 1665 lies above the 95% point of even the outermost
+  bin. That fit uses only the low-q tail b ~ b_out (q/J_a)^2, a smooth ramp
+  in which only b_out/J_a^2 is constrained. A second transition must lie
+  inside q ~ 20-800 to be identified.
+- Neighbouring radial ranges overlap strongly in q, and one q does not map to
+  one radius. Any transition in q is soft in radius. Its interpretation must
+  come from p(q | R) and beta(r), not from a J-to-r conversion.
 
-### Acceptance criteria (fixed before running)
+### Adopted setup (revised after external review, 23 September)
 
-1. chi2_kin/N < 1.3; every dataset chi2/n < 2; chi2_phot/N < 2.
-2. Optimizer terminated, numerical validation passed, and at least half of
-   the valid starts reach the same minimum (Delta chi2 < 1).
-3. No coordinate at a search bound.
-4. The implied beta(r) shows radial bias at 2-15 pc and tangential bias
-   beyond ~20 pc, compared on the beta figure with the Jeans turnover.
+Code: coordinate `stellar.log_J_outer_ratio` = Delta = ln(J_outer/J_a),
+decoded after all other coordinates (`df_fit.config_at`), so that
+J_outer > J_a for every trial (unit-tested). Driver option:
+`prepare-real --two-transition`.
+
+| Coordinate | Bounds | Start 0 | Start 1 |
+|---|---|---:|---:|
+| M_star [Msun] | 1e6-6e6 (log) | 3.1e6 | 2.8e6 |
+| J0 [pc km/s] | 30-800 (log) | 120 | 130 |
+| alpha | 0.6-3 | 1.24 | 1.14 |
+| b_out | -2 to +2 | +0.39 | +0.30 |
+| J_a [pc km/s] | 5-500 (log) | 32 | 50 |
+| b_outer | -4 to +2 | -1.0 | -1.5 |
+| Delta = ln(J_outer/J_a) | ln 2 - ln 100 | ln 15 (J_outer 480) | ln 8 (J_outer 400) |
+| M_rem [Msun] | 1e2-1e6 (log) | 1.7e5 | 4e5 |
+| a_rem [pc] | 0.3-20 (log) | 1.3 | 2.0 |
+
+The J_a upper bound drops from 3000 to 500 because larger values lie outside
+the sampled q. Four Latin-hypercube starts (seed 20260923) are added. There
+is no halo, raw errors are used first, and the 0.02 mas/yr Gaia floor is
+repeated only if the raw fit is structurally successful. A 12-evaluation
+smoke run from start 0 validated (cold shift 9e-5, refinement 7e-4 errors,
+projection <= 0.18%) with no rejected evaluations.
+
+### Acceptance criteria, split (revised)
+
+The formal Gaia errors (1-2%) are known to be incomplete, so structure and
+statistics are judged separately:
+
+- **Structural pass:** independent starts converge (Delta chi2 < 1 for at
+  least half of the valid starts); no coordinate at a bound; no coherent
+  residual pattern; the implied beta(r) is radial at 2-15 pc and tangential
+  beyond ~20 pc; no dataset with chi2/n > 3; M_rem and a_rem checked for
+  collapse toward the HST+MUSE values (1.7e5 Msun, 1.3 pc).
+- **Statistical pass:** chi2_kin/N < 1.3, every dataset chi2/n < 2, and
+  chi2_phot/N < 2. This is required only under a justified Gaia systematics
+  model. With raw errors it is reported, not required.
+
+After the run, for every selected fit: beta(r), sigma_r(r) and sigma_t(r);
+b(q) with p(q | R) and both transitions marked; and the DF in the (J_r, L)
+plane, checked for artificial ridges. The Jeans comparison is a shape
+target only. A positive equilibrium DF need not reproduce an arbitrary
+Jeans beta(r).
 
 ### Decision after the run
 

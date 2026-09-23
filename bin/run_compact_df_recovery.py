@@ -209,8 +209,15 @@ def observed_variant(data, datasets=None, gaia_error_floor=0.):
     return KinematicData(tuple(profiles))
 
 
+#: Second anisotropy transition: b_outer and Delta = ln(J_outer/J_a), kept inside the
+#: sampled action range (q = Jr+L ~ 20-730 pc km/s; plots/action_coverage_*.png).
+TWO_TRANSITION_COORDS = [dict(path="stellar.b_outer", lower=-4., upper=2.),
+                         dict(path="stellar.log_J_outer_ratio", lower=float(np.log(2.)), upper=float(np.log(100.)))]
+
+
 def prepare_real(out, project, fitting, starts, bounds=None, n_random=0, datasets=None,
-                 gaia_error_floor=0., free_distance=None, branches=("free_halo", "no_halo")):
+                 gaia_error_floor=0., free_distance=None, branches=("free_halo", "no_halo"),
+                 two_transition=False):
     """Fit the observed data (pilot snapshot) with free-halo and no-halo branches."""
     out.mkdir(parents=True, exist_ok=False)
     frozen = out/"code"
@@ -233,7 +240,11 @@ def prepare_real(out, project, fitting, starts, bounds=None, n_random=0, dataset
     dump(d/"problem.json", dict(data_snapshot=snapshot, source=str(source), datasets=datasets,
                                 gaia_error_floor_masyr=gaia_error_floor))
     spec = read(frozen/"configs/df/regularized_no_dm.json")
-    base = with_fitting_numerics(model_config_from_dict(spec["model"]), fitting)
+    model_spec = spec["model"]
+    if two_transition:  # placeholder second transition; every start sets its own values
+        model_spec = dict(model_spec, stellar=dict(model_spec["stellar"], b_outer=-1.,
+                                                   J_outer=10*model_spec["stellar"]["J_a"]))
+    base = with_fitting_numerics(model_config_from_dict(model_spec), fitting)
     load_problem(d)  # checksum and fingerprint of the observed snapshot
     manifest = dict(schema_version=1, status="preparing", created_utc=now(), runtime=code_state(),
                     project_root=str(project), source_commit=subprocess.check_output(
@@ -247,21 +258,29 @@ def prepare_real(out, project, fitting, starts, bounds=None, n_random=0, dataset
                     source_sha256={str(p.relative_to(frozen)): sha256(p)
                                    for p in frozen.rglob("*") if p.is_file()},
                     input_sha256={p.name: sha256(p) for p in d.iterdir()}, jobs=[])
-    coords = override_bounds(spec["fit_coordinates"]+[
+    # Extra coordinates follow the halo so no-halo branches can drop the halo pair.
+    extra = (TWO_TRANSITION_COORDS if two_transition else [])+(
+        [dict(path="distance_kpc", lower=free_distance[0], upper=free_distance[1])] if free_distance else [])
+    everything = override_bounds(spec["fit_coordinates"]+[
         dict(path="matter.rho20", lower=0., upper=10.),
-        dict(path="matter.r_s", lower=5., upper=150., log=True)], bounds or {})
+        dict(path="matter.r_s", lower=5., upper=150., log=True)]+extra, bounds or {})
+    coords, extra = everything[:len(everything)-len(extra)], everything[len(everything)-len(extra):]
     manifest.update(bound_overrides={k: list(v) for k, v in (bounds or {}).items()},
                     n_random_starts=n_random, datasets=datasets, gaia_error_floor_masyr=gaia_error_floor,
-                    free_distance=free_distance)  # fixed.distance_kpc is then the start/plot scale
-    starts = list(starts)+latin_starts(coords, n_random)
-    # Distance is appended after the halo so no-halo branches can drop the last two.
-    extra = [dict(path="distance_kpc", lower=free_distance[0], upper=free_distance[1])] if free_distance else []
+                    free_distance=free_distance,  # fixed.distance_kpc is then the start/plot scale
+                    two_transition=two_transition)
+    paths = [c["path"] for c in everything]
+    # Starts are {path: value}; tuples follow the base coordinate order. Missing
+    # paths (e.g. distance) take the base configuration's value.
+    starts = [dict(zip(paths, v)) if isinstance(v, tuple) else dict(v) for v in starts]
+    starts += [dict(zip(paths, v)) for v in latin_starts(everything, n_random)]
+    manifest["starts"] = starts
     for branch in branches:
         chosen = (coords if branch == "free_halo" else coords[:-2])+extra
         cc = [FitCoordinate(**row) for row in chosen]
         for index, values in enumerate(starts):
-            values = values[:len(cc)-len(extra)]+((base.distance_kpc,) if extra else ())
-            start = config_at(base, cc, [q.encode(v) for q, v in zip(cc, values)])
+            start = config_at(base, cc, [q.encode(values[q.path]) if q.path in values else q.get(base)
+                                         for q in cc])
             manifest["jobs"].append(dict(id=f"observed_{branch}_start{index}", case="observed",
                                           branch=branch, start=index, data_dir="observed",
                                           config=start.to_dict(), coordinates=chosen))
@@ -623,6 +642,8 @@ def main():
     p.add_argument("--gaia-error-floor", type=float, default=0., help="mas/yr, added in quadrature (prepare-real)")
     p.add_argument("--free-distance", default=None, metavar="LO:HI", help="fit distance in kpc (prepare-real)")
     p.add_argument("--branches", default="free_halo,no_halo", help="comma-separated (prepare-real)")
+    p.add_argument("--two-transition", action="store_true",
+                   help="free b_outer and ln(J_outer/J_a) (prepare-real)")
     p.add_argument("--probe-workers", type=int, default=1,
                    help="processes for the Jacobian probes of one fit (needs --jacobian-seed base)")
     p.add_argument("--iteration-tolerance", type=float, default=None,
@@ -654,6 +675,15 @@ def main():
         # Initial objectives on the observed data: 2604 and 8943 (checked 2026-09-23).
         starts = [(3.6e6, 160., 1.2, 0., 180., 3e5, 1.5, 1., 40.),
                   (3.0e6, 190., 1.7, .1, 400., 1e5, .6, 1.5, 20.)]
+        if args.two_transition:
+            # Combine the HST+MUSE-only (radial, J_a ~ 32) and Gaia-only (tangential outskirts)
+            # solutions; J_outer ~ 300-500 lies inside the sampled outer-Gaia action range.
+            starts = [{"M_star": 3.1e6, "stellar.J0": 120., "stellar.alpha": 1.24, "stellar.b_out": .39,
+                       "stellar.J_a": 32., "matter.M_rem": 1.7e5, "matter.a_rem": 1.3, "matter.rho20": 1.,
+                       "matter.r_s": 40., "stellar.b_outer": -1., "stellar.log_J_outer_ratio": float(np.log(15.))},
+                      {"M_star": 2.8e6, "stellar.J0": 130., "stellar.alpha": 1.14, "stellar.b_out": .3,
+                       "stellar.J_a": 50., "matter.M_rem": 4e5, "matter.a_rem": 2., "matter.rho20": 1.,
+                       "matter.r_s": 40., "stellar.b_outer": -1.5, "stellar.log_J_outer_ratio": float(np.log(8.))}]
         bounds = {}
         for item in args.bound:
             path, _, rng = item.partition("=")
@@ -663,7 +693,7 @@ def main():
                      datasets=args.datasets.split(",") if args.datasets else None,
                      gaia_error_floor=args.gaia_error_floor,
                      free_distance=tuple(map(float, args.free_distance.split(":"))) if args.free_distance else None,
-                     branches=tuple(args.branches.split(",")))
+                     branches=tuple(args.branches.split(",")), two_transition=args.two_transition)
     elif args.command == "fit":
         if args.job is None:
             p.error("fit requires --job")
