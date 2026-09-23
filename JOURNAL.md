@@ -5428,3 +5428,19 @@ anisotropy. Weak points identified in the review:
   outer beta are weakly identified.
 - No DM constraint exists; the profile likelihood and realistic mocks are
   not done.
+
+## 2026-09-23 -- How to make the DF more flexible (assessment, no code change)
+
+Test (scratch monkeypatch, not committed): a constant inner bias b_in in
+b(q) has no effect on the inner anisotropy. With b_in = -2 the best-fit
+model's beta changes by < 0.02 at 0.3-3 pc. Reason: anisotropy in the
+contour construction needs a gradient of f along the contours, and the
+envelope exp[-(L_c/J0)^alpha] is flat for L_c << J0, i.e. over the whole
+core. The isotropic core is therefore imposed by the envelope, not only by
+the b(0) = 0 limit. Full-weight photometric residuals of the best fit show a
+coherent wiggle: +0.10 mag (0.3-1 pc), -0.06 (3-10 pc), +0.05 (10-30 pc).
+Proposals: (1) a radial-orbit depletion factor h(L) = 1 - kappa J_c^2 /
+(L^2 + J_c^2), quadratic onset, for a tangential core; (2) a broken
+envelope [1 + (L_c/J_1)^2]^(-p/2) exp[-(L_c/J0)^alpha] for core-plus-
+outskirts shape, or a two-component stellar DF. The lowered-isothermal
+control cannot give tangential outskirts. Awaiting approval.
