@@ -117,3 +117,16 @@ previously failing refined-model rebuild before v2 launched.
 Progress figure: `plots/compact_recovery_20260923_v2.png`. Its arrays and
 provenance are in `results/plot_data/compact_recovery_20260923_v2.json`.
 Interim curves are labelled explicitly and are not mass measurements.
+
+## v2 result: 23 September 2026
+
+All six fits finished by 01:34 UTC and all fail the combined gate; none
+terminated within 180 evaluations. Free-halo fits reproduce the noiseless
+mocks to 0.006-0.024 adopted errors RMS and total mass within 4.8%, but do not
+separate stars from DM. The no-DM mock yields rho20 = 1.42 and 2.34 with
+stellar mass 15% and 24% low. The cored mock yields rho20 = 2.53 and 3.08
+(truth 2.0) with stellar mass 4% and 9% low. The fixed-no-halo fits recover
+stellar mass within 0.7%; start0 misses the maximum-residual gate (0.356).
+Cored start1 fails projection validation (pmr 0.81%). Per-fit numbers are in
+`JOURNAL.md` and `report.json`; the final figure is
+`plots/compact_recovery_20260923_v2.png`.
