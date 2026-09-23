@@ -33,7 +33,7 @@
 distribution function\\[6pt]
 \large Model, data issues, fitting performance and the status of the dark-matter question}
 \author{oCen\_dm project notes}
-\date{23 September 2026}
+\date{23 September 2026 (updated evening)}
 \begin{document}
 \maketitle
 
@@ -57,11 +57,19 @@ reproduces the independently inferred Jeans turnover out to $\sim30\pc$.
 Remaining misfits are localized: the outer edge of the MUSE field and the
 tangential proper motions at 4--20\pc. Adding a free cored halo lowers the
 objective by 31 but drives two coordinates to their bounds and rearranges the
-anisotropy. This is a mass--anisotropy trade, not a DM measurement. We document
-the data issues that limit a statistical verdict: very small formal errors,
-approximate rotation corrections, a heterogeneous photometric splice and
-correlated bins. We also document the numerical defects found and fixed, and
-the programme needed to turn a good fit into a meaningful DM constraint.
+anisotropy. This is a mass--anisotropy trade, not a DM measurement. We then replace the
+adopted-error photometric profile by a Poisson likelihood for star counts
+(HST $F625W<19$ inside 250 arcsec, Gaia $G<17$ outside) and fit the distance
+with its literature prior. The kinematic fit is unchanged in quality
+($\chikin/N=1.78$, no dataset above 2.4), the outer anisotropy that the old
+weighting had imposed disappears, and the star counts become the
+worst-fitted term (HST deviance 4.9 per bin). With this likelihood a free
+halo converges to $\rho_{20}=0$, and a profile likelihood over fixed
+$\rho_{20}$ rises monotonically ($\Delta=+2.2$ at $\rho_{20}=1$, $+10.6$ at
+4\,$\Msun\pc^{-3}$), driven by the kinematics. Single-realization mocks recover
+a no-halo truth and detect an injected $\rho_{20}=1$ halo at 0.79. We document
+the data issues that limit a statistical verdict and the programme still
+needed before an exclusion can be claimed.
 \end{abstract}
 
 \tableofcontents
@@ -195,8 +203,47 @@ within errors: $\sigma_T=0.465\pm0.027$ vs $0.474\pm0.049\masyr$ and
 $\sigma_R=0.531\pm0.029$ vs $0.510\pm0.052\masyr$. Both errors are large, so
 this is only a weak consistency check.
 
-\paragraph{Fixed distance.} $D=5.43$~kpc throughout, except in one diagnostic
-fit (Section~\ref{sec:diag}).
+\paragraph{Fixed distance.} $D=5.43$~kpc in Sections~\ref{sec:one}--\ref{sec:bh};
+free with a Gaussian prior from Section~\ref{sec:counts-fit} on.
+
+\subsection{Star counts as the tracer-density constraint}
+\label{sec:counts}
+
+The adopted-error magnitude profile has no sampling distribution, so its
+weight relative to the kinematics was arbitrary (it made up $\sim60$\% of the
+objective in Sections~\ref{sec:two}--\ref{sec:halo}). From
+Section~\ref{sec:counts-fit} on it is replaced by binned star counts with a
+Poisson likelihood and no adopted errors:
+\begin{itemize}
+\item \textbf{HST}: all oMEGACat stars with a measured $F625W<19$
+  (117{,}751 stars) in 20 logarithmic annuli from 2 to 250 arcsec about the
+  catalogue's pixel centre. The authors' photometric quality flag is
+  \emph{not} applied: the fraction of $F625W<19$ stars carrying it rises from
+  0.81--0.83 at 8--22 arcsec to 0.94--0.95 beyond 175 arcsec, which would
+  imprint a 12--15\% radial incompleteness. Without it the ratio
+  $N(F625W<20)/N(F625W<19)$ is 2.0--2.1 in every annulus, so the bright
+  sample is complete. Footprint coverage per annulus (from the occupancy of
+  3-arcsec cells) is $\ge0.956$; the bins stop at 250 arcsec, where the
+  mosaic edge begins. Field contamination is below 0.5\%, so no field term.
+\item \textbf{Gaia EDR3}: all stars in the \citet{2021MNRAS.505.5978V} field
+  catalogue with $G<17$ (18{,}289 stars, members and field), in 12 annuli
+  from 300 to 2400 arcsec. $N(G<16)/N(G<15)$ and $N(G<17)/N(G<16)$ are flat
+  (1.8--2.0) from 300 arcsec outward, whereas $G<18$ is depleted inside
+  $\sim500$ arcsec by crowding, hence the cut. A uniform field density is
+  fitted; membership probabilities are not used.
+\end{itemize}
+For bin $i$ with area $A_i$ (coverage times annulus area) the model
+predicts $\mu_i=A_i\,(a\,\bar\Sigma_i+b)$, with $\bar\Sigma_i$ the model
+surface density averaged over eight equal-count radial nodes of the counted
+stars, $a\ge0$ the number of stars per unit model surface density and
+$b\ge0$ the field density (Gaia only), both profiled at every evaluation by
+maximizing the Poisson likelihood. The residual vector uses signed deviance
+residuals, whose squared sum is the Poisson deviance
+$D=2\sum_i[N_i\ln(N_i/\mu_i)-(N_i-\mu_i)]$, so least squares maximizes the
+Poisson likelihood. The two selections sample different stellar populations
+(faint HST stars, bright Gaia giants); each has its own amplitude, and the
+common shape is the mass-follows-light assumption. The Trager compilation is
+no longer used. Script: \path{bin/build_count_profiles.py}.
 
 \section{Model}
 \label{sec:model}
@@ -706,6 +753,69 @@ near-pass. The only structural criterion it misses is Gaia tangential at
 $\chi^2/n=3.7$ (without a halo), against a limit of 3. It is not a
 statistical pass under the published errors: $\chikin/N=1.79$ and 1.61.
 
+\subsection{The two-transition DF with Poisson counts and the distance prior}
+\label{sec:counts-fit}
+
+The same two-transition DF was refitted with the count likelihood of
+Section~\ref{sec:counts} and the distance as a coordinate with a Gaussian
+prior $5.43\pm0.05$~kpc \citep{2021MNRAS.505.5957B}, entering the objective
+as $[(D-5.43)/0.05]^2$. No halo. Four of six starts (two hand-picked, two
+Latin) converged to one minimum; two Latin starts were infeasible. The
+refined objective is 285.6: $\chikin=158.2$, HST count deviance 98.8 (20
+bins), Gaia count deviance 26.3 (12 bins), prior 2.2. No coordinate is at a
+bound and the numerical checks pass.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Counts-based fit (no halo). Kinematic rows: $\chi^2/n$; count rows:
+Poisson deviance per bin; $p$ as in Table~\ref{tab:perf}.}
+\label{tab:counts-fit}
+\begin{tabular}{lrrrr}
+\toprule
+Dataset ($n$) & value & $p$ & runs $z$ & max$|r|$\\
+\midrule
+HST PM R (21) & 2.07 & 0.003 & $-1.2$ & 3.3\\
+HST PM T (21) & 1.95 & 0.006 & $-2.5$ & 2.8\\
+MUSE LOS (29) & 1.31 & 0.12 & $-0.5$ & 2.5\\
+Gaia PM R (9) & 1.55 & 0.12 & $-1.2$ & 1.9\\
+Gaia PM T (9) & 2.42 & 0.010 & $+0.4$ & 3.0\\
+HST counts (20) & 4.94 & $2\times10^{-12}$ & $-1.6$ & 4.8\\
+Gaia counts (12) & 2.19 & 0.010 & $-0.6$ & 2.9\\
+\midrule
+$\chikin$ (89) & 158.2 & & & $\chikin/N=1.78$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=\linewidth]{counts_fit_performance_20260923_data.png}
+\caption{The counts-based two-transition fit (no halo). Left: HST and Gaia
+surface number densities with Poisson errors and the model $\mu_i/A_i$;
+bottom row: deviance residuals for the counts, (data$-$model)/error for the
+kinematics. Dashed: the rung-2 Jeans turnover fit (kinematics only).}
+\label{fig:counts-fit}
+\end{figure}
+
+\begin{itemize}
+\item \textbf{Kinematics}: quality unchanged ($\chikin$ 158.2 vs 159.2) but
+  more evenly spread: every dataset lies between 1.3 and 2.4 (Gaia
+  tangential 2.4, from 3.7). All 89 residuals are within $\pm3.3$ errors.
+\item \textbf{Counts}: the Gaia profile is fitted at 2.2 per bin. The HST
+  profile, with 118k stars and 0.3--1\% Poisson errors, is the worst-fitted
+  term: the model is $\sim4$\% low at 2--4\pc, $\sim4$\% high at 5--6.5\pc,
+  and low inside 0.1\pc. This is the one-parameter envelope of
+  Section~\ref{sec:family} showing its rigidity at the few-per-cent level.
+\item \textbf{Parameters}: $M_\star=3.00\times10^6\,\Msun$, $J_0=54\Jact$,
+  $\alpha=0.80$, $b_{\rm out}=+0.74$, $J_a=64\Jact$, $b_{\rm outer}=-0.33$,
+  $J_{\rm outer}=319\Jact$, $M_\remn=2.62\times10^5\,\Msun$ at 2.15\pc,
+  $D=5.356$~kpc (1.5$\sigma$ below the prior).
+\item \textbf{The outer anisotropy changes.} Against the Trager-photometry
+  fit ($b_{\rm outer}=-1.26$, $J_{\rm outer}=812$), $\beta(r)$ agrees inside
+  30\pc but reaches only $-0.45$ at 80\pc instead of $-2.1$. The steep
+  tangential outskirts of Section~\ref{sec:two} were an artefact of the
+  arbitrary photometric weighting. The parameter count is unchanged.
+\end{itemize}
+
 \subsection{Is a central point mass needed?}
 \label{sec:bh}
 
@@ -749,38 +859,111 @@ the Jeans turnover fits with a point mass. Bottom: (data$-$model)/error.}
 \section{The dark-matter question: what can and cannot be said}
 \label{sec:dm}
 
-\paragraph{No DM constraint yet.} The halo improves the objective by 31. This
-cannot be read as a detection or as a preference. The halo solution has two
-coordinates at bounds; the anisotropy rearranges to accommodate it; the halo
-acts mainly beyond the outermost data; and the likelihood is not calibrated
-(Section~\ref{sec:data-issues}).
+All statements here use the counts-based likelihood of
+Section~\ref{sec:counts-fit}. Earlier halo fits (Section~\ref{sec:halo}) used
+the arbitrary photometric weighting and are superseded.
 
-\paragraph{The stellar/DM split is weakly identified.} Noiseless mock tests with
-the one-transition family fitted a matched family
-(\path{docs/COMPACT_DF_RECOVERY.md}). The fits reproduced the observables
-to 0.006--0.02 errors RMS and recovered the total mass within 5\%. They did
-not recover the split. In a no-DM mock the fits found
-$\rho_{20}=1.4$--$2.3\,\Msun\pc^{-3}$ with 15--24\% less stellar mass; in a
-cored mock ($\rho_{20}=2$) they found 2.5 and 3.1. The objective at the
-injected truth ($2.3\times10^{-4}$) was lower than at the fitted solutions
-($6\times10^{-3}$--0.1), but by amounts far below the $\chi^2$ scatter
-expected with real noise, $\sqrt{2\times171}\simeq18.5$. Those mocks were
-also not $\omega$ Cen-like: their dispersions were 35--40\% too low.
+\subsection{Free halo}
+With $\rho_{20}$ and $r_s$ free, seeded from the no-halo best fit, the
+optimizer converges in 29 evaluations to $\rho_{20}=0$ (at the bound), the
+no-halo solution, objective 285.6. The one Latin start was infeasible.
 
-\paragraph{What a meaningful constraint requires.}
-\begin{enumerate}
-\item A model that passes objective~1, with no coordinate at a bound.
-\item A \textbf{profile likelihood in $\rho_{20}$}: fix $\rho_{20}$ on a grid
-  (e.g.\ 0, 0.25, 0.5, 1, 2, 4\,$\Msun\pc^{-3}$), refit all other coordinates
-  including the anisotropy, and record the objective. $r_s$ is a nuisance
-  parameter that the data do not constrain; the quoted quantity should be
-  $\rho_{20}$ or $M_\dm(<r)$ within the data range.
-\item \textbf{Validation on realistic mocks} built from the best no-halo and
-  halo fits, with noise, to measure identifiability and coverage.
-\item A \textbf{calibrated likelihood} before converting $\Delta\chi^2$ into
-  intervals. Until the Gaia error model is settled, mock-calibrated
-  thresholds are the substitute.
-\end{enumerate}
+\subsection{Profile likelihood in $\rho_{20}$}
+\label{sec:profile}
+
+$\rho_{20}$ was fixed at 0.25, 0.5, 1, 2 and 4\,$\Msun\pc^{-3}$ and every
+other coordinate, including $r_s$ (5--500\pc), the anisotropy and the
+distance, refitted from the best fit plus one Latin start
+(Table~\ref{tab:profile}, Figure~\ref{fig:profile}).
+
+\begin{table}[htbp]
+\centering\small
+\caption{Profile likelihood in $\rho_{20}$. $\Delta$ is the refined objective
+minus its minimum. Halo masses are for the profiled halo. For
+$\rho_{20}=0.25$--2 only the seeded start converged (the Latin start was
+infeasible); at 4 the Latin start improved the objective from 297.1 to 296.1.}
+\label{tab:profile}
+\begin{tabular}{rrrrrrrl}
+\toprule
+$\rho_{20}$ & $\Delta$ & $\chikin$ & counts dev. & $r_s$ [pc] & $M_\dm(<20\pc)$ & $M_\dm(<63\pc)$ & $M_\star$\\
+\midrule
+0 (free halo) & 0 & 158.2 & 125.2 & -- & 0 & 0 & $3.00\times10^6$\\
+0.25 & $+0.51$ & 158.9 & 125.0 & 5 (bound) & $2.4\times10^4$ & $6.2\times10^4$ & $2.96\times10^6$\\
+0.5 & $+1.05$ & 159.3 & 125.1 & 5 & $4.8\times10^4$ & $1.2\times10^5$ & $2.92\times10^6$\\
+1 & $+2.20$ & 161.1 & 124.4 & 5 & $9.6\times10^4$ & $2.5\times10^5$ & $2.83\times10^6$\\
+2 & $+4.78$ & 164.4 & 123.6 & 5 & $1.9\times10^5$ & $4.9\times10^5$ & $2.67\times10^6$\\
+4 & $+10.55$ & 171.0 & 122.7 & 5 & $3.8\times10^5$ & $9.8\times10^5$ & $2.35\times10^6$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=\linewidth]{rho20_profile_20260923.png}
+\caption{(a) The objective and its components relative to the minimum
+against $\rho_{20}$; the $\Delta=1$ and 3.84 lines are reference values, not
+calibrated intervals. (b) The profiled $r_s$. (c) Profiled masses.}
+\label{fig:profile}
+\end{figure}
+
+\begin{itemize}
+\item \textbf{The data prefer no halo, monotonically.} The cost of a forced
+  halo comes entirely from the kinematics; the count deviance falls slightly
+  and the stellar mass drops from 3.0 to $2.35\times10^6\,\Msun$ across the
+  scan: the star/DM trade, now quantified.
+\item \textbf{Reference values.} On a $\chi^2$ scale, $\Delta=1$ falls near
+  $\rho_{20}\simeq0.5$ and $\Delta=3.84$ near $\rho_{20}\simeq1.7$
+  ($M_\dm(<20\pc)\simeq1.6\times10^5\,\Msun$). These would be 68\% and 95\%
+  one-parameter limits only under a calibrated likelihood.
+  $\chikin/N=1.78$ says the published errors are not, so the real limits are
+  looser. No rescaling has been applied.
+\item \textbf{The halo is profiled to its least visible shape.} $r_s$ runs to
+  the 5\pc bound at every fixed $\rho_{20}$: with the density normalized at
+  20\pc, a compact halo has the least mass inside the data. The profile is
+  therefore a constraint on the least harmful halo per $\rho_{20}$. A
+  physically motivated extended remnant would be constrained more strongly;
+  no such prior is imposed, because no clear expectation for $r_s$ exists.
+\item \textbf{Comparison.} The earlier Jeans posterior gave a 95\% upper
+  limit $\rho_{20}=1.03$ under different assumptions; the two methods agree
+  on the order of magnitude.
+\end{itemize}
+
+\subsection{Mock validation}
+\label{sec:mocks}
+
+Two mocks were built from the counts-based best fit, each with the
+published kinematic noise (Gaussian, per bin) and Poisson counts drawn with
+the fitted amplitudes: truth A is the fitted model itself ($\rho_{20}=0$);
+truth B adds a halo with $\rho_{20}=1$, $r_s=30\pc$. Both were fitted with a
+free halo from the generic hand-picked starts, never from the truth.
+\begin{itemize}
+\item \textbf{A (no halo):} one start recovers $\rho_{20}=0.001$, $M_\star$
+  within 0.5\% and the total mass within 1.5\%. The other lands at
+  $\rho_{20}=0.12$ with $r_s$ at the 500\pc bound, at the same objective
+  within 0.1: a diffuse $\rho_{20}\sim0.1$ halo is indistinguishable from
+  none, matching the flat foot of the observed profile.
+\item \textbf{B ($\rho_{20}=1$):} both starts give $\rho_{20}=0.79$
+  ($-21$\%), $M_\star$ $+3$\%, $M_\remn$ $-20$\%, $r_s$ 260--490\pc
+  (unconstrained). The offset lies inside the $\Delta=1$ half-width
+  ($\sim0.5$) of the observed profile, so it is consistent with noise on
+  one realization.
+\end{itemize}
+The machinery does not manufacture a halo where there is none and detects
+one of $\rho_{20}=1$ when present; it does not recover $r_s$. A coverage test
+with five noise seeds per truth is running at the time of writing and will
+be added.
+
+\subsection{What can and cannot be said}
+\begin{itemize}
+\item \textbf{Can:} under this model (spherical, non-rotating, one tracer with
+  mass following light, two anisotropy transitions, cored halo with
+  $r_s\ge5\pc$) and the published errors, there is no evidence for a DM
+  halo, and $\rho_{20}\gtrsim1$--2\,$\Msun\pc^{-3}$ is disfavoured at the
+  $\Delta\gtrsim2$--4 level.
+\item \textbf{Cannot:} claim an exclusion. The likelihood is not calibrated;
+  the recovery test has one realization; rotation is subtracted, not
+  modelled; and the tracer/mass assumption is untested. A DM component more
+  compact than 5\pc is degenerate with the stellar remnants.
+\end{itemize}
 
 \section{Numerical and software issues found and fixed}
 \label{sec:fixes}
@@ -836,8 +1019,15 @@ calibrated treatment.
   4--20\pc tangential PMs, where the rotation correction is largest. The
   photometric misfit appears to be dominated by internal scatter in the
   compilation.
-\item Adding a halo trades against the anisotropy. Its preference is not
-  interpretable yet; no DM constraint is claimed.
+\item Replacing the adopted-error photometry by Poisson star counts leaves
+  the kinematic fit unchanged, removes the artificial outer anisotropy, and
+  exposes a few-per-cent rigidity of the envelope in the HST counts.
+\item With the count likelihood and the distance prior, a free halo goes to
+  $\rho_{20}=0$ and the profile likelihood rises monotonically:
+  $\Delta=+2.2$ at $\rho_{20}=1$ and $+10.6$ at 4\,$\Msun\pc^{-3}$, for the
+  most compact halo allowed. Single-realization mocks recover a no-halo
+  truth and detect an injected $\rho_{20}=1$ at 0.79. This is a provisional,
+  uncalibrated upper limit of order $\rho_{20}\sim1$--2, not an exclusion.
 \end{enumerate}
 
 \paragraph{Objective 1 (fit), proposed.}
@@ -852,10 +1042,10 @@ A central BH, separate tracer and mass DFs, and an axisymmetric DF remain
 later options, to be introduced only when the data demand them.
 
 \paragraph{Objective 2 (DM), proposed.}
-(i) A $\rho_{20}$ profile likelihood with the two-transition DF.
-(ii) Realistic mocks (v3) from the best fits, with noise, to validate
-identifiability and coverage.
-(iii) Intervals only after the likelihood is calibrated.
+(i) Coverage test of the $\rho_{20}$ recovery with several noise seeds per
+truth (running). (ii) Report the constraint as a function of $r_s$ rather
+than imposing a prior. (iii) Intervals only after the likelihood is
+calibrated (objective 1, item ii).
 
 \appendix
 \section{Reproducibility}
@@ -872,7 +1062,10 @@ Batch & Commit & Content\\
 \texttt{observed\_df\_wide\_20260923} & \texttt{5486309} & One transition, wide bounds, 2 branches $\times$ 6 starts\\
 \texttt{dfdiag\_\{hst\_muse,gaia,freedist\}\_20260923} & \texttt{1e246bd} & Diagnostic subset and distance fits\\
 \texttt{dftwo\_20260923} & \texttt{f6ce414} & Two transitions, no halo, 6 starts\\
-\texttt{dftwo\_halo\_20260923} & \texttt{bb40db1} & Two transitions + free cored halo, 6 starts\\
+\texttt{dftwo\_halo\_20260923} & \texttt{bb40db1} & Two transitions + free cored halo, 6 starts (photometric weighting)\\
+\texttt{dftwo\_counts\_20260923} & \texttt{36bca6f} & Two transitions, Poisson counts, distance prior, no halo, 6 starts\\
+\texttt{rho20free\_20260923}, \texttt{rho20scan\_\{0.25,0.5,1,2,4\}\_20260923} & \texttt{f4fd4c7}+ & Free halo and the fixed-$\rho_{20}$ profile scan\\
+\texttt{mockA\_nohalo\_20260923}, \texttt{mockB\_rho1.0\_20260923} & \texttt{911255e}+ & Single-realization mocks (seeds 101, 202)\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -880,8 +1073,12 @@ Batch & Commit & Content\\
 The driver is \path{bin/run_compact_df_recovery.py} (\texttt{prepare-real},
 \texttt{run}). The figures come from \path{bin/plot_observed_df_fits.py},
 \path{plot_beta_profiles.py}, \path{plot_action_coverage.py},
-\path{plot_df_structure.py}, \path{plot_best_fit_performance.py} and
-\path{plot_central_bh_evidence.py}. Plotted data and checksums are in
+\path{plot_df_structure.py}, \path{plot_best_fit_performance.py},
+\path{plot_central_bh_evidence.py}, \path{plot_count_profiles.py} and
+\path{plot_rho20_profile.py}; the count products from
+\path{build_count_profiles.py}; the scan and mocks from
+\path{run_rho20_profile_scan.sh}, \path{run_mock_validation.sh} and
+\path{run_mock_coverage.sh}. Plotted data and checksums are in
 \path{results/plot_data/}. Markdown records are in
 \path{docs/OBSERVED_DF_FLEXIBILITY.md} and
 \path{docs/DF_ANISOTROPY_DIAGNOSTICS.md}. Example of the two-transition

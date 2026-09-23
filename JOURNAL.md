@@ -5569,3 +5569,16 @@ with these results is set by rho20, not r_s.
 
 Full test suite after today's changes: 646 passed, 5 skipped, 0 failed
 (24.6 min, `results/maintenance/full_test_suite_20260923b.log`).
+
+## 2026-09-23 -- Write-up updated; coverage test running
+
+`docs/df_observed_fit.tex` (21 pages) now includes the Poisson count
+likelihood and products (new Section 2.3), the counts-based two-transition
+fit (Section 5.6 with table and figure), the rewritten DM section (free
+halo, rho20 profile table and figure, single-realization mocks, what
+can/cannot be said), updated abstract, conclusions and reproducibility
+table. The performance figure for the counts fit
+(`plots/counts_fit_performance_20260923_{data,diagnostics}.png`) had its
+count-residual sign corrected before inclusion. Coverage runner
+(`bin/run_mock_coverage.sh 1.0`, seeds 11-15, both truths, one hand start
+each) launched 20:05 UTC; `prepare-mock` now honours `--hand-starts`.

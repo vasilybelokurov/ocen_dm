@@ -97,7 +97,7 @@ def main():
             npho = len(problem.photometry.mu)
             split["photometry"] = res[i:i+npho][np.argsort(problem.photometry.r_arcsec)]; i += npho
         for c in problem.counts:
-            split[c.name] = res[i:i+c.n]; i += c.n
+            split[c.name] = -res[i:i+c.n]; i += c.n   # deviance residuals are already (data-model)-signed
         fits.append(dict(label=label, config=s["best"]["config"], ev=ev, res=res, split=split,
                          beta=model.intrinsic_moments(np.geomspace(.05, 80., 200))["beta"],
                          mass=mass_profiles(model, radii)))
@@ -142,8 +142,9 @@ def main():
             rx.plot(np.asarray(rows["radius_arcsec"])*pc, rows[JEANS+"_residual"], color="0.2", ls="--", lw=.8)
         for y in (-2, 0, 2):
             rx.axhline(y, color="black" if y == 0 else "0.7", lw=.7)
-        ax.set(xscale="log", ylabel=ylabel, title=title)
-        rx.set(xscale="log", xlabel="projected radius [pc]", ylabel="(data-model)/err")
+        ax.set(xscale="log", ylabel=ylabel if not (kind == "phot" and problem.photometry is None) else r"stars per arcmin$^2$", title=title)
+        rx.set(xscale="log", xlabel="projected radius [pc]",
+               ylabel="deviance residual" if (kind == "phot" and problem.photometry is None) else "(data-model)/err")
         ax.legend(fontsize=6)
     fig.suptitle("Best-fit compact DF models vs observed Omega Cen data (published errors)")
     plot1 = ROOT/"plots"/(args.name+"_data.png")
