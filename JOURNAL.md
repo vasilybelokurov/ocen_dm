@@ -5268,3 +5268,21 @@ Current DF, no halo, two hand-picked starts, wide bounds, cap 600. Batches:
 and `dfdiag_gaiafloor02` (all data, Gaia floor 0.01/0.02 mas/yr), and
 `dfdiag_freedist` (all data, D free in 4.8-6.0 kpc). Photometry is included
 in all.
+
+## 2026-09-23 -- Step-1 diagnostics complete: the two data halves demand opposite anisotropy
+
+All five batches finished (12:26 UTC). Both starts agreed in every batch, and
+all passed numerical validation. Current DF, no halo:
+- HST+MUSE only: chi2_kin/N 1.43, b_out +0.39, J_a 32.
+- Gaia only: 0.88, b_out -1.00 (at bound), J_a 1665.
+- All data with a Gaia floor of 0.01 / 0.02 mas/yr: 3.24 / 2.09. Gaia T
+  chi2/n is 15.3 / 8.2, and J_a stays at its bound.
+- Distance free: D = 5.30 kpc, chi2_kin/N 4.78.
+The beta(r) comparison (`plots/df_subset_beta_20260923.png`): the HST+MUSE
+DF rises to +0.24 at 10 pc; the Gaia DF reaches -0.16 at 30 pc and -0.70 at
+80 pc; the Jeans turnover follows the first inside ~5 pc and the second
+beyond ~25 pc.
+Correction to an earlier reply: the Gaia floor does matter. A 0.02 floor
+halves chi2_kin/N, but the structural conflict remains. Write-up and
+proposed two-transition model (awaiting approval):
+`docs/DF_ANISOTROPY_DIAGNOSTICS.md`.

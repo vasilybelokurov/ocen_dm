@@ -1,0 +1,220 @@
+# Why the compact DF fails, and the proposed anisotropy extension
+
+Status: 23 September 2026. The diagnostics below are complete, and the model
+adjustment in the final section awaits approval. This follows
+[OBSERVED_DF_FLEXIBILITY.md](OBSERVED_DF_FLEXIBILITY.md). That test showed
+the current DF cannot fit the combined Omega Cen data: the best fit has
+chi2_kin/N = 4.80 with every valid start converged.
+
+## Summary
+
+- **The current DF fits each part of the data on its own.** HST+MUSE alone
+  reach chi2_kin/N = 1.43, and Gaia alone 0.88. Only the combination fails.
+- **The two parts demand opposite anisotropy.** The inner data (HST+MUSE)
+  want radial bias switching on at J ~ 30 pc km/s. The outer data (Gaia)
+  want strong tangential bias switching on at J ~ 1700 pc km/s. The current
+  DF has one transition, so it cannot supply both.
+- **An independent Jeans fit on the same data needs the same shape.** It
+  wants radial beta ~ +0.15 near 6 pc turning tangential beyond ~20 pc,
+  and reaches chi2 = 190 against the DF's 456.
+- **The combined verdict is sensitive to the Gaia errors, but not only
+  through them.** A 0.02 mas/yr floor lowers chi2_kin/N from 5.12 to 2.09.
+  Gaia tangential still misses (chi2/n = 8.2), and J_a stays at its bound.
+- **Distance is not the cause.** Freeing it gives D = 5.30 kpc and
+  chi2_kin/N = 4.78.
+- **Proposed next model:** the already implemented second anisotropy
+  transition, with the halo frozen at zero. Starts come from the subset
+  fits, and the ordering is reparametrized so that J_outer > J_a always.
+
+## What was tested
+
+All fits use the current compact regularized DF with no halo (rho20 = 0). The
+data snapshot is the same as before (89 kinematic bins, 82 photometric
+points). Photometry is always included. Each batch uses two hand-picked
+starts and wide search bounds (J0 30-800, J_a 5-3000 pc km/s). Fits use
+parallel base-seeded Jacobians, iteration tolerance 5e-5, an absolute stop
+of 0.01, and a 600-evaluation cap. Runner: `bin/run_df_step1_diagnostics.sh`.
+Batches: `results/df/dfdiag_*_20260923/`, commit `8a7e377`.
+
+| Batch | Kinematic data | Change | Purpose |
+|---|---|---|---|
+| `dfdiag_hst_muse` | HST PM R, HST PM T, MUSE LOS (71 bins) | - | Can the DF fit the inner data alone? |
+| `dfdiag_gaia` | Gaia PM R, Gaia PM T (18 bins) | - | Can the DF fit the outer data alone? |
+| `dfdiag_gaiafloor01` | all 89 | Gaia errors ⊕ 0.01 mas/yr | Error-floor sensitivity |
+| `dfdiag_gaiafloor02` | all 89 | Gaia errors ⊕ 0.02 mas/yr | Error-floor sensitivity |
+| `dfdiag_freedist` | all 89 | distance free, 4.8-6.0 kpc | Distance check |
+
+The floors are added in quadrature. They test sensitivity to spatially
+correlated Gaia EDR3 systematics
+([Lindegren et al. 2021](https://arxiv.org/abs/2012.03380);
+[Vasiliev & Baumgardt 2021](https://arxiv.org/abs/2102.09568)); they are
+not calibrated error models. At 5.43 kpc, 0.01 mas/yr is 0.26 km/s.
+
+## Results
+
+Both starts of every batch converged to the same solution (equal chi2 to
+0.1), and all solutions passed numerical validation. The reference row is the
+earlier all-data, no-halo wide-bound fit.
+
+| Fit | chi2_kin / N | chi2_kin/N | HST R | HST T | MUSE | Gaia R | Gaia T | chi2_phot/N |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| All data (reference) | 456.1 / 89 | 5.12 | 2.1 | 6.2 | 2.7 | 2.6 | 20.2 | 2.95 |
+| HST+MUSE only | 101.6 / 71 | **1.43** | 1.0 | 1.1 | 2.0 | - | - | 2.78 |
+| Gaia only | 15.9 / 18 | **0.88** | - | - | - | 0.8 | 1.0 | 2.53 |
+| All, Gaia floor 0.01 | 288.1 / 89 | 3.24 | 1.3 | 2.4 | 2.3 | 0.8 | 15.3 | 2.88 |
+| All, Gaia floor 0.02 | 185.8 / 89 | 2.09 | 1.1 | 1.2 | 2.1 | 0.3 | 8.2 | 2.82 |
+| All, distance free | 425.1 / 89 | 4.78 | 1.8 | 6.6 | 1.6 | 2.6 | 19.6 | 2.94 |
+| *Jeans turnover, raw errors (for comparison)* | *190.0 / 89* | *2.13* | *2.9* | *1.7* | *1.8* | *1.9* | *2.6* | *(separate MGE)* |
+
+The dataset columns give chi2/n (n = 21, 21, 29, 9 and 9 bins).
+
+Fitted parameters. b_out > 0 is radial bias; the DF factor is
+exp(-b sin(pi c/2)) in orbit circularity c.
+
+| Fit | M_star [Msun] | J0 | alpha | b_out | J_a [pc km/s] | M_rem [Msun] | a_rem [pc] | D [kpc] | At a bound |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| All data (reference) | 3.33e6 | 109 | 1.12 | +0.18 | 5 | 1.3e5 | 0.82 | 5.43 | J_a |
+| HST+MUSE only | 3.12e6 | 120 | 1.24 | **+0.39** | **32** | 1.7e5 | 1.31 | 5.43 | none |
+| Gaia only | 2.75e6 | 129 | 1.14 | **-1.00** | **1665** | 6.6e5 | 2.61 | 5.43 | b_out (lower) |
+| All, Gaia floor 0.01 | 3.25e6 | 112 | 1.16 | +0.27 | 5 | 1.4e5 | 0.98 | 5.43 | J_a |
+| All, Gaia floor 0.02 | 3.19e6 | 116 | 1.20 | +0.33 | 5 | 1.5e5 | 1.14 | 5.43 | J_a |
+| All, distance free | 3.10e6 | 105 | 1.13 | +0.18 | 5 | 1.2e5 | 0.80 | 5.30 | J_a |
+
+### Intrinsic anisotropy
+
+Figure: `plots/df_subset_beta_20260923.png` (data in
+`results/plot_data/df_subset_beta_20260923.json`, script
+`bin/plot_beta_profiles.py`). It shows beta = 1 - sigma_t^2/sigma_r^2 of the
+refined models together with the maximum-likelihood rung-2 Jeans turnover
+fits on the same data snapshot.
+
+- **HST+MUSE only:** beta = 0 in the centre (the DF bias vanishes as J -> 0),
+  rising to +0.24 at 10 pc and +0.5 at 80 pc.
+- **Gaia only:** beta ~ 0 inside 10 pc, turning tangential beyond (-0.08 at
+  20 pc, -0.16 at 30 pc, -0.70 at 80 pc).
+- **All data:** a compromise, rising monotonically to +0.3 at 80 pc. It
+  matches neither.
+- **Jeans turnover:** -0.5 at the centre (at its prior limit; the ML value is
+  -0.503, so the data prefer less tangential), a radial peak of +0.15 near
+  6 pc, zero near 20 pc, and -0.6 to -0.7 at 80 pc. It follows the HST+MUSE
+  DF inside ~5 pc and the Gaia DF outside ~25 pc.
+
+## Analysis
+
+1. **The failure is a conflict between datasets within one model.** Each
+   subset is fitted well by the same DF family with different anisotropy
+   parameters. The combined fit pins J_a at its lower bound: it applies one
+   anisotropy amplitude at all actions and satisfies neither subset.
+2. **The conflict is radial, not a handover artefact.** The Gaia fit's
+   tangential turn and the Jeans zero crossing lie at ~20 pc, well inside
+   the Gaia range (9.4-63 pc). They are not at the 9.5 pc HST/Gaia
+   boundary. In the one overlapping bin (9.0-9.4 pc) the two surveys agree
+   within errors (sigma_T 0.465 +- 0.027 vs 0.474 +- 0.049 mas/yr).
+3. **The Gaia errors set how strongly the conflict is penalized.** Raw Gaia
+   dispersion errors are 0.005-0.007 mas/yr at 17-35 pc (1-2%), so the
+   18 Gaia bins dominate the combined fit. A 0.02 mas/yr floor halves
+   chi2_kin/N and lets the inner fit relax (HST T 6.2 -> 1.2). Even so,
+   Gaia tangential misses by ~3 of its inflated errors per bin, and J_a
+   remains at its bound. The structural conflict survives any floor tested.
+   Its size, and hence any final goodness-of-fit verdict, depends on an
+   unresolved Gaia systematic error model.
+4. **Distance cannot resolve it.** D rescales both PM components equally
+   and cannot change sigma_T/sigma_R. Freeing it lowers chi2_kin by 31 with
+   D = 5.30 kpc. That is 2.6 sigma below the project's adopted prior of
+   5.43 +- 0.05 kpc, taken from
+   [Baumgardt & Vasiliev 2021](https://arxiv.org/abs/2105.09526) (per-cluster
+   value not re-checked here), while Gaia tangential stays at 19.6.
+5. **Mass is not yet the question, but there is a hint.** The Gaia-only fit
+   puts 6.6e5 Msun in an extended remnant component (a_rem = 2.6 pc),
+   against 1.7e5 Msun for HST+MUSE. Once the anisotropy conflict is
+   removed, the outer data may still require more mass at large radii. That
+   question belongs to the later halo step, not to this one.
+
+### Visual versus statistical fit
+
+Data-model figures such as `plots/observed_df_smoke_20260923_fits.png` can
+look acceptable in the top panels while failing badly. PM errors of
+0.005-0.01 mas/yr are 1-2% of the dispersion, so a 5 sigma miss (~0.03
+mas/yr) is invisible at the plotted scale. Fits must be judged from the
+residual panels and chi2 per dataset. The smoke figure shows a 12-evaluation
+unconverged run (chi2_kin/N 8.5-11.6), not a converged fit.
+
+## Conclusion
+
+The current DF is too rigid in one specific, identified way. It has a single
+anisotropy transition, so its velocity ellipsoid can only go from isotropic
+to one asymptotic state. The Omega Cen data require isotropic or mildly
+radial bias at small actions, radial bias at intermediate actions
+(J ~ 30-1000 pc km/s, r ~ 2-15 pc), and tangential bias at large actions
+(J >~ 1700 pc km/s, r >~ 20 pc). Subset fits, an independent Jeans analysis
+and the error-floor tests all point to this. Distance, the optimizer, the
+search bounds and the HST/Gaia boundary do not explain it. The Gaia error
+model sets how large the misfit looks, not whether it exists.
+
+## Proposed model adjustment (awaiting approval)
+
+### Model
+
+Enable the second anisotropy transition already implemented in
+`ExponentialParameters` (`src/ocen_dm/kinematics/regularized_df.py:46`). It
+is covered by `test_two_transitions_have_correct_limits` and
+`test_two_transition_velocity_anisotropy`:
+
+    b(J) = b_out s(J; J_a) + (b_outer - b_out) s(J; J_outer),
+    s(J; J_t) = J^2 / (J^2 + J_t^2),        J_outer > J_a,
+
+so that b -> 0 for J << J_a, b ~ b_out between the two scales, and
+b -> b_outer for J >> J_outer. The target is b_out > 0 (radial) and
+b_outer < 0 (tangential). Nothing else changes: mass follows light, no
+rotation, fixed distance, and **no halo** (rho20 = 0). Freezing the halo
+keeps it from absorbing DF inadequacy.
+
+### Required code change
+
+The constraint J_outer > J_a makes independent box bounds on J_a and J_outer
+produce invalid trials. Proposal: fit a ratio coordinate
+`stellar.J_outer_ratio = J_outer / J_a` (log, 2-1000), decoded in
+`config_at`, with unit tests. This changes the fitting coordinates, not the
+model.
+
+### Fit setup
+
+| Coordinate | Bounds | Hand-picked starts |
+|---|---|---|
+| M_star | 1e6-6e6 Msun (log) | 3.1e6, 2.8e6 |
+| J0 | 30-800 pc km/s (log) | 120, 130 |
+| alpha | 0.6-3 | 1.24, 1.14 |
+| b_out | -2 to +2 (widened from +-1) | +0.39, +0.3 |
+| J_a | 5-3000 pc km/s (log) | 32, 50 |
+| b_outer | -3 to +1 | -1.0, -1.5 |
+| J_outer/J_a | 2-1000 (log) | 52, 30 |
+| M_rem | 1e2-1e6 Msun (log) | 1.7e5, 4e5 |
+| a_rem | 0.3-20 pc (log) | 1.3, 2.0 |
+
+The two starts combine the HST+MUSE-only and Gaia-only solutions. Four
+Latin-hypercube starts are added (6 in total), with the same stopping rules,
+cap and parallel Jacobian. Primary errors are raw; the 0.02 mas/yr Gaia
+floor is repeated as a sensitivity run. The estimated cost is about 1 h
+for the primary run.
+
+### Acceptance criteria (fixed before running)
+
+1. chi2_kin/N < 1.3; every dataset chi2/n < 2; chi2_phot/N < 2.
+2. Optimizer terminated, numerical validation passed, and at least half of
+   the valid starts reach the same minimum (Delta chi2 < 1).
+3. No coordinate at a search bound.
+4. The implied beta(r) shows radial bias at 2-15 pc and tangential bias
+   beyond ~20 pc, compared on the beta figure with the Jeans turnover.
+
+### Decision after the run
+
+- **Passes:** add the cored halo (step 3) and ask whether rho20 > 0 is still
+  preferred. The passing no-halo and halo fits then define realistic mock
+  truths (v3) for the fixed-rho20 profile scan and the star/DM
+  identifiability test.
+- **Fails only with raw Gaia errors:** the result depends on the Gaia
+  systematic error model. Build a calibrated floor from the Gaia
+  astrometric systematics before going further.
+- **Fails in both runs:** a rotating DF with mean velocities fitted jointly
+  (step 4), then separate tracer and mass DFs (step 5). An axisymmetric DF
+  is the last resort (step 6).

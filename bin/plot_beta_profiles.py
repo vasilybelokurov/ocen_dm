@@ -8,6 +8,7 @@ The shaded bands show the radial coverage of HST/MUSE (<= 9.5 pc) and Gaia (9.4-
 
 Usage: python bin/plot_beta_profiles.py results/df/observed_df_wide_20260923 \
            observed_free_halo_start0 observed_no_halo_start0
+       python bin/plot_beta_profiles.py --name NAME BATCH::JOB::LABEL [...]
 """
 from __future__ import annotations
 
@@ -44,20 +45,30 @@ def read(path):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("batch", type=Path)
-    parser.add_argument("jobs", nargs="+")
+    parser.add_argument("specs", nargs="+",
+                        help="BATCH JOB [JOB...] or, with --name, BATCH::JOB::LABEL entries")
+    parser.add_argument("--name", help="output name; enables BATCH::JOB::LABEL specs across batches")
     args = parser.parse_args()
-    out = args.batch.resolve()
+    if args.name:
+        entries = [tuple(e.split("::")) for e in args.specs]
+        out_name = args.name
+    else:
+        batch = Path(args.specs[0])
+        entries = [(str(batch), job, None) for job in args.specs[1:]]
+        out_name = batch.resolve().name+"_beta"
+    out = Path(entries[0][0]).resolve()
     r = np.geomspace(.05, 80., 200)
     record = dict(batch=str(out), created_utc=datetime.now(timezone.utc).isoformat(), r_pc=r.tolist(), curves={})
     fig, ax = plt.subplots(figsize=(7, 4.5), constrained_layout=True)
     ax.axvspan(.1, 9.5, color="tab:blue", alpha=.07, label="HST/MUSE coverage")
     ax.axvspan(9.4, 63, color="tab:green", alpha=.07, label="Gaia coverage")
-    for job in args.jobs:
-        s = read(out/"fits"/job/"summary.json")
+    for batch, job, name in entries:
+        s = read(Path(batch)/"fits"/job/"summary.json")
         model = build_df_model(refined_config(model_config_from_dict(s["best"]["config"])))
         beta = model.intrinsic_moments(r)["beta"]
-        label = f"DF {job.removeprefix('observed_')} (chi2_kin {s['gates']['chi2_kinematic']:.0f})"
+        g = s["gates"]
+        label = (f"DF {name or job.removeprefix('observed_')} "
+                 f"(chi2_kin/N {g['chi2_kinematic']/g['n_kinematic']:.2f}, N={g['n_kinematic']})")
         ax.plot(r, beta, lw=2, label=label)
         record["curves"][label] = beta.tolist()
     for run, label in JEANS.items():
@@ -70,10 +81,10 @@ def main():
     ax.set(xscale="log", xlabel="Radius r [pc]", ylabel=r"$\beta = 1-\sigma_t^2/\sigma_r^2$",
            title="Intrinsic anisotropy: compact DF fits vs Jeans turnover fits")
     ax.legend(fontsize=7)
-    plot = ROOT/"plots"/(out.name+"_beta.png")
+    plot = ROOT/"plots"/(out_name+".png")
     fig.savefig(plot, dpi=160)
     record["plot_sha256"] = hashlib.sha256(plot.read_bytes()).hexdigest()
-    (ROOT/"results/plot_data"/(out.name+"_beta.json")).write_text(json.dumps(record))
+    (ROOT/"results/plot_data"/(out_name+".json")).write_text(json.dumps(record))
     print(plot)
 
 
