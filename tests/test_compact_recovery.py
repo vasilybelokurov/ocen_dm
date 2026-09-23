@@ -145,3 +145,18 @@ def test_stop_near_rejection_window():
     assert stopped_near_rejection([95], 100, 20)
     assert not stopped_near_rejection([10, 50], 100, 20)
     assert not stopped_near_rejection([], 100, 20)
+
+
+def test_outer_ratio_coordinate_keeps_transitions_ordered():
+    from ocen_dm.kinematics.df_fit import FitCoordinate, config_at
+    base = RegularizedDFConfig.from_dict(dict(RegularizedDFConfig().to_dict(),
+        stellar=dict(RegularizedDFConfig().to_dict()["stellar"], b_outer=-1., J_outer=900.)))
+    coords = [FitCoordinate("stellar.J_a", 5., 500., log=True),
+              FitCoordinate("stellar.log_J_outer_ratio", np.log(2.), np.log(100.))]
+    assert coords[1].get(base) == pytest.approx(np.log(900./base.stellar.J_a))
+    c = config_at(base, coords, [np.log(400.), np.log(3.)])
+    assert c.stellar.J_a == pytest.approx(400.) and c.stellar.J_outer == pytest.approx(1200.)
+    with pytest.raises(ValueError):
+        FitCoordinate("stellar.log_J_outer_ratio", 0., 2.)       # must stay positive
+    with pytest.raises(ValueError):
+        config_at(RegularizedDFConfig(), coords[1:], [np.log(3.)])  # no second transition

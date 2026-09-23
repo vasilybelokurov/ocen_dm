@@ -132,9 +132,17 @@ class DFJointProblem:
                     loglike_profiled=lnlike_kin+photo["loglike"])
 
 
+#: Derived coordinate Delta = ln(J_outer/J_a) > 0, so J_outer > J_a for any trial.
+OUTER_RATIO = "stellar.log_J_outer_ratio"
+
+
 @dataclass(frozen=True)
 class FitCoordinate:
-    """Bounded optimizer coordinate (not an inference prior). Dotted config path."""
+    """Bounded optimizer coordinate (not an inference prior). Dotted config path.
+
+    ``stellar.log_J_outer_ratio`` is derived: it sets J_outer = J_a exp(value),
+    applied after every other coordinate, and needs positive linear bounds.
+    """
     path: str
     lower: float
     upper: float
@@ -147,6 +155,8 @@ class FitCoordinate:
             raise ValueError("log coordinate needs positive bounds")
         if self.path.startswith("numerics.") or self.path.endswith("fraction"):
             raise ValueError("numerics are fixed; use mixture_log_ratio.i to fit positive fractions")
+        if self.path == OUTER_RATIO and (self.log or self.lower <= 0):
+            raise ValueError("log_J_outer_ratio is already logarithmic and must stay positive")
         if self.path.startswith("mixture_log_ratio."):
             index = self.path.removeprefix("mixture_log_ratio.")
             if not index.isdigit() or int(index) < 1 or self.log:
@@ -170,6 +180,11 @@ class FitCoordinate:
             if i >= len(config.components):
                 raise ValueError("mixture index exceeds the number of components")
             node = np.log(config.components[i].fraction/config.components[0].fraction)
+        elif self.path == OUTER_RATIO:
+            stellar = config.to_dict()["stellar"]
+            if stellar.get("J_outer") is None:
+                raise ValueError("log_J_outer_ratio requires a second anisotropy transition")
+            node = float(np.log(stellar["J_outer"]/stellar["J_a"]))
         else:
             node = config.to_dict()
             for key in self.path.split("."):
@@ -188,9 +203,13 @@ def config_at(config, coordinates, x):
     if len(logits):
         logits -= logits[0]
     change_weights = False
+    outer_ratio = None
     for c, value in zip(coordinates, x):
         if not c.bounds[0] <= value <= c.bounds[1]:
             raise ValueError(f"{c.path} outside bounds")
+        if c.path == OUTER_RATIO:
+            outer_ratio = value
+            continue
         if c.path.startswith("mixture_log_ratio."):
             i = int(c.path.split(".")[1])
             if i >= len(logits):
@@ -205,6 +224,10 @@ def config_at(config, coordinates, x):
         if keys[-1] not in node:
             raise ValueError(f"unknown parameter {c.path}")
         node[keys[-1]] = c.decode(value)
+    if outer_ratio is not None:
+        if row["stellar"].get("J_outer") is None:
+            raise ValueError("log_J_outer_ratio requires a second anisotropy transition")
+        row["stellar"]["J_outer"] = float(row["stellar"]["J_a"]*np.exp(outer_ratio))
     if change_weights:
         fractions = np.exp(logits-max(logits))
         fractions /= sum(fractions)
