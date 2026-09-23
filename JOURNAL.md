@@ -4946,3 +4946,27 @@ not yet launched: a profile scan in fixed rho20 to map the degeneracy
 directly, an explicitly recorded extension of the capped fits, and a check of
 projection accuracy at the cored start1 solution. DF-focused unit tests
 (`test_regularized_df.py`, `test_compact_recovery.py`) pass: 24 tests.
+
+## 2026-09-23 -- Degeneracy figure for compact recovery v2
+
+Added `bin/plot_compact_degeneracy.py`, which reads saved per-trial logs and
+refined profiles only (no model evaluations). Output:
+`plots/compact_recovery_20260923_v2_degeneracy.png`, with data and provenance in
+`results/plot_data/compact_recovery_20260923_v2_degeneracy.json`. The top row
+shows optimizer trials in (M_star, rho20) coloured by objective; these are
+optimizer paths, not a profile likelihood. The bottom row shows refined
+stellar and halo enclosed mass relative to the injected total.
+
+Every free-halo path reaches the low-objective region (below about 1) after a
+few steps, then drifts slowly along a direction of rising rho20 and falling
+M_star. It stops at the budget cap well away from the truth. The refined
+profiles show the halo absorbing the missing stellar mass beyond about 5 pc.
+
+The objective at the injected truth, evaluated at fitting resolution, is
+2.3e-4 in both mocks (RMS 0.0012 errors over 171 points). The best cored fits
+reach 6.3e-3 and 6.8e-3, and the no-DM free-halo fits 0.041 and 0.10. The truth
+is therefore still a strictly better minimum and the fits are unconverged, not
+exact degeneracies. However, these objective differences are far below the
+chi-square scatter expected with real noise (sqrt(2 x 171) = 18.5). The
+stellar-mass/halo-density split is thus practically unconstrained by these
+observables. A fixed-rho20 profile scan would measure that constraint directly.

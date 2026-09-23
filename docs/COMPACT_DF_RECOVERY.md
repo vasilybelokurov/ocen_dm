@@ -130,3 +130,9 @@ stellar mass within 0.7%; start0 misses the maximum-residual gate (0.356).
 Cored start1 fails projection validation (pmr 0.81%). Per-fit numbers are in
 `JOURNAL.md` and `report.json`; the final figure is
 `plots/compact_recovery_20260923_v2.png`.
+
+Degeneracy figure: `plots/compact_recovery_20260923_v2_degeneracy.png` (script
+`bin/plot_compact_degeneracy.py`). The injected truth has objective 2.3e-4 at
+fitting resolution. The recovered solutions reach 6e-3 to 0.1, so they are
+unconverged. Those differences are still negligible against realistic
+chi-square scatter (about 18 for 171 points).
