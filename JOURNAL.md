@@ -5643,3 +5643,54 @@ at 12.5 Gyr, [Fe/H] -1.53 gives F625W (no extinction, (m-M)0 = 13.67) =
 18.63 at 0.70 Msun, 20.98 at 0.50, 22.83 at 0.30, 24.41 at 0.15; the MS
 turnoff lies below 0.8 Msun. ACS and WFC3 F814W differ by <= 0.013 mag.
 Temporary archives deleted.
+
+## 2026-09-23 -- Present-day mass function and the luminous mass per counted star
+
+`bin/build_mass_function.py` (MIST v1.2 via minimint, prefix
+`~/data/isochrones/minimint_hst`, ACS_WFC_F625W/F814W; 12.5 Gyr, D = 5.43 kpc
+so (m-M)0 = 13.674, E(B-V) = 0.12 through the BC A_V axis: A_625 = 0.315,
+A_814 = 0.219). Unflagged oMEGACat stars in five zones 10-250 arcsec.
+Outputs `results/mass_function/mass_function_{20260923,feh153_20260923}.json`
+(results/ is git-ignored) and `plots/mass_function_20260923.png`.
+
+Metallicity: the MS ridge line (median colour per 0.25 mag, 19-21.5) is
+matched best by [Fe/H] = -1.20 (colour rms 0.0039 mag) against 0.0087 at the
+Harris value -1.53; the differences are <= 0.01 mag and degenerate with
+E(B-V), so both are carried (`--feh -1.53` forces the Harris value).
+Turnoff mass 0.789 / 0.779 Msun; F625W(0.5 Msun) = 21.41 / 21.30.
+
+Completeness lesson: with zone-dependent faint limits (F625W 21.5-22.5) the
+slope flattened outward (-1.25 ... -1.04), which is the opposite of mass
+segregation. With one common limit F625W < 21.0 (m > 0.52 Msun, inside the
+complete range everywhere) the slope steepens outward monotonically:
+alpha = -1.37, -1.52, -1.56, -1.59, -1.77 (+-0.10, 0.05, 0.04, 0.03, 0.03) at
+[Fe/H] -1.20 and -1.24, -1.37, -1.41, -1.44, -1.63 at -1.53 (dN/dm ~ m^alpha
+over 0.52-0.78 Msun). The flattening was a completeness artefact; the
+script now fits all zones to the common limit (MF_MAGLIM).
+
+Luminous mass that follows the light per star with F625W < 19 (the count
+product's selection), zone 60-100 arcsec, [Fe/H] -1.20 / -1.53:
+  MS observed (0.52-0.78 Msun)         2.40 / 2.39 Msun
+  MS extrapolated to 0.1 Msun          fitted slope 4.40 / 3.59; Kroupa (-1.3 below 0.5) 3.62 / 3.30; flat 0.13 / 0.16 lower bound (illustrative)
+  evolved stars (N_evolved * m_TO)     0.11 / 0.10
+  white dwarfs (0.55 Msun, IMF -2.3 above m_TO, N_WD/N19 = 4.6-4.7)  2.55 / 2.60
+  total                                 9.47 / 8.69 (fitted slope), 8.69 / 8.40 (Kroupa), 6.49 / 6.39 (flat)
+Across zones the fitted-slope + IMF(-2.3) total runs 8.3 -> 11.3 (-1.20) or
+7.7 -> 10.3 (-1.53) from 10-30 to 175-250 arcsec, i.e. the mass per bright
+star rises outward with the steepening slope. The variant "IMF continuous
+with the fitted slope" (alpha ~ -1.5 above the turnoff) implies N_NS/N19 ~
+1.4 and N_BH/N19 ~ 0.9 (zone 60-100) and is rejected as an IMF; it is kept
+in the JSON only as an upper bracket.
+
+Comparison with the dynamics: the counts-based best fit (dftwo_counts,
+observed_no_halo_start0) has a = 6.319e-5 stars per Msun in projection, i.e.
+10.67 Msun of mass-that-follows-light per F625W < 19 star, all radii. The
+photometric estimate is 8.4-9.5 Msun in the zone matching the data core and
+up to 10-11 in the outermost zone. The dynamical value is above every
+Kroupa/fitted-slope estimate except the outer zone, by 12-27 per cent; the
+free remnant component (2.6e5 Msun, 2 pc Plummer) is separate from this.
+Note that the mass per bright star varies with radius (mass segregation),
+so a single mass-follows-light stellar DF cannot be exactly right; the
+prior should be taken at the radii that dominate the kinematics (20-100
+arcsec, i.e. 0.5-2.6 pc) and the radial trend treated as a systematic.
+Not yet done: converting this into a prior for the fits.
