@@ -171,3 +171,23 @@ def data_radius_pc(problem, distance_kpc):
         if p.r_nodes is not None:
             arcsec.append(np.max(p.r_nodes))
     return float(max(arcsec)*distance_kpc*1000/ARCSEC_PER_RAD)
+
+
+def difference_column(base, step, forward=None, backward=None):
+    """One finite-difference Jacobian column that never uses a rejected equilibrium.
+
+    ``forward`` is the residual at x+step and ``backward`` at x-step; ``None``
+    marks a rejected evaluation. With both rejected the column is zero: no
+    derivative information, rather than a spurious (1e6 - r)/step gradient.
+    """
+    base = np.asarray(base, float)
+    if forward is not None:
+        return (np.asarray(forward, float)-base)/step
+    if backward is not None:
+        return (base-np.asarray(backward, float))/step
+    return np.zeros_like(base)
+
+
+def stopped_near_rejection(rejected_calls, calls, window):
+    """True if any rejected evaluation lies within the last ``window`` calls."""
+    return any(c > calls-window for c in rejected_calls)

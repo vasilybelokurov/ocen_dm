@@ -59,7 +59,7 @@ def main():
         if args.jobs and job["id"] not in args.jobs:
             continue
         f = out/"fits"/job["id"]/"summary.json"
-        if f.exists():
+        if f.exists() and "best" in read(f):  # infeasible starts have no model
             s = read(f)
             ev = problem.evaluate(refined_config(model_config_from_dict(s["best"]["config"])))
             fits.append((job["id"].removeprefix("observed_"), s, ev))

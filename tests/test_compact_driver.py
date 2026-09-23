@@ -31,3 +31,21 @@ def test_latin_starts_are_reproducible_inside_central_box_and_stratified():
     # one start per stratum of the central box
     assert sorted(np.floor((u-.2)/.12).astype(int).tolist()) == [0, 1, 2, 3, 4]
     assert driver.latin_starts(COORDS, 0) == []
+
+
+def _profile(name, err):
+    from ocen_dm.kinematics.likelihood import BinnedProfile
+    return BinnedProfile(name, "pmr", np.array([10., 20.]), None, None, np.array([.5, .4]),
+                         np.full(2, err), np.full(2, err), "x")
+
+
+def test_observed_variant_subsets_and_floors_only_gaia():
+    from ocen_dm.kinematics.likelihood import KinematicData
+    data = KinematicData((_profile("hst_pm_radial_ours", .01), _profile("gaia_edr3_ours_radial", .01)))
+    v = driver.observed_variant(data, gaia_error_floor=.02)
+    np.testing.assert_allclose(v.profiles[0].err_lo, .01)
+    np.testing.assert_allclose(v.profiles[1].err_hi, np.hypot(.01, .02))
+    only = driver.observed_variant(data, datasets=["gaia_edr3_ours_radial"])
+    assert [p.name for p in only.profiles] == ["gaia_edr3_ours_radial"]
+    with pytest.raises(ValueError):
+        driver.observed_variant(data, datasets=["muse_los_dispersion"])
