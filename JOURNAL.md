@@ -5630,3 +5630,16 @@ add them from the BC tables alone (no EEP re-download): needs
 HST_ACSWF.txz and HST_WFC3.txz from waps.cfa.harvard.edu, to be prepared
 into a separate prefix so the shared grid is untouched. Awaiting approval
 for the download.
+
+## 2026-09-23 -- MIST HST filters prepared (approved download)
+
+Downloaded HST_ACSWF.txz (3.6 MB) and HST_WFC3.txz (23 MB) from
+waps.cfa.harvard.edu/MIST/BC_tables/v1/ and ran `minimint.bolom.prepare`
+into a new prefix `~/data/isochrones/minimint_hst/` (70 filter files plus
+symlinks to the base grid's interp.pkl and *_grid.npy; the base grid is
+untouched; the (Teff, logg, [Fe/H], Av) grid matches the base exactly).
+Test: `Interpolator(["ACS_WFC_F625W","ACS_WFC_F814W","WFC3_UVIS_F814W"])`
+at 12.5 Gyr, [Fe/H] -1.53 gives F625W (no extinction, (m-M)0 = 13.67) =
+18.63 at 0.70 Msun, 20.98 at 0.50, 22.83 at 0.30, 24.41 at 0.15; the MS
+turnoff lies below 0.8 Msun. ACS and WFC3 F814W differ by <= 0.013 mag.
+Temporary archives deleted.
