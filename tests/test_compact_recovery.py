@@ -130,3 +130,18 @@ def test_data_radius_covers_bin_edges_and_photometry():
     edged = replace(p.data.profiles[0], r_lower=np.array([5., 20.]), r_upper=np.array([20., 40.]))
     p.data = KinematicData((edged,))
     assert data_radius_pc(p, 5.) == pytest.approx(40.*5000/ARCSEC_PER_RAD)
+
+
+def test_difference_column_falls_back_and_never_uses_rejections():
+    from ocen_dm.kinematics.compact_recovery import difference_column
+    base = np.array([1., 2.])
+    np.testing.assert_allclose(difference_column(base, .5, forward=[2., 2.]), [2., 0.])
+    np.testing.assert_allclose(difference_column(base, .5, backward=[0., 2.]), [2., 0.])
+    np.testing.assert_array_equal(difference_column(base, .5), [0., 0.])
+
+
+def test_stop_near_rejection_window():
+    from ocen_dm.kinematics.compact_recovery import stopped_near_rejection
+    assert stopped_near_rejection([95], 100, 20)
+    assert not stopped_near_rejection([10, 50], 100, 20)
+    assert not stopped_near_rejection([], 100, 20)

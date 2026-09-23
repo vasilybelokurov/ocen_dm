@@ -5224,3 +5224,40 @@ spline-beta Jeans inversion, subset DF fits (HST+MUSE vs Gaia), Gaia
 overlap and error-floor tests, free distance; (2) two-transition DF without
 halo; (3) plus halo; (4) rotating DF fitted to mean velocities; (5) separate
 tracer/mass DFs; (6) axisymmetric DF.
+
+## 2026-09-23 -- Fitter robustness fixes; DF vs Jeans anisotropy; step-1 diagnostics
+
+Robustness (step 0), with 5 new unit tests:
+- A rejected Jacobian probe is retried with the step reversed. If both are
+  rejected the column is zero, never a (1e6 - r)/step gradient
+  (`difference_column`). Repairs are counted in the optimizer record.
+- A stop within 2(n+1) calls of a rejected evaluation is recorded as
+  unconverged (`stopped_near_rejection`).
+- An infeasible starting point writes a `start_infeasible` summary.
+Checks in `results/df/robustness_check_20260923/` used identical starts. The
+wide no-halo start2 is now recorded as infeasible ("adopted streaming
+exceeds DF second moment"). The wide free-halo start2 had 3 probes repaired
+(backward) and was flagged unconverged at the cap region. Its failures are
+equilibrium-solver divergence ("DF closure failed", change growing over 3-5
+iterations) in a DM-dominated region (M_star 1.4e6, rho20 8-9), mostly on
+trial steps. A damped self-consistency iteration would be a numerical fix.
+The observed minima (M_star 3.2e6) are unaffected.
+
+Anisotropy comparison (`bin/plot_beta_profiles.py`,
+`plots/observed_df_wide_20260923_beta.png`, data in `results/plot_data/`):
+- The best DF fits have beta = 0 in the centre (the bias vanishes as J -> 0).
+  beta rises monotonically to +0.3 to +0.4 at 80 pc.
+- The Jeans rung-2 turnover fits on the same data snapshot reach chi2 190.0
+  (no DM) and 186.8 (cored), against 456/428 for the DF. They have
+  beta ~ -0.5 at the centre (at the prior limit beta_0 <= -0.5; ML
+  -0.503), a radial peak of +0.15 near 6 pc, a zero crossing near 20 pc,
+  and -0.6 to -0.7 at 80 pc.
+- The required tangential turnover lies inside the Gaia range, not at the
+  9.5 pc HST/Gaia handover. The Jeans central value is prior-limited, and
+  those fits fail a separable DF-positivity screen, so this beta(r) is a
+  target shape, not a certified DF.
+Jeans per-dataset chi2/n (no DM): HST R 2.9, HST T 1.7, MUSE 1.8,
+Gaia R 1.9, Gaia T 2.6.
+
+Driver options for diagnostics: `--datasets`, `--gaia-error-floor`
+(quadrature, Gaia profiles only), `--free-distance LO:HI`, `--branches`.

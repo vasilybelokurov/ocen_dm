@@ -27,13 +27,15 @@ import numpy as np
 from scipy.optimize import least_squares
 
 from ocen_dm.kinematics.compact_recovery import (
-    AbsoluteStop, Converged, data_fit_gates, data_radius_pc, mass_profiles, mock_problem, recovery_gates, recovery_metrics,
+    AbsoluteStop, Converged, data_fit_gates, data_radius_pc, difference_column, mass_profiles,
+    stopped_near_rejection, mock_problem, recovery_gates, recovery_metrics,
     refined_config, residual_vector,
 )
 from ocen_dm.kinematics.df_fit import (
     DFJointProblem, FitCoordinate, PhotometricData, build_df_model, config_at,
     model_config_from_dict,
 )
+from ocen_dm.kinematics.likelihood import KinematicData
 from ocen_dm.kinematics.regularized_df import RegularizedDFModel
 from ocen_dm.kinematics.run_io import code_state, read_data_snapshot, sha256, write_data_snapshot
 
@@ -190,7 +192,25 @@ def latin_starts(coords, n, seed=20260923, margin=.2):
     return out
 
 
-def prepare_real(out, project, fitting, starts, bounds=None, n_random=0):
+def observed_variant(data, datasets=None, gaia_error_floor=0.):
+    """Observed kinematics restricted to named datasets, with an optional Gaia floor.
+
+    The floor [mas/yr] is added in quadrature to both asymmetric errors of every
+    Gaia profile: a sensitivity test for spatially correlated systematics, not a
+    calibrated error model.
+    """
+    profiles = [p for p in data.profiles if datasets is None or p.name in datasets]
+    if datasets is not None and {p.name for p in profiles} != set(datasets):
+        raise ValueError(f"unknown datasets: {sorted(set(datasets)-{p.name for p in profiles})}")
+    if gaia_error_floor:
+        profiles = [replace(p, err_lo=np.hypot(p.err_lo, gaia_error_floor),
+                            err_hi=np.hypot(p.err_hi, gaia_error_floor))
+                    if p.name.startswith("gaia") else p for p in profiles]
+    return KinematicData(tuple(profiles))
+
+
+def prepare_real(out, project, fitting, starts, bounds=None, n_random=0, datasets=None,
+                 gaia_error_floor=0., free_distance=None, branches=("free_halo", "no_halo")):
     """Fit the observed data (pilot snapshot) with free-halo and no-halo branches."""
     out.mkdir(parents=True, exist_ok=False)
     frozen = out/"code"
@@ -203,10 +223,15 @@ def prepare_real(out, project, fitting, starts, bounds=None, n_random=0):
     source = project/"results/df/pilot_no_dm_20260922"
     d = out/"observed"
     d.mkdir()
-    for name in ("data_snapshot.json", "photometry.json"):
-        shutil.copy2(source/name, d/name)
-    dump(d/"problem.json", dict(data_snapshot=read(source/"summary.json")["data_snapshot"],
-                                source=str(source)))
+    shutil.copy2(source/"photometry.json", d/"photometry.json")
+    original = read_data_snapshot(source, read(source/"summary.json")["data_snapshot"])
+    if datasets is None and not gaia_error_floor:
+        shutil.copy2(source/"data_snapshot.json", d/"data_snapshot.json")
+        snapshot = read(source/"summary.json")["data_snapshot"]
+    else:
+        snapshot = write_data_snapshot(observed_variant(original, datasets, gaia_error_floor), d)
+    dump(d/"problem.json", dict(data_snapshot=snapshot, source=str(source), datasets=datasets,
+                                gaia_error_floor_masyr=gaia_error_floor))
     spec = read(frozen/"configs/df/regularized_no_dm.json")
     base = with_fitting_numerics(model_config_from_dict(spec["model"]), fitting)
     load_problem(d)  # checksum and fingerprint of the observed snapshot
@@ -226,13 +251,16 @@ def prepare_real(out, project, fitting, starts, bounds=None, n_random=0):
         dict(path="matter.rho20", lower=0., upper=10.),
         dict(path="matter.r_s", lower=5., upper=150., log=True)], bounds or {})
     manifest.update(bound_overrides={k: list(v) for k, v in (bounds or {}).items()},
-                    n_random_starts=n_random)
+                    n_random_starts=n_random, datasets=datasets, gaia_error_floor_masyr=gaia_error_floor,
+                    free_distance=free_distance)  # fixed.distance_kpc is then the start/plot scale
     starts = list(starts)+latin_starts(coords, n_random)
-    for branch in ("free_halo", "no_halo"):
-        chosen = coords if branch == "free_halo" else coords[:-2]
+    # Distance is appended after the halo so no-halo branches can drop the last two.
+    extra = [dict(path="distance_kpc", lower=free_distance[0], upper=free_distance[1])] if free_distance else []
+    for branch in branches:
+        chosen = (coords if branch == "free_halo" else coords[:-2])+extra
         cc = [FitCoordinate(**row) for row in chosen]
         for index, values in enumerate(starts):
-            values = values[:len(cc)]
+            values = values[:len(cc)-len(extra)]+((base.distance_kpc,) if extra else ())
             start = config_at(base, cc, [q.encode(v) for q, v in zip(cc, values)])
             manifest["jobs"].append(dict(id=f"observed_{branch}_start{index}", case="observed",
                                           branch=branch, start=index, data_dir="observed",
@@ -309,6 +337,7 @@ def fit(out, job_id, max_calls):
     attempt = now()
     calls, warm, started = 0, None, time.monotonic()
     cache, potentials = {}, {}
+    rejected, repairs = {}, dict(backward=0, zeroed=0)  # key -> call; probe repairs
     status = dict(status="running", pid=os.getpid(), attempt_started_utc=attempt,
                   max_calls_this_attempt=max_calls,
                   resume="new optimizer from saved best; no restored Hessian" if best else None)
@@ -325,6 +354,7 @@ def fit(out, job_id, max_calls):
         row = dict(attempt=attempt, call=calls, x=x.tolist())
         if "rejected" in result:
             row["rejected"] = result["rejected"]
+            rejected[key] = calls
             residual = np.full(problem.data.n_points+len(problem.photometry.mu), 1e6)
         else:
             residual, score = result["residual"], result["score"]
@@ -392,10 +422,36 @@ def fit(out, job_id, max_calls):
             futures = [pool.submit(_probe, c.to_dict(), str(seed_file)) for c in configs]
             for t, c, f in zip(pending, configs, futures):  # logged in probe order
                 record(t, c, f.result())
-        columns = [(fun(t, seed)-base_residual)/step for t, step in zip(trials, steps)]
+        columns = []
+        for j, (t, step) in enumerate(zip(trials, steps)):
+            forward = fun(t, seed)
+            if tuple(t) not in rejected:
+                columns.append(difference_column(base_residual, step, forward=forward))
+                continue
+            # Rejected probe: reverse the step inside the bounds before giving up.
+            back = x.copy()
+            back[j] -= step
+            backward = None
+            if 0 <= back[j] <= 1:
+                r = fun(back, seed)
+                backward = None if tuple(back) in rejected else r
+            repairs["backward" if backward is not None else "zeroed"] += 1
+            columns.append(difference_column(base_residual, step, backward=backward))
         return np.column_stack(columns)
 
     try:
+        fun(x0)
+        if tuple(x0) in rejected:
+            # No equilibrium at the start: record it instead of failing inside the Jacobian.
+            summary = dict(job=job, status="start_infeasible", calls=calls,
+                           rejection=next(json.loads(l) for l in (d/"evaluations.jsonl").open()
+                                          if json.loads(l)["call"] == rejected[tuple(x0)])["rejected"],
+                           gates=dict(optimizer_terminated=False, numerical_passed=False, passed=False,
+                                      start_infeasible=True), finished_utc=now())
+            dump(d/"summary.json", summary)
+            dump(d/"status.json", dict(status, status="start_infeasible", calls=calls))
+            print(f"{job_id}: start infeasible: {summary['rejection']}", flush=True)
+            return
         try:
             tol = fitting.get("scipy_tolerances", dict(ftol=1e-5, xtol=2e-4, gtol=2e-3))
             opt = least_squares(fun, x0, jac=jacobian,
@@ -410,6 +466,12 @@ def fit(out, job_id, max_calls):
             optimizer = dict(success=False, message="actual equilibrium evaluation budget reached")
         if best is None:
             raise ValueError("no valid equilibrium was evaluated")
+        optimizer.update(rejected_evaluations=len(rejected), probe_repairs=dict(repairs))
+        # A stop right after rejected equilibria can be a collapsed trust region, not a minimum.
+        window = 2*(len(x0)+1)
+        if optimizer["success"] and stopped_near_rejection(rejected.values(), calls, window):
+            optimizer.update(success=False, near_rejection=True,
+                             message=optimizer["message"]+f"; rejected evaluation within last {window} calls")
         dump(d/"status.json", dict(status, status="validating", calls=calls))
         c = model_config_from_dict(best["config"])
         cold = problem.evaluate(c)
@@ -507,8 +569,9 @@ def report(out):
         row = dict(job=job["id"], case=job["case"], branch=job["branch"], start=job["start"], status=status)
         if (d/"summary.json").exists():
             s = read(d/"summary.json")
-            row.update(gates=s["gates"], recovery=s.get("recovery"), profiles=s["refined_profiles"],
-                       score=s["refined_score"])
+            row.update(gates=s["gates"], recovery=s.get("recovery"))
+            if "refined_profiles" in s:  # absent for infeasible starts
+                row.update(profiles=s["refined_profiles"], score=s["refined_score"])
         elif (d/"best.json").exists():
             b = read(d/"best.json")
             row.update(profiles=b["profiles"], score=b["score"])
@@ -556,6 +619,10 @@ def main():
                    help="override a fit coordinate's search bounds (prepare-real)")
     p.add_argument("--n-starts", type=int, default=0,
                    help="extra Latin-hypercube starts per branch (prepare-real)")
+    p.add_argument("--datasets", default=None, help="comma-separated kinematic subset (prepare-real)")
+    p.add_argument("--gaia-error-floor", type=float, default=0., help="mas/yr, added in quadrature (prepare-real)")
+    p.add_argument("--free-distance", default=None, metavar="LO:HI", help="fit distance in kpc (prepare-real)")
+    p.add_argument("--branches", default="free_halo,no_halo", help="comma-separated (prepare-real)")
     p.add_argument("--probe-workers", type=int, default=1,
                    help="processes for the Jacobian probes of one fit (needs --jacobian-seed base)")
     p.add_argument("--iteration-tolerance", type=float, default=None,
@@ -592,7 +659,11 @@ def main():
             path, _, rng = item.partition("=")
             lo, _, hi = rng.partition(":")
             bounds[path] = (float(lo), float(hi))
-        prepare_real(out, args.project.resolve(), fitting, starts, bounds, args.n_starts)
+        prepare_real(out, args.project.resolve(), fitting, starts, bounds, args.n_starts,
+                     datasets=args.datasets.split(",") if args.datasets else None,
+                     gaia_error_floor=args.gaia_error_floor,
+                     free_distance=tuple(map(float, args.free_distance.split(":"))) if args.free_distance else None,
+                     branches=tuple(args.branches.split(",")))
     elif args.command == "fit":
         if args.job is None:
             p.error("fit requires --job")
