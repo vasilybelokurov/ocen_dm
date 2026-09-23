@@ -92,3 +92,28 @@ density family. Independent lowered-isothermal mocks and fits, halo mismatch,
 noise, selection differences, mass-to-light gradients, and real-data inference
 follow separately. Passing this stage alone does not establish unbiased DM
 inference for Omega Cen.
+
+## Launch record: 23 September 2026
+
+The active batch is `results/df/compact_recovery_20260923_v2/`, frozen from
+commit `01992f0`. It launched at 00:02:56 UTC with two workers and six jobs,
+each limited to 180 trial equilibrium evaluations. Its `controller.log`,
+per-fit `status.json`, `evaluations.jsonl`, and `best.json` record progress.
+The launch is not a completed recovery result.
+
+Both regenerated truths passed the nominal-resolution check: maximum residual
+shifts were 0.00703 adopted errors for no DM and 0.00686 for the injected halo.
+The preceding two-evaluation smoke test passed numerical validation, with cold
+replay shift 0.0228 errors, refinement shift 0.0000662 errors, and maximum
+independent projection discrepancy 0.0326%. It was intentionally capped and
+failed the optimizer/physical-recovery gates, as required.
+
+The v1 smoke test exposed the
+[documented polar-mapper failure](COMPACT_DF_FREQUENCY_DIAGNOSTIC.md). Its source,
+inputs, and failed outputs remain preserved; v1 was not launched as a fitting
+batch. The corrected implementation passed 64 focused tests and the complete
+previously failing refined-model rebuild before v2 launched.
+
+Progress figure: `plots/compact_recovery_20260923_v2.png`. Its arrays and
+provenance are in `results/plot_data/compact_recovery_20260923_v2.json`.
+Interim curves are labelled explicitly and are not mass measurements.
