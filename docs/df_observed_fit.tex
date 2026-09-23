@@ -243,6 +243,84 @@ the model proposal; eq.~\eqref{eq:b2} was implemented and unit-tested before
 this work. Stars carry both mass and light (mass follows light). There is one
 stellar population.
 
+\subsection{What the DF family can represent}
+\label{sec:family}
+
+Each parameter set defines one spherical, self-gravitating equilibrium. From
+it the model predicts, with no further assumptions:
+\begin{itemize}
+\item the intrinsic stellar density $\rho_\star(r)$ and its projection
+  $\Sigma(R)$, compared with the photometry through one zero point
+  (constant $M/L$);
+\item the intrinsic radial and tangential dispersions $\sigma_r(r)$ and
+  $\sigma_t(r)$ (one component), hence $\beta(r)=1-\sigma_t^2/\sigma_r^2$;
+\item the projected LOS dispersion $\sigma_{\rm los}(R)$ and the two
+  plane-of-sky dispersions $\sigma_{{\rm pm},R}(R)$ and
+  $\sigma_{{\rm pm},T}(R)$. Their ratio
+  $\sigma_{{\rm pm},T}/\sigma_{{\rm pm},R}$ is the most direct projected
+  signature of anisotropy;
+\item the enclosed mass of every component and the full phase-space density
+  $f(J_r,L)$.
+\end{itemize}
+It predicts no mean rotation (the DF is even in $L_z$), no flattening and no
+population differences.
+
+Figure~\ref{fig:family} shows what shapes the family can take. Starting from
+the two-transition best fit (Section~\ref{sec:two}), one ingredient is varied
+per row and each equilibrium is rebuilt self-consistently in the fitted
+remnant potential:
+\begin{itemize}
+\item \textbf{Envelope exponent $\alpha$} (row a) sets how steeply the DF, and
+  hence the density, falls with action. At fixed $J_0$ and $M_\star$, moving
+  from $\alpha=0.7$ to 1.4 shrinks the half-mass radius from 22 to 2\pc and
+  raises the central LOS dispersion from 15 to 40\kms. It also changes the
+  anisotropy the same $b(q)$ produces, because the orbits populate a different
+  range of $q$.
+\item \textbf{Action scale $J_0$} (row b) mainly sets the size. The half-mass
+  radius is 5, 10 and 24\pc for $J_0=40$, 65 and 120\Jact. At fixed mass,
+  the central dispersion falls as the cluster grows.
+\item \textbf{One anisotropy transition} (row c) gives only monotonic profiles.
+  $b_{\rm out}>0$ makes $\beta$ rise towards radial outside $J_a$, so
+  $\sigma_{{\rm pm},T}/\sigma_{{\rm pm},R}$ falls below one. $b_{\rm out}<0$
+  gives tangential outskirts, with the ratio rising above one. A single
+  transition cannot turn from radial to tangential. The anisotropy is not
+  independent of the light: at fixed $J_0$ and $\alpha$ the half-mass radius
+  changes from 6.7 to 18\pc between $b_{\rm out}=-1$ and $+1$. The photometry
+  and kinematics therefore have to be fitted jointly.
+\item \textbf{The second transition} (row d) adds the non-monotonic shape the
+  data require (Section~\ref{sec:diag}): a mild radial bump followed by
+  tangential outskirts, seen in projection as a dip and then a rise of
+  $\sigma_{{\rm pm},T}/\sigma_{{\rm pm},R}$. $J_{\rm outer}$ sets where the
+  turnover occurs. At the best fit ($J_{\rm outer}=812\Jact$), $\beta$ peaks
+  at $+0.16$ near 9\pc and crosses zero at 23\pc. With $J_{\rm outer}=300\Jact$
+  the peak is only $+0.04$ (at 2\pc) and the zero crossing moves in to 4\pc.
+\end{itemize}
+
+\textbf{A built-in property: every model is isotropic at the centre.} $b(q)\to0$
+as $q\to0$, and the regularity condition forces $g\to g_H$ there, so
+$\beta(0)=0$ for every parameter choice. The family cannot produce a
+tangentially or radially biased core. Other built-in properties are
+positivity, smoothness in action space, and finite total mass. The central
+limitation matters when comparing with Jeans models, whose central anisotropy
+is free: the rung-2 Jeans fit has $\beta_0=-0.5$, set by its prior.
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=\linewidth]{df_family_gallery_20260923.png}
+\caption{The regularized exponential DF family around the two-transition best
+fit. Rows vary (a) $\alpha$, (b) $J_0$, (c) a single anisotropy transition
+with amplitude $b_{\rm out}$ at $J_a=30\Jact$, and (d) the second transition
+($b_{\rm outer}$, $J_{\rm outer}$). All other parameters stay at the best-fit
+values. Columns: intrinsic density normalized at 1\pc (legend: half-mass
+radius); intrinsic $\beta(r)$; projected $\sigma_{\rm los}(R)$; projected
+$\sigma_{{\rm pm},T}/\sigma_{{\rm pm},R}$. Every model is a self-consistent
+equilibrium in the fitted remnant potential (no halo, no point mass). Curves
+stop where the tracer density falls below $10^{-7}$ of its central value.
+Grey marks radii beyond the data. These are illustrations, not fits (script
+\texttt{bin/plot\_df\_family\_gallery.py}).}
+\label{fig:family}
+\end{figure}
+\FloatBarrier
+
 \subsection{Dark components}
 
 Dark mass enters as prescribed spherical densities in the same potential:
