@@ -45,7 +45,10 @@ def read(path):
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("batch", type=Path)
-    out = parser.parse_args().batch.resolve()
+    parser.add_argument("--jobs", nargs="*", help="plot only these job ids (default: all finished)")
+    parser.add_argument("--suffix", default="_fits", help="output name suffix")
+    args = parser.parse_args()
+    out = args.batch.resolve()
     manifest = read(out/"batch.json")
     d = out/"observed"
     problem = DFJointProblem(read_data_snapshot(d, read(d/"problem.json")["data_snapshot"]),
@@ -53,6 +56,8 @@ def main():
     pc = manifest["fixed"]["distance_kpc"]*1e3*np.pi/(180*3600)
     fits = []
     for job in manifest["jobs"]:
+        if args.jobs and job["id"] not in args.jobs:
+            continue
         f = out/"fits"/job["id"]/"summary.json"
         if f.exists():
             s = read(f)
@@ -96,10 +101,10 @@ def main():
         rx.set(xscale="log", xlabel="Projected radius [pc]")
         ax.legend(fontsize=6)
     fig.suptitle(f"Compact regularized DF fits to observed Omega Cen data ({out.name}); adopted errors")
-    plot = ROOT/"plots"/(out.name+"_fits.png")
+    plot = ROOT/"plots"/(out.name+args.suffix+".png")
     fig.savefig(plot, dpi=160)
     record["plot_sha256"] = hashlib.sha256(plot.read_bytes()).hexdigest()
-    (ROOT/"results/plot_data"/(out.name+"_fits.json")).write_text(json.dumps(record))
+    (ROOT/"results/plot_data"/(out.name+args.suffix+".json")).write_text(json.dumps(record))
     print(plot)
 
 
