@@ -5444,3 +5444,35 @@ Proposals: (1) a radial-orbit depletion factor h(L) = 1 - kappa J_c^2 /
 envelope [1 + (L_c/J_1)^2]^(-p/2) exp[-(L_c/J0)^alpha] for core-plus-
 outskirts shape, or a two-component stellar DF. The lowered-isothermal
 control cannot give tangential outskirts. Awaiting approval.
+
+## 2026-09-23 -- Poisson star-count likelihood replaces the adopted-error photometry
+
+Approved plan: (1) Poisson photometry, (2) distance as a nuisance with the
+5.43 +- 0.05 kpc prior, (3) rho20 profile likelihood, (4) realistic mocks.
+Implemented (1) and (2):
+- `src/ocen_dm/kinematics/counts.py`: `CountProfile` (per-bin counts, effective
+  areas, 8 equal-count radial nodes) with mu_i = A_i (a Sigma_i + b), a and the
+  optional uniform field b profiled by damped Newton at every evaluation,
+  signed deviance residuals (squared sum = Poisson deviance). No adopted
+  errors. 5 tests.
+- `bin/build_count_profiles.py` -> `data/processed/kinematics/
+  ocen_counts_hst_f625w19.{ecsv,json}` (20 bins, 2-250 arcsec, 117,751 stars)
+  and `ocen_counts_gaia_g17.{ecsv,json}` (12 bins, 300-2400 arcsec, 18,289
+  stars, members + field, field density fitted).
+  Selection findings: the oMEGACat `selection_hq_f625w` flag is radially
+  incomplete for F625W<19 (fraction flagged 0.81-0.83 at 8-22 arcsec vs
+  0.94-0.95 beyond 175 arcsec), so it is not applied; N(<20)/N(<19) = 2.0-2.1
+  at all radii shows the unflagged bright sample is complete. HST footprint
+  coverage (3-arcsec cell occupancy) is >= 0.956 inside 250 arcsec; beyond,
+  the mosaic edge lowers coverage and F814W availability, so bins stop at
+  250 arcsec. Gaia: N(<16)/N(<15) and N(<17)/N(<16) flat (1.8-2.0) from 300
+  arcsec, G<18 depleted inside ~500 arcsec, so G<17. The Trager compilation
+  is dropped (no error model).
+- `DFJointProblem` takes photometry and/or counts; `residual_vector` appends
+  count deviance residuals and Gaussian prior residuals (value-mu)/sigma;
+  `data_fit_gates` reports deviance per bin (threshold 2). Driver options
+  `--counts`, `--distance-prior MU:SIGMA`, `--fix PATH=VALUE`. 3 new tests.
+Current best fits against the new counts (`plots/counts_vs_models_20260923.png`):
+no halo HST 165.5/20, Gaia 41.8/12; halo HST 252.7/20, Gaia 74.4/12. Coherent
+HST residuals: model ~5% low at 2-4 pc and ~4% high at 5-6.5 pc. A 12-evaluation
+smoke run with counts + distance prior validated.

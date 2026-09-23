@@ -100,11 +100,22 @@ class DFJointProblem:
     analysis. Published streaming subtraction is an explicit moment-level
     approximation: the current DF is the nonrotating even part, not a fitted
     rotating DF. Infeasible streaming subtraction is rejected, never floored.
+
+    The tracer density enters either as a magnitude profile with adopted errors
+    (``photometry``) or as Poisson star counts (``counts``, see counts.py), or
+    both. The objective is chi2_kin + chi2_phot + sum of count deviances.
     """
-    def __init__(self, data: KinematicData, photometry: PhotometricData):
-        self.data, self.photometry = data, photometry
+    def __init__(self, data: KinematicData, photometry: PhotometricData | None = None, counts=()):
+        if photometry is None and not counts:
+            raise ValueError("a tracer-density constraint is required: photometry and/or counts")
+        self.data, self.photometry, self.counts = data, photometry, tuple(counts)
         self.likelihood = ProfileLikelihood(KinematicData(tuple(
             replace(p, streaming2=None) for p in data.profiles)))
+
+    @property
+    def n_residuals(self):
+        return (self.data.n_points+(len(self.photometry.mu) if self.photometry is not None else 0)
+                +sum(c.n for c in self.counts))
 
     def evaluate(self, config: DFModelConfig, model=None):
         model = model or build_df_model(config)
@@ -122,14 +133,23 @@ class DFJointProblem:
             terms[p.name] = dict(
                 chi2=float(np.sum(((pred[p.name]-p.value)/error)**2)), n=p.n,
                 loglike=float(ProfileLikelihood._split_normal_lnlike(pred[p.name], p).sum()))
-        R = self.photometry.r_arcsec*config.distance_kpc*1000/ARCSEC_PER_RAD
-        photo = self.photometry.compare(model.projected_moments(R)["Sigma"])
+        pc_per_arcsec = config.distance_kpc*1000/ARCSEC_PER_RAD
+        photo = None
+        if self.photometry is not None:
+            R = self.photometry.r_arcsec*pc_per_arcsec
+            photo = self.photometry.compare(model.projected_moments(R)["Sigma"])
+        count_terms = {}
+        for c in self.counts:
+            sigma = model.projected_moments(np.asarray(c.r_nodes).ravel()*pc_per_arcsec)["Sigma"]
+            count_terms[c.name] = c.compare(sigma)
         chi2_kin = sum(t["chi2"] for t in terms.values())
         lnlike_kin = sum(t["loglike"] for t in terms.values())
-        return dict(model=model, predictions=pred, photometry=photo, terms=terms,
-                    chi2_kinematic=chi2_kin, loglike_kinematic=lnlike_kin,
-                    objective=chi2_kin+photo["chi2"],
-                    loglike_profiled=lnlike_kin+photo["loglike"])
+        deviance = sum(t["deviance"] for t in count_terms.values())
+        return dict(model=model, predictions=pred, photometry=photo, counts=count_terms, terms=terms,
+                    chi2_kinematic=chi2_kin, loglike_kinematic=lnlike_kin, deviance_counts=deviance,
+                    objective=chi2_kin+(photo["chi2"] if photo else 0.)+deviance,
+                    loglike_profiled=lnlike_kin+(photo["loglike"] if photo else 0.)
+                    +sum(t["loglike"] for t in count_terms.values()))
 
 
 #: Derived coordinate Delta = ln(J_outer/J_a) > 0, so J_outer > J_a for any trial.

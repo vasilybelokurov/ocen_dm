@@ -160,3 +160,37 @@ def test_outer_ratio_coordinate_keeps_transitions_ordered():
         FitCoordinate("stellar.log_J_outer_ratio", 0., 2.)       # must stay positive
     with pytest.raises(ValueError):
         config_at(RegularizedDFConfig(), coords[1:], [np.log(3.)])  # no second transition
+
+
+def _count_profile():
+    from ocen_dm.kinematics.counts import CountProfile
+    lo = np.array([5., 10., 20.]); hi = np.array([10., 20., 40.])
+    nodes = np.sqrt(lo*hi)[:, None]*np.array([.8, 1., 1.2])[None, :]
+    return CountProfile("toy_counts", lo, hi, nodes, np.array([120, 80, 30]), np.pi*(hi**2-lo**2), "s", "sel", fit_field=False)
+
+
+def test_joint_problem_with_counts_and_prior_residual_layout():
+    from ocen_dm.kinematics.compact_recovery import residual_vector
+    from ocen_dm.kinematics.df_fit import DFJointProblem
+    p, profile = problem()
+    joint = DFJointProblem(p.data, None, [_count_profile()])
+    assert joint.n_residuals == 2+3
+    ev = joint.evaluate(ToyModel.config, ToyModel())
+    assert ev["photometry"] is None and set(ev["counts"]) == {"toy_counts"}
+    assert ev["objective"] == pytest.approx(ev["chi2_kinematic"]+ev["deviance_counts"])
+    r = residual_vector(joint, ev, priors={"distance_kpc": (5.0, 0.1)})
+    assert r.size == 6
+    assert r[-1] == pytest.approx((ToyModel.config.distance_kpc-5.0)/0.1)
+    assert (r[2:5] @ r[2:5]) == pytest.approx(ev["deviance_counts"])
+    with pytest.raises(ValueError):
+        DFJointProblem(p.data, None, [])
+
+
+def test_data_gates_with_counts_only():
+    from ocen_dm.kinematics.compact_recovery import data_fit_gates
+    ev = dict(terms=dict(a=dict(chi2=10., n=10)), photometry=None,
+              counts=dict(c=dict(deviance=15., n=10, amplitude=1., field_density_per_arcmin2=0.)))
+    g = data_fit_gates(True, True, ev, dict(chi2_kin_per_point=1.3, chi2_per_point_any_dataset=2., deviance_per_bin_counts=2.))
+    assert g["deviance_per_bin_by_counts"]["c"] == pytest.approx(1.5) and g["passed"]
+    ev["counts"]["c"]["deviance"] = 25.
+    assert not data_fit_gates(True, True, ev, dict(chi2_kin_per_point=1.3, chi2_per_point_any_dataset=2., deviance_per_bin_counts=2.))["passed"]
