@@ -4906,3 +4906,43 @@ job. The first jobs fit a free halo to the cored-DM and no-DM mocks. Results,
 checkpoints, and source/input snapshots remain in the batch directory; the
 progress PNG and its data follow the project output convention. Scientific
 recovery gates remain pending until the full fits and validations finish.
+
+## 2026-09-23 -- Compact recovery v2 finished: all six fits fail the gates
+
+All six jobs in `results/df/compact_recovery_20260923_v2/` exited cleanly by
+01:34 UTC (`report.json`). None terminated within the 180-evaluation budget, so
+every fit is recorded as unconverged and fails the combined gate.
+
+| Fit | Numerical | RMS / max (err) | M_star error | rho20 (true) |
+|---|---|---|---|---|
+| cored, free halo, start0 | pass | 0.006 / 0.025 | 4.1% | 2.53 (2.0) |
+| cored, free halo, start1 | fail | 0.006 / 0.022 | 8.5% | 3.08 (2.0) |
+| no DM, free halo, start0 | pass | 0.015 / 0.073 | 14.9% | 1.42 (0) |
+| no DM, free halo, start1 | pass | 0.024 / 0.131 | 24.4% | 2.34 (0) |
+| no DM, no halo, start0 | pass | 0.076 / 0.356 | 0.7% | fixed 0 |
+| no DM, no halo, start1 | pass | 0.037 / 0.147 | 0.2% | fixed 0 |
+
+Columns: numerical = cold replay, refinement, and projection checks; RMS/max
+= refined noiseless-mock residuals in adopted errors; rho20 = halo density at
+20 pc in solar masses per cubic parsec.
+
+Free-halo fits match the noiseless observables to 0.006-0.024 errors RMS, and
+total enclosed mass stays within 0.2-4.8% at every diagnostic radius. The
+star/halo split is not recovered, however. In the no-DM mock a spurious halo
+(rho20 1.4-2.3) replaces 15-24% of the stellar mass. In the cored mock the two
+starts give rho20 = 2.53 and 3.08. Because no fit converged, part of this may
+be optimizer budget; the residual levels nonetheless show a nearly flat
+objective along the stellar-mass/halo-density direction. The no-halo start1
+objective was still falling at the cap (0.255 to 0.238 over the last 10
+evaluations). The start0 no-halo fit misses the maximum-residual gate
+(0.356 > 0.3).
+
+Cored start1 fails numerical validation: independent projected moments
+differ by 0.81% in pmr and 0.46% in los, against the 0.5% threshold. Its cold
+and refinement shifts pass (0.0021 and 0.000089 errors).
+
+The DF models are therefore not ready for DM inference. Candidate follow-ups,
+not yet launched: a profile scan in fixed rho20 to map the degeneracy
+directly, an explicitly recorded extension of the capped fits, and a check of
+projection accuracy at the cored start1 solution. DF-focused unit tests
+(`test_regularized_df.py`, `test_compact_recovery.py`) pass: 24 tests.
