@@ -5186,3 +5186,41 @@ Jacobian, and one start was infeasible. Neither affects the minima. Full
 write-up with test design, conclusions, and the required next steps:
 `docs/OBSERVED_DF_FLEXIBILITY.md`. Figure:
 `plots/observed_df_wide_20260923_best_fits.png`.
+
+## 2026-09-23 -- External review of the observed-data DF failure, checked
+
+An external critique argued that the anisotropy topology is wrong: the data
+want a near-isotropic centre, radial bias at intermediate radii, and
+tangential bias outside. Checked against the code and data:
+- Sign convention: the DF factor is exp(-b sin(pi c/2)) with circularity c,
+  so b > 0 is radial bias. The fits have b_out ~ 0.2 at essentially all
+  actions (J_a at its bound). The implemented second transition with
+  b_outer < 0 gives radial then tangential bias; its unit test uses
+  b_out = 0.8, b_outer = -0.6.
+- Distance cannot change sigma_T/sigma_R (both PMs scale with D); it is only
+  a sanity check.
+- Rotation: an odd-in-L_z DF part leaves second moments unchanged, so
+  subtracting vbar^2 is exact for that model class when the published
+  dispersion is about the correct local mean. The weak points are geometry:
+  annular averaging (vbar^2 = 0.5 v_rot^2 for MUSE), inclination, and
+  sphericity. A joint fit to mean velocities remains preferable. The
+  correction is largest in the worst-fitted data: Gaia tangential has
+  vbar^2/sigma^2 = 0.21-0.38 at 11-22 pc, while HST radial (no correction)
+  fits best (chi2/n 2.1).
+- HST/Gaia handover: the single overlap bin agrees (sigma_T 0.465+-0.027 vs
+  0.474+-0.049; sigma_R 0.531+-0.029 vs 0.510+-0.052 mas/yr). The residual
+  sign change lies at 10-12 pc, inside Gaia coverage. A dedicated overlap
+  check is still planned.
+- Gaia dispersion errors are raw (0.005-0.007 mas/yr at 17-35 pc). An error
+  floor for spatially correlated EDR3 systematics may change the Gaia chi2;
+  this is untested.
+- Consistent with the 2026-09-21 Jeans finding that a monotonic beta(r)
+  cannot produce a tangential centre, radial intermediate region, and outer
+  decline.
+- UNVERIFIED in the critique: the HST inclination 43.9 +- 1.3 deg, the MUSE
+  counter-rotating core, and q ~ 0.78 from Schwarzschild models.
+Revised order: (0) fitter bug fixes; (1) diagnostics without DF changes:
+spline-beta Jeans inversion, subset DF fits (HST+MUSE vs Gaia), Gaia
+overlap and error-floor tests, free distance; (2) two-transition DF without
+halo; (3) plus halo; (4) rotating DF fitted to mean velocities; (5) separate
+tracer/mass DFs; (6) axisymmetric DF.
