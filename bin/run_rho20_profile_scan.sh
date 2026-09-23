@@ -12,6 +12,12 @@ COMMON="--two-transition --branches free_halo --hand-starts 0 --n-starts 1 --sta
  --counts ocen_counts_hst_f625w19,ocen_counts_gaia_g17 --free-distance 4.8:6.0 --distance-prior 5.43:0.05 \
  --stop-delta 0.01 --jacobian-seed base --iteration-tolerance 5e-5 --probe-workers 5 \
  --bound stellar.J0=30:800 --bound stellar.J_a=5:500 --bound stellar.b_out=-2:2"
+# First a fully free halo (rho20 and r_s free) to locate the minimum, then the fixed-rho20 grid.
+name=rho20free_${TAG}
+[ -f results/df/$name/batch.json ] || $PY $DRV prepare-real --out results/df/$name $COMMON
+echo "$(date -u +%H:%M:%S) start $name"
+$PY $DRV run --out results/df/$name --workers 2 --max-calls 600 > results/df/$name/controller.log 2>&1
+echo "$(date -u +%H:%M:%S) done $name"
 for RHO in 0.25 0.5 1 2 4; do
     name=rho20scan_${RHO}_${TAG}
     [ -f results/df/$name/batch.json ] || $PY $DRV prepare-real --out results/df/$name $COMMON --fix matter.rho20=$RHO
