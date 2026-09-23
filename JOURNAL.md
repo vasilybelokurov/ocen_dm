@@ -5476,3 +5476,7 @@ Current best fits against the new counts (`plots/counts_vs_models_20260923.png`)
 no halo HST 165.5/20, Gaia 41.8/12; halo HST 252.7/20, Gaia 74.4/12. Coherent
 HST residuals: model ~5% low at 2-4 pc and ~4% high at 5-6.5 pc. A 12-evaluation
 smoke run with counts + distance prior validated.
+Launched `results/df/dftwo_counts_20260923/` at 16:25 UTC from commit `36bca6f`:
+two-transition DF, no halo, Poisson counts (HST F625W<19, Gaia G<17) instead
+of magnitude photometry, distance free with the 5.43 +- 0.05 kpc prior,
+2 hand-picked + 4 Latin starts, 2 jobs x 5 probe workers, cap 600.
