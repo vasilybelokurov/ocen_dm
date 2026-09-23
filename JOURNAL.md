@@ -5341,3 +5341,15 @@ Central-BH check: in the 43 bins within 2 pc the no-BH two-transition DF
 0.12-0.16 pc HST bins are 1-2 errors high. The BH is dropped from the list.
 Objectives are now reported separately: (1) data fit, (2) DM constraint.
 Details in `docs/DF_ANISOTROPY_DIAGNOSTICS.md`.
+
+## 2026-09-23 -- Best-fit performance report (objective 1)
+
+`bin/plot_best_fit_performance.py` gives the per-dataset chi2 with indicative
+p-values, a runs test, residual histograms, beta and mass for the no-halo
+and halo two-transition fits, against the Jeans turnover fit. The DF
+kinematics (chi2 159.2/143.3) now beat Jeans (190.0). Remaining misfits are
+the MUSE outer edge (5-8 pc) and the tangential PMs at 4-7 and 15-20 pc.
+The photometric chi2/N of 2.5-2.7 comes from mutually inconsistent 10-40 pc
+compilation points (hypothesis, untested). An earlier draft of this figure
+plotted (model-data) under a (data-model) label; it was corrected before
+recording. Table in `docs/DF_ANISOTROPY_DIAGNOSTICS.md`.

@@ -365,3 +365,51 @@ binned profiles start at 0.1 pc, inside r_infl ~ 0.4 pc for 4e4 Msun, and
 contain none of the individual fast central stars behind the IMBH claim of
 Haeberle et al. 2024 ([arXiv:2405.06015](https://arxiv.org/abs/2405.06015)).
 The BH is therefore dropped from the objective-1 list.
+
+## Best-fit model performance (objective 1: fit the data)
+
+Figures: `plots/best_fit_performance_20260923_data.png` (all data, both
+two-transition fits and the rung-2 Jeans turnover fit, residuals
+(data-model)/err) and `plots/best_fit_performance_20260923_diagnostics.png`
+(residual histogram, chi2/n, runs test, beta, enclosed mass). Script:
+`bin/plot_best_fit_performance.py`; numbers in
+`results/plot_data/best_fit_performance_20260923.json`. Published errors are
+used and bins are treated as independent, so the p-values are indicative
+only.
+
+| Dataset (n) | No halo chi2/n (p) | + halo chi2/n (p) | Runs z, no halo / halo | max abs residual |
+|---|---|---|---|---|
+| HST PM R (21) | 1.01 (0.45) | 1.02 (0.43) | -0.9 / 0.0 | 2.0 / 2.0 |
+| HST PM T (21) | 1.81 (0.013) | 1.39 (0.11) | -1.1 / -1.1 | 2.6 / 2.1 |
+| MUSE LOS (29) | 2.01 (0.001) | 1.84 (0.004) | +0.5 / +0.5 | 3.6 / 3.2 |
+| Gaia PM R (9) | 0.93 (0.50) | 2.04 (0.03) | -2.3 / -1.2 | 1.9 / 2.2 |
+| Gaia PM T (9) | 3.70 (1e-4) | 2.34 (0.01) | -0.8 / -1.0 | 3.6 / 2.7 |
+| Photometry (82) | 2.67 (2e-14) | 2.48 (3e-12) | -1.2 / -2.1 | 5.7 / 5.8 |
+
+The runs test counts sign runs along radius; z < -2 means too few runs,
+i.e. coherent residuals.
+
+- **The kinematic fits are now better than the best Jeans fit.** chi2_kin is
+  159.2 (no halo) and 143.3 (halo), against 190.0 for the rung-2 Jeans
+  turnover (with BH, no DM) on the same bins. All profiles are tracked
+  across 0.1-63 pc. The kinematic residual distribution is somewhat wider
+  than N(0,1), with tails to about 3.6.
+- **Remaining structured misfits:** MUSE LOS at its outer edge, 5-8 pc
+  (model 2-3.6 errors high; largest streaming correction); PM tangential at
+  4-7 pc (model 2-2.6 high) and 15-20 pc, the first Gaia bins (model up to
+  3.5 low). With a halo, the outer Gaia PM R becomes about 2 errors too
+  high. Only Gaia R (no halo) and the photometry (halo) pass z = -2 in the
+  runs test.
+- **Photometry:** chi2/N 2.5-2.7, dominated by 10-40 pc points with
+  residuals of opposite sign at the same radii (-3 to -6 and +2 to +4). This
+  matches the mutually inconsistent Trager-compilation points: duplicate
+  full-weight pairs differ by 0.13 mag, against 0.1 mag adopted errors. This
+  points to heterogeneity in the photometric data rather than the model. It
+  is a hypothesis; it has not been tested.
+- **The two models agree inside the data:** beta(r) and the total M(<r)
+  coincide to ~25 pc. The halo adds mass only beyond ~30 pc (8% at 42 pc).
+  Inside the data, the data do not distinguish the two.
+
+Verdict on objective 1: a structural near-pass; not statistically acceptable
+under the published errors. The remaining misfit is localised (MUSE outer
+edge and the 4-20 pc tangential PMs), not a global failure.
