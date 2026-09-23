@@ -305,22 +305,33 @@ biased core needs a DF that vanishes as $L\to0$, and a radially biased core
 needs one that diverges. The other built-in properties are positivity,
 smoothness in action space and finite total mass.
 
-This property is \emph{consistent with the data}. Inside 1\pc the HST proper
-motions give $\sigma_{{\rm pm},T}/\sigma_{{\rm pm},R}=1.000\pm0.007$ (10 bins;
-$0.998\pm0.025$ inside 0.3\pc). The oMEGACat analysis also reports an
-isotropic centre \citep{2025ApJ...983...95H}. The central value
-$\beta_0=-0.5$ of the rung-2 Jeans fit is not a measurement. It is the upper
-bound of that fit's prior, imposed because a cored tracer around a central
-point mass requires $\beta_0\le-1/2$ for a positive DF
-\citep{2006ApJ...642..752A}. The maximum-likelihood value, $-0.503$, sits on
-that bound, so the data pull towards isotropy.
+This is an \emph{assumption}; these data do not test it. $\beta$ is an
+intrinsic, three-dimensional quantity. The data provide three projected
+dispersions at each projected radius $R$, each an integral along the line of
+sight over all $r\ge R$, so $\beta(r)$ can only be recovered through a
+dynamical model. In particular, the projected ratio
+$\sigma_{{\rm pm},T}/\sigma_{{\rm pm},R}$ tends to one as $R\to0$ for
+\emph{any} intrinsic anisotropy. The observed central value (about 1 inside
+1\pc) therefore carries no information on $\beta(0)$. The central
+anisotropy enters mainly through the radial run of the dispersions and the
+ratio of LOS to PM dispersions. That ratio is degenerate with the distance,
+because converting a PM to km\,s$^{-1}$ multiplies it by $D$.
+
+The Jeans fits do not measure the central anisotropy either. Their central
+value, $\beta_0=-0.5$, is the upper bound of the prior. It was imposed
+because a cored tracer around a central point mass requires $\beta_0\le-1/2$
+for a positive DF \citep{2006ApJ...642..752A}. Their maximum-likelihood value,
+$-0.503$, lies on that bound. Neither model therefore provides a data-driven
+central anisotropy, and a test of the $\beta(0)=0$ assumption is still to be
+done.
 
 The property would matter in two cases. First, with a central black hole:
 around a point mass the regularity analysis changes (the derivative ratio
 becomes 1, not 2), and the cusp-slope--anisotropy theorem then requires either
 a tangential core or a stellar density cusp. Adding a BH therefore requires
 re-deriving the regular DF for a Kepler centre, not only adding a point-mass
-potential. Second, if future data showed central anisotropy.
+potential. Second, if a model-based analysis showed that the data prefer an
+anisotropic centre.
 
 \begin{figure}[htbp]
 \centering\includegraphics[width=\linewidth]{df_family_gallery_20260923.png}
