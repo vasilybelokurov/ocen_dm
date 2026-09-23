@@ -5327,3 +5327,17 @@ two-transition DF plus free cored halo (rho20 0-10, r_s 5-500 pc), raw
 errors, 2 hand-picked starts (rho20 = 1, r_s = 40) plus 4 Latin starts,
 2 jobs x 5 probe workers, cap 600. Question: does rho20 > 0 improve on the
 no-halo two-transition fit (chi2_kin 159.2, refined objective 378.3)?
+
+## 2026-09-23 -- Step 3 finished; no binned evidence for a central BH
+
+Two transitions plus halo: three valid starts converge at objective 346.9
+(no halo 378.3), chi2_kin 143.3, rho20 0.92. r_s sits at its upper bound
+(500 pc) and J_outer/J_a at its lower bound (2); the anisotropy
+re-arranges; Gaia R and T trade. Not a DM result: a rho20 profile
+likelihood is needed. Three of six Latin starts were infeasible
+(2 numerical, 1 physical).
+Central-BH check: in the 43 bins within 2 pc the no-BH two-transition DF
+(chi2 48.8) fits better than the Jeans + BH fits (59.0/59.3). Only the
+0.12-0.16 pc HST bins are 1-2 errors high. The BH is dropped from the list.
+Objectives are now reported separately: (1) data fit, (2) DM constraint.
+Details in `docs/DF_ANISOTROPY_DIAGNOSTICS.md`.
