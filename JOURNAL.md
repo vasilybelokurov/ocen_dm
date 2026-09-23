@@ -5072,3 +5072,19 @@ estimate from only 10 pairs. The frozen batch still reports the old RMS gate;
 the analysis applies the amended one from the stored chi2_photometric.
 Smoke figure: `plots/observed_df_smoke_20260923_fits.png` (script
 `bin/plot_observed_df_fits.py`).
+
+## 2026-09-23 -- Full test suite: AGAMA unit clash between test modules
+
+`pytest -q tests/` (26 min, run alongside the fits): 603 passed, 4 failed, 21
+errors, 5 skipped. All 25 affected tests pass when rerun alone (7 s), and the
+seven affected files pass together in one process (84 tests, 5 min).
+Cause, reproduced in isolation: `tests/test_bar_migration.py` sets AGAMA's
+global units to kpc through `ocen_dm.tails.bar_migration`. The DF branch's
+`agama_pc()` then refuses to run in pc units ("Incompatible AGAMA units;
+run the DF branch in a fresh process"), as designed. This is a test-isolation
+defect, not a DF bug. Production fits run in fresh worker processes and are
+unaffected. The three non-DF failures (test_schema, test_light_model,
+test_hst_profile) also pass alone; their full-suite cause is not yet
+identified. Proposed fix, not implemented: run AGAMA-unit-dependent test
+modules in separate processes (e.g. a conftest marker plus two pytest
+invocations, or pytest-forked).
