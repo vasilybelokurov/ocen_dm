@@ -5388,3 +5388,13 @@ around the two-transition best fit, varying alpha, J0, a single transition
   At J_outer 812, beta peaks at +0.16 near 9 pc and crosses zero at 23 pc;
   at J_outer 300 the crossing moves to 4 pc.
 - beta(0) = 0 for every parameter choice (built in).
+
+## 2026-09-23 -- Central isotropy of the DF is consistent with the data
+
+beta(0) = 0 is built into the regular DF, and the data agree. HST gives
+sigma_T/sigma_R = 1.000 +- 0.007 inside 1 pc (10 bins; 0.998 +- 0.025
+inside 0.3 pc), in line with oMEGACat VI. The Jeans beta_0 = -0.5 is the prior
+bound from the An & Evans (2006) condition for a cored tracer around a point
+mass (ML -0.503, on the bound). Implication: adding a BH to the DF requires
+re-deriving regularity for a Kepler centre (derivative ratio 1), not only a
+point-mass potential. The write-up wording is corrected accordingly.
