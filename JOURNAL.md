@@ -5372,3 +5372,19 @@ two-transition fits with and without halo; performance; the central
 point-mass check; the status of the DM question; defects fixed; the
 withdrawn error floors; next steps; and reproducibility (batch commits taken
 from each batch's `source_commit`).
+
+## 2026-09-23 -- DF family gallery added to the write-up
+
+`bin/plot_df_family_gallery.py` rebuilds 15 self-consistent equilibria
+around the two-transition best fit, varying alpha, J0, a single transition
+(b_out) and the second transition one at a time
+(`plots/df_family_gallery_20260923.png`). Findings, now section 3.2 of
+`docs/df_observed_fit.pdf`:
+- alpha 0.7 -> 1.4 shrinks r_half from 22 to 2 pc at fixed J0 and M_star.
+- J0 = 40/65/120 gives r_half 5/10/24 pc.
+- One transition gives only monotonic beta; b_out also changes r_half
+  (6.7-18 pc for b_out -1 to +1).
+- The second transition produces the radial bump plus tangential outskirts.
+  At J_outer 812, beta peaks at +0.16 near 9 pc and crosses zero at 23 pc;
+  at J_outer 300 the crossing moves to 4 pc.
+- beta(0) = 0 for every parameter choice (built in).
