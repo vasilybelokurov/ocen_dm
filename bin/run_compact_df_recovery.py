@@ -841,6 +841,7 @@ def main():
                       {"M_star": 2.8e6, "stellar.J0": 130., "stellar.alpha": 1.14, "stellar.b_out": .3,
                        "stellar.J_a": 50., "matter.M_rem": 4e5, "matter.a_rem": 2., "matter.rho20": 1.,
                        "matter.r_s": 40., "stellar.b_outer": -1.5, "stellar.log_J_outer_ratio": float(np.log(8.))}]
+        starts = starts[:args.hand_starts]   # --start-from is not used for mocks: fits must not begin at the truth
         bounds = {}
         for item in args.bound:
             path, _, rng_ = item.partition("=")
