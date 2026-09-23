@@ -5304,3 +5304,15 @@ A 12-evaluation smoke run validated with no rejected evaluations. 35
 focused tests pass.
 Launched `results/df/dftwo_20260923/` at 12:55 UTC from commit `f6ce414`:
 6 no-halo two-transition fits, raw errors, 2 jobs x 5 probe workers, cap 600.
+
+## 2026-09-23 -- Two-transition DF (no halo) fits the data far better
+
+`results/df/dftwo_20260923/` finished at 13:41 UTC. Four valid starts
+converged to one minimum; two Latin starts were infeasible. chi2_kin fell
+from 456.1 to 159.2 (chi2_kin/N 1.79). By dataset: HST R 1.0, HST T 1.8,
+MUSE 2.0, Gaia R 0.9, Gaia T 3.7. Best fit: b_out +0.46 (J_a 27),
+b_outer -1.26 (J_outer 812), M_rem 1.72e5 at 1.27 pc (back to the HST+MUSE
+value). beta(r) follows the Jeans turnover to ~30 pc. f(J_r, L) is smooth.
+The structural criteria pass except Gaia T > 3; the statistical criterion is
+not met with raw errors. Details and figures in
+`docs/DF_ANISOTROPY_DIAGNOSTICS.md`.
