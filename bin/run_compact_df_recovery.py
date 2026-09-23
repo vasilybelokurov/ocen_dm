@@ -27,7 +27,7 @@ import numpy as np
 from scipy.optimize import least_squares
 
 from ocen_dm.kinematics.compact_recovery import (
-    mass_profiles, mock_problem, recovery_gates, recovery_metrics,
+    AbsoluteStop, Converged, mass_profiles, mock_problem, recovery_gates, recovery_metrics,
     refined_config, residual_vector,
 )
 from ocen_dm.kinematics.df_fit import (
@@ -57,12 +57,12 @@ def read(path):
 
 
 def load_problem(directory):
-    record = read(directory/"mock.json")
+    record = read(directory/("mock.json" if (directory/"mock.json").exists() else "problem.json"))
     return DFJointProblem(read_data_snapshot(directory, record["data_snapshot"]),
                           PhotometricData.from_dict(read(directory/"photometry.json")))
 
 
-def prepare(out, project):
+def prepare(out, project, fitting=None):
     out.mkdir(parents=True, exist_ok=False)
     frozen = out/"code"
     (frozen/"bin").mkdir(parents=True)
@@ -77,7 +77,7 @@ def prepare(out, project):
     for name in ("summary.json", "data_snapshot.json", "photometry.json"):
         shutil.copy2(source/name, inputs/name)
     spec = read(frozen/"configs/df/regularized_no_dm.json")
-    base = model_config_from_dict(spec["model"])
+    base = with_fitting_numerics(model_config_from_dict(spec["model"]), fitting or {})
     template = read_data_snapshot(inputs, read(inputs/"summary.json")["data_snapshot"])
     photo = PhotometricData.from_dict(read(inputs/"photometry.json"))
     manifest = dict(schema_version=1, status="preparing", created_utc=now(),
@@ -85,6 +85,7 @@ def prepare(out, project):
                     project_root=str(project), source_commit=subprocess.check_output(
                         ["git", "rev-parse", "HEAD"], cwd=project, text=True).strip(),
                     scope="Matched regularized stellar family, noiseless, cored halo, common mass/light DF; diagnostic objective only",
+                    fitting=fitting or {},
                     fixed=dict(distance_kpc=base.distance_kpc, gamma=0, halo_taper_pc=base.matter.r_t),
                     gates=dict(rms_sigma=.1, max_sigma=.3, M_star_fraction=.05,
                                total_mass_profile_fraction=.1, rho20_fraction_if_DM=.1,
@@ -152,6 +153,80 @@ class EvaluationBudget(Exception):
     pass
 
 
+def with_fitting_numerics(config, fitting):
+    """Apply a batch-level equilibrium tolerance; truths are refined separately."""
+    if "iteration_tolerance" not in fitting:
+        return config
+    return replace(config, numerics=replace(config.numerics,
+                   iteration_tolerance=float(fitting["iteration_tolerance"])))
+
+
+def data_fit_gates(optimizer_success, numerical_passed, evaluation, thresholds):
+    """Goodness of fit to observed data; says nothing about the mass decomposition."""
+    terms = evaluation["terms"]
+    n_kin = sum(t["n"] for t in terms.values())
+    chi2_kin = sum(t["chi2"] for t in terms.values())
+    photo = evaluation["photometry"]
+    rms_mag = float(np.sqrt(np.mean((photo["prediction"]-np.asarray(evaluation["photometry_mu"]))**2)))
+    per_term = {k: t["chi2"]/t["n"] for k, t in terms.items()}
+    fit_ok = bool(chi2_kin/n_kin < thresholds["chi2_kin_per_point"] and
+                  max(per_term.values()) < thresholds["chi2_per_point_any_dataset"] and
+                  rms_mag < thresholds["photometric_rms_mag"])
+    return dict(optimizer_terminated=bool(optimizer_success), numerical_passed=bool(numerical_passed),
+                chi2_kinematic=chi2_kin, n_kinematic=n_kin, chi2_kin_per_point=chi2_kin/n_kin,
+                chi2_per_point_by_dataset=per_term, chi2_photometric=photo["chi2"],
+                photometric_rms_mag=rms_mag, data_fit_passed=fit_ok,
+                passed=bool(optimizer_success and numerical_passed and fit_ok))
+
+
+def prepare_real(out, project, fitting, starts):
+    """Fit the observed data (pilot snapshot) with free-halo and no-halo branches."""
+    out.mkdir(parents=True, exist_ok=False)
+    frozen = out/"code"
+    (frozen/"bin").mkdir(parents=True)
+    shutil.copytree(project/"src", frozen/"src", ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".DS_Store"))
+    shutil.copy2(Path(__file__), frozen/"bin"/Path(__file__).name)
+    shutil.copytree(project/"configs/df", frozen/"configs/df")
+    shutil.copytree(project/"tests", frozen/"tests",
+                    ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".DS_Store"))
+    source = project/"results/df/pilot_no_dm_20260922"
+    d = out/"observed"
+    d.mkdir()
+    for name in ("data_snapshot.json", "photometry.json"):
+        shutil.copy2(source/name, d/name)
+    dump(d/"problem.json", dict(data_snapshot=read(source/"summary.json")["data_snapshot"],
+                                source=str(source)))
+    spec = read(frozen/"configs/df/regularized_no_dm.json")
+    base = with_fitting_numerics(model_config_from_dict(spec["model"]), fitting)
+    load_problem(d)  # checksum and fingerprint of the observed snapshot
+    manifest = dict(schema_version=1, status="preparing", created_utc=now(), runtime=code_state(),
+                    project_root=str(project), source_commit=subprocess.check_output(
+                        ["git", "rev-parse", "HEAD"], cwd=project, text=True).strip(),
+                    scope="Observed-data flexibility test of the regularized stellar DF; "
+                          "fit quality only, not a mass decomposition or posterior",
+                    fixed=dict(distance_kpc=base.distance_kpc, gamma=0, halo_taper_pc=base.matter.r_t),
+                    fitting=fitting,
+                    gates=dict(chi2_kin_per_point=1.3, chi2_per_point_any_dataset=2.0,
+                               photometric_rms_mag=.05, numerical_shift_sigma=.1),
+                    source_sha256={str(p.relative_to(frozen)): sha256(p)
+                                   for p in frozen.rglob("*") if p.is_file()},
+                    input_sha256={p.name: sha256(p) for p in d.iterdir()}, jobs=[])
+    coords = spec["fit_coordinates"]+[
+        dict(path="matter.rho20", lower=0., upper=10.),
+        dict(path="matter.r_s", lower=5., upper=150., log=True)]
+    for branch in ("free_halo", "no_halo"):
+        chosen = coords if branch == "free_halo" else coords[:-2]
+        cc = [FitCoordinate(**row) for row in chosen]
+        for index, values in enumerate(starts):
+            start = config_at(base, cc, [q.encode(v) for q, v in zip(cc, values)])
+            manifest["jobs"].append(dict(id=f"observed_{branch}_start{index}", case="observed",
+                                          branch=branch, start=index, data_dir="observed",
+                                          config=start.to_dict(), coordinates=chosen))
+    manifest.update(status="prepared", prepared_utc=now(),
+                    mock_sha256={str(q.relative_to(out)): sha256(q) for q in d.rglob("*.json")})
+    dump(out/"batch.json", manifest)
+
+
 def fit(out, job_id, max_calls):
     manifest = read(out/"batch.json")
     job = next(j for j in manifest["jobs"] if j["id"] == job_id)
@@ -160,8 +235,13 @@ def fit(out, job_id, max_calls):
     if (d/"summary.json").exists():
         print(f"{job_id}: already finished", flush=True)
         return
-    problem = load_problem(out/"mocks"/job["case"])
-    truth = read(out/"mocks"/job["case"]/"mock.json")
+    data_dir = out/job.get("data_dir", f"mocks/{job['case']}")
+    problem = load_problem(data_dir)
+    truth = read(data_dir/"mock.json") if (data_dir/"mock.json").exists() else None
+    radii = truth["profiles"]["r_pc"] if truth else np.geomspace(.5, 80., 64).tolist()
+    fitting = manifest.get("fitting", {})
+    stop = AbsoluteStop(**fitting["absolute_stop"]) if "absolute_stop" in fitting else None
+    base_seeded = fitting.get("jacobian_seed", "chained") == "base"
     coords = [FitCoordinate(**c) for c in job["coordinates"]]
     base = model_config_from_dict(job["config"])
     low, high = np.array([c.bounds for c in coords]).T
@@ -172,13 +252,13 @@ def fit(out, job_id, max_calls):
         x0 = np.array(best["x"])
     attempt = now()
     calls, warm, started = 0, None, time.monotonic()
-    cache = {}
+    cache, potentials = {}, {}
     status = dict(status="running", pid=os.getpid(), attempt_started_utc=attempt,
                   max_calls_this_attempt=max_calls,
                   resume="new optimizer from saved best; no restored Hessian" if best else None)
     dump(d/"status.json", status)
 
-    def fun(x):
+    def fun(x, seed=None):
         nonlocal calls, warm, best
         key = tuple(x)
         if key in cache:
@@ -189,17 +269,20 @@ def fit(out, job_id, max_calls):
         row = dict(attempt=attempt, call=calls, x=x.tolist())
         config = config_at(base, coords, low+x*(high-low))
         try:
-            model = RegularizedDFModel(config, initial_stellar_potential=warm)
+            model = RegularizedDFModel(config, initial_stellar_potential=warm if seed is None else seed)
             ev = problem.evaluate(config, model)
             residual = residual_vector(problem, ev)
             score = float(residual @ residual)
             warm = model.stellar_potential
+            potentials[key] = warm
+            while len(potentials) > 16:
+                potentials.pop(next(iter(potentials)))
             row.update(score=score, iterations=model.diagnostics["iterations"],
                        rho20=config.matter.rho20, M_star=config.M_star)
             if best is None or score < best["score"]:
                 best = dict(score=score, x=x.tolist(), config=config.to_dict(),
                             residual_sigma=residual.tolist(), diagnostics=model.diagnostics,
-                            profiles=mass_profiles(model, truth["profiles"]["r_pc"]),
+                            profiles=mass_profiles(model, radii),
                             attempt=attempt, call=calls, saved_utc=now())
                 dump(checkpoint, best)
         except (ValueError, FloatingPointError) as exc:
@@ -220,22 +303,30 @@ def fit(out, job_id, max_calls):
     def jacobian(x):
         # An absolute step in normalized coordinates stays resolved at rho20=0.
         base_residual = fun(x)
+        if stop is not None:
+            stop.update(base_residual @ base_residual)
+        # "base": every probe starts from the base point's converged stars,
+        # so column noise does not depend on the order of the probes.
+        seed = potentials.get(tuple(x)) if base_seeded else None
         columns = []
         for j in range(len(x)):
             trial = x.copy()
             step = .002 if x[j] + .002 <= 1 else -.002
             trial[j] += step
-            columns.append((fun(trial)-base_residual)/step)
+            columns.append((fun(trial, seed)-base_residual)/step)
         return np.column_stack(columns)
 
     try:
         try:
+            tol = fitting.get("scipy_tolerances", dict(ftol=1e-5, xtol=2e-4, gtol=2e-3))
             opt = least_squares(fun, x0, jac=jacobian,
                                 bounds=(np.zeros(len(x0)), np.ones(len(x0))),
-                                x_scale="jac", ftol=1e-5, xtol=2e-4,
-                                gtol=2e-3, max_nfev=max_calls)
+                                x_scale="jac", max_nfev=max_calls, **tol)
             optimizer = dict(success=bool(opt.success), message=opt.message,
                              nfev=opt.nfev, optimality=float(opt.optimality))
+        except Converged as exc:
+            optimizer = dict(success=True, message=str(exc), rule="absolute_stop",
+                             accepted_objectives=stop.history)
         except EvaluationBudget:
             optimizer = dict(success=False, message="actual equilibrium evaluation budget reached")
         if best is None:
@@ -244,6 +335,7 @@ def fit(out, job_id, max_calls):
         c = model_config_from_dict(best["config"])
         cold = problem.evaluate(c)
         fine = problem.evaluate(refined_config(c))
+        fine["photometry_mu"] = problem.photometry.mu
         cr, fr = residual_vector(problem, cold), residual_vector(problem, fine)
         R = np.geomspace(.05, 80., 12)
         fast = cold["model"].projected_moments(R)
@@ -252,10 +344,16 @@ def fit(out, job_id, max_calls):
         cold_shift = float(np.max(abs(cr-np.array(best["residual_sigma"]))))
         fine_shift = float(np.max(abs(fr-cr)))
         numerical = bool(cold_shift < .1 and fine_shift < .1 and max(projection.values()) < .005)
-        profiles = mass_profiles(fine["model"], truth["profiles"]["r_pc"])
-        metrics = recovery_metrics(truth["profiles"], profiles)
-        gates = recovery_gates(optimizer["success"], numerical, fr, metrics)
+        profiles = mass_profiles(fine["model"], radii)
+        if truth:
+            metrics = recovery_metrics(truth["profiles"], profiles)
+            gates = recovery_gates(optimizer["success"], numerical, fr, metrics)
+        else:
+            metrics = None
+            gates = data_fit_gates(optimizer["success"], numerical, fine, manifest["gates"])
         summary = dict(job=job, optimizer=optimizer, calls=calls, seconds=time.monotonic()-started,
+                       refined_terms=fine["terms"], refined_photometry={k: v for k, v in fine["photometry"].items()
+                                                                        if not hasattr(v, "__len__")},
                        best=best, cold_score=float(cr@cr), refined_score=float(fr@fr),
                        refined_residual_sigma=fr.tolist(), refined_profiles=profiles,
                        validation=dict(cold_shift_sigma=cold_shift, refinement_shift_sigma=fine_shift,
@@ -324,7 +422,7 @@ def report(out):
         row = dict(job=job["id"], case=job["case"], branch=job["branch"], start=job["start"], status=status)
         if (d/"summary.json").exists():
             s = read(d/"summary.json")
-            row.update(gates=s["gates"], recovery=s["recovery"], profiles=s["refined_profiles"],
+            row.update(gates=s["gates"], recovery=s.get("recovery"), profiles=s["refined_profiles"],
                        score=s["refined_score"])
         elif (d/"best.json").exists():
             b = read(d/"best.json")
@@ -334,9 +432,11 @@ def report(out):
     fig, axes = plt.subplots(1, len(cases), figsize=(11, 4), squeeze=False, constrained_layout=True)
     truths = {}
     for ax, case in zip(axes[0], cases):
-        truth = read(out/"mocks"/case/"mock.json")["profiles"]
+        mock = out/"mocks"/case/"mock.json"
+        truth = read(mock)["profiles"] if mock.exists() else None
         truths[case] = truth
-        ax.axhline(1, color="black", lw=1, label="Injected total mass")
+        if truth:
+            ax.axhline(1, color="black", lw=1, label="Injected total mass")
         for row in rows:
             if row["case"] != case or "profiles" not in row:
                 continue
@@ -344,11 +444,12 @@ def report(out):
             label = row["job"].removeprefix(case+"_")+f"; rho20={p['rho20']:.3g}"
             if "gates" not in row:
                 label += " (interim)"
-            ax.plot(p["r_pc"], np.array(p["total"])/truth["total"], label=label)
-        ax.set(xscale="log", xlabel="Radius [pc]", ylabel="Recovered / injected enclosed mass",
-               title=case.replace("_", " "))
+            ax.plot(p["r_pc"], np.array(p["total"])/(truth["total"] if truth else 1), label=label)
+        ax.set(xscale="log", xlabel="Radius [pc]", title=case.replace("_", " "),
+               ylabel="Recovered / injected enclosed mass" if truth else r"Enclosed mass [$M_\odot$]",
+               yscale="linear" if truth else "log")
         ax.legend(fontsize=7)
-    fig.suptitle("Noiseless compact DF recovery; interim values are not mass measurements")
+    fig.suptitle("Compact DF fits; interim values are not mass measurements")
     plot = project/"plots"/(out.name+".png")
     fig.savefig(plot, dpi=160)
     plt.close(fig)
@@ -361,7 +462,13 @@ def report(out):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("command", choices=("prepare", "run", "fit", "report"))
+    p.add_argument("command", choices=("prepare", "prepare-real", "run", "fit", "report"))
+    p.add_argument("--stop-delta", type=float, default=None,
+                   help="absolute objective change over --stop-window accepted steps that ends a fit")
+    p.add_argument("--stop-window", type=int, default=2)
+    p.add_argument("--jacobian-seed", choices=("chained", "base"), default="chained")
+    p.add_argument("--iteration-tolerance", type=float, default=None,
+                   help="override the fitting equilibrium iteration tolerance (config default 5e-4)")
     p.add_argument("--out", type=Path, required=True)
     p.add_argument("--project", type=Path, default=ROOT)
     p.add_argument("--job")
@@ -372,8 +479,20 @@ def main():
     if not 1 <= args.workers <= 2 or args.max_calls < 1:
         p.error("use one or two workers and a positive evaluation budget")
     out = args.out.resolve()
+    fitting = dict(jacobian_seed=args.jacobian_seed)
+    if args.iteration_tolerance is not None:
+        fitting["iteration_tolerance"] = args.iteration_tolerance
+    if args.stop_delta is not None:
+        fitting["absolute_stop"] = dict(delta=args.stop_delta, window=args.stop_window)
     if args.command == "prepare":
-        prepare(out, args.project.resolve())
+        prepare(out, args.project.resolve(), fitting)
+    elif args.command == "prepare-real":
+        # Two starts bracketing an Omega Cen-like mass and compactness (v2 mocks were too
+        # light and extended): M_star, J0, alpha, b_out, J_a, M_rem, a_rem, rho20, r_s.
+        # Initial objectives on the observed data: 2604 and 8943 (checked 2026-09-23).
+        starts = [(3.6e6, 160., 1.2, 0., 180., 3e5, 1.5, 1., 40.),
+                  (3.0e6, 190., 1.7, .1, 400., 1e5, .6, 1.5, 20.)]
+        prepare_real(out, args.project.resolve(), fitting, starts)
     elif args.command == "fit":
         if args.job is None:
             p.error("fit requires --job")

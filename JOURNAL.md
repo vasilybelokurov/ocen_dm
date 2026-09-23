@@ -5016,3 +5016,37 @@ below 0.01 over two successive accepted steps, well below a meaningful
 delta-chi2 of 1), a larger cap (about 600 evaluations), and cold or tighter
 equilibrium solves inside the Jacobian so that its noise stays below the
 tolerance.
+
+## 2026-09-23 -- Fitter convergence controls and observed-data DF fits
+
+Jacobian noise probe (`bin/probe_compact_jacobian_noise.py`; record in
+`results/maintenance/jacobian_noise_compact_recovery_20260923_v2_cored_dm_free_halo_start0.json`)
+at the v2 cored start0 optimum. With iteration tolerance 5e-4, repeated
+base-point evaluations with different seeds shift residuals by up to 0.0060
+errors. Forward-difference columns differ from cold-solve columns by 0.1-7%
+(chained seeds) or 1.5-2% (base-point seeds). With tolerance 5e-5 these fall
+to 0.00059 errors and 0.01-0.65%, at 16.7 s instead of 13.5 s per evaluation.
+Jacobian noise was therefore modest; the 180-evaluation cap was the main cause
+of the v2 non-convergence.
+
+Driver changes in `bin/run_compact_df_recovery.py` (v2 keeps its frozen code):
+- `AbsoluteStop` (in `compact_recovery.py`, 2 new tests) ends a fit when the
+  objective at accepted iterates improves by less than `--stop-delta` over
+  `--stop-window` steps; the result is recorded as optimizer-terminated.
+- `--jacobian-seed base` seeds every probe from the base point's stars.
+- `--iteration-tolerance` sets the batch fitting tolerance.
+- `prepare-real` fits the observed pilot snapshot (89 kinematic bins,
+  82 photometric radii) with free-halo and no-halo branches, two starts each.
+  Starting objectives are 2604 and 8943.
+
+Observed-data acceptance criteria, fixed before fitting and judging fit
+quality only: chi2_kin/N < 1.3 (89 bins), chi2/n < 2 in every dataset,
+photometric RMS < 0.05 mag (errors are adopted, not measured), optimizer
+terminated by the rule, and numerical validation passed. These do not test the
+mass decomposition.
+
+Smoke batch `results/df/observed_df_smoke_20260923/` (12 evaluations per job)
+completed the budget-stop, validation, gate, and report path. All numerical
+checks passed (cold shift at most 0.0057 errors, refinement at most 0.0014,
+projection at most 0.09%). The capped fits reached chi2_kin/N = 8.5-11.6, as
+expected at 12 evaluations.
