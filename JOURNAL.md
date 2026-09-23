@@ -5261,3 +5261,10 @@ Gaia R 1.9, Gaia T 2.6.
 
 Driver options for diagnostics: `--datasets`, `--gaia-error-floor`
 (quadrature, Gaia profiles only), `--free-distance LO:HI`, `--branches`.
+Launched step-1 diagnostics at 11:43 UTC from commit `8a7e377` via
+`bin/run_df_step1_diagnostics.sh` (log `results/df/dfdiag_runner_20260923.log`).
+Current DF, no halo, two hand-picked starts, wide bounds, cap 600. Batches:
+`dfdiag_hst_muse` (HST+MUSE), `dfdiag_gaia` (Gaia only), `dfdiag_gaiafloor01`
+and `dfdiag_gaiafloor02` (all data, Gaia floor 0.01/0.02 mas/yr), and
+`dfdiag_freedist` (all data, D free in 4.8-6.0 kpc). Photometry is included
+in all.
