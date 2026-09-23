@@ -5582,3 +5582,17 @@ table. The performance figure for the counts fit
 count-residual sign corrected before inclusion. Coverage runner
 (`bin/run_mock_coverage.sh 1.0`, seeds 11-15, both truths, one hand start
 each) launched 20:05 UTC; `prepare-mock` now honours `--hand-starts`.
+
+## 2026-09-23 -- Mock coverage (interim, 3+2 seeds): rho20 is weakly identified
+
+`bin/plot_mock_coverage.py` -> `plots/mock_coverage_20260923.png`. With the
+published kinematic noise and Poisson counts, the recovered rho20 scatters
+by ~1 Msun/pc^3: no-halo truths returned 1.34 (r_s 7 pc, M_star -6%, M_rem
++21%), 0.12, 0.01 and 0.001; rho20 = 1 truths returned 0.79, 0.46 and 0.16
+(r_s at 400-500 pc). The total enclosed mass is recovered within +-5% over
+2-40 pc in all seven mocks; the injected-halo mocks overestimate the total
+mass inside 1 pc by 15-25% (compact-halo/remnant trade) and beyond 60 pc.
+Implication: the observed rho20 profile (Delta = 2.2 at rho20 = 1) is
+within the estimator's noise scatter and cannot be quoted as a rho20 limit;
+the data identify the total mass profile, not the star/DM split at 20 pc.
+Remaining seeds 14-15 running.
