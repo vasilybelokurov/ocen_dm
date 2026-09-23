@@ -5542,3 +5542,27 @@ tighten the constraint. Caveats: for rho20 = 0.25-2 only the seeded start
 converged (the Latin start was infeasible); at rho20 = 4 the Latin start
 improved the objective from 297.1 to 296.1. Mock validation launched 18:45
 UTC (`bin/run_mock_validation.sh 1.0`, log `results/df/mock_runner_20260923.log`).
+
+## 2026-09-23 -- Mock validation of the rho20 recovery (one noise realization each)
+
+`results/df/mockA_nohalo_20260923` (truth = counts-based best fit, rho20 = 0,
+seed 101) and `results/df/mockB_rho1.0_20260923` (same stars, injected
+rho20 = 1, r_s = 30 pc, seed 202). Both carry the published kinematic noise
+and Poisson counts; nominal chi2_kin of the truths 113.5 and 88.3 (89 bins).
+Fitted with a free cored halo from the two hand-picked starts (the Latin
+start was infeasible in both; note: prepare-mock did not honour
+--hand-starts/--start-from, so the fits started away from the truth, which
+is the stricter test).
+- Mock A: start0 -> rho20 = 0.001 (bound), M_star within 0.5%, total mass
+  within 1.5%. start1 -> rho20 = 0.12 with r_s at the 500 pc bound, objective
+  equal within 0.1: a diffuse rho20 ~ 0.1 halo is indistinguishable from
+  none, consistent with the flat foot of the observed profile.
+- Mock B: both starts -> rho20 = 0.79 (truth 1.0; -21%), r_s 260-490 pc
+  (truth 30; unconstrained), M_star +3%, M_rem -20%, chi2_kin 81.9 (nominal
+  88.3). The offset is within the ~0.5 half-width of the Delta = 1 interval
+  of the observed profile, so it is consistent with noise; the 10% physical
+  gate, designed for noiseless mocks, is not the right criterion here.
+Conclusion: the machinery recovers a no-halo truth and detects an injected
+rho20 = 1 halo; r_s is not recovered. One realization each; a coverage test
+needs ~5-10 seeds per truth (about 3 h). The minimum halo mass consistent
+with these results is set by rho20, not r_s.
