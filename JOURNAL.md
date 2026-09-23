@@ -5523,3 +5523,22 @@ Launched `bin/run_rho20_profile_scan.sh` at 16:54 UTC (log
 `results/df/rho20scan_runner_20260923.log`): a free-halo batch
 (`rho20free_20260923`), then rho20 fixed at 0.25, 0.5, 1, 2, 4 with all other
 coordinates refitted from this best fit plus one Latin start each.
+
+## 2026-09-23 -- rho20 profile likelihood (two-transition DF, Poisson counts, distance prior)
+
+Scan finished 18:45 UTC (`results/df/rho20free_20260923`,
+`results/df/rho20scan_{0.25,0.5,1,2,4}_20260923`; figure
+`plots/rho20_profile_20260923.png`, data in `results/plot_data/`). The free
+halo converges to rho20 = 0 (objective 285.6, the no-halo solution). Fixed
+rho20 = 0.25, 0.5, 1, 2, 4 gives Delta objective = +0.51, +1.05, +2.20, +4.78,
++10.55, entirely from chi2_kin (158.1 -> 171.0); the count deviance falls
+slightly (125.2 -> 122.7) while M_star drops from 3.00e6 to 2.35e6. On a
+chi2 scale, Delta = 1 near rho20 ~ 0.5 and Delta = 3.84 near ~1.7; these are
+reference values only, since chi2_kin/N = 1.78 shows the published errors
+are not calibrated. r_s sits at its 5 pc lower bound at every fixed rho20:
+the profile is over the most compact (least massive inside the data) halo
+per rho20 (M_DM(<20 pc) = 9.6e4 at rho20 = 1). A physical prior on r_s would
+tighten the constraint. Caveats: for rho20 = 0.25-2 only the seeded start
+converged (the Latin start was infeasible); at rho20 = 4 the Latin start
+improved the objective from 297.1 to 296.1. Mock validation launched 18:45
+UTC (`bin/run_mock_validation.sh 1.0`, log `results/df/mock_runner_20260923.log`).
