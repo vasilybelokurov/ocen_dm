@@ -5566,3 +5566,6 @@ Conclusion: the machinery recovers a no-halo truth and detects an injected
 rho20 = 1 halo; r_s is not recovered. One realization each; a coverage test
 needs ~5-10 seeds per truth (about 3 h). The minimum halo mass consistent
 with these results is set by rho20, not r_s.
+
+Full test suite after today's changes: 646 passed, 5 skipped, 0 failed
+(24.6 min, `results/maintenance/full_test_suite_20260923b.log`).
