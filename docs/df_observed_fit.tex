@@ -66,10 +66,13 @@ weighting had imposed disappears, and the star counts become the
 worst-fitted term (HST deviance 4.9 per bin). With this likelihood a free
 halo converges to $\rho_{20}=0$, and a profile likelihood over fixed
 $\rho_{20}$ rises monotonically ($\Delta=+2.2$ at $\rho_{20}=1$, $+10.6$ at
-4\,$\Msun\pc^{-3}$), driven by the kinematics. Single-realization mocks recover
-a no-halo truth and detect an injected $\rho_{20}=1$ halo at 0.79. We document
-the data issues that limit a statistical verdict and the programme still
-needed before an exclusion can be claimed.
+4\,$\Msun\pc^{-3}$), driven by the kinematics. Twelve realistic mocks show, however, that
+$\rho_{20}$ is recovered with a scatter of 0.5--0.9\,$\Msun\pc^{-3}$ when the
+halo scale is free, as large as the observed rise, while the total mass
+profile is recovered to a few per cent over 2--40\pc. The data therefore
+determine the mass profile but not yet the stellar/DM split; we identify the
+external constraints (a shape separation of DM from remnants, a stellar-mass
+prior from the mass function) needed to resolve it.
 \end{abstract}
 
 \tableofcontents
@@ -927,42 +930,67 @@ calibrated intervals. (b) The profiled $r_s$. (c) Profiled masses.}
   on the order of magnitude.
 \end{itemize}
 
-\subsection{Mock validation}
+\subsection{Mock validation and coverage}
 \label{sec:mocks}
 
-Two mocks were built from the counts-based best fit, each with the
-published kinematic noise (Gaussian, per bin) and Poisson counts drawn with
-the fitted amplitudes: truth A is the fitted model itself ($\rho_{20}=0$);
-truth B adds a halo with $\rho_{20}=1$, $r_s=30\pc$. Both were fitted with a
-free halo from the generic hand-picked starts, never from the truth.
+Mocks were built from the counts-based best fit, each with the published
+kinematic noise (Gaussian per bin) and Poisson counts drawn with the fitted
+amplitudes. Truth A is the fitted model itself ($\rho_{20}=0$); truth B adds
+a halo with $\rho_{20}=1$, $r_s=30\pc$. Six noise realizations of each were
+fitted with a free halo from generic hand-picked starts, never from the
+truth (Figure~\ref{fig:coverage}; \path{bin/run_mock_coverage.sh}).
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=\linewidth]{mock_coverage_20260923.png}
+\caption{Recovery in twelve realistic mocks. (a) Recovered against true
+$\rho_{20}$ (colour: profiled $r_s$); the red lines mark where the observed
+profile crosses $\Delta=1$ and 3.84. (b) Recovered/true total enclosed mass
+against radius (grey: beyond the data). (c) Recovered against true DM mass
+inside 20 and 63\pc. (d) Fractional errors of the stellar and remnant
+masses.}
+\label{fig:coverage}
+\end{figure}
+
 \begin{itemize}
-\item \textbf{A (no halo):} one start recovers $\rho_{20}=0.001$, $M_\star$
-  within 0.5\% and the total mass within 1.5\%. The other lands at
-  $\rho_{20}=0.12$ with $r_s$ at the 500\pc bound, at the same objective
-  within 0.1: a diffuse $\rho_{20}\sim0.1$ halo is indistinguishable from
-  none, matching the flat foot of the observed profile.
-\item \textbf{B ($\rho_{20}=1$):} both starts give $\rho_{20}=0.79$
-  ($-21$\%), $M_\star$ $+3$\%, $M_\remn$ $-20$\%, $r_s$ 260--490\pc
-  (unconstrained). The offset lies inside the $\Delta=1$ half-width
-  ($\sim0.5$) of the observed profile, so it is consistent with noise on
-  one realization.
+\item \textbf{$\rho_{20}$ is weakly identified.} For truth A the recovered
+  values are 0.00, 0.01, 0.12, 0.21, 0.67 and 1.33 (mean 0.39, scatter
+  0.52); for truth B they are 0.00, 0.16, 0.46, 0.79, 2.06 and 2.15 (mean
+  0.94, scatter 0.94). The estimator is roughly unbiased in the mean but its
+  scatter is as large as the signal: one no-halo realization returned
+  $\rho_{20}=1.33$ (a compact 7\pc halo taking 6\% of the stellar mass and
+  adding 21\% to the remnants), and one $\rho_{20}=1$ realization returned
+  exactly zero.
+\item \textbf{The total mass profile is what the data measure.} In all
+  twelve mocks the total enclosed mass is recovered within $\pm3$\% at 20\pc
+  and within $\pm5$\% over 2--40\pc, whatever the fitted split between
+  stars, remnants and halo. Inside 1\pc and beyond 60\pc the recovery
+  degrades (to $\pm25$\% and, in one case, $+42$\% at 63\pc when a
+  $\rho_{20}=2$, $r_s=420\pc$ halo was fitted).
+\item \textbf{The trade runs through the dark components and $M_\star$.}
+  Stellar masses are recovered within $\pm6$\%, remnant masses within
+  $\pm23$\%, and the errors are anti-correlated with the fitted halo.
 \end{itemize}
-The machinery does not manufacture a halo where there is none and detects
-one of $\rho_{20}=1$ when present; it does not recover $r_s$. A coverage test
-with five noise seeds per truth is running at the time of writing and will
-be added.
+
+Consequence for the observed profile (Section~\ref{sec:profile}): its rise
+of $\Delta=2.2$ at $\rho_{20}=1$ lies within the estimator's noise scatter and
+cannot be quoted as a limit on $\rho_{20}$. What these data determine is the
+total mass profile over 2--40\pc; the stellar/DM split at 20\pc is not
+resolved with a free halo scale. Breaking the degeneracy needs information
+the kinematics do not carry: a shape separation between DM (extended, not
+mass-segregated) and remnants (compact), and an external prior on $M_\star$
+from the stellar mass function (Section~\ref{sec:conclusions}).
 
 \subsection{What can and cannot be said}
 \begin{itemize}
-\item \textbf{Can:} under this model (spherical, non-rotating, one tracer with
-  mass following light, two anisotropy transitions, cored halo with
-  $r_s\ge5\pc$) and the published errors, there is no evidence for a DM
-  halo, and $\rho_{20}\gtrsim1$--2\,$\Msun\pc^{-3}$ is disfavoured at the
-  $\Delta\gtrsim2$--4 level.
-\item \textbf{Cannot:} claim an exclusion. The likelihood is not calibrated;
-  the recovery test has one realization; rotation is subtracted, not
-  modelled; and the tracer/mass assumption is untested. A DM component more
-  compact than 5\pc is degenerate with the stellar remnants.
+\item \textbf{Can:} under this model and the published errors, the total
+  enclosed mass is determined to a few per cent over 2--40\pc, and the best
+  fit has no halo.
+\item \textbf{Cannot:} quote a limit on $\rho_{20}$. The mocks show a
+  recovery scatter of 0.5--0.9\,$\Msun\pc^{-3}$ with a free halo scale, as
+  large as the observed profile's rise; a compact ``halo'' is degenerate
+  with the remnant sphere and with $M_\star$. The likelihood is also not
+  calibrated, rotation is subtracted rather than modelled, and the
+  tracer/mass assumption is untested.
 \end{itemize}
 
 \section{Numerical and software issues found and fixed}
@@ -1025,9 +1053,11 @@ calibrated treatment.
 \item With the count likelihood and the distance prior, a free halo goes to
   $\rho_{20}=0$ and the profile likelihood rises monotonically:
   $\Delta=+2.2$ at $\rho_{20}=1$ and $+10.6$ at 4\,$\Msun\pc^{-3}$, for the
-  most compact halo allowed. Single-realization mocks recover a no-halo
-  truth and detect an injected $\rho_{20}=1$ at 0.79. This is a provisional,
-  uncalibrated upper limit of order $\rho_{20}\sim1$--2, not an exclusion.
+  most compact halo allowed. Twelve realistic mocks recover $\rho_{20}$ with
+  a scatter of 0.5--0.9 (no-halo truths returned up to 1.33; a $\rho_{20}=1$
+  truth returned 0), while the total mass profile is recovered within
+  $\pm5$\% over 2--40\pc. The observed profile is therefore not a
+  $\rho_{20}$ limit; the data determine the mass profile, not the split.
 \end{enumerate}
 
 \paragraph{Objective 1 (fit), proposed.}
@@ -1042,10 +1072,15 @@ A central BH, separate tracer and mass DFs, and an axisymmetric DF remain
 later options, to be introduced only when the data demand them.
 
 \paragraph{Objective 2 (DM), proposed.}
-(i) Coverage test of the $\rho_{20}$ recovery with several noise seeds per
-truth (running). (ii) Report the constraint as a function of $r_s$ rather
-than imposing a prior. (iii) Intervals only after the likelihood is
-calibrated (objective 1, item ii).
+(i) A physical shape separation: DM cannot be mass-segregated, so
+$r_s$ should not fall below the stellar half-mass radius ($\sim10\pc$),
+whereas remnants are compact; this removes the compact-halo/remnant
+degeneracy. (ii) An external prior on $M_\star$ from the present-day mass
+function measured in the oMEGACat photometry (complete to $F625W\simeq23$,
+i.e.\ $\sim0.45\,\Msun$), with white dwarfs included in the luminous
+component and NS/BH remnants bounded by retention. (iii) Repeat the mocks
+with both to measure the remaining scatter. (iv) Intervals only after the
+likelihood is calibrated (objective 1, item ii).
 
 \appendix
 \section{Reproducibility}
@@ -1066,6 +1101,7 @@ Batch & Commit & Content\\
 \texttt{dftwo\_counts\_20260923} & \texttt{36bca6f} & Two transitions, Poisson counts, distance prior, no halo, 6 starts\\
 \texttt{rho20free\_20260923}, \texttt{rho20scan\_\{0.25,0.5,1,2,4\}\_20260923} & \texttt{f4fd4c7}+ & Free halo and the fixed-$\rho_{20}$ profile scan\\
 \texttt{mockA\_nohalo\_20260923}, \texttt{mockB\_rho1.0\_20260923} & \texttt{911255e}+ & Single-realization mocks (seeds 101, 202)\\
+\texttt{cov\_A\_s\{11..15\}\_20260923}, \texttt{cov\_B\_rho1.0\_s\{11..15\}\_20260923} & \texttt{f4fd4c7}+ & Coverage mocks (one hand start each)\\
 \bottomrule
 \end{tabularx}
 \end{table}
