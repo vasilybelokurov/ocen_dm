@@ -5406,3 +5406,25 @@ The oMEGACat "isotropic centre" is model-based. beta(0) = 0 in the DF is an
 assumption not tested by these data. Central anisotropy enters through the
 radial run of the dispersions and the LOS/PM ratio, which is degenerate with
 distance. The write-up is corrected.
+
+## 2026-09-23 -- Critical review of the DF-based mass model (state and conclusions)
+
+Established (converged multi-start fits, validated numerics): the
+one-transition DF fails (chi2_kin/N 4.8-5.1); the inner and outer data need
+opposite anisotropy; the two-transition DF reaches chi2_kin 159.2 with no
+coordinate at a bound and a smooth DF; adding a halo trades against
+anisotropy. Weak points identified in the review:
+- The objective weights photometry (chi2_phot ~ 204-219 of the ~347-378
+  total) with adopted, uncalibrated errors, so the balance between
+  photometry and kinematics is arbitrary and affects every best fit. Half of
+  the halo's gain (15.5 of 31) is photometric.
+- The Jeans comparison is not like-for-like (BH, different remnants, fixed
+  MGE tracer, beta_0 prior).
+- Untested assumptions: mass follows light with one tracer across HST
+  (faint stars, "cluster+field mixture") and Gaia (bright stars); beta(0)=0;
+  fixed distance (degenerate with central anisotropy via LOS/PM); spherical,
+  non-rotating.
+- b_outer acts mainly beyond the sampled actions; its value and the steep
+  outer beta are weakly identified.
+- No DM constraint exists; the profile likelihood and realistic mocks are
+  not done.
