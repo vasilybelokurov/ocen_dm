@@ -8,7 +8,8 @@ model predicts the tracer surface density ``Sigma(R)`` up to an amplitude, so
 
 with ``Sigma_bar_i`` the model averaged over the stars' radii (equal-count
 quantile nodes, as for the kinematic bins), ``a >= 0`` the number of stars per
-unit model surface density (profiled analytically at every evaluation) and
+unit model surface density (profiled analytically at every evaluation, or held
+at a given value when the mass per counted star is an external assumption) and
 ``b >= 0`` an optional uniform field density (profiled when ``fit_field``).
 The residual vector uses signed deviance residuals, whose squared sum is the
 Poisson deviance ``D = 2 sum_i [N_i ln(N_i/mu_i) - (N_i - mu_i)]``
@@ -24,17 +25,35 @@ import numpy as np
 __all__ = ["CountProfile", "poisson_profile_fit", "deviance_residuals"]
 
 
-def poisson_profile_fit(counts, area, shape, fit_field=True, iterations=60):
+def poisson_profile_fit(counts, area, shape, fit_field=True, iterations=60, amplitude=None):
     """Maximize the Poisson likelihood over a >= 0 (and b >= 0) for mu = A (a shape + b).
 
     Damped Newton iterations on the concave log-likelihood; the field term is
-    fixed at zero unless ``fit_field``. Returns (a, b, mu).
+    fixed at zero unless ``fit_field``. With ``amplitude`` given, ``a`` is held
+    at that value and only ``b`` is profiled (1D Newton, bounded below by 0).
+    Returns (a, b, mu).
     """
     n = np.asarray(counts, float)
     A = np.asarray(area, float)
     s = np.asarray(shape, float)
     if np.any(s < 0) or np.any(A <= 0) or np.any(n < 0):
         raise ValueError("counts and areas must be non-negative, shape non-negative")
+    if amplitude is not None:
+        if not np.isfinite(amplitude) or amplitude <= 0:
+            raise ValueError("fixed count amplitude must be positive")
+        a = float(amplitude)
+        b = max((n.sum()-a*(A*s).sum())/A.sum(), 0.) if fit_field else 0.
+        if fit_field:
+            for _ in range(iterations):
+                mu = np.maximum(A*(a*s+b), 1e-300)
+                gb = np.sum((n/mu-1.)*A)
+                Hbb = np.sum(n/mu**2*A*A)
+                b_new = max(b+gb/max(Hbb, 1e-300), 0.)
+                if abs(b_new-b) <= 1e-12*max(abs(b), 1e-300):
+                    b = b_new
+                    break
+                b = b_new
+        return a, float(b), A*(a*s+b)
     a = max(n.sum()/max((A*s).sum(), 1e-300), 1e-300)
     b = 0.
     for _ in range(iterations):
@@ -115,18 +134,23 @@ class CountProfile:
     def r_median(self):
         return np.median(self.r_nodes, axis=1)
 
-    def compare(self, sigma_nodes):
-        """Poisson fit given the model surface density at ``r_nodes`` (same shape)."""
+    def compare(self, sigma_nodes, amplitude=None):
+        """Poisson fit given the model surface density at ``r_nodes`` (same shape).
+
+        ``amplitude`` (stars per unit surface density per arcsec^2) holds ``a``
+        fixed instead of profiling it; the field is still profiled if enabled.
+        """
         sigma_nodes = np.asarray(sigma_nodes, float).reshape(self.r_nodes.shape)
         if np.any(~np.isfinite(sigma_nodes)) or np.any(sigma_nodes <= 0):
             raise ValueError(f"{self.name}: invalid projected surface density")
         shape = sigma_nodes.mean(axis=1)
-        a, b, mu = poisson_profile_fit(self.counts, self.area_arcsec2, shape, self.fit_field)
+        a, b, mu = poisson_profile_fit(self.counts, self.area_arcsec2, shape, self.fit_field, amplitude=amplitude)
         res = deviance_residuals(self.counts, mu)
         n = np.asarray(self.counts, float)
         with np.errstate(divide="ignore", invalid="ignore"):
             loglike = float(np.sum(np.where(n > 0, n*np.log(mu), 0.)-mu-_lgamma1(n)))
         return dict(deviance=float(res @ res), residual=res, mu=mu, amplitude=a, field=b,
+                    amplitude_fixed=amplitude is not None,
                     field_density_per_arcmin2=b*3600., loglike=loglike, n=self.n)
 
     def to_dict(self):

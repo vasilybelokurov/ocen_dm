@@ -186,6 +186,25 @@ def test_joint_problem_with_counts_and_prior_residual_layout():
         DFJointProblem(p.data, None, [])
 
 
+def test_joint_problem_mass_per_star_pins_the_count_amplitude():
+    from ocen_dm.kinematics.df_fit import DFJointProblem
+    p, profile = problem()
+    free = DFJointProblem(p.data, None, [_count_profile()]).evaluate(ToyModel.config, ToyModel())
+    m_free = free["counts"]["toy_counts"]["mass_per_star"]
+    pc_per_arcsec = ToyModel.config.distance_kpc*1000/206264.806
+    assert m_free == pytest.approx(pc_per_arcsec**2/free["counts"]["toy_counts"]["amplitude"])
+    same = DFJointProblem(p.data, None, [_count_profile()], mass_per_star={"toy_counts": m_free}).evaluate(ToyModel.config, ToyModel())
+    assert same["counts"]["toy_counts"]["amplitude_fixed"]
+    assert same["deviance_counts"] == pytest.approx(free["deviance_counts"], rel=1e-6)
+    heavier = DFJointProblem(p.data, None, [_count_profile()], mass_per_star={"toy_counts": 2*m_free}).evaluate(ToyModel.config, ToyModel())
+    assert heavier["counts"]["toy_counts"]["mass_per_star"] == pytest.approx(2*m_free)
+    assert heavier["deviance_counts"] > free["deviance_counts"]
+    with pytest.raises(ValueError):
+        DFJointProblem(p.data, None, [_count_profile()], mass_per_star={"other": 5.})
+    with pytest.raises(ValueError):
+        DFJointProblem(p.data, None, [_count_profile()], mass_per_star={"toy_counts": 0.})
+
+
 def test_data_gates_with_counts_only():
     from ocen_dm.kinematics.compact_recovery import data_fit_gates
     ev = dict(terms=dict(a=dict(chi2=10., n=10)), photometry=None,
