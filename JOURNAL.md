@@ -5050,3 +5050,8 @@ completed the budget-stop, validation, gate, and report path. All numerical
 checks passed (cold shift at most 0.0057 errors, refinement at most 0.0014,
 projection at most 0.09%). The capped fits reached chi2_kin/N = 8.5-11.6, as
 expected at 12 evaluations.
+
+Launched `results/df/observed_df_20260923/` at 07:43 UTC from commit `bd17811`:
+four jobs (free halo and no halo, two starts each), two workers, cap 600
+evaluations, absolute stop 0.01 over two accepted steps, base-seeded Jacobians,
+and iteration tolerance 5e-5. The worst-case duration is about 5 h.
