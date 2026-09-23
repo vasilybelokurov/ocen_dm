@@ -104,11 +104,21 @@ class DFJointProblem:
     The tracer density enters either as a magnitude profile with adopted errors
     (``photometry``) or as Poisson star counts (``counts``, see counts.py), or
     both. The objective is chi2_kin + chi2_phot + sum of count deviances.
+
+    ``mass_per_star`` maps a count product to an assumed stellar mass (Msun,
+    everything that follows the light) per counted star. The count amplitude is
+    then ``a = (pc per arcsec)^2 / mass_per_star`` at the trial distance instead
+    of being profiled, tying the stellar mass normalization to the counts.
     """
-    def __init__(self, data: KinematicData, photometry: PhotometricData | None = None, counts=()):
+    def __init__(self, data: KinematicData, photometry: PhotometricData | None = None, counts=(),
+                 mass_per_star=None):
         if photometry is None and not counts:
             raise ValueError("a tracer-density constraint is required: photometry and/or counts")
         self.data, self.photometry, self.counts = data, photometry, tuple(counts)
+        self.mass_per_star = {k: float(v) for k, v in (mass_per_star or {}).items()}
+        names = {c.name for c in self.counts}
+        if set(self.mass_per_star)-names or any(v <= 0 for v in self.mass_per_star.values()):
+            raise ValueError(f"mass_per_star must name count products {sorted(names)} with positive values")
         self.likelihood = ProfileLikelihood(KinematicData(tuple(
             replace(p, streaming2=None) for p in data.profiles)))
 
@@ -141,7 +151,9 @@ class DFJointProblem:
         count_terms = {}
         for c in self.counts:
             sigma = model.projected_moments(np.asarray(c.r_nodes).ravel()*pc_per_arcsec)["Sigma"]
-            count_terms[c.name] = c.compare(sigma)
+            m = self.mass_per_star.get(c.name)
+            count_terms[c.name] = c.compare(sigma, amplitude=None if m is None else pc_per_arcsec**2/m)
+            count_terms[c.name]["mass_per_star"] = pc_per_arcsec**2/count_terms[c.name]["amplitude"]
         chi2_kin = sum(t["chi2"] for t in terms.values())
         lnlike_kin = sum(t["loglike"] for t in terms.values())
         deviance = sum(t["deviance"] for t in count_terms.values())

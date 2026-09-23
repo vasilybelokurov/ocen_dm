@@ -32,7 +32,7 @@ from ocen_dm.kinematics.compact_recovery import (
     refined_config, residual_vector,
 )
 from ocen_dm.kinematics.df_fit import (
-    DFJointProblem, FitCoordinate, PhotometricData, build_df_model, config_at,
+    ARCSEC_PER_RAD, DFJointProblem, FitCoordinate, PhotometricData, build_df_model, config_at,
     model_config_from_dict,
 )
 from ocen_dm.kinematics.counts import CountProfile
@@ -69,7 +69,8 @@ def load_problem(directory):
         if sha256(path) != record["counts_sha256"][name]:
             raise ValueError(f"count profile changed: {path}")
         counts.append(CountProfile.from_dict(read(path)))
-    return DFJointProblem(read_data_snapshot(directory, record["data_snapshot"]), photometry, counts)
+    return DFJointProblem(read_data_snapshot(directory, record["data_snapshot"]), photometry, counts,
+                          mass_per_star=record.get("mass_per_star") or None)
 
 
 def prepare(out, project, fitting=None):
@@ -225,8 +226,12 @@ TWO_TRANSITION_COORDS = [dict(path="stellar.b_outer", lower=-4., upper=2.),
 
 def prepare_real(out, project, fitting, starts, bounds=None, n_random=0, datasets=None,
                  gaia_error_floor=0., free_distance=None, branches=("free_halo", "no_halo"),
-                 two_transition=False, counts=(), distance_prior=None, fixed=None):
-    """Fit the observed data (pilot snapshot) with free-halo and no-halo branches."""
+                 two_transition=False, counts=(), distance_prior=None, fixed=None, mass_per_star=None):
+    """Fit the observed data (pilot snapshot) with free-halo and no-halo branches.
+
+    ``mass_per_star`` = {count product: Msun per counted star} pins that product's
+    count amplitude (external stellar-mass assumption) instead of profiling it.
+    """
     out.mkdir(parents=True, exist_ok=False)
     frozen = out/"code"
     (frozen/"bin").mkdir(parents=True)
@@ -255,7 +260,7 @@ def prepare_real(out, project, fitting, starts, bounds=None, n_random=0, dataset
         snapshot = write_data_snapshot(observed_variant(original, datasets, gaia_error_floor), d)
     dump(d/"problem.json", dict(data_snapshot=snapshot, source=str(source), datasets=datasets,
                                 gaia_error_floor_masyr=gaia_error_floor, photometry=not counts,
-                                counts=list(counts), counts_sha256=count_sha))
+                                counts=list(counts), counts_sha256=count_sha, mass_per_star=dict(mass_per_star or {})))
     spec = read(frozen/"configs/df/regularized_no_dm.json")
     model_spec = spec["model"]
     if two_transition:  # placeholder second transition; every start sets its own values
@@ -276,7 +281,7 @@ def prepare_real(out, project, fitting, starts, bounds=None, n_random=0, dataset
                           "fit quality only, not a mass decomposition or posterior",
                     fixed=dict(distance_kpc=base.distance_kpc, gamma=0, halo_taper_pc=base.matter.r_t),
                     fitting=fitting, priors={k: list(v) for k, v in (distance_prior and {"distance_kpc": distance_prior} or {}).items()},
-                    fixed_overrides=dict(fixed or {}),
+                    fixed_overrides=dict(fixed or {}), mass_per_star=dict(mass_per_star or {}),
                     gates=dict(chi2_kin_per_point=1.3, chi2_per_point_any_dataset=2.0,
                                chi2_phot_per_point=2.0, deviance_per_bin_counts=2.0, numerical_shift_sigma=.1),
                     source_sha256={str(p.relative_to(frozen)): sha256(p)
@@ -319,11 +324,16 @@ def prepare_real(out, project, fitting, starts, bounds=None, n_random=0, dataset
 
 
 def prepare_mock(out, project, fitting, truth_spec, inject, seed, branches, n_random, bounds,
-                 two_transition, free_distance, distance_prior, fixed, starts):
+                 two_transition, free_distance, distance_prior, fixed, starts, mass_per_star=None):
     """Realistic mock from a fitted observed-data model: its kinematic bins and count
     profiles, the truth's predictions with the published noise, Poisson counts with the
     fitted amplitudes, optional injected halo values, then the same fitting jobs as
-    ``prepare-real``. Recovery is judged with ``noisy_recovery_gates``."""
+    ``prepare-real``. Recovery is judged with ``noisy_recovery_gates``.
+
+    ``mass_per_star`` = {count product: Msun per counted star, or the string "truth"}
+    pins that product's count amplitude in the FIT (the mock is always generated with
+    the source fit's amplitudes); "truth" pins it at the mock's own value, a wrong
+    number tests the bias from a wrong external stellar-mass assumption."""
     import numpy.random
     src_batch, src_job = truth_spec.split("::")
     src_batch = Path(src_batch).resolve()
@@ -365,10 +375,14 @@ def prepare_mock(out, project, fitting, truth_spec, inject, seed, branches, n_ra
     nominal = problem.evaluate(truth_config)
     nominal_r = residual_vector(problem, nominal)
     radii = np.geomspace(.5, 80., 64)
+    pc_per_arcsec = truth_config.distance_kpc*1000/ARCSEC_PER_RAD
+    truth_mass_per_star = {n: pc_per_arcsec**2/a for n, a in amplitudes.items()}
+    mass_per_star = {n: (truth_mass_per_star[n] if v == "truth" else float(v)) for n, v in (mass_per_star or {}).items()}
     record = dict(config=truth.config.to_dict(), nominal_config=truth_config.to_dict(), diagnostics=truth.diagnostics,
                   data_snapshot=snapshot, counts=[c.name for c in problem.counts], counts_sha256=count_sha,
                   photometry=False, profiles=mass_profiles(truth, radii), noisy=seed is not None, seed=seed,
-                  injected=inject, amplitudes=amplitudes, fields=fields,
+                  injected=inject, amplitudes=amplitudes, fields=fields, truth_mass_per_star=truth_mass_per_star,
+                  mass_per_star=mass_per_star,
                   truth_source=dict(batch=str(src_batch), job=src_job, commit=src_manifest.get("source_commit")),
                   nominal_chi2_kin=float(nominal["chi2_kinematic"]), nominal_deviance=float(nominal["deviance_counts"]),
                   nominal_residual_sigma=nominal_r.tolist(), seconds=time.monotonic()-t0)
@@ -394,6 +408,7 @@ def prepare_mock(out, project, fitting, truth_spec, inject, seed, branches, n_ra
                     fixed=dict(distance_kpc=base.distance_kpc, gamma=0, halo_taper_pc=base.matter.r_t),
                     fitting=fitting, priors={k: list(v) for k, v in (distance_prior and {"distance_kpc": distance_prior} or {}).items()},
                     fixed_overrides=dict(fixed or {}), truth=truth_spec, injected=inject, seed=seed,
+                    mass_per_star=mass_per_star, truth_mass_per_star=truth_mass_per_star,
                     gates=dict(chi2_kin_per_point=1.3, chi2_per_point_any_dataset=2.0, deviance_per_bin_counts=2.0,
                                M_star_fraction=.05, total_mass_profile_fraction=.1, rho20_fraction_if_DM=.1,
                                rho20_absolute_if_no_DM=.1, numerical_shift_sigma=.1),
@@ -804,6 +819,10 @@ def main():
                    help="prepend that fit's best configuration as start 0 (prepare-real)")
     p.add_argument("--fix", action="append", default=[], metavar="PATH=VALUE",
                    help="hold a config value at VALUE for every start (prepare-real), e.g. matter.rho20=0.5")
+    p.add_argument("--mass-per-star", action="append", default=[], metavar="COUNTS=MSUN",
+                   help="pin a count product's amplitude to an assumed stellar mass per counted star "
+                        "(prepare-real/prepare-mock), e.g. ocen_counts_hst_f625w19=9.0; prepare-mock also "
+                        "accepts =truth (the mock's own value)")
     p.add_argument("--probe-workers", type=int, default=1,
                    help="processes for the Jacobian probes of one fit (needs --jacobian-seed base)")
     p.add_argument("--iteration-tolerance", type=float, default=None,
@@ -852,7 +871,8 @@ def main():
                      tuple(args.branches.split(",")), args.n_starts, bounds, args.two_transition,
                      tuple(map(float, args.free_distance.split(":"))) if args.free_distance else None,
                      tuple(map(float, args.distance_prior.split(":"))) if args.distance_prior else None,
-                     {k: float(v) for k, v in (item.split("=") for item in args.fix)}, starts)
+                     {k: float(v) for k, v in (item.split("=") for item in args.fix)}, starts,
+                     mass_per_star={k: v for k, v in (item.split("=") for item in args.mass_per_star)})
     elif args.command == "prepare-real":
         # Two starts bracketing an Omega Cen-like mass and compactness (v2 mocks were too
         # light and extended): M_star, J0, alpha, b_out, J_a, M_rem, a_rem, rho20, r_s.
@@ -896,7 +916,8 @@ def main():
                      branches=tuple(args.branches.split(",")), two_transition=args.two_transition,
                      counts=tuple(args.counts.split(",")) if args.counts else (),
                      distance_prior=tuple(map(float, args.distance_prior.split(":"))) if args.distance_prior else None,
-                     fixed={k: float(v) for k, v in (item.split("=") for item in args.fix)})
+                     fixed={k: float(v) for k, v in (item.split("=") for item in args.fix)},
+                     mass_per_star={k: float(v) for k, v in (item.split("=") for item in args.mass_per_star)})
     elif args.command == "fit":
         if args.job is None:
             p.error("fit requires --job")

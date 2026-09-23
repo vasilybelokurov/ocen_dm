@@ -5694,3 +5694,36 @@ so a single mass-follows-light stellar DF cannot be exactly right; the
 prior should be taken at the radii that dominate the kinematics (20-100
 arcsec, i.e. 0.5-2.6 pc) and the radial trend treated as a systematic.
 Not yet done: converting this into a prior for the fits.
+
+## 2026-09-23 -- Tooling: rho20 as a function of the assumed mass per counted star
+
+Decision (user): no Gaussian prior on M_star; instead report the DM result
+as a function of the assumed stellar mass per counted star, M/N19.
+Implementation: `CountProfile.compare(sigma, amplitude=...)` and
+`poisson_profile_fit(..., amplitude=...)` hold the count amplitude a fixed
+(field still profiled, >= 0); `DFJointProblem(..., mass_per_star={product:
+Msun})` sets a = (pc per arcsec)^2 / (M/N19) at the trial distance, so the
+HST counts then fix the stellar-mass normalization and the kinematics must
+be met by the DF shape, remnants and halo. Every count term now reports
+`mass_per_star` (= (pc/arcsec)^2 / a, also for profiled a). Driver:
+`--mass-per-star ocen_counts_hst_f625w19=M` (prepare-real; stored in
+problem.json and the manifest). Scan: `bin/run_mass_per_star_scan.sh`
+(batches `mpsscan_<M>_20260923`, default M = 7 8 9 10 11 12, same set-up as
+the rho20 scan); plot: `bin/plot_mass_per_star_profile.py`.
+Smoke check at the counts-based best fit (M/N19 = 10.67 profiled): pinning
+M/N19 = 9.0 with all else unchanged raises the HST deviance from 98.9 to
+3716 (the model has too many stars per counted star by 10.67/9 = 1.19),
+kinematics unchanged (158.2). Tests: `test_counts.py` (fixed amplitude
+equals the profiled optimum, worse elsewhere, field >= 0),
+`test_compact_recovery.py` (mass_per_star pins the amplitude, validation).
+Not launched yet; awaiting approval of the grid.
+Mock side (user: "we should test this on mocks"): `prepare-mock` accepts
+`--mass-per-star ocen_counts_hst_f625w19=truth|M`; the mock data are still
+generated with the source fit's amplitudes (identical to the coverage mocks
+for the same seed, verified: same count and snapshot checksums for seed 11),
+only the FIT pins the amplitude. mock.json records `truth_mass_per_star`
+(10.671 for HST, 144.0 for Gaia G<17) and the pinned values. At the truth
+configuration under the truth-pinned amplitude the HST deviance is 24.3/20.
+Runner: `bin/run_mock_mass_per_star.sh [M] [SEEDS] [RHO]` (batches
+`mpsmock_<M>_{A,B}_s<seed>`). Coverage-mock fits took 11-26 min each (A and
+B of a seed concurrently).

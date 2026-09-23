@@ -59,3 +59,21 @@ def test_validation_rejects_bad_inputs():
         CountProfile("x", lo, hi, nodes, np.array([1, 2]), np.array([1., 0.]), "s", "sel")
     with pytest.raises(ValueError):
         poisson_profile_fit([1, 2], [1., 1.], [-1., 1.])
+
+
+def test_fixed_amplitude_matches_profiled_at_optimum_and_is_worse_elsewhere():
+    rng = np.random.default_rng(4)
+    p, shape, _ = _profile(rng, a=2e-3, b=3e-4)
+    free = p.compare(shape)
+    pinned = p.compare(shape, amplitude=free["amplitude"])
+    assert pinned["amplitude_fixed"] and not free["amplitude_fixed"]
+    assert pinned["deviance"] == pytest.approx(free["deviance"], rel=1e-6)
+    assert pinned["field"] == pytest.approx(free["field"], rel=1e-4)
+    worse = p.compare(shape, amplitude=1.5*free["amplitude"])
+    assert worse["amplitude"] == pytest.approx(1.5*free["amplitude"]) and worse["deviance"] > free["deviance"]+10
+    assert worse["field"] >= 0.       # the field is re-profiled but never negative
+    assert p.compare(shape, amplitude=10*free["amplitude"])["field"] == 0.   # far too many model stars
+    q, shape_q, _ = _profile(rng, a=2e-3, b=0., fit_field=False)
+    assert q.compare(shape_q, amplitude=1e-3)["field"] == 0.
+    with pytest.raises(ValueError):
+        p.compare(shape, amplitude=-1.)
