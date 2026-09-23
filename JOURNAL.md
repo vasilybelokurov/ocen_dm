@@ -5670,8 +5670,8 @@ script now fits all zones to the common limit (MF_MAGLIM).
 
 Luminous mass that follows the light per star with F625W < 19 (the count
 product's selection), zone 60-100 arcsec, [Fe/H] -1.20 / -1.53:
-  MS observed (0.52-0.78 Msun)         2.40 / 2.39 Msun
-  MS extrapolated to 0.1 Msun          fitted slope 4.40 / 3.59; Kroupa (-1.3 below 0.5) 3.62 / 3.30; flat 0.13 / 0.16 lower bound (illustrative)
+  MS observed (0.52-0.78 Msun)         1.80 / 1.77 Msun
+  MS extrapolated to 0.1 Msun          fitted slope 5.00 / 4.21; Kroupa (-1.3 below 0.5) 4.22 / 3.92; flat 2.03 / 1.92 (illustrative lower bound)
   evolved stars (N_evolved * m_TO)     0.11 / 0.10
   white dwarfs (0.55 Msun, IMF -2.3 above m_TO, N_WD/N19 = 4.6-4.7)  2.55 / 2.60
   total                                 9.47 / 8.69 (fitted slope), 8.69 / 8.40 (Kroupa), 6.49 / 6.39 (flat)
