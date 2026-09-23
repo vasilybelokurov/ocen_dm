@@ -211,30 +211,25 @@ Neither defect affects the converged minima above.
 
 ## What is needed
 
-Model changes are proposed here and will not be made without approval.
-Each step has a predefined test.
+Revised on 23 September after an external review, checked in `JOURNAL.md`.
+Model changes (steps 2-6) await approval; steps 0-1 do not change the model.
 
-1. **Fitter robustness (bug fix, no model change).** Implement the two fixes
-   above, with unit tests and a smoke run.
-2. **Distance free (cheap check).** Fit distance as a coordinate, keeping
-   everything else as in the wide batch. PM dispersions scale as 1/D at fixed
-   km/s while LOS does not, so a distance error distorts the PM/LOS balance.
-   Test: does chi2_kin/N fall substantially, and does D stay within
-   literature values?
-3. **Second anisotropy transition (already implemented and unit-tested).**
-   Free `b_outer` and `J_outer` (with J_outer > J_a), giving an inner, an
-   intermediate and an outer anisotropy amplitude. This targets the residual
-   pattern directly. Test: the same acceptance criteria, with multi-start.
-4. **Separate mass and light DFs, if 2-3 are insufficient.** Omega Cen is
-   mass-segregated, so tracer stars need not follow the mass. The mass/light
-   separation exists for the DoublePowerLaw branch (`MassLightDFModel`,
-   [DF_MASS_RECOVERY.md](DF_MASS_RECOVERY.md)) but not for the regularized
-   family.
-5. **Rotating DF, if outer residuals persist.** Replace the moment-level
-   streaming subtraction with an odd-in-L_z DF component.
-6. **Then return to the recovery programme.** Only after a model passes the
-   observed-data criteria should its best fit define realistic mock truths
-   (v3) for the fixed-rho20 profile scan and the star/DM identifiability test.
+| Step | What | Question answered |
+|---|---|---|
+| 0 | Fitter robustness: retry a rejected probe in the opposite direction; flag stops near rejections; record infeasible starts | Removes the two defects above |
+| 1a | Spline-beta(r) Jeans inversion (a new anisotropy class in `jeans.py`), with and without Gaia | Which beta(r) do the data demand? |
+| 1b | Current DF fitted to HST+MUSE only and to Gaia only | Do the datasets need incompatible DFs? |
+| 1c | Gaia systematics: HST/Gaia overlap bins, systematic error floor | Is the outer tension partly systematic? |
+| 1d | Distance free | Sanity check only: D rescales both PM components equally and cannot change sigma_T/sigma_R |
+| 2 | Two-transition anisotropy (`b_outer`, `J_outer`; b > 0 is radial), **no halo**, multi-start; plot the implied beta(r) | Can a radial-then-tangential ellipsoid fit the data? |
+| 3 | Step 2 plus cored halo | Is rho20 still preferred once the DF is flexible? |
+| 4 | Rotating DF (odd in L_z), with mean velocities fitted jointly | Removes the annular, spherical streaming approximation, which is largest where the fit fails (Gaia vbar^2/sigma^2 up to 0.38) |
+| 5 | Separate tracer and mass DFs | Relaxes mass follows light (mass segregation, multiple populations) |
+| 6 | Axisymmetric f(J_R, J_z, L_z) | Needed if spherical models cannot absorb flattening and rotation |
+
+The halo stays frozen at zero while DF flexibility is being tested. Only a
+model that passes the observed-data criteria should define mock truths (v3)
+for the profile scan and the star/DM identifiability test.
 
 ## Reproduction
 
