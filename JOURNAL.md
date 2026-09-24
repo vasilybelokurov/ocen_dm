@@ -6013,3 +6013,25 @@ r_half/bound masses were meaningless from t ~ 1.5 Myr. Fixed (predict the
 centre with the centre velocity; fall back to the luminous median), verified
 on a 3 Myr orbit test (r_half 10.29-10.30 pc, r_gal 3.85 -> 4.44 kpc), both
 runs relaunched from t = 0 at 11:37 UTC.
+
+## 2026-09-24 -- Tail analysis tooling; first-pericentre numbers
+
+`bin/nbody/analyse_tails.py`: bound-mass history per species with
+pericentres marked; debris at a chosen snapshot in orbit coordinates (time
+offset along the cluster orbit, matched in 6D so that self-crossings of the
+rosette are resolved; perpendicular distance); sky view at t = today.
+Frame: simulation coordinates are Baumgardt's (X from the Sun through the
+GC, Y, Z; U, V, W); astropy Galactocentric = (-X, Y, Z; -U, V, W) with
+R0 = 8.178 kpc, z_sun = 0, v_sun = (11.1, 252.24, 7.25) km/s reproduces the
+catalogue's omega Cen values: l 309.103 (309.102), b 14.946 (14.968), d 5.428
+(5.43), v_los 232.84 (232.78), pm_ra* -3.235 (-3.236), pm_dec -6.725 (-6.731).
+Snapshot t = 170 Myr (after 2 pericentres, r_min 1.71 kpc so far):
+  A: unbound stars 2.04e4 Msun (0.68%), remnants 3.0e2; debris within +-8
+     Myr along the orbit (5-95%), symmetric leading/trailing.
+  B: unbound stars 6.8e3 (0.27%), remnants 4.6e2; halo 1.05e6 unbound (58%),
+     spread over +-20 Myr.
+  Early indication: B loses stars ~3x more slowly (deeper potential from the
+  halo inside the tidal radius); to be confirmed over the full 2 Gyr.
+Machine load: three unrelated Python jobs (~2-2.5 cores each) started
+during the runs; step time rose from 0.46 to 0.6-2 s at times; ETA now
+uncertain (26-30 h nominal).
