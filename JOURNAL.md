@@ -5879,3 +5879,24 @@ with the fitted slope reaches the dynamical band; the zones that dominate
 the kinematics (30-175") give 8.3-9.8. (b) the real-data scan: rho20 and
 M_DM(<10 pc) returned for each pinned value, with the photometric ranges
 and the dynamical band overlaid.
+
+## 2026-09-24 -- Data vs models with the photometric stellar mass imposed
+
+New fit (approved as part of the figure request): `mpsscan_9_nohalo_20260923`
+(no-halo branch, HST amplitude pinned at 9.0 Msun per counted star, seeded
+from the pinned-9 free-halo fit; 6 min): obj 313.1, chi2_kin 206.6, count
+deviance 102.1 (HST 81.4), M_star 2.638e6, M_rem 4.78e5 at 3.03 pc, D 5.324.
+Figure `plots/data_vs_models_photometric_pin_20260924_{data,diagnostics}.png`
+(`bin/plot_best_fit_performance.py`) with three models:
+  free stellar mass (10.67/star), no DM       obj 285.6  chi2/n: HST PM_R 2.07, PM_T 1.95, LOS 1.31, Gaia R 1.55, T 2.42
+  photometric 9.0/star, no DM                 obj 313.1         HST PM_R 3.59, PM_T 2.43, LOS 1.24, Gaia R 1.51, T 3.43
+  photometric 9.0/star + halo (2.6, 5 pc)     obj 292.5         HST PM_R 2.27, PM_T 2.00, LOS 1.29, Gaia R 1.28, T 3.58
+With the stars held at the photometric value and no halo, the model is
+0.5-1.5% low in the HST dispersions at 1-8 pc (PM_R residuals to -4.3
+sigma at 3 pc) and low in the LOS dispersion inside 1 pc: remnants at 3 pc
+cannot replace the missing extended mass. Adding the halo recovers the
+kinematics almost fully (+6.9 vs the free fit instead of +27.5); the halo
+is preferred over no halo by 20.6 in the objective AT FIXED photometric
+stellar mass. The figure is the "with photometric constraint" counterpart
+of data_vs_dm_models_20260924_data.png: there the DM and no-DM curves
+coincide; here they separate, because the stars can no longer compensate.
