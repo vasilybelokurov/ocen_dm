@@ -5996,3 +5996,13 @@ would; the outer envelope and tails (r > 5 pc) are collisionless to a few
 per cent. FLAG for the write-up.
 Adopted for the tidal runs: eps 0.3 pc, dt 0.01 Myr, 2 Gyr, snapshots every
 10 Myr (~1.4 GB per model as float32), diagnostics every 1 Myr.
+
+## 2026-09-24 -- Tidal runs launched (approved)
+
+11:20 UTC: `run_nbody.py --orbit --tback 2000 --eps 0.3 --dt 0.01 --tstop 2000
+--snap 10 --diag 1` for A (`results/nbody/A_nodm/orbit`) and B
+(`results/nbody/B_dm_phot/orbit`), logs `results/nbody/{A_nodm,B_dm_phot}_orbit.log`.
+Start 2 Gyr ago at (-2.664, -2.543, -1.110) kpc, (-216.4, -20.3, -141.1)
+km/s in McMillan17; the cluster reaches today's position at t = 2000 Myr.
+Expected ~30 h each (2e5 steps at ~0.55 s), snapshots every 10 Myr (200
+per model), restart file with every snapshot (`--resume`).
