@@ -60,7 +60,13 @@ def mw_acceleration(pot, pos_pc):
 
 
 def cluster_centre(pos, vel, mass, sel, guess, radii=(50., 20., 10., 5.)):
-    c = guess.copy()
+    """Shrinking spheres on the selected (luminous) particles from ``guess``; if the guess has
+    lost the cluster (fewer than 100 particles within the first sphere) restart from the
+    median position of the selected particles, which unbound debris shifts only slightly."""
+    c = np.asarray(guess, float).copy()
+    if np.sum(sel & (np.sum((pos-c)**2, axis=1) < radii[0]**2)) < 100:
+        c = np.median(pos[sel], axis=0)
+        print("  centre finder: guess lost the cluster, restarted from the luminous median", flush=True)
     for R in radii:
         k = sel & (np.sum((pos-c)**2, axis=1) < R*R)
         if k.sum() < 100:
@@ -139,9 +145,14 @@ def main():
     t_wall = time.time(); t_last = t_wall
     E0 = None
 
+    last_diag_t = [t_myr]
+
     def diagnostics(step, t_myr, pos, vel, phi, write=True):
         nonlocal centre, vcentre, E0
-        centre, vcentre = cluster_centre(pos, vel, mass, sel_lum, centre)
+        # predict the centre from its velocity over the interval since the last diagnostics
+        guess = centre+vcentre*(t_myr-last_diag_t[0])/T_UNIT
+        last_diag_t[0] = t_myr
+        centre, vcentre = cluster_centre(pos, vel, mass, sel_lum, guess)
         bound = bound_mask(pos, vel, mass, args.eps, centre, vcentre)
         row = dict(step=step, t_myr=t_myr, centre_pc=centre.tolist(), vcentre_kms=vcentre.tolist(),
                    bound_mass={SPECIES[s]: float(mass[bound & (species == s)].sum()) for s in np.unique(species)},
