@@ -5815,3 +5815,45 @@ objective 283.4 -> 1123.9 (chi2_kin 158 -> 991), against 285.5 for the
 refit. The compensation is M_star -5.5%, M_rem +11% (a_rem 2.15 -> 2.27 pc),
 J_a 64 -> 55, J_outer 319 -> 382, b_out 0.74 -> 0.63. The coincidence of the
 curves is therefore the degeneracy itself, not a plotting error.
+
+## 2026-09-24 -- Real data: rho20 as a function of the stellar mass per counted star
+
+Run (approved): `bin/run_mass_per_star_scan.sh 8 9 10 11 12` (batches
+`mpsscan_<M>_20260923`; HST count amplitude pinned at M Msun per F625W < 19
+star, Gaia amplitude and field profiled, free cored halo, distance prior;
+seeded from the counts-based no-halo best fit plus one Latin start). Every
+Latin start was infeasible under a pinned amplitude (DF closure failure at
+the random start), so each point rests on the seeded start. M = 11 and 12
+stopped early in pass 1 (xtol after 7/6 iterations, gradient norm 12/179
+with the objective still falling); both were restarted from their own best
+point (pass-1 batches kept as `*_pass1`): 11 -> 286.8 (unchanged), 12 ->
+305.3 (from 309.1). Figure `plots/mass_per_star_profile_20260923.png`,
+data `results/plot_data/mass_per_star_profile_20260923.json`.
+
+  M/N19   dObj   chi2_kin  dev(HST)   rho20   r_s    M_star    M_rem@a     M_DM(<10 pc)  D
+   8.00  +12.2    178.6   116.4(86.9)  4.27   5.0*  2.24e6   4.37e5@2.76   1.76e5      5.347
+   9.00   +6.9    170.8   119.0(91.1)  2.60   5.0*  2.52e6   3.68e5@2.56   1.07e5      5.348
+  10.00   +2.4    164.7   120.7(95.2)  0.80   5.0*  2.82e6   3.09e5@2.36   3.3e4       5.350
+  10.67    0.0    158.2   125.2(98.9)  0.00   --    3.00e6   2.62e5@2.15   0           5.356  (free amplitude)
+  11.00   +1.2    155.3   129.9(99.5)  0.00  15.5   3.06e6   2.33e5@2.00   0           5.366
+  12.00  +19.7    158.6   146.4(98.3)  0.00  78.0   3.22e6   1.64e5@1.58   0           5.403
+  (* r_s at its 5 pc lower bound)
+Below the free value the halo switches on with d rho20 / d(M/N19) ~ -1.7
+per Msun per star and r_s pinned at 5 pc; remnants grow with the halo
+(2.6e5 -> 4.4e5). Above it the halo stays off, M_rem shrinks and the Gaia
+count deviance rises (the counts and kinematics disagree on the amplitude).
+The profile is asymmetric: +2.4 at 10, +6.9 at 9, +12.2 at 8 versus +1.2 at
+11 and +19.7 at 12.
+
+Combination with the photometric mass function as a Gaussian term
+((M - 8.9)/sigma)^2 (interpolated along the scan; Delta = 1 ranges):
+  sigma 0.5: M/N19 9.47 [8.98, 9.97], rho20 1.8 [0.9, 2.6], M_DM(<10) 7e4 [3.5e4, 1.1e5], penalty vs free 6.1
+  sigma 1.0: M/N19 10.67 [9.79, 10.80], rho20 0.0 [0, 1.2], M_DM(<10) ~0 [0, 4.9e4]
+  sigma 1.5: M/N19 10.67 [10.21, 10.85], rho20 0.0 [0, 0.55], M_DM(<10) ~0 [0, 2.3e4]
+The answer is set by sigma_phot: at 0.5 the photometry drives a 'detection'
+that the mocks show a -16% mass-per-star error produces on a no-DM truth;
+at >= 1.0 the data pull the combined minimum back to the free value and
+rho20 = 0. The dynamical preference (10.67) sits 1.8 sigma above the
+photometric 8.9 for sigma = 1. The next step is therefore the photometric
+error budget (extrapolation below 0.52 Msun, white-dwarf term), not more
+fitting.

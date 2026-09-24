@@ -5,9 +5,12 @@ Reads results/df/mpsscan_<M>_<TAG> (HST count amplitude pinned at M Msun per F62
 star, everything else refitted with a free cored halo) and the free-amplitude reference
 batch, takes the best converged job of each, and plots (a) the objective and its
 components relative to the overall minimum, (b) the recovered rho20 and profiled r_s,
-(c) the profiled masses (M_star, M_rem, M_DM inside 20 and 63 pc). The photometric
-mass-function range for M/N19 (JOURNAL 2026-09-23) is shaded. As for the rho20 profile,
-Delta values are on a chi2 scale only if the likelihood is calibrated.
+(c) the profiled masses (M_star, M_rem, M_DM inside 10, 20 and 63 pc), (d) the profile
+combined with the photometric measurement of M/N19 as a Gaussian term
+((M - M_phot)/sigma)^2 for several sigma: its minimum and the implied rho20 and
+M_DM(<10 pc) (interpolated along the scan). The photometric mass-function range for
+M/N19 (JOURNAL 2026-09-23) is shaded. As for the rho20 profile, Delta values are on a
+chi2 scale only if the likelihood is calibrated.
 
 Usage: python bin/plot_mass_per_star_profile.py [--tag 20260923]
 """
@@ -34,6 +37,8 @@ COUNTS = "ocen_counts_hst_f625w19"
 # IMF -2.3 above the turnoff, both metallicities) and the full spread over zones and variants
 MF_CORE = (8.3, 9.8)
 MF_FULL = (7.7, 11.3)
+M_PHOT = 8.9                 # photometric central value (30-175 arcsec, Kroupa/fitted slope, IMF -2.3)
+SIGMAS = (0.5, 1.0, 1.5)     # trial photometric uncertainties, Msun per counted star
 
 
 def read(path):
@@ -60,6 +65,7 @@ def extract(row, label):
                 deviance_hst=g.get("deviance_counts", {}).get(COUNTS), prior=((c["distance_kpc"]-5.43)/0.05)**2,
                 rho20=c["matter"]["rho20"], r_s=c["matter"]["r_s"], M_star=c["M_star"], M_rem=c["matter"]["M_rem"],
                 a_rem=c["matter"]["a_rem"], D=c["distance_kpc"],
+                M_halo_10=float(np.interp(10., prof["r_pc"], prof["halo"])),
                 M_halo_20=float(np.interp(20., prof["r_pc"], prof["halo"])), M_halo_63=float(np.interp(63., prof["r_pc"], prof["halo"])),
                 M_tot_20=float(np.interp(20., prof["r_pc"], prof["total"])), pinned=pinned,
                 message=s["optimizer"]["message"], summary=f, n_jobs=len(glob.glob(f"{os.path.dirname(os.path.dirname(f))}/*/summary.json")))
@@ -83,8 +89,9 @@ def main():
     points.sort(key=lambda p: p["mass_per_star"])
     x = np.array([p["mass_per_star"] for p in points]); obj = np.array([p["objective"] for p in points])
     free = [p for p in points if not p["amplitude_fixed"]]
-    fig, axes = plt.subplots(1, 3, figsize=(15, 4.6), constrained_layout=True)
-    for ax in axes:
+    fig, axes = plt.subplots(2, 2, figsize=(13, 9.5), constrained_layout=True)
+    axes = axes.ravel()
+    for ax in axes[:3]:
         ax.axvspan(*MF_FULL, color="0.93", zorder=0); ax.axvspan(*MF_CORE, color="0.85", zorder=0)
         for p in free:
             ax.axvline(p["mass_per_star"], color="tab:red", ls="--", lw=1)
@@ -104,24 +111,46 @@ def main():
     ax2.set(yscale="log", ylabel=r"profiled $r_s$ [pc] (bounds 5-500)")
     h1, l1 = ax.get_legend_handles_labels(); h2, l2 = ax2.get_legend_handles_labels(); ax.legend(h1+h2, l1+l2, fontsize=7)
     ax = axes[2]
-    for key, mk, lab in (("M_star", "^", r"$M_\star$"), ("M_rem", "v", r"$M_{\rm rem}$"), ("M_halo_20", "o", r"$M_{\rm DM}(<20\,{\rm pc})$"),
+    for key, mk, lab in (("M_star", "^", r"$M_\star$"), ("M_rem", "v", r"$M_{\rm rem}$"), ("M_halo_10", "*", r"$M_{\rm DM}(<10\,{\rm pc})$"), ("M_halo_20", "o", r"$M_{\rm DM}(<20\,{\rm pc})$"),
                          ("M_halo_63", "s", r"$M_{\rm DM}(<63\,{\rm pc})$"), ("M_tot_20", "x", r"$M_{\rm tot}(<20\,{\rm pc})$")):
         ax.plot(x, [max(p[key], 1.) for p in points], marker=mk, label=lab)
     ax.set(yscale="log", ylabel=r"mass [$M_\odot$]", title="(c) profiled masses", ylim=(1e3, 1e7))
+    ax.legend(fontsize=7)
+    # (d) combination with the photometric measurement
+    ax = axes[3]
+    grid = np.linspace(x.min(), x.max(), 401)
+    obj_i = np.interp(grid, x, obj); rho_i = np.interp(grid, x, [p["rho20"] for p in points]); m10_i = np.interp(grid, x, [p["M_halo_10"] for p in points])
+    ax.plot(x, obj-obj.min(), marker="o", color="black", label="fit objective (scan)")
+    combined = {}
+    for sig, c in zip(SIGMAS, ("tab:red", "tab:orange", "tab:green")):
+        tot = obj_i+((grid-M_PHOT)/sig)**2
+        k = np.argmin(tot); inside = grid[tot <= tot[k]+1.]
+        combined[str(sig)] = dict(M_best=float(grid[k]), M_lo=float(inside.min()), M_hi=float(inside.max()), rho20=float(rho_i[k]),
+                                  rho20_range=[float(np.interp(inside.max(), grid, rho_i)), float(np.interp(inside.min(), grid, rho_i))],
+                                  M_halo_10=float(m10_i[k]), M_halo_10_range=[float(np.interp(inside.max(), grid, m10_i)), float(np.interp(inside.min(), grid, m10_i))],
+                                  delta_vs_free=float(tot[k]-obj.min()))
+        ax.plot(grid, tot-obj.min(), color=c, label=fr"+ photometric term, $M_{{\rm phot}}$ = {M_PHOT} $\pm$ {sig}: min at {grid[k]:.2f}, $\rho_{{20}}$ = {rho_i[k]:.2f}")
+        ax.plot(grid[k], tot[k]-obj.min(), "v", color=c)
+    ax.axvline(M_PHOT, color="0.5", ls=":", lw=1)
+    ax.set(ylim=(-.5, 30), ylabel=r"$\Delta$ (objective + photometric term)", title="(d) profile combined with the photometric measurement")
     ax.legend(fontsize=7)
     fig.suptitle("Dark matter vs the assumed stellar mass per counted star (HST count amplitude pinned; two-transition DF, "
                  "Poisson counts, distance prior; red dashed: free amplitude)")
     plot = ROOT/"plots"/f"mass_per_star_profile_{args.tag}.png"
     fig.savefig(plot, dpi=150)
     record = dict(created_utc=datetime.now(timezone.utc).isoformat(), points=points, mf_core=MF_CORE, mf_full=MF_FULL,
+                  m_phot=M_PHOT, combined=combined,
                   plot_sha256=hashlib.sha256(plot.read_bytes()).hexdigest())
     (ROOT/"results/plot_data"/f"mass_per_star_profile_{args.tag}.json").write_text(json.dumps(record))
     base = obj.min()
     for p in points:
         print(f"M/N19 {p['mass_per_star']:5.2f} ({p['label']:14s}) obj {p['objective']:7.1f} (+{p['objective']-base:5.2f})  chi2_kin {p['chi2_kin']:6.1f}  "
               f"dev {p['deviance_counts']:6.1f} (HST {p['deviance_hst']:.1f})  prior {p['prior']:.2f}  rho20 {p['rho20']:.3f}  r_s {p['r_s']:6.1f}  "
-              f"M* {p['M_star']:.3e}  Mrem {p['M_rem']:.2e}@{p['a_rem']:.2f}  M_DM(<20) {p['M_halo_20']:.2e}  D {p['D']:.3f}  "
+              f"M* {p['M_star']:.3e}  Mrem {p['M_rem']:.2e}@{p['a_rem']:.2f}  M_DM(<10) {p['M_halo_10']:.2e}  M_DM(<20) {p['M_halo_20']:.2e}  D {p['D']:.3f}  "
               f"{'BOUND ' + ','.join(p['pinned']) if p['pinned'] else ''} ({p['message'][:20]})")
+    for sig, c in combined.items():
+        print(f"photometric {M_PHOT} +- {sig}: combined minimum M/N19 {c['M_best']:.2f} [{c['M_lo']:.2f}, {c['M_hi']:.2f}] (Delta=1), rho20 {c['rho20']:.2f} [{c['rho20_range'][0]:.2f}, {c['rho20_range'][1]:.2f}], "
+              f"M_DM(<10 pc) {c['M_halo_10']:.2e} [{c['M_halo_10_range'][0]:.1e}, {c['M_halo_10_range'][1]:.1e}], objective penalty vs free {c['delta_vs_free']:.1f}")
     print(plot)
 
 
