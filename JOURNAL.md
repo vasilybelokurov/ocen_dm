@@ -5801,3 +5801,17 @@ remnants <-> halo trade (corr -0.72), whose size (rms 1.3-1.6e4 Msun inside
 unconstrained r_s (5 to 500 pc for the same enclosed mass), not a mass
 error. Reporting M_DM(<10 pc) instead of rho20 would be the better-posed
 quantity.
+
+## 2026-09-24 -- Check: why the DM and no-DM curves coincide
+
+User flagged the identical curves as suspicious. Rebuilt both models at
+refined resolution from the same problem and compared predictions bin by
+bin. Refitted rho20 = 1 (r_s 5 pc) vs no-DM: max |dM|/err 0.15 (HST PM_R),
+0.10 (PM_T), 0.02 (LOS), 0.13/0.27 (Gaia R/T), 0.07/0.20 (HST/Gaia counts);
+fractional changes 0.1-0.2% in the HST dispersions. Naive control: the
+no-DM model with the same halo added and NOTHING refitted changes the HST
+PM_R by 2.0% = 12.5 sigma, PM_T 2.5% = 6.5 sigma, LOS 2.2% = 1.5 sigma;
+objective 283.4 -> 1123.9 (chi2_kin 158 -> 991), against 285.5 for the
+refit. The compensation is M_star -5.5%, M_rem +11% (a_rem 2.15 -> 2.27 pc),
+J_a 64 -> 55, J_outer 319 -> 382, b_out 0.74 -> 0.63. The coincidence of the
+curves is therefore the degeneracy itself, not a plotting error.
