@@ -5918,3 +5918,45 @@ mass at 1 pc); in (B) the halo is a minor component everywhere inside the
 data (3-12%), rising outward, while the remnant Plummer is 40% heavier and
 slightly more extended. (B) is not the maximum-likelihood model; it is the
 best fit with a non-zero halo once the photometric stellar mass is imposed.
+
+## 2026-09-24 -- N-body tidal-disruption comparison: set-up (approved decisions)
+
+Goal: particle realisations of model A (no DM, free stellar mass;
+dftwo_counts::observed_no_halo_start0) and model B (cored DM halo with the
+photometric stellar mass 9.0/star; mpsscan_9::observed_free_halo_start0),
+evolved on omega Cen's orbit to compare their tidal tails.
+Decisions (user): pyfalcon gravity solver with our own leapfrog and the
+external MW potential; 2 Gyr; 5e5 particles per model; halo in B sampled as
+fitted (taper 1000 pc, 1.81e6 Msun in total, 1.05e6 inside 160 pc); static
+McMillan17 MW potential (FLAG: an orbit sub-project will later compare
+static / dynamical-friction / bar-resonance treatments); non-rotating
+models (FLAG: rotating DF models to be built later).
+Orbit: Baumgardt orbits_table.txt, NGC 5139: X,Y,Z = 4.87, -4.07, 1.40 kpc,
+U,V,W = -95.98, -21.69, -86.82 km/s, R_peri 1.47 +- 0.04, R_apo 6.95 +- 0.03
+kpc (https://people.smp.uq.edu.au/HolgerBaumgardt/globular/orbits_table.txt).
+In AGAMA McMillan17: peri 1.42, apo 7.11 kpc, 22 pericentres in 2 Gyr
+(radial period ~91 Myr), retrograde; Jacobi radius 66 pc at peri, 164 pc at
+apo for M = 3.3e6. Start point 2 Gyr ago: (-2.664, -2.543, -1.110) kpc,
+(-216.4, -20.3, -141.1) km/s.
+Code: pyfalcon (GalacticDynamics-Oxford/pyfalcon, git clone + `pip install .
+--no-build-isolation` with CXXFLAGS="-std=c++14 -Wno-register"; the PyPI
+'pyfalcon' is an unrelated package). Benchmark: 0.56 s per force evaluation
+for 5e5 particles (single core) -> dt 0.01 Myr, 2 Gyr = 2e5 steps ~ 30 h per
+model. Units pc, km/s, Msun (G = 4.3009e-3), time unit 0.9778 Myr.
+ICs (`bin/nbody/build_ics.py`): stars from the fitted DF via
+agama.GalaxyModel.sample (with an action floor of 1e-6 pc km/s because the
+sampler probes J ~ 1e-14 where the spherical frequency ratio is undefined);
+remnants and halo from QuasiSpherical (Eddington) DFs in the total
+potential; equal particle masses (A: 6.52 Msun, 459892 stars + 40108
+remnants; B: 9.40 Msun, 268604 stars + 39152 remnants + 192244 halo).
+Cumulative sampled/model mass 0.99-1.01 at 1-1000 pc for every species
+(0.91-1.17 at 0.3 pc, shot noise), no unbound particles, virial ratio
+1.0006 (A) / 1.0004 (B) with eps = 0.3 pc. `results/nbody/{A_nodm,B_dm_phot}/`.
+Runner (`bin/nbody/run_nbody.py`): KDK leapfrog, shared step, Plummer
+softening, on-the-fly centre / bound mass per species / Lagrangian radii /
+energy, snapshots + restart. Smoke test (A, 1 Myr): 0.62 s/step, energy
+error 1.3e-5.
+Isolation tests launched: A (dt 0.01), A (dt 0.02), B (dt 0.01), 20 Myr
+each, eps 0.3 pc; analysis `bin/nbody/analyse_isolation.py` (acceptance:
+stellar density within 5% of the model at 0.3-30 pc, |2K/W-1| < 2%,
+|dE/E| < 1e-3, r_half drift < 2%). No tidal run before these pass.
