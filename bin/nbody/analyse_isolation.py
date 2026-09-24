@@ -5,8 +5,11 @@ Compares the first and last snapshots with the analytic model profiles
 (model_profiles.json written by build_ics.py): density per species, enclosed mass,
 radial and tangential velocity dispersions and beta(r) of the stars, plus the time
 series of energy error, virial ratio and half-mass radius from diagnostics.jsonl.
-Acceptance (printed): |rho_end/rho_model - 1| < 5% for stars at 0.3-30 pc where the
-shell has >= 500 particles, |2K/W - 1| < 2%, |dE/E| < 1e-3, r_half drift < 2%.
+The model density is shell-averaged from the enclosed mass (comparing with the
+density at the shell midpoint biases the ratio by ~3% for these steep profiles).
+Acceptance (printed): |rho_end/rho_model - 1| < 5% for the stars at 0.3-30 pc in
+shells with >= 2000 particles (shot noise < 2.2%), |2K/W - 1| < 2%, |dE/E| < 1e-3,
+r_half drift < 2%. Remnant and halo ratios are reported, not gated (few particles).
 
 Usage: python bin/nbody/analyse_isolation.py results/nbody/A_nodm/isolated [--name A_nodm_isolated]
 """
@@ -72,16 +75,17 @@ def main():
             if not sel.any():
                 continue
             count, rho, sr, st, beta = shells(pos[sel], vel[sel], mass[sel], edges, c, vc)
-            rho_model = np.interp(rmid, model["r_pc"], model["density"][sp])
+            m_enc = np.interp(edges, model["r_pc"], model["enclosed"][sp])
+            rho_model = np.diff(m_enc)/(4/3*np.pi*(edges[1:]**3-edges[:-1]**3))     # shell-averaged model density
             good = count >= 500
             axes[0, 0].plot(rmid[good], rho[good], ls=ls, color=COLORS[sp], label=f"{sp}, {label}")
             axes[0, 1].plot(rmid[good], rho[good]/rho_model[good], ls=ls, color=COLORS[sp], marker="." if ls == "-" else None)
             if sp == "stars":
                 axes[1, 0].plot(rmid[good], sr[good], ls=ls, color="tab:blue", label=f"$\\sigma_r$, {label}")
-                axes[1, 0].plot(rmid[good], st[good], ls=ls, color="tab:orange", label=f"$\\sigma_t/\\sqrt2$, {label}")
+                axes[1, 0].plot(rmid[good], st[good], ls=ls, color="tab:orange", label=f"$\\sigma_t/\\sqrt{{2}}$, {label}")
                 axes[1, 1].plot(rmid[good], beta[good], ls=ls, color="tab:blue", label=label)
             if ls == "-":
-                inside = good & (rmid > 0.3) & (rmid < 30.)
+                inside = (count >= 2000) & (rmid > 0.3) & (rmid < 30.)
                 report[sp] = dict(max_abs_density_dev=float(np.max(np.abs(rho[inside]/rho_model[inside]-1))) if inside.any() else None,
                                   r_pc=rmid[inside].tolist(), rho_over_model=(rho[inside]/rho_model[inside]).tolist())
     for sp in SPECIES:
@@ -90,7 +94,7 @@ def main():
     axes[0, 0].set(xscale="log", yscale="log", xlim=(.1, 300), ylim=(1e-3, 3e4), xlabel="r [pc]", ylabel=r"$\rho$ [$M_\odot$ pc$^{-3}$]", title="(a) density (thin: DF model)")
     axes[0, 0].legend(fontsize=7)
     axes[0, 1].axhline(1, color="black", lw=.7); [axes[0, 1].axhline(y, color="0.7", ls=":", lw=.7) for y in (.95, 1.05)]
-    axes[0, 1].set(xscale="log", xlim=(.1, 300), ylim=(.7, 1.3), xlabel="r [pc]", ylabel="N-body / model", title="(b) density ratio (shells with >= 500 particles)")
+    axes[0, 1].set(xscale="log", xlim=(.1, 300), ylim=(.7, 1.3), xlabel="r [pc]", ylabel="N-body / model", title="(b) density ratio to the shell-averaged model (shells with >= 500 particles)")
     axes[1, 0].set(xscale="log", xlim=(.1, 300), xlabel="r [pc]", ylabel="km/s", title="(c) stellar dispersions"); axes[1, 0].legend(fontsize=7)
     axes[1, 1].axhline(0, color="black", lw=.7); axes[1, 1].set(xscale="log", xlim=(.1, 300), ylim=(-1, 1), xlabel="r [pc]", ylabel=r"$\beta$", title="(d) stellar anisotropy"); axes[1, 1].legend(fontsize=7)
     t = [d["t_myr"] for d in diag]
@@ -105,7 +109,7 @@ def main():
     fig.savefig(plot, dpi=140)
     vir = np.array([d["virial"] for d in diag]); de = np.array([d["energy_error"] for d in diag]); rh = np.array([d["r_half_stars_pc"] for d in diag])
     summary = dict(name=name, t_end_myr=t[-1], density=report, virial_range=[float(vir.min()), float(vir.max())], max_energy_error=float(np.max(np.abs(de))),
-                   r_half_drift=float(rh[-1]/rh[0]-1), passed=bool(all(v["max_abs_density_dev"] is None or v["max_abs_density_dev"] < .05 for v in report.values())
+                   r_half_drift=float(rh[-1]/rh[0]-1), passed=bool((report["stars"]["max_abs_density_dev"] or 0.) < .05
                                                                  and np.max(np.abs(vir-1)) < .02 and np.max(np.abs(de)) < 1e-3 and abs(rh[-1]/rh[0]-1) < .02))
     (args.run/"isolation_summary.json").write_text(json.dumps(summary, indent=1))
     print(f"{name}: t_end {t[-1]:.0f} Myr; max |rho/model-1| (0.3-30 pc): " + ", ".join(f"{k} {v['max_abs_density_dev']:.3f}" for k, v in report.items() if v["max_abs_density_dev"] is not None)

@@ -5960,3 +5960,39 @@ Isolation tests launched: A (dt 0.01), A (dt 0.02), B (dt 0.01), 20 Myr
 each, eps 0.3 pc; analysis `bin/nbody/analyse_isolation.py` (acceptance:
 stellar density within 5% of the model at 0.3-30 pc, |2K/W-1| < 2%,
 |dE/E| < 1e-3, r_half drift < 2%). No tidal run before these pass.
+
+## 2026-09-24 -- Isolation (equilibrium) tests of the N-body realisations: PASS
+
+Three runs, 20 Myr each (~130 core crossing times; 2000 or 1000 steps,
+0.55 s/step): A dt 0.01, A dt 0.02, B dt 0.01; eps 0.3 pc, N = 5e5.
+Figures `plots/nbody_isolation_{A_nodm_isolated,A_nodm_isolated_dt0.02,B_dm_phot_isolated}.png`;
+summaries `results/nbody/*/isolat*/isolation_summary.json`.
+Analysis lesson: comparing shell densities with the model density at the
+shell midpoint biases the ratio by ~3% for these steep profiles (seen at
+t = 0); the analysis now uses the shell-averaged model from the enclosed
+mass, after which t = 0 ratios are 1.00 +- shot noise.
+Results at t = 20 Myr (shells with >= 2000 particles, 0.3-30 pc):
+  A dt 0.01: stars within 1.8% of the model, remnants 4.6%; virial
+    0.9972-1.0006; |dE/E| <= 1.3e-4; r_half drift +0.03%.
+  A dt 0.02: stars 3.8%, remnants 3.7%; |dE/E| <= 8.4e-4; central stellar
+    density 5-13% low inside 0.6 pc -> dt 0.02 rejected, dt 0.01 adopted.
+  B dt 0.01: stars 1.5%, remnants 8.0% (inside 1.5 pc), halo 1.1%; virial
+    0.9973-1.0005; |dE/E| <= 2.0e-4; r_half drift +0.22%.
+Stellar sigma_r, sigma_t and beta(r) at t = 20 lie on the t = 0 curves over
+1-100 pc (beta 0 -> +0.15 at 10 pc -> negative beyond 25 pc, as fitted).
+The only systematic change is a 5-8% drop of the remnant density inside
+~1 pc, already present at t = 5 Myr and not growing afterwards: a
+readjustment to the softened forces (eps 0.3 pc vs a_rem 2.2-2.6 pc), not a
+secular trend. Central 1D dispersions inside 1 pc: stars 21.2 -> 20.8 km/s,
+remnants 12.4 -> 12.4 (A). The remnants are much colder than the stars at
+the centre (isotropic Eddington DF of a concentrated Plummer), so two-body
+relaxation will heat and expand the remnant core over Gyr timescales.
+Relaxation budget (model A, softened Coulomb log ln(r_h/eps) = 3.5 vs
+ln(0.1 N) = 13.8 for N = 1e7 real stars of 0.6 Msun): t_relax(N-body) =
+0.83 Gyr at 0.5 pc, 1.1 at 1 pc, 2.0 at 2 pc, 6.8 at 5 pc, 17.5 at 10 pc;
+the real cluster is 2.8x slower at every radius. Over a 2 Gyr tidal run the
+inner ~2 pc will therefore relax about twice as much as the real cluster
+would; the outer envelope and tails (r > 5 pc) are collisionless to a few
+per cent. FLAG for the write-up.
+Adopted for the tidal runs: eps 0.3 pc, dt 0.01 Myr, 2 Gyr, snapshots every
+10 Myr (~1.4 GB per model as float32), diagnostics every 1 Myr.
