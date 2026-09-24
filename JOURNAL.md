@@ -5857,3 +5857,25 @@ rho20 = 0. The dynamical preference (10.67) sits 1.8 sigma above the
 photometric 8.9 for sigma = 1. The next step is therefore the photometric
 error budget (extrapolation below 0.52 Msun, white-dwarf term), not more
 fitting.
+
+## 2026-09-24 -- Two summary figures for the assessment
+
+`plots/halo_compensation_20260924.png` (`bin/plot_halo_compensation.py`):
+per dataset, (model - no-DM fit)/error for the rho20 = 1, r_s = 5 pc halo
+added to the no-DM model with nothing refitted (red; HST PM_R up to 12.5
+sigma, PM_T 6.5, LOS 1.5, Gaia 1.5-1.6, counts 0.7-1.5) and for the refit
+with the same halo (blue; <= 0.27 sigma everywhere). Objectives 283.4 /
+1123.7 / 285.5. The compensation is listed in the panel (M_star -5.5%,
+M_rem +11%, a_rem 2.15 -> 2.27, J_a 64 -> 55, J_outer 319 -> 382, b_out
+0.74 -> 0.63, D unchanged).
+
+`plots/mass_budget_tension_20260923.png` (`bin/plot_mass_budget_tension.py`):
+(a) stacked photometric budget per zone (observed MS 1.7-1.95, extrapolated
+MS 3.4-6.6, evolved 0.1, WD 2.5-2.7 Msun per counted star) at both
+metallicities, with Kroupa and flat extrapolation markers, against the
+dynamical value 10.67 and its scan ranges Delta <= 1 [10.39, 10.94],
+Delta <= 3.84 [9.68, 11.14]. Only the outermost zone (175-250", 4.6-6.6 pc)
+with the fitted slope reaches the dynamical band; the zones that dominate
+the kinematics (30-175") give 8.3-9.8. (b) the real-data scan: rho20 and
+M_DM(<10 pc) returned for each pinned value, with the photometric ranges
+and the dynamical band overlaid.
