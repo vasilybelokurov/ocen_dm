@@ -5727,3 +5727,39 @@ configuration under the truth-pinned amplitude the HST deviance is 24.3/20.
 Runner: `bin/run_mock_mass_per_star.sh [M] [SEEDS] [RHO]` (batches
 `mpsmock_<M>_{A,B}_s<seed>`). Coverage-mock fits took 11-26 min each (A and
 B of a seed concurrently).
+
+## 2026-09-24 -- Mock test of the pinned stellar mass per counted star
+
+Runs (approved): `bin/run_mock_mass_per_star.sh truth` (seeds 11-15, truths
+A rho20 = 0 and B rho20 = 1 / r_s 30 pc), then `9.0 "11 12"` and
+`12.0 "11 12"`; 18 fits, 12-25 min each, one generic start per mock, same
+mock data as the coverage test. Figure `plots/mock_mass_per_star_20260923.png`
+(`bin/plot_mock_mass_per_star.py`, data in results/plot_data/).
+
+Truth-pinned (M/N19 = 10.67):
+  A: rho20 = 0.45, 0.006, 0.002, 0.15, 0.29 (median 0.15; profiled amplitude:
+     0-1.33, median 0.21); M* recovered to -0.4% mean (profiled -2.1%),
+     M_rem +7.4% (profiled +12.2%), M_tot(<20) +0.7%.
+  B: rho20 = 1.39, 0.49, 1.89, 2.03, 0.53 (median 1.39; profiled: 0-2.15,
+     median 0.46, one seed at 0); M* -0.0%, M_rem -0.3%, M_tot(<20) +1.3%.
+  Acceptance (A < 0.25 in >= 4/5, B = 1 +- 0.3 in >= 4/5): A 3/5, B 0/5.
+  Pinning M* removes the stellar-mass error and the B-truth zero, but the
+  rho20 scatter stays ~ +-0.7: r_s goes to the 5 pc bound or to 500 pc and
+  M_rem moves by +-10%, i.e. the remaining degeneracy is remnants <->
+  compact halo at fixed M*.
+Wrong assumed value (seeds 11, 12):
+  M/N19 = 9.0 (-16%): A -> rho20 2.35, 3.14; B -> 3.74, 4.42; M_rem +24-55%.
+  M/N19 = 12.0 (+12%): A -> 0.001, 0.002; B -> 0.02, 0.08; M_rem -29..-37%.
+  Slope ~ -1.5 Msun pc^-3 per Msun per counted star; M_tot(<20 pc) stays
+  within +6% in every case (the kinematics fix the total, the assumption
+  fixes how it is split).
+Consequence for the data: the profiled M/N19 is 10.67; the photometric mass
+function gives 8.4-9.5 (zones dominating the kinematics). Imposing the
+photometric value would return rho20 ~ 2-4 on the data, which is exactly
+what a too-low assumed M/N19 produces on a no-halo mock. For the external
+constraint to help, M/N19 must be known to ~0.3 Msun per star (3%), while
+the MF budget has a 4-5 Msun/star extrapolation term (slope, 0.1-0.52 Msun)
+and a 2.6 Msun/star WD term (IMF above the turnoff). The planned data scan
+`bin/run_mass_per_star_scan.sh` is therefore a sensitivity map (rho20 vs
+assumed M/N19), not a constraint, unless the photometric budget is tightened
+and the remnant <-> halo degeneracy is broken independently.
