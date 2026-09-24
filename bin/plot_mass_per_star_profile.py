@@ -134,8 +134,8 @@ def main():
     ax.axvline(M_PHOT, color="0.5", ls=":", lw=1)
     ax.set(ylim=(-.5, 30), ylabel=r"$\Delta$ (objective + photometric term)", title="(d) profile combined with the photometric measurement")
     ax.legend(fontsize=7)
-    fig.suptitle("Dark matter vs the assumed stellar mass per counted star (HST count amplitude pinned; two-transition DF, "
-                 "Poisson counts, distance prior; red dashed: free amplitude)")
+    fig.suptitle("Dark matter vs the stellar mass per counted star (real data; HST count amplitude pinned;\n"
+                 "two-transition DF, Poisson counts, distance prior; red dashed: free amplitude)")
     plot = ROOT/"plots"/f"mass_per_star_profile_{args.tag}.png"
     fig.savefig(plot, dpi=150)
     record = dict(created_utc=datetime.now(timezone.utc).isoformat(), points=points, mf_core=MF_CORE, mf_full=MF_FULL,
