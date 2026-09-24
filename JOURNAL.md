@@ -5900,3 +5900,21 @@ is preferred over no halo by 20.6 in the objective AT FIXED photometric
 stellar mass. The figure is the "with photometric constraint" counterpart
 of data_vs_dm_models_20260924_data.png: there the DM and no-DM curves
 coincide; here they separate, because the stars can no longer compensate.
+
+## 2026-09-24 -- Component profiles of the two representative models
+
+`plots/component_profiles_20260924.png` (`bin/plot_component_profiles.py`;
+density and enclosed mass per component, side by side). Models: (A) no DM,
+free stellar mass (dftwo_counts no-halo, obj 285.6; M_star 3.00e6, M_rem
+2.62e5 at 2.15 pc); (B) DM halo with the photometric stellar mass (mpsscan_9
+free-halo, obj 292.5; M_star 2.52e6, M_rem 3.68e5 at 2.56 pc, rho20 2.6,
+r_s 5 pc). Mass fractions (stars / remnants / DM):
+  r < 1 pc:   A 40/60/-    B 36/61/3
+  r < 3 pc:   A 60/40/-    B 50/46/4
+  r < 10 pc:  A 86/14/-    B 74/20/6
+  r < 30 pc:  A 91/9/-     B 76/12/12
+In both models the remnants dominate inside ~1.5 pc (they carry 60% of the
+mass at 1 pc); in (B) the halo is a minor component everywhere inside the
+data (3-12%), rising outward, while the remnant Plummer is 40% heavier and
+slightly more extended. (B) is not the maximum-likelihood model; it is the
+best fit with a non-zero halo once the photometric stellar mass is imposed.
