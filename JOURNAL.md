@@ -6006,3 +6006,10 @@ Start 2 Gyr ago at (-2.664, -2.543, -1.110) kpc, (-216.4, -20.3, -141.1)
 km/s in McMillan17; the cluster reaches today's position at t = 2000 Myr.
 Expected ~30 h each (2e5 steps at ~0.55 s), snapshots every 10 Myr (200
 per model), restart file with every snapshot (`--resume`).
+11:35 UTC: first launch stopped after 10 Myr. Bug (diagnostics only): the
+centre finder started its shrinking spheres from the previous centre,
+~250 pc stale after 1 Myr of orbital motion, so it lost the cluster and
+r_half/bound masses were meaningless from t ~ 1.5 Myr. Fixed (predict the
+centre with the centre velocity; fall back to the luminous median), verified
+on a 3 Myr orbit test (r_half 10.29-10.30 pc, r_gal 3.85 -> 4.44 kpc), both
+runs relaunched from t = 0 at 11:37 UTC.
