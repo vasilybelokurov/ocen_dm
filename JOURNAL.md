@@ -5763,3 +5763,41 @@ and a 2.6 Msun/star WD term (IMF above the turnoff). The planned data scan
 `bin/run_mass_per_star_scan.sh` is therefore a sensitivity map (rho20 vs
 assumed M/N19), not a constraint, unless the photometric budget is tightened
 and the remnant <-> halo degeneracy is broken independently.
+
+## 2026-09-24 -- Figures: data vs DM / no-DM models; who carries the mass inside 10 pc
+
+`plots/data_vs_dm_models_20260924_{data,diagnostics}.png`
+(`bin/plot_best_fit_performance.py`, models: dftwo_counts no-halo best fit,
+obj 285.6, and rho20scan_1 fixed rho20 = 1 with r_s = 5 pc, obj +2.2): the
+two curves are indistinguishable by eye in every dataset (counts, LOS, PM_R,
+PM_T); residual patterns identical. Data-vs-model differences (HST count
+deviance residuals +-4 at 1-3 pc, PM_T +3 at 15 pc) are the same for both.
+
+`plots/remnant_halo_degeneracy_20260923.png`
+(`bin/plot_remnant_halo_degeneracy.py`, data in results/plot_data/).
+Data, rho20 scan, mass inside 10 pc (stars / remnants / halo / total):
+  rho20 0: 1.458e6 / 2.44e5 / 0       / 1.702e6
+  rho20 1: 1.382e6 / 2.70e5 / 4.1e4   / 1.693e6  (+2.2)
+  rho20 4: 1.154e6 / 3.51e5 / 1.65e5  / 1.669e6  (+10.6)
+  The total inside 10 pc moves by 2%; the stars lose 3.0e5 while remnants
+  AND halo gain (1.1e5 and 1.65e5). M_rem 2.6e5 -> 3.9e5, a_rem 2.15 -> 2.59.
+Mocks (28 fits), errors of enclosed mass inside 10 pc:
+  amplitude profiled (coverage, 10): corr(stars, rem+halo) -0.96, rms stars
+  4.7e4, rem 3.1e4, halo 1.8e4, total 1.3e4; corr(halo, rem) +0.41.
+  M/N19 pinned at truth (10): rms stars 5.4e3 (pinned), rem 1.6e4, halo
+  1.3e4, total 1.0e4; corr(halo, rem) -0.72.
+  M/N19 = 9.0: stars -2.3e5 in all four, rem +0.6..1.2e5, halo +1.0..1.7e5.
+  M/N19 = 12.0: stars +1.7e5, rem -0.7..-0.85e5, halo 0; total +0.7..1.0e5.
+CORRECTION to the 2026-09-24 mock entry above: I wrote that the residual
+degeneracy is "remnants <-> compact halo". The numbers say: the leading
+degeneracy in the profiled-amplitude fits and along the data scan is stars
+<-> dark (remnants + halo together), i.e. the count amplitude; pinning the
+stars removes it (stellar rms 4.7e4 -> 5e3). Only then is the remainder a
+remnants <-> halo trade (corr -0.72), whose size (rms 1.3-1.6e4 Msun inside
+10 pc, ~1% of the total) is comparable to the noise on the total itself
+(1.0e4). A halo of rho20 = 1 with r_s = 5 pc holds 4e4 Msun inside 10 pc
+(2.4% of the total); the mocks recover the halo mass inside 10 pc with rms
+1.3e4 (pinned) -> the pinned rho20 scatter of ~ +-0.7 is mostly the
+unconstrained r_s (5 to 500 pc for the same enclosed mass), not a mass
+error. Reporting M_DM(<10 pc) instead of rho20 would be the better-posed
+quantity.
