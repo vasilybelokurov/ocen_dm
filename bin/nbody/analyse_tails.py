@@ -42,7 +42,7 @@ from scipy.spatial import cKDTree
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT/"bin"/"nbody"))
-from run_nbody import G, OCEN_TODAY, SPECIES, T_UNIT, bound_mask, cluster_centre, mw_potential  # noqa: E402
+from run_nbody import AGAMA_T_MYR, G, OCEN_TODAY, SPECIES, T_UNIT, bound_mask, cluster_centre, mw_potential  # noqa: E402
 
 COLORS = dict(stars="tab:blue", remnants="tab:red", halo="tab:green")
 T_ORB = 400.       # Myr each way for the orbit-coordinate reference track
@@ -78,8 +78,8 @@ def orbit_coordinates(agama, pot, centre_pc, vcentre, pos_pc, vel):
     ic = np.concatenate((centre_pc*1e-3, vcentre))
     tracks = []
     for sign in (-1, 1):
-        t, o = agama.orbit(potential=pot, ic=ic, time=sign*T_ORB*1e-3, trajsize=int(T_ORB*4)+1)
-        o = np.asarray(o); tracks.append((np.asarray(t)*1e3, o[:, :3]*1e3, o[:, 3:]))
+        t, o = agama.orbit(potential=pot, ic=ic, time=sign*T_ORB/AGAMA_T_MYR, trajsize=int(T_ORB*4)+1)
+        o = np.asarray(o); tracks.append((np.asarray(t)*AGAMA_T_MYR, o[:, :3]*1e3, o[:, 3:]))
     t_all = np.concatenate((tracks[0][0][::-1], tracks[1][0][1:]))
     p_all = np.vstack((tracks[0][1][::-1], tracks[1][1][1:])); v_all = np.vstack((tracks[0][2][::-1], tracks[1][2][1:]))
     tree = cKDTree(np.hstack((p_all, V_SCALE*v_all)))
@@ -142,7 +142,7 @@ def main():
     n = len(runs)
     fig, axes = plt.subplots(3, n, figsize=(7*n, 15), constrained_layout=True, squeeze=False)
     fig2, axes2 = plt.subplots(2, 2, figsize=(13, 9), constrained_layout=True)
-    tback = json.loads((runs[0]/"run.json").read_text())["tback_myr"]
+    tback = (lambda j: j.get("t_today_myr", j["tback_myr"]))(json.loads((runs[0]/"run.json").read_text()))
     for i, (run, label) in enumerate(zip(runs, labels)):
         ics = np.load(run.parent/"ics.npz"); species = ics["species"]; mass = ics["mass"].astype(float)
         t_snap, pos, vel = load_snapshot(run, t_req)
@@ -190,16 +190,19 @@ def main():
         # sky view (only meaningful at t = tback = today)
         if abs(t_snap-tback) < 1.:
             k = ~bound & (species == 0)
-            l, b, d, vr, pml, pmb = to_sky(pos[k], vel[k])
+            wrap = lambda x: np.where(x > 180., x-360., x)          # l in (-180, 180] so the debris is not cut at l = 0
+            l, b, d, vr, pml, pmb = to_sky(pos[k], vel[k]); l = wrap(l)
             ax = axes2[0, i]
-            ax.scatter(l, b, s=.5, color="tab:blue", alpha=.4, rasterized=True, label=f"{label}: unbound stars")
             if (species == 2).any():
                 kh = ~bound & (species == 2); lh, bh, *_ = to_sky(pos[kh], vel[kh])
-                ax.scatter(lh, bh, s=.3, color="tab:green", alpha=.3, rasterized=True, label="unbound DM")
-            lc, bc, *_ = to_sky(centre[None, :], vcentre[None, :]); ax.plot(lc, bc, "k+", ms=12)
-            ax.set(xlabel="l [deg]", ylabel="b [deg]", title=f"{label}: debris on the sky today"); ax.invert_xaxis(); ax.legend(fontsize=7, markerscale=8)
+                ax.scatter(wrap(lh), bh, s=.3, color="tab:green", alpha=.15, rasterized=True, label="unbound DM", zorder=1)
+            ax.scatter(l, b, s=.5, color="tab:blue", alpha=.5, rasterized=True, label=f"{label}: unbound stars", zorder=2)
+            lc, bc, *_ = to_sky(centre[None, :], vcentre[None, :]); lc = wrap(lc); ax.plot(lc, bc, "k+", ms=12, zorder=3)
+            ax.scatter(wrap(np.array([309.102])), [14.968], marker="x", color="red", s=6, zorder=3, label="omega Cen observed")
+            ax.set_xlim(75, -75); ax.set_ylim(-60, 60)
+            ax.set(xlabel="l [deg]", ylabel="b [deg]", title=f"{label}: debris on the sky today (+: model cluster)"); ax.legend(fontsize=7, markerscale=8)
             ax = axes2[1, i]
-            ax.scatter(l, vr, s=.5, color="tab:blue", alpha=.4, rasterized=True); ax.set(xlabel="l [deg]", ylabel=r"$v_{\rm los}$ [km/s]", title="line-of-sight velocity along the debris"); ax.invert_xaxis()
+            ax.scatter(l, vr, s=.5, color="tab:blue", alpha=.4, rasterized=True); ax.set(xlabel="l [deg] (wrapped to -180..180)", ylabel=r"$v_{\rm los}$ [km/s]", title="line-of-sight velocity of the unbound stars"); ax.set_xlim(75, -75)
             out["sky"] = dict(l_percentiles=np.percentile(l, [5, 50, 95]).tolist(), b_percentiles=np.percentile(b, [5, 50, 95]).tolist(),
                               d_percentiles=np.percentile(d, [5, 50, 95]).tolist(), vlos_percentiles=np.percentile(vr, [5, 50, 95]).tolist(),
                               centre=dict(l=float(lc[0]), b=float(bc[0])))

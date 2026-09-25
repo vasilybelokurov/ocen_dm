@@ -36,7 +36,7 @@ from scipy.spatial import cKDTree
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT/"bin"/"nbody"))
-from run_nbody import bound_mask, cluster_centre, mw_potential  # noqa: E402
+from run_nbody import AGAMA_T_MYR, bound_mask, cluster_centre, mw_potential  # noqa: E402
 from analyse_tails import T_ORB, V_SCALE  # noqa: E402
 
 DT_MAX = 150.      # Myr: range of the along-orbit plots
@@ -47,8 +47,8 @@ def track(agama, pot, centre_pc, vcentre):
     ic = np.concatenate((centre_pc*1e-3, vcentre))
     parts = []
     for sign in (-1, 1):
-        t, o = agama.orbit(potential=pot, ic=ic, time=sign*T_ORB*1e-3, trajsize=int(T_ORB*4)+1)
-        o = np.asarray(o); parts.append((np.asarray(t)*1e3, o[:, :3]*1e3, o[:, 3:]))
+        t, o = agama.orbit(potential=pot, ic=ic, time=sign*T_ORB/AGAMA_T_MYR, trajsize=int(T_ORB*4)+1)
+        o = np.asarray(o); parts.append((np.asarray(t)*AGAMA_T_MYR, o[:, :3]*1e3, o[:, 3:]))
     t_all = np.concatenate((parts[0][0][::-1], parts[1][0][1:]))
     p_all = np.vstack((parts[0][1][::-1], parts[1][1][1:])); v_all = np.vstack((parts[0][2][::-1], parts[1][2][1:]))
     return t_all, p_all, v_all
