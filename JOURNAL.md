@@ -6035,3 +6035,42 @@ Snapshot t = 170 Myr (after 2 pericentres, r_min 1.71 kpc so far):
 Machine load: three unrelated Python jobs (~2-2.5 cores each) started
 during the runs; step time rose from 0.46 to 0.6-2 s at times; ETA now
 uncertain (26-30 h nominal).
+
+## 2026-09-25 -- Tidal runs finished; time-unit bug; present-day state
+
+Both runs reached t = 2000 Myr (~31 h). BUG (found at the end): the orbit
+start used `agama.orbit(time=-2.0)` in kpc-km/s units, whose time unit is
+977.79 Myr, so the clusters started 1955.58 Myr before today, not 2000.
+Physics unaffected; the present day is t = 1955.58 Myr in these runs.
+Verified: AGAMA's forward orbit from the start lands 0.5 pc from today's
+position, and the same leapfrog on a test particle converges (dt 0.01 and
+0.1 Myr agree) to the position AGAMA gives at 1955.58 Myr. Fixed in
+run_nbody.py (AGAMA_T_MYR) and in the orbit tracks of analyse_tails.py,
+plot_tail_kinematics.py and plot_snapshot.py (their dt axes were 2.2% off).
+run.json of both runs now carries t_today_myr = 1955.584. The earlier
+statements "22 pericentres in 2 Gyr, radial period ~91 Myr" should read
+"22 pericentres in 1956 Myr, ~89 Myr". The present-day state was produced by
+evolving snap_0195 (t = 1950) for 5.58 Myr (`orbit_today/`, copied to
+`orbit/snap_today.npz`).
+Orbit fidelity: A's cluster follows the point-mass orbit to <= 71 pc at all
+times and ends 54 pc / 1.9 km/s from omega Cen's observed phase-space
+position. B drifts: 12 pc at 300 Myr, ~250 pc at 1.2 Gyr, 566 pc / 15 km/s
+at the end (z = 0.78 vs 1.40 kpc; on the sky b = 8.6 vs 15.0 deg). Physical
+within model B: 1.4e6 Msun of stripped DM surrounds the orbit and pulls on
+the cluster. A like-for-like sky comparison of B needs its start point
+iterated so that it ends at today's position (one more ~30 h run).
+Present day (t = 1955.6 Myr, 23 pericentres, r_min 1.42 kpc):
+  A: stars 94.6% bound (1.62e5 Msun unbound), remnants 99.5%.
+  B: stars 95.9% bound (1.03e5 unbound), remnants 99.3%, halo 23% bound
+     (4.1e5 bound, 1.39e6 unbound).
+  Unbound stars A/B = 1.6 (the ratio was ~3 in the first 300 Myr and falls
+  as B's outer halo is stripped). Tail energy spread dE rms 3908 vs 3983
+  km^2/s^2, dLz rms 46.2 vs 46.9 kpc km/s; dispersions within 10-150 Myr of
+  the cluster along track / in-plane perp / normal 41.7/53.2/76.0 (A) vs
+  38.9/48.2/71.5 km/s (B) - the kinematics of the tails are the same to
+  <10%; the debris now fills a rosette (5-95% of the stars within -360..
+  +385 Myr of the cluster along the orbit), so the local dispersions mix
+  wraps and are large. Sky: debris of both models spans l = -70..+70 deg,
+  |b| < 45 deg; v_los -420..+400 km/s.
+Figures: plots/nbody_tails_today_{history,sky,tails_t1956}.png,
+plots/nbody_state{,_stars}_t1956.png, plots/nbody_tail_kinematics_t1956.png.

@@ -40,6 +40,7 @@ import pyfalcon
 ROOT = Path(__file__).resolve().parents[2]
 G = 4.30091727067736e-3            # pc (km/s)^2 / Msun
 T_UNIT = 0.977792221680356         # Myr per (pc / (km/s))
+AGAMA_T_MYR = 977.792221680356     # Myr per AGAMA time unit when units are kpc, km/s (kpc / (km/s))
 SPECIES = ("stars", "remnants", "halo")
 # omega Cen today, Galactocentric Cartesian (Baumgardt catalogue orbits_table.txt): X Y Z [kpc], U V W [km/s]
 OCEN_TODAY = np.array([4.87, -4.07, 1.40, -95.98, -21.69, -86.82])
@@ -119,12 +120,13 @@ def main():
     if args.orbit:
         agama, pot = mw_potential(args.mw)
         if not (args.resume and restart.exists()):
-            traj_t, traj = agama.orbit(potential=pot, ic=OCEN_TODAY, time=-args.tback*1e-3, trajsize=2)
+            traj_t, traj = agama.orbit(potential=pot, ic=OCEN_TODAY, time=-args.tback/AGAMA_T_MYR, trajsize=2)
             start = traj[-1]                             # kpc, km/s
             pos += start[:3]*1e3; vel += start[3:]
             print(f"orbit start {args.tback:.0f} Myr ago: X,Y,Z = {np.round(start[:3], 3).tolist()} kpc, V = {np.round(start[3:], 2).tolist()} km/s", flush=True)
     meta = dict(created_utc=datetime.now(timezone.utc).isoformat(), ics=str(args.ics), eps_pc=args.eps, dt_myr=args.dt, tstop_myr=args.tstop,
-                orbit=args.orbit, mw=args.mw if args.orbit else None, tback_myr=args.tback if args.orbit else None, n=int(len(pos)),
+                orbit=args.orbit, mw=args.mw if args.orbit else None, tback_myr=args.tback if args.orbit else None,
+                t_today_myr=args.tback if args.orbit else None, n=int(len(pos)),
                 ocen_today=OCEN_TODAY.tolist(), G=G, t_unit_myr=T_UNIT)
     (args.out/"run.json").write_text(json.dumps(meta, indent=1))
     sel_lum = species <= 1                              # stars + remnants define the cluster centre
@@ -194,6 +196,7 @@ def main():
             print(f"t = {t_myr:8.2f} Myr  bound: " + ", ".join(f"{k} {v:.3e}" for k, v in row["bound_mass"].items())
                   + f", r_half(stars) {row.get('r_half_stars_pc', float('nan')):.2f} pc{extra}  [{rate:.2f} s/step, ETA {eta:.1f} h]", flush=True)
     diag_file.close()
+    np.savez(args.out/"snap_final.npz", t_myr=t_myr, pos=pos.astype(np.float32), vel=vel.astype(np.float32))
     (args.out/"run.json").write_text(json.dumps(dict(meta, finished_utc=datetime.now(timezone.utc).isoformat(), steps=step,
                                                    wall_hours=(time.time()-t_wall)/3600), indent=1))
     print("done")

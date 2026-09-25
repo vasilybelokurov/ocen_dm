@@ -30,7 +30,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT/"bin"/"nbody"))
-from run_nbody import SPECIES, cluster_centre, mw_potential  # noqa: E402
+from run_nbody import AGAMA_T_MYR, SPECIES, cluster_centre, mw_potential  # noqa: E402
 
 COLORS = dict(stars="tab:blue", remnants="tab:red", halo="tab:green")
 T_ORB = 300.
@@ -60,7 +60,7 @@ def main():
         d = min(diag, key=lambda d: abs(d["t_myr"]-t)); m0 = diag[0]["bound_mass"]
         ic = np.concatenate((centre*1e-3, vcentre))
         for sign, col in ((-1, "0.6"), (1, "0.8")):
-            _, o = agama.orbit(potential=pot, ic=ic, time=sign*T_ORB*1e-3, trajsize=1000)
+            _, o = agama.orbit(potential=pot, ic=ic, time=sign*T_ORB/AGAMA_T_MYR, trajsize=1000)
             ax.plot(o[:, 0], o[:, 1], color=col, lw=.8, zorder=0, label="orbit, past 300 Myr" if sign < 0 else "orbit, next 300 Myr")
         for si in draw:
             k = species == si
@@ -71,7 +71,7 @@ def main():
                        label=f"{sp}: bound {d['bound_mass'][sp]/m0[sp]*100:.1f}% of {m0[sp]:.2e} Msun")
         ax.plot(centre[0]*1e-3, centre[1]*1e-3, "k+", ms=12, mew=1.5)
         ax.set(xlim=(-9, 9), ylim=(-9, 9), aspect="equal", xlabel="X [kpc]", ylabel="Y [kpc]",
-               title=f"{run.parent.name}: t = {t:.0f} Myr ({2000-t:.0f} Myr before today), r_gal = {np.linalg.norm(centre)*1e-3:.2f} kpc")
+               title=f"{run.parent.name}: t = {t:.0f} Myr ({t-json.loads((run/"run.json").read_text()).get("t_today_myr", 2000.):+.0f} Myr relative to today), r_gal = {np.linalg.norm(centre)*1e-3:.2f} kpc")
         ax.legend(fontsize=8, markerscale=10, loc="upper left")
         ins = ax.inset_axes([0.62, 0.02, 0.36, 0.36])
         for si in draw:
