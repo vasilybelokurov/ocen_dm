@@ -6074,3 +6074,32 @@ Present day (t = 1955.6 Myr, 23 pericentres, r_min 1.42 kpc):
   |b| < 45 deg; v_los -420..+400 km/s.
 Figures: plots/nbody_tails_today_{history,sky,tails_t1956}.png,
 plots/nbody_state{,_stars}_t1956.png, plots/nbody_tail_kinematics_t1956.png.
+
+## 2026-09-26 -- What distinguishes the no-DM and DM disruptions (present day)
+
+`bin/nbody/discriminants.py`, `discriminants_near_tail.py` (output
+results/plot_data/nbody_discriminants_today.json). Stars only; counts are
+normalised to the bound stellar count of the same model (particle masses
+differ: 6.5 vs 9.4 Msun). Sky offsets relative to each model's own cluster.
+  unbound / bound stars, all:            A 0.057  B 0.043  (A/B 1.33)
+    within 5 deg of the cluster:         A 4.1e-4 B 3.2e-4 (1.27)
+    within 10 deg:                       A 1.6e-3 B 1.2e-3 (1.26)
+    within 20 deg:                       A 5.1e-3 B 4.7e-3 (1.09)
+  stellar mass-loss rate, last 500 Myr:  A 1.95  B 1.81 %/Gyr (1.08)
+  near-tail sigma_vlos, same wrap (|dd| < 0.5 kpc), < 5 deg: A 8.2 (robust
+    6.6, N 152) vs B 5.9 (5.5, N 71) km/s; < 10 deg: 8.5 (7.9, N 556) vs 7.1
+    (6.4, N 249). Without the wrap cut the std is inflated by other wraps
+    crossing the line of sight (12.8 / 16.1 vs 7.2 / 11.4).
+  tail width (5 / 10 / 20 deg windows): ratios 1.03 / 1.07 / 0.98.
+  tail dE and dLz spreads: identical within 2% (previous entry).
+  bound-cluster projected LOS dispersion: identical to <2% at 1-60 pc (both
+    fit the same data); 100-200 pc: 4.77 (N 290) vs 4.08 (N 181) km/s.
+  remnant-to-star mass: bound 0.092 vs 0.151; tails 0.008 vs 0.024 (dark).
+  DM debris in B: 1.39e6 Msun along the orbit (13x the stellar debris).
+Reading: every luminous difference is <= 1.3x (counts) or <= 1.4x (near-tail
+dispersion, low N), and the present mass-loss rates differ by only 8%: the
+count difference was accumulated in the first ~500 Myr, when B's then-intact
+outer halo shielded the stars, and depends on the unknown initial halo
+extent and on the (much longer, different) real history. Distinguishing
+power is therefore marginal with these runs; the same order as the
+systematics not modelled (MW potential, dynamical friction, bar, rotation).
