@@ -6113,3 +6113,33 @@ rate per radial period: A 5 -> 2 %/Gyr, B 2.5-3 -> 2 %/Gyr, the two converge
 after ~1.3 Gyr (the DM shield is gone once B's outer halo is stripped);
 (f) tail width equal within errors (B slightly wider at 10-20 deg);
 (g) debris composition; (h) near-tail sky map.
+
+## 2026-09-26 -- N-body tails against the observed omega Cen tails
+
+Observed values taken from the texts (no figure digitisation) of Kuzma+2021
+(K21, arXiv:2108.02531), Kuzma+2026 (K26, arXiv:2605.23474), Ibata+2019
+(I19, arXiv:1902.09544), plus Da Costa 2012 (DC12) as quoted by K26. Not
+available in any of them: a tail velocity dispersion, tail width, tabulated
+densities, PM dispersions, the 5 K26 tail members (online table only).
+Figure `plots/nbody_vs_observed_today.png` (`bin/nbody/plot_observed_comparison.py`,
+numbers in results/plot_data/nbody_vs_observed_today.json). Models: all star
+particles, present day, cluster-centric quantities about each model's centre.
+  profile slope beyond r_t = 46.4' (to 5 deg), on-axis: A -2.36, B -2.55,
+    K21 -3.40 +- 0.20 (both models too shallow, 5 and 4 sigma);
+    off-axis: A -5.51, B -5.27, K21 -5.22 +- 0.26 (both consistent).
+  stars between r_W = 70.6' and 5 deg: A 0.102%, B 0.100%; K21 >= 0.1%
+    (lower limit): both consistent, indistinguishable.
+  tail PA (unbound stars, 1.5-5 deg): A 115.4, B 118.8 deg; K21 122.9 +- 2.1.
+  sigma_los beyond r_t (|x''| < 4 deg, |y''| < 0.5 deg, same wrap): A 4.8,
+    B 4.8 km/s; DC12 6.7 km/s at r_t; K26's ~7 km/s offset at 3 deg lies
+    within the model spread; no gradient in either model, as K26 report.
+  Fimbulthul box (l -52..-32, b 30..40): model debris present in both (A 165,
+    B 79 particles), median distance 4.2 kpc vs I19 4.1 kpc; v_helio median
+    215 (A) / 202 (B) km/s with std 29 / 27 km/s vs I19 199.7, rms 5.4 (5
+    stars). The observed stream is much colder than the model debris in the
+    box, which superposes several wraps; I19 needed ~5 Gyr, self-gravitating
+    earlier debris and a rotating progenitor; ours is 1.96 Gyr, non-rotating.
+Reading: none of the observed quantities separates A from B. The mismatches
+(on-axis slope too shallow, PA 4-7 deg off, Fimbulthul too hot) are common
+to both models and point to the orbit/potential, integration time and the
+missing rotation, not to the dark matter.
