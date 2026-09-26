@@ -6143,3 +6143,26 @@ Reading: none of the observed quantities separates A from B. The mismatches
 (on-axis slope too shallow, PA 4-7 deg off, Fimbulthul too hot) are common
 to both models and point to the orbit/potential, integration time and the
 missing rotation, not to the dark matter.
+
+## 2026-09-26 -- Anatomy of the model debris in the Fimbulthul box
+
+`bin/nbody/fimbulthul_box.py`, figure `plots/nbody_fimbulthul_box_today.png`.
+Selection used in the comparison figure: unbound star particles with
+l -52..-32, b 30..40 deg (filled histogram: also at D = D_cluster - 1.5 +- 1
+kpc). No proper-motion, parallax or CMD selection, unlike STREAMFINDER.
+  - All box particles are trailing debris (dE > 0 for 100%), dE 500-6000
+    km^2/s^2; v_helio anticorrelates with dE (panel d): the spread in
+    escape energy maps into the 140-255 km/s spread.
+  - Escape times (Plummer-energy test per 10-Myr snapshot): A median 280 Myr
+    (a large population stripped in the first 250 Myr plus a burst at
+    1500-1700 Myr); B median 690 Myr (the early burst is suppressed: the
+    then-intact halo shielded the stars). Different age/energy mixes ->
+    different median v_helio (215 vs 202; errors on the medians ~3-4 km/s).
+    B's cluster also sits at b = 8.4 vs 14.1 deg, so the box samples a
+    different stretch of its tail.
+  - Proper motions: box debris mu_delta -6 to -9 mas/yr; the I19 members
+    have mu_delta -9.7 to -11.5 (their Table 1, 10 rows). With an I19-like cut
+    (PM within 1 mas/yr of the I19 trend, 3-5 kpc) NO model particle is
+    selected in either model. The model debris in the box is not Fimbulthul;
+    the earlier v_helio comparison (panel e of nbody_vs_observed) compared
+    unlike populations and should not be read as a test.
