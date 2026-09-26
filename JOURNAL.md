@@ -6103,3 +6103,13 @@ outer halo shielded the stars, and depends on the unknown initial halo
 extent and on the (much longer, different) real history. Distinguishing
 power is therefore marginal with these runs; the same order as the
 systematics not modelled (MW potential, dynamical friction, bar, rotation).
+Figure `plots/nbody_discriminants_today.png` (`bin/nbody/plot_discriminants.py`)
+illustrates all of the above: (a,b) cumulative tail/cluster star ratio and
+A/B vs angular distance (A/B 1.1-1.4 beyond 3 deg, Poisson-limited inside);
+(c) near-tail v_los (same wrap, < 10 deg): 8.5 +- 0.3 vs 7.1 +- 0.3 km/s std,
+7.9 +- 0.2 vs 6.4 +- 0.3 robust; (d) projected sigma_los from 1 to 300 pc,
+identical to 60 pc, B colder at 100-150 pc (4.5 vs 3.7 km/s); (e) stripping
+rate per radial period: A 5 -> 2 %/Gyr, B 2.5-3 -> 2 %/Gyr, the two converge
+after ~1.3 Gyr (the DM shield is gone once B's outer halo is stripped);
+(f) tail width equal within errors (B slightly wider at 10-20 deg);
+(g) debris composition; (h) near-tail sky map.
