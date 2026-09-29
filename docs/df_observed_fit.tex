@@ -33,7 +33,7 @@
 distribution function\\[6pt]
 \large Model, data issues, fitting performance and the status of the dark-matter question}
 \author{oCen\_dm project notes}
-\date{23 September 2026 (updated evening)}
+\date{23 September 2026, updated 29 September 2026}
 \begin{document}
 \maketitle
 
@@ -70,9 +70,22 @@ $\rho_{20}$ rises monotonically ($\Delta=+2.2$ at $\rho_{20}=1$, $+10.6$ at
 $\rho_{20}$ is recovered with a scatter of 0.5--0.9\,$\Msun\pc^{-3}$ when the
 halo scale is free, as large as the observed rise, while the total mass
 profile is recovered to a few per cent over 2--40\pc. The data therefore
-determine the mass profile but not yet the stellar/DM split; we identify the
-external constraints (a shape separation of DM from remnants, a stellar-mass
-prior from the mass function) needed to resolve it.
+determine the mass profile but not yet the stellar/DM split. An external
+stellar mass from the oMEGACat present-day mass function (MIST isochrones)
+gives 8.3--9.8\,\Msun of luminous mass per counted $F625W<19$ star in the
+kinematically relevant zones, 12--27 per cent below the dynamical 10.67.
+Reported as a function of this mass per star, the halo switches on below
+the dynamical value ($\rho_{20}=2.6$ at 9.0, 4.3 at 8.0); mocks show that a
+16 per cent underestimate produces exactly such a halo on a no-DM truth, so
+the photometric budget must reach $\sim3$ per cent before it can decide.
+With the stellar mass pinned the residual degeneracy is remnants against a
+compact halo, at the 1 per cent level of the enclosed mass. Finally, N-body
+realizations of a no-DM and a DM model (equilibrium verified in isolation)
+were disrupted on $\omega$ Cen's orbit for 1.96\,Gyr in a static Milky Way.
+Their tails differ by at most $\sim30$ per cent in the observable
+quantities (tail-to-cluster star ratio, near-tail dispersion); the
+mismatches with the observed tails are common to both models and point to
+the orbit, integration time and missing rotation rather than to DM.
 \end{abstract}
 
 \tableofcontents
@@ -93,7 +106,9 @@ better, but it can also mimic a halo, which weakens the DM constraint. A
 model must pass objective~1 before any DM statement from it is meaningful. It
 should also be no more flexible than the data require.
 
-This note covers the observed-data fits of 23 September 2026. The model
+This note covers the observed-data fits of 23--24 September 2026, the
+mass-function constraint and the N-body tidal-disruption runs of 24--26
+September (Sections~\ref{sec:mf}--\ref{sec:nbody}). The model
 definition is in \path{docs/compact_df_model.tex}, the implementation
 tests in \path{docs/REGULARIZED_DF_IMPLEMENTATION.md}, and the full log in
 \path{JOURNAL.md}.
@@ -599,7 +614,7 @@ turnover fits. Shading marks the radial coverage of the two surveys.}
 
 \paragraph{Action coverage.} The anisotropy acts on $q=J_r+L$. Sampling
 $2\times10^5$ tracers from the best all-data DF shows that the data sample
-$q\simeq20$--$730\Jact$ (5--95\%; Figure~\ref{fig:coverage}). The Gaia-only
+$q\simeq20$--$730\Jact$ (5--95\%; Figure~\ref{fig:actioncoverage}). The Gaia-only
 $J_a=1665$ lies above even the outermost bin's 95th percentile. That fit
 therefore used only the low-$q$ tail, $b\simeq b_{\rm out}(q/J_a)^2$, where
 only $b_{\rm out}/J_a^2$ is constrained. Neighbouring radial ranges overlap
@@ -611,7 +626,7 @@ the bounds for the second transition (Table~\ref{tab:bounds}).
 \caption{Distribution of $q=J_r+L$ of DF tracers against projected radius,
 with 5--95\% quantiles. Horizontal lines mark the $J_a$ of the HST+MUSE-only
 (32) and Gaia-only (1665) fits.}
-\label{fig:coverage}
+\label{fig:actioncoverage}
 \end{figure}
 
 \subsection{The two-transition DF without a halo}
@@ -980,18 +995,485 @@ the kinematics do not carry: a shape separation between DM (extended, not
 mass-segregated) and remnants (compact), and an external prior on $M_\star$
 from the stellar mass function (Section~\ref{sec:conclusions}).
 
+\subsection{An external stellar mass: the present-day mass function}
+\label{sec:mf}
+
+The degeneracy of Section~\ref{sec:mocks} runs through the stellar mass.
+The HST count amplitude fitted in the dynamics, $a$, fixes how much mass
+that follows the light each counted star carries:
+$M/N_{19}=(\mathrm{pc\ per\ arcsec})^2/a=10.67\,\Msun$ per star with
+$F625W<19$ (the count selection) for the counts-based best fit. We measured
+the same quantity from the oMEGACat photometry
+(\texttt{bin/build\_mass\_function.py}; Figure~\ref{fig:mf}).
+
+\paragraph{Method.} MIST v1.2 isochrones \citep{2016ApJS..222....8D,2016ApJ...823..102C}
+evaluated with \texttt{minimint} (\url{https://github.com/segasai/minimint}),
+with the HST ACS/WFC $F625W$ and $F814W$ bolometric-correction tables
+prepared into a separate prefix; 12.5\,Gyr, $D=5.43$\,kpc
+($(m-M)_0=13.674$), $E(B-V)=0.12$ applied through the tables' $A_V$ axis
+($A_{625}=0.315$, $A_{814}=0.219$). Unflagged stars (the quality flags are
+magnitude- and radius-dependent) in five zones 10--250\,arcsec. The
+main-sequence ridge is matched best by $[\mathrm{Fe/H}]=-1.20$ (colour rms
+0.004\,mag) against 0.009\,mag for the Harris value $-1.53$; the two are
+degenerate with $E(B-V)$ at the 0.01\,mag level and both are carried
+(turnoff masses 0.789 and 0.779\,\Msun).
+
+\paragraph{Completeness.} With zone-dependent faint limits the slope
+flattened outwards, the opposite of mass segregation. With one common
+limit, $F625W<21.0$ ($m>0.52\,\Msun$, complete in every zone), the slope of
+$\dd N/\dd m\propto m^{\alpha}$ over 0.52--0.78\,\Msun steepens outwards
+monotonically: $\alpha=-1.37,-1.52,-1.56,-1.59,-1.77$ ($\pm0.10$ to
+$\pm0.03$) from 10--30 to 175--250\,arcsec at $[\mathrm{Fe/H}]=-1.20$, and
+0.13--0.14 shallower at $-1.53$.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Mass that follows the light per star with $F625W<19$, zone
+60--100\,arcsec, for the two isochrone metallicities. White dwarfs: IMF
+slope $-2.3$ above the turnoff, mean mass 0.55\,\Msun ($N_\mathrm{WD}/N_{19}=4.6$--4.7).
+An IMF continuous with the fitted slope above the turnoff implies
+$N_\mathrm{NS}/N_{19}\simeq1.4$ and $N_\mathrm{BH}/N_{19}\simeq0.9$ and is
+rejected. NS/BH belong to the free remnant component and are not included.}
+\label{tab:mf}
+\begin{tabular}{lcc}
+\toprule
+Component [\Msun per counted star] & $[\mathrm{Fe/H}]=-1.20$ & $-1.53$\\
+\midrule
+Main sequence observed, 0.52--0.78\,\Msun & 1.80 & 1.77\\
+Main sequence extrapolated to 0.1\,\Msun: fitted slope & 5.00 & 4.21\\
+\quad Kroupa ($-1.3$ below 0.5\,\Msun) & 4.22 & 3.92\\
+\quad flat (illustrative lower bound) & 2.03 & 1.92\\
+Evolved stars & 0.11 & 0.10\\
+White dwarfs & 2.55 & 2.60\\
+\midrule
+Total, fitted slope / Kroupa / flat & 9.47 / 8.69 / 6.49 & 8.69 / 8.40 / 6.39\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Across zones the fitted-slope total rises from 8.3 to 11.3 (7.7 to 10.3 at
+$-1.53$) from the inner to the outer zone. In the zones that dominate the
+kinematics (30--175\,arcsec) the photometric value is 8.3--9.8, 12--27 per
+cent below the dynamical 10.67 (Figure~\ref{fig:budget}). Two terms carry
+most of the budget and its uncertainty: the extrapolation below 0.52\,\Msun
+(3.4--6.6 per counted star) and the white dwarfs (2.5--2.7). A radially
+varying mass per bright star also means that a single mass-follows-light
+stellar DF cannot be exactly right.
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=\linewidth]{mass_function_20260923.png}
+\caption{Present-day mass function from oMEGACat: colour--magnitude diagram
+with the adopted isochrone, luminosity and mass functions per zone, slope
+against radius (common faint limit $F625W<21$), and the mass per counted
+star for the extrapolation and white-dwarf variants.}
+\label{fig:mf}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=\linewidth]{mass_budget_tension_20260923.png}
+\caption{(a) Photometric mass per $F625W<19$ star by component and zone
+(solid: $[\mathrm{Fe/H}]=-1.20$; hatched: $-1.53$; markers: Kroupa and flat
+extrapolations) against the dynamical value (red line: free fit 10.67;
+bands: $\Delta\le1$ [10.39, 10.94] and $\Delta\le3.84$ [9.68, 11.14] from
+the scan of Section~\ref{sec:mps}). (b) $\rho_{20}$ and $M_\dm(<10\pc)$
+returned by the real-data scan for each pinned value, with the photometric
+ranges shaded.}
+\label{fig:budget}
+\end{figure}
+
+\subsection{$\rho_{20}$ as a function of the stellar mass per counted star}
+\label{sec:mps}
+
+Rather than impose the photometric value through a Gaussian prior whose
+width is not yet defensible, the result is reported as a function of
+$M/N_{19}$ (a decision of the project). The HST count amplitude is held at
+$a=(\mathrm{pc\ per\ arcsec})^2/(M/N_{19})$ at the trial distance while the
+Gaia amplitude and field stay profiled; the HST counts then fix the stellar
+normalization and the kinematics must be met by the DF shape, the remnants
+and the halo (\texttt{--mass-per-star} in the driver). The scan is also the
+profile likelihood in $M/N_{19}$: adding a photometric term
+$((M-M_\mathrm{phot})/\sigma_\mathrm{phot})^2$ afterwards is equivalent to
+fitting with it.
+
+\paragraph{Mocks.} The coverage mocks were refitted with the amplitude pinned
+at the truth (10.67) and at wrong values (Figure~\ref{fig:mpsmock}). At the
+truth, $M_\star$ is recovered to $<1$ per cent, but $\rho_{20}$ still
+scatters: truth A returns 0.45, 0.006, 0.002, 0.15, 0.29 and truth B
+($\rho_{20}=1$) returns 1.39, 0.49, 1.89, 2.03, 0.53. A wrong value biases
+$\rho_{20}$ strongly: $M/N_{19}=9.0$ ($-16$ per cent) returns
+$\rho_{20}=2.4$--3.1 for no-halo truths and 3.7--4.4 for $\rho_{20}=1$;
+$12.0$ ($+12$ per cent) returns $\rho_{20}\simeq0$ for both. The slope is
+$\simeq-1.5\,\Msun\pc^{-3}$ per \Msun per counted star, while $M(<20\pc)$
+stays within $+6$ per cent in every case. For the external constraint to be
+decisive $M/N_{19}$ must be known to $\sim0.3\,\Msun$ (3 per cent).
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=\linewidth]{mock_mass_per_star_20260923.png}
+\caption{Mocks with the stellar mass per counted star pinned. (a) Same mock
+data, amplitude profiled (coverage test) against pinned at the truth.
+(b)--(d) Recovered $\rho_{20}$, remnant-mass error and $M(<20\pc)$ error
+against the assumed $M/N_{19}$ (truth 10.67, dashed).}
+\label{fig:mpsmock}
+\end{figure}
+
+\paragraph{Observed data.} Table~\ref{tab:mps} and Figure~\ref{fig:mps}.
+The Latin starts were infeasible under a pinned amplitude, so each point
+rests on the seeded start; the fits at 11 and 12 were restarted once from
+their own best point after stopping early.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Real-data scan in $M/N_{19}$ (HST amplitude pinned, free cored
+halo, distance prior). $\Delta$: objective minus the free-amplitude
+minimum. An asterisk marks $r_s$ at its 5\pc bound.}
+\label{tab:mps}
+\begin{tabular}{rrrrrrrr}
+\toprule
+$M/N_{19}$ & $\Delta$ & $\chikin$ & $\rho_{20}$ & $r_s$ [pc] & $M_\star$ & $M_\remn$ (a [pc]) & $M_\dm(<10\pc)$\\
+\midrule
+8.00 & $+12.2$ & 178.6 & 4.27 & 5* & $2.24\times10^6$ & $4.37\times10^5$ (2.76) & $1.76\times10^5$\\
+9.00 & $+6.9$ & 170.8 & 2.60 & 5* & $2.52\times10^6$ & $3.68\times10^5$ (2.56) & $1.07\times10^5$\\
+10.00 & $+2.4$ & 164.7 & 0.80 & 5* & $2.82\times10^6$ & $3.09\times10^5$ (2.36) & $3.3\times10^4$\\
+10.67 (free) & 0 & 158.2 & 0 & -- & $3.00\times10^6$ & $2.62\times10^5$ (2.15) & 0\\
+11.00 & $+1.2$ & 155.3 & 0 & 15.5 & $3.06\times10^6$ & $2.33\times10^5$ (2.00) & 0\\
+12.00 & $+19.7$ & 158.6 & 0 & 78 & $3.22\times10^6$ & $1.64\times10^5$ (1.58) & 0\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Below the free value the halo switches on with
+$\dd\rho_{20}/\dd(M/N_{19})\simeq-1.7$, $r_s$ at its bound and the remnants
+growing with it, exactly as in the mocks; above it the halo stays off and
+the Gaia counts pay. Combined with a photometric term centred on 8.9
+(the 30--175\,arcsec value): for $\sigma_\mathrm{phot}=0.5$ the minimum moves
+to 9.47 [8.98, 9.97] with $\rho_{20}=1.8$ [0.9, 2.6] and
+$M_\dm(<10\pc)=7\times10^4\,\Msun$; for $\sigma_\mathrm{phot}=1.0$ and 1.5
+it stays at 10.67 with $\rho_{20}=0$ ([0, 1.2] and [0, 0.55]). The answer is
+therefore set by $\sigma_\mathrm{phot}$. At 0.5 the photometry produces a
+``detection'' of the size a $-16$ per cent mass-per-star error produces on
+a no-halo mock; at $\ge1$ the data pull the minimum back to the free value.
+The next step is the photometric error budget, not more fitting.
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=\linewidth]{mass_per_star_profile_20260923.png}
+\caption{Real data against the assumed stellar mass per counted star.
+(a) Objective and components relative to the minimum (grey: photometric
+range). (b) $\rho_{20}$ and the profiled $r_s$. (c) Profiled masses.
+(d) The scan combined with the photometric term for
+$\sigma_\mathrm{phot}=0.5$, 1.0 and 1.5 (triangles: minima).}
+\label{fig:mps}
+\end{figure}
+
+\subsection{Anatomy of the degeneracy}
+\label{sec:degeneracy}
+
+\paragraph{Why a halo is invisible.} The best no-DM fit and the refitted
+$\rho_{20}=1$ ($r_s=5\pc$) fit differ by at most 0.27$\sigma$ in any bin of
+any dataset (Figure~\ref{fig:datamodels}, left). Adding the same halo to the
+no-DM model \emph{without} refitting changes the HST radial proper-motion
+dispersions by 2 per cent (12.5$\sigma$), the tangential ones by
+6.5$\sigma$, and raises the objective from 283.4 to 1123.9; the refit brings
+it back to 285.5 by removing 5.5 per cent of the stellar mass, adding 11
+per cent to the remnants and adjusting the anisotropy transitions
+(Figure~\ref{fig:compensation}). The coincident curves are the degeneracy
+itself.
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=\linewidth]{halo_compensation_20260924.png}
+\caption{(Model $-$ no-DM fit)/error per bin for a $\rho_{20}=1$,
+$r_s=5\pc$ halo added with nothing refitted (red) and with every other
+parameter refitted (blue). The text panel lists the compensating changes.}
+\label{fig:compensation}
+\end{figure}
+
+\paragraph{Who carries the mass inside 10\pc.} Along the data scan in
+$\rho_{20}$ the total inside 10\pc changes by 2 per cent
+($1.70\to1.67\times10^6\,\Msun$ from $\rho_{20}=0$ to 4) while the stars lose
+$3\times10^5\,\Msun$ and remnants and halo gain it together
+(Figure~\ref{fig:rhdeg}). In the mocks the leading degeneracy is stars
+against dark mass (remnants plus halo): correlation $-0.96$, stellar rms
+$4.7\times10^4\,\Msun$ inside 10\pc with the amplitude profiled. Pinning the
+stars removes it (rms $5\times10^3$). Only then is the remainder a
+remnants--halo trade (correlation $-0.72$, rms $1.3$--$1.6\times10^4\,\Msun$,
+about 1 per cent of the total and comparable to the noise on the total).
+The pinned $\rho_{20}$ scatter is mostly $r_s$ wandering between 5 and
+500\pc at fixed enclosed mass; $M_\dm(<10\pc)$ is the better-posed quantity.
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=\linewidth]{remnant_halo_degeneracy_20260923.png}
+\caption{(a) Data: mass inside 10\pc per component along the $\rho_{20}$
+scan (labels: $\Delta$ objective). (b) Enclosed-mass profiles for
+$\rho_{20}=0$, 1 and 4. (c) Mocks: error of the stellar mass against the
+error of remnants plus halo inside 10\pc. (d) Mocks with the stars pinned:
+halo against remnant error.}
+\label{fig:rhdeg}
+\end{figure}
+
+\paragraph{With the photometric stellar mass imposed} the two classes of
+model separate (Figure~\ref{fig:datamodels}, right). At $M/N_{19}=9.0$
+without a halo the model is 0.5--1.5 per cent low in the HST dispersions at
+1--8\pc (radial PM residual $-4.3\sigma$ at 3\pc; objective 313.1,
+$\chikin=206.6$), because remnants at $\sim3\pc$ cannot replace missing
+extended mass. With the halo the objective is 292.5: at fixed photometric
+stellar mass the halo is preferred by 20.6. The mocks show that the same
+preference arises on a no-halo truth when the mass per star is
+underestimated by 16 per cent.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.49\linewidth]{data_vs_dm_models_20260924_data.png}\hfill
+\includegraphics[width=.49\linewidth]{data_vs_models_photometric_pin_20260924_data.png}
+\caption{All data with models. Left: the free-mass no-DM fit and the
+refitted $\rho_{20}=1$ fit coincide. Right: free-mass no-DM (285.6),
+photometric $M/N_{19}=9.0$ without DM (313.1) and with a halo
+($\rho_{20}=2.6$, $r_s=5\pc$; 292.5).}
+\label{fig:datamodels}
+\end{figure}
+
+\paragraph{Two representative models} are compared component by component
+in Figure~\ref{fig:components}: (A) no DM, free stellar mass; (B) DM halo,
+photometric stellar mass. The mass fractions (stars/remnants/DM) inside 1,
+3, 10 and 30\pc are 40/60/--, 60/40/--, 86/14/--, 91/9/-- for A and 36/61/3,
+50/46/4, 74/20/6, 76/12/12 for B. In both the remnants dominate inside
+$\sim1.5\pc$; in B the halo is a minor component everywhere inside the data.
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=.9\linewidth]{component_profiles_20260924.png}
+\caption{Density (top) and enclosed mass (bottom) of stars, remnants and
+halo for model A (left) and model B (right). Grey: outside the kinematic
+data (inside 0.1\pc and beyond 63\pc).}
+\label{fig:components}
+\end{figure}
+
 \subsection{What can and cannot be said}
 \begin{itemize}
 \item \textbf{Can:} under this model and the published errors, the total
   enclosed mass is determined to a few per cent over 2--40\pc, and the best
-  fit has no halo.
-\item \textbf{Cannot:} quote a limit on $\rho_{20}$. The mocks show a
-  recovery scatter of 0.5--0.9\,$\Msun\pc^{-3}$ with a free halo scale, as
-  large as the observed profile's rise; a compact ``halo'' is degenerate
-  with the remnant sphere and with $M_\star$. The likelihood is also not
+  fit with a free stellar mass has no halo. With the stellar mass fixed, the
+  dark mass inside 10\pc follows from the assumed mass per counted star
+  (Table~\ref{tab:mps}).
+\item \textbf{Cannot:} quote a limit on $\rho_{20}$. With the stellar mass
+  free the mocks give a recovery scatter of 0.5--0.9\,$\Msun\pc^{-3}$; with
+  it pinned at the truth, still $\sim\pm0.7$, mostly because $r_s$ is
+  unconstrained. The photometric mass per counted star (8.3--9.8 in the
+  kinematically relevant zones) lies 12--27 per cent below the dynamical
+  10.67; imposed exactly it implies $\rho_{20}\simeq2$--3, which is what a
+  16 per cent mass-per-star error produces on a no-halo mock. A decisive
+  statement needs $M/N_{19}$ to $\sim3$ per cent. The likelihood is also not
   calibrated, rotation is subtracted rather than modelled, and the
-  tracer/mass assumption is untested.
+  tracer/mass assumption is known to be only approximate (the mass per
+  bright star varies with radius).
 \end{itemize}
+
+\section{N-body tidal disruption of the no-DM and DM models}
+\label{sec:nbody}
+
+Models A and B of Figure~\ref{fig:components} fit the same data. We asked
+whether their tidal tails differ in ways that observations could test.
+
+\subsection{Set-up}
+\begin{itemize}
+\item \textbf{Initial conditions} (\texttt{bin/nbody/build\_ics.py}),
+  $5\times10^5$ equal-mass particles per model. Stars are sampled from the
+  fitted action DF (AGAMA \texttt{GalaxyModel}); remnants and halo from
+  isotropic Eddington DFs in the total potential. A: 459\,892 stars and
+  40\,108 remnants (6.5\,\Msun each); B: 268\,604 stars, 39\,152 remnants
+  and 192\,244 halo particles (9.4\,\Msun each; the fitted halo holds
+  $1.81\times10^6\,\Msun$, most of it beyond 60\pc). The sampled cumulative
+  mass matches the model to $<1$ per cent at 1--1000\pc; virial ratios
+  1.0006 and 1.0004.
+\item \textbf{Integration} (\texttt{bin/nbody/run\_nbody.py}): falcON
+  forces via \texttt{pyfalcon} (\url{https://github.com/GalacticDynamics-Oxford/pyfalcon};
+  the PyPI package of that name is unrelated), kick--drift--kick leapfrog,
+  softening 0.3\pc, step 0.01\,Myr, static \citet{2017MNRAS.465...76M}
+  potential from AGAMA.
+\item \textbf{Orbit}: $\omega$ Cen today from the \citet{2021MNRAS.505.5957B}
+  orbit table
+  (\url{https://people.smp.uq.edu.au/HolgerBaumgardt/globular/orbits_table.txt}):
+  $(X,Y,Z)=(4.87,-4.07,1.40)$\,kpc, $(U,V,W)=(-95.98,-21.69,-86.82)\kms$;
+  pericentre 1.42, apocentre 7.11\,kpc in this potential, radial period
+  $\simeq89$\,Myr, retrograde. The clusters start 1955.6\,Myr before today
+  (23 pericentres).
+\item \textbf{Flags}: static potential with no dynamical friction or bar
+  (an orbit sub-project will compare these); non-rotating models (the
+  fitted DF is the even part in $L_z$); two-body relaxation in the
+  simulation is 2.8 times faster than in the real cluster, so the inner
+  $\sim2\pc$ evolves more than it should, while the envelope and tails
+  ($r>5\pc$) are collisionless to a few per cent.
+\end{itemize}
+
+\paragraph{Isolation tests} (\texttt{bin/nbody/analyse\_isolation.py};
+Figure~\ref{fig:iso}). Over 20\,Myr ($\sim130$ core crossing times) the
+stellar density stays within 1.8 (A) and 1.5 per cent (B) of the model at
+0.3--30\pc, the virial ratio within 0.997--1.001, $|\Delta E/E|\le2\times10^{-4}$,
+and $\sigma_r$, $\sigma_t$ and $\beta(r)$ unchanged. The remnant density
+inside $\sim1\pc$ drops by 5--8 per cent in the first 5\,Myr and then stays
+constant (readjustment to the softened forces). A step of 0.02\,Myr gave
+$|\Delta E/E|=8\times10^{-4}$ and a 5--13 per cent low central density and
+was rejected.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.49\linewidth]{nbody_isolation_A_nodm_isolated.png}\hfill
+\includegraphics[width=.49\linewidth]{nbody_isolation_B_dm_phot_isolated.png}
+\caption{Isolated evolution for 20\,Myr of model A (left) and B (right):
+density per species against the DF model (ratio to the shell-averaged
+model density), stellar dispersions and anisotropy at 0 and 20\,Myr,
+virial ratio, energy error and Lagrangian radii.}
+\label{fig:iso}
+\end{figure}
+
+\subsection{Evolution and the present-day state}
+\begin{itemize}
+\item \textbf{Orbit fidelity.} A follows the point-mass orbit to $\le71\pc$
+  throughout and ends 54\pc and 1.9\kms from $\omega$ Cen's observed phase-space
+  position. B drifts: 12\pc after 300\,Myr, $\sim250\pc$ after 1.2\,Gyr,
+  566\pc and 15\kms today ($b=8.4^\circ$ instead of $15.0^\circ$). This is
+  physical within model B: $1.4\times10^6\,\Msun$ of stripped DM surrounds
+  the orbit and pulls on the cluster.
+\item \textbf{Mass loss} (Figure~\ref{fig:nbodystate}). Today A retains 94.6
+  per cent of its stars ($1.62\times10^5\,\Msun$ stripped) and 99.5 per cent
+  of its remnants; B retains 95.9 per cent of its stars
+  ($1.03\times10^5\,\Msun$ stripped), 99.3 per cent of its remnants and 23
+  per cent of its halo. In the first $\sim500$\,Myr B's then intact outer
+  halo shielded its stars (stripping rates $\sim5$ against 2.5--3 per cent
+  per Gyr); the rates converge after $\sim1.3$\,Gyr, to 1.95 and 1.81 per
+  cent per Gyr over the last 500\,Myr.
+\item \textbf{Tails.} Both models have wrapped their debris into a rosette
+  spanning $\ell=-70^\circ$ to $+70^\circ$, $|b|<45^\circ$. The spread in
+  energy and $L_z$ of the unbound stars is the same to 2 per cent
+  (3908 vs 3983\,km$^2$\,s$^{-2}$; 46.2 vs 46.9\,kpc\kms), and the tail
+  width is the same within errors.
+\end{itemize}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{nbody_state_stars_t1956.png}\\[4pt]
+\includegraphics[width=\linewidth]{nbody_tails_today_history.png}
+\caption{Top: stars of model A (left) and B (right) today in the
+Galactocentric $X$--$Y$ plane, with the orbit over $\pm300$\,Myr and the
+inner 2\,kpc as an inset. Bottom: bound mass per species against time (grey:
+pericentres; the present day is $t=1955.6$\,Myr) and the Galactocentric
+radius and stellar half-mass radius.}
+\label{fig:nbodystate}
+\end{figure}
+
+\subsection{Differences between the two disruptions}
+\label{sec:nbodydiff}
+
+Counts are normalized to each model's bound stellar count, because the
+particle masses differ; sky offsets are relative to each model's cluster
+(Figures~\ref{fig:discrim} and \ref{fig:tailkin}).
+\begin{itemize}
+\item Unbound/bound stars: 5.7 against 4.3 per cent for the whole tail
+  (A/B 1.33); 1.27 within 5$^\circ$ and 10$^\circ$, 1.09 within 20$^\circ$.
+  The difference was accumulated in the shielded early phase and depends on
+  the initial halo extent and on the real history.
+\item Line-of-sight dispersion of tail stars on the same wrap (distance
+  within 0.5\,kpc of the cluster) within 10$^\circ$: $8.5\pm0.3$ against
+  $7.1\pm0.3\kms$ (A/B 1.2; 1.4 within 5$^\circ$ with 152 and 71 particles).
+\item Bound cluster: projected dispersion identical to 2 per cent at
+  1--60\pc (both fit the same data); at 100--200\pc $4.8$ against $4.1\kms$.
+\item Invisible: B's debris is 93 per cent DM by mass; its tails carry three
+  times more remnants per star; the stripped DM displaces B's orbit.
+\end{itemize}
+Every luminous difference is $\le1.4$, the same order as the systematics
+not modelled (potential, dynamical friction, bar, rotation).
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=\linewidth]{nbody_discriminants_today.png}
+\caption{Observable differences today: (a,b) cumulative tail/cluster star
+ratio and its A/B ratio against angular distance (Poisson bands); (c)
+near-tail line-of-sight velocities (same wrap, $<10^\circ$); (d) projected
+dispersion from the cluster to the escapers; (e) stripping rate per radial
+period; (f) tail width; (g) debris composition; (h) near-tail sky map;
+(i) summary of the ratios.}
+\label{fig:discrim}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=.85\linewidth]{nbody_tail_kinematics_t1956.png}
+\caption{Kinematics of the unbound stars today: energy against $L_z$ offset
+from the cluster (colour: time offset along the orbit), streaming and
+dispersions relative to the local orbit along the tails, the $\Delta E$
+distributions of both models and the tail dispersions per component
+(these mix orbital wraps within $\pm150$\,Myr and are therefore large).}
+\label{fig:tailkin}
+\end{figure}
+
+\subsection{Comparison with the observed tails}
+\label{sec:nbodyobs}
+
+Observed values are those stated in the texts of
+\citet{2021MNRAS.507.1127K}, \citet{2026MNRAS.stag1147K} and
+\citet{2019NatAs...3..667I}, plus the dispersion of Da Costa (2012) at the
+tidal radius as quoted by \citet{2026MNRAS.stag1147K}
+(Figure~\ref{fig:nbodyobs}; \texttt{bin/nbody/plot\_observed\_comparison.py}).
+\begin{itemize}
+\item Star-count slope beyond $r_t=46.4'$ out to 5$^\circ$: along the tails
+  $-2.36$ (A) and $-2.55$ (B) against $-3.40\pm0.20$; across $-5.51$ and
+  $-5.27$ against $-5.22\pm0.26$.
+\item Stars between the Wilson radius (70.6$'$) and 5$^\circ$: 0.102 and
+  0.100 per cent against $\ge0.1$ per cent (a lower limit); this annulus is
+  dominated by bound outskirts, identical in the two models.
+\item Tail position angle: 115.4$^\circ$ and 118.8$^\circ$ against
+  $122.9\pm2.1^\circ$.
+\item Line-of-sight dispersion beyond $r_t$ within 4$^\circ$: 4.8\kms in
+  both, against 6.7\kms at $r_t$; the outermost spectroscopic member,
+  offset by $\sim7\kms$ at 3$^\circ$, lies within the model spread; neither
+  model has a velocity gradient, as observed.
+\item Fimbulthul: model debris lies at its position and distance (median
+  4.2\,kpc against 4.1), but it is not Fimbulthul
+  (Figure~\ref{fig:fimb}). It is trailing debris stripped at many
+  different times, its velocities spread over 140--255\kms (against a mean
+  199.7 with rms 5.4\kms for five stars), and its proper motions
+  ($\mu_\delta=-6$ to $-9\masyr$) miss the observed members ($-9.7$ to
+  $-11.5$); an Ibata-like proper-motion and distance selection keeps no
+  model particle. The difference between the two models' median velocities
+  in that sky box (215 and 202\kms) reflects the different age mix of the
+  debris and B's displaced orbit, not a clean DM signature.
+\end{itemize}
+The mismatches (profile along the tails too shallow, position angle 4--7$^\circ$
+off, no cold Fimbulthul-like stream) are common to both models. They point
+to the orbit and potential, the integration time (the published
+Fimbulthul model ran $\sim5$\,Gyr with a rotating progenitor) and the
+missing rotation, not to the dark matter.
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=\linewidth]{nbody_vs_observed_today.png}
+\caption{Models against the observed tails: (a,b) star-count profiles along
+and across the tails and their slopes beyond $r_t$ with the
+\citet{2021MNRAS.507.1127K} values, and the stellar fraction between the
+Wilson radius and 5$^\circ$; (c) unbound stars in the tangent plane with the
+observed tail direction; (d) line-of-sight velocities beyond $r_t$ with the
+Da Costa (2012) dispersion and the outermost \citet{2026MNRAS.stag1147K}
+member; (e,f) the Fimbulthul box ($\ell=-52^\circ$ to $-32^\circ$,
+$b=30^\circ$--$40^\circ$) with the five \citet{2019NatAs...3..667I}
+velocities. Panel (e) compares unlike populations (see
+Figure~\ref{fig:fimb}).}
+\label{fig:nbodyobs}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=\linewidth]{nbody_fimbulthul_box_today.png}
+\caption{Model debris in the Fimbulthul box: velocity against distance
+(circles would mark particles passing an Ibata-like selection; there are
+none), against orbit phase coloured by escape time, and against energy
+offset; proper motions with the observed members (stars); escape-time
+distributions.}
+\label{fig:fimb}
+\end{figure}
+
+\paragraph{Testability.} The two discriminants that remain, tail counts
+relative to the cluster (A/B $\simeq1.3$) and the near-tail dispersion
+(A/B $\simeq1.2$), are not measured. The only published count is the lower
+limit above, and equal-mass particles cannot model the preferential escape
+of low-mass stars, a correction at least as large as the A/B difference.
+No tail dispersion is published; five spectroscopic members give it to
+32 per cent. Separating 8.5 from 7.1\kms at $2\sigma$ needs $\sim100$--200
+tail members within 10$^\circ$ with velocities good to $\sim2\kms$. A sample
+could be assembled from existing surveys (Gaia DR3 RVS, APOGEE, GALAH, S5,
+Gaia-ESO), with the same selection applied to the snapshots.
 
 \section{Numerical and software issues found and fixed}
 \label{sec:fixes}
@@ -1015,6 +1497,27 @@ from the stellar mass function (Section~\ref{sec:conclusions}).
   kpc, so later DF tests refused to run (25 failures and errors in the full
   suite). A fixture now restores units; the full suite passes (630 passed,
   5 skipped).
+\item \textbf{AGAMA time unit.} In kpc--\kms units AGAMA's time unit is
+  977.79\,Myr, not 1\,Gyr. The N-body orbit start used \texttt{time=-2.0}
+  and so began 1955.6\,Myr before today; the present day is $t=1955.6$\,Myr
+  in those runs (their physics is unaffected). Fixed in
+  \texttt{run\_nbody.py} (\texttt{AGAMA\_T\_MYR}) and in the orbit tracks of
+  the tail analyses, whose time offsets had been 2.2 per cent off. Verified
+  with a test particle through the same leapfrog and with AGAMA's own orbit
+  (0.5\pc from today's position).
+\item \textbf{N-body centre finder.} Seeded from the previous centre, the
+  shrinking spheres lost the cluster after 1\,Myr of orbital motion
+  ($\sim250\pc$), corrupting the on-the-fly bound masses; the first launch
+  was stopped after 10\,Myr and relaunched. The centre is now predicted
+  from the centre velocity, with a fallback to the median luminous
+  position.
+\item \textbf{Shell densities.} Comparing N-body shell densities with the
+  model density at the shell midpoint biased the ratio by $\sim3$ per cent
+  for these steep profiles; the comparison now uses the shell-averaged
+  model density from the enclosed mass.
+\item \textbf{Mass-function completeness.} Zone-dependent faint limits made
+  the mass-function slope flatten outwards spuriously; all zones now use one
+  common limit ($F625W<21$).
 \item \textbf{Remaining numerical limitation.} In strongly DM-dominated
   regions ($M_\star\sim1.4\times10^6\,\Msun$, $\rho_{20}\sim8$) the
   self-consistency iteration can diverge. The normalization tolerance also
@@ -1058,6 +1561,19 @@ calibrated treatment.
   truth returned 0), while the total mass profile is recovered within
   $\pm5$\% over 2--40\pc. The observed profile is therefore not a
   $\rho_{20}$ limit; the data determine the mass profile, not the split.
+\item The leading degeneracy is stars against dark mass (remnants plus
+  halo), through the count amplitude. The mass function gives 8.3--9.8\,\Msun
+  per counted star against the dynamical 10.67. Pinned at the photometric
+  value the data prefer a compact halo by 20.6 in the objective, but mocks
+  show the same preference for a 16 per cent mass-per-star error. With the
+  stars pinned at the truth, $\rho_{20}$ still scatters by $\sim\pm0.7$
+  because $r_s$ is free; $M_\dm(<10\pc)$ is the better-posed quantity.
+\item In N-body disruption on $\omega$ Cen's orbit the no-DM and DM models
+  produce tails that differ by $\le30$ per cent in star counts relative to
+  the cluster and $\sim20$ per cent in near-tail dispersion, with identical
+  energy spreads and widths. Neither quantity is measured yet; the observed
+  profile slope along the tails, the tail position angle and the cold
+  Fimbulthul stream are missed equally by both models.
 \end{enumerate}
 
 \paragraph{Objective 1 (fit), proposed.}
@@ -1081,6 +1597,19 @@ i.e.\ $\sim0.45\,\Msun$), with white dwarfs included in the luminous
 component and NS/BH remnants bounded by retention. (iii) Repeat the mocks
 with both to measure the remaining scatter. (iv) Intervals only after the
 likelihood is calibrated (objective 1, item ii).
+Status: (ii) is done as a sensitivity map (Section~\ref{sec:mps}); what is
+now needed is the error budget of the photometric mass per counted star
+(the extrapolation below 0.52\,\Msun and the white-dwarf term) to
+$\sim3$ per cent, and mass-segregated rather than mass-follows-light stars.
+
+\paragraph{N-body, proposed.}
+(i) Iterate model B's starting point so that it ends at $\omega$ Cen's
+present position. (ii) More star particles in the escaping population and a
+family of B models with different outer-halo extents. (iii) The orbit
+sub-project: static potential against dynamical friction and bar
+resonances; rotating DF models. (iv) A tail-member sample with velocities
+from existing surveys (Gaia DR3 RVS, APOGEE, GALAH, S5, Gaia-ESO),
+forward-modelled with the same selection on the snapshots.
 
 \appendix
 \section{Reproducibility}
@@ -1102,6 +1631,10 @@ Batch & Commit & Content\\
 \texttt{rho20free\_20260923}, \texttt{rho20scan\_\{0.25,0.5,1,2,4\}\_20260923} & \texttt{f4fd4c7}+ & Free halo and the fixed-$\rho_{20}$ profile scan\\
 \texttt{mockA\_nohalo\_20260923}, \texttt{mockB\_rho1.0\_20260923} & \texttt{911255e}+ & Single-realization mocks (seeds 101, 202)\\
 \texttt{cov\_A\_s\{11..15\}\_20260923}, \texttt{cov\_B\_rho1.0\_s\{11..15\}\_20260923} & \texttt{f4fd4c7}+ & Coverage mocks (one hand start each)\\
+\texttt{mpsmock\_\{truth,9.0,12.0\}\_\{A,B\}\_s*\_20260923} & \texttt{7525c77} & Coverage mocks refitted with $M/N_{19}$ pinned\\
+\texttt{mpsscan\_\{8,9,10,11,12\}\_20260923} & \texttt{c3ee6a2} & Real-data scan in $M/N_{19}$ (11, 12 restarted; \texttt{*\_pass1} kept)\\
+\texttt{mpsscan\_9\_nohalo\_20260923} & \texttt{b9453de} & $M/N_{19}=9.0$, no halo\\
+\texttt{results/nbody/\{A\_nodm,B\_dm\_phot\}} & \texttt{bcdecb5} & N-body ICs, isolation and tidal runs (present day \texttt{orbit/snap\_today.npz})\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -1114,7 +1647,22 @@ The driver is \path{bin/run_compact_df_recovery.py} (\texttt{prepare-real},
 \path{plot_rho20_profile.py}; the count products from
 \path{build_count_profiles.py}; the scan and mocks from
 \path{run_rho20_profile_scan.sh}, \path{run_mock_validation.sh} and
-\path{run_mock_coverage.sh}. Plotted data and checksums are in
+\path{run_mock_coverage.sh}. The mass function comes from
+\texttt{bin/build\_mass\_function.py} (\texttt{--feh -1.53} for the Harris
+variant); the mass-per-star scan and its mocks from
+\texttt{bin/run\_mass\_per\_star\_scan.sh} and
+\texttt{bin/run\_mock\_mass\_per\_star.sh} (driver option
+\texttt{--mass-per-star ocen\_counts\_hst\_f625w19=M}), plotted by
+\texttt{plot\_mass\_per\_star\_profile.py}, \texttt{plot\_mock\_mass\_per\_star.py},
+\texttt{plot\_mass\_budget\_tension.py}, \texttt{plot\_halo\_compensation.py},
+\texttt{plot\_remnant\_halo\_degeneracy.py} and
+\texttt{plot\_component\_profiles.py}. The N-body tools are in
+\texttt{bin/nbody/}: \texttt{build\_ics.py}, \texttt{run\_nbody.py},
+\texttt{analyse\_isolation.py}, \texttt{analyse\_tails.py},
+\texttt{plot\_snapshot.py}, \texttt{plot\_tail\_kinematics.py},
+\texttt{plot\_discriminants.py}, \texttt{plot\_observed\_comparison.py} and
+\texttt{fimbulthul\_box.py}; runs are under \texttt{results/nbody/} (present
+day in \texttt{orbit/snap\_today.npz}). Plotted data and checksums are in
 \path{results/plot_data/}. Markdown records are in
 \path{docs/OBSERVED_DF_FLEXIBILITY.md} and
 \path{docs/DF_ANISOTROPY_DIAGNOSTICS.md}. Example of the two-transition
@@ -1128,6 +1676,14 @@ $PY bin/run_compact_df_recovery.py prepare-real --out results/df/NAME \
   --bound stellar.b_out=-2:2 --bound matter.r_s=5:500
 $PY bin/run_compact_df_recovery.py run --out results/df/NAME \
   --workers 2 --max-calls 600 --detach
+# stellar mass per counted star pinned; N-body ICs and a tidal run
+$PY bin/run_compact_df_recovery.py prepare-real ... \
+  --mass-per-star ocen_counts_hst_f625w19=9.0
+$PY bin/nbody/build_ics.py --out results/nbody/A_nodm --n 500000 --seed 1 \
+  --model "results/df/dftwo_counts_20260923::observed_no_halo_start0"
+$PY bin/nbody/run_nbody.py --ics results/nbody/A_nodm/ics.npz \
+  --out results/nbody/A_nodm/orbit --orbit --tback 1955.584 \
+  --eps 0.3 --dt 0.01 --tstop 1955.584 --snap 10 --diag 1
 \end{verbatim}
 
 \bibliographystyle{plainnat}
