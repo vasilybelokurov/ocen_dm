@@ -6166,3 +6166,23 @@ kpc). No proper-motion, parallax or CMD selection, unlike STREAMFINDER.
     selected in either model. The model debris in the box is not Fimbulthul;
     the earlier v_helio comparison (panel e of nbody_vs_observed) compared
     unlike populations and should not be read as a test.
+
+## 2026-09-26 -- Tail counts and tail dispersion: testable with current data?
+
+No, for both.
+  Counts: models unbound/bound within 5 deg 4.1e-4 (A) vs 3.2e-4 (B), within
+  10 deg 1.6e-3 vs 1.2e-3. The only observed number (K21) is a lower limit,
+  >= 0.1% of the stellar mass between r_W and 5 deg; both models give 0.10%,
+  because that annulus is dominated by the bound r_W-r_J outskirts, identical
+  in A and B. Equal-mass particles: no mass segregation, so the models
+  cannot predict the bright-star escaper bias of real clusters (low-mass stars
+  escape preferentially) - a correction at least as large as the 30% A/B
+  difference.
+  Dispersion: models (unbound, same wrap, < 10 deg) 8.5 +- 0.3 (A) vs 7.1 +-
+  0.3 (B) km/s. No published tail dispersion; K26 have 5 members beyond r_J
+  (online table only): sigma from 5 stars is uncertain by 1/sqrt(2N) = 32%
+  against a 20% model difference. A 2-sigma separation needs ~0.5 km/s errors,
+  i.e. ~100-200 tail members within 10 deg with <~2 km/s velocities.
+  Proposed next step (not started): assemble tail members with velocities from
+  existing surveys (Gaia DR3 RVS, APOGEE, GALAH, S5, Gaia-ESO) via WSDB, and
+  forward-model the same selection on the N-body snapshots.
