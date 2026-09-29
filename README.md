@@ -8,7 +8,24 @@ from stellar kinematics, and estimate how much dark matter could survive the
 progenitor dwarf's disruption. The eventual joint kinematic-and-tail inference
 is still to be built.
 
-## Current state — 21 September 2026
+## Latest — 29 September 2026 (DF models and N-body tails)
+
+- **DF fits.** A two-transition action-based DF with Poisson star counts and a distance
+  prior fits all kinematic data (chi2_kin = 158 for 89 bins) without dark matter.
+- **DM constraint.** The dark-matter density at 20 pc (rho20) is not identified: on mocks
+  it scatters by +-0.7, because the stellar mass trades against remnants plus halo.
+- **Stellar-mass pin.** Fixing the stellar mass per counted star from the oMEGACat mass
+  function (MIST) sets the answer: rho20 ~ 2-4 at the photometric 8-9 Msun per
+  F625W<19 star, 0 at the dynamically preferred 10.7. The photometric uncertainty
+  (>~ 1 Msun per star) is too large to decide between them.
+- **N-body tails.** Simulations of a no-DM and a DM model on omega Cen's orbit (static
+  McMillan17, 1.96 Gyr) give tails whose kinematics agree to 10%. The DM model
+  loses 1.3-1.6x fewer stars. Neither difference is testable with the published tail
+  data (Kuzma+2021, Kuzma+2026, Ibata+2019).
+- **Details.** [DF fit write-up](docs/df_observed_fit.pdf) ([LaTeX](docs/df_observed_fit.tex))
+  and `JOURNAL.md`.
+
+## Earlier state — 21 September 2026
 
 Data ingestion, mass components, a spherical Jeans likelihood and nested sampling
 are implemented. The current comparison uses **89 binned measurements**: HST
@@ -67,6 +84,7 @@ evidence difference remains small.
 | [Free-potential DF mass recovery](docs/DF_MASS_RECOVERY.md) / [live status](docs/DF_MASS_RECOVERY_STATUS.md) | Independent stellar mass/light weights, self-consistent gravity, noiseless recovery and gated noisy mock experiments |
 | [Compact DF recovery](docs/COMPACT_DF_RECOVERY.md) | Matched regularized-DF mocks with and without DM, multiple starts, checkpointed fits, and separate observable and mass-recovery checks |
 | [Observed-data DF flexibility](docs/OBSERVED_DF_FLEXIBILITY.md) | Can the compact regularized DF fit the full Omega Cen data? Test design, multi-start results, residual pattern, and required model extensions |
+| [DF fit to the observed data: write-up](docs/df_observed_fit.pdf) / [LaTeX](docs/df_observed_fit.tex) | Data, DF family, fitting, rho20 profile and mocks, mass-function stellar-mass constraint, remnant/halo degeneracy, N-body tidal tails vs observations |
 | [DF anisotropy diagnostics](docs/DF_ANISOTROPY_DIAGNOSTICS.md) | Subset, Gaia error-floor and free-distance fits; DF vs Jeans beta(r); proposed two-transition anisotropy model |
 | [Lifetime batch](docs/LIFETIME_BATCH_REPORT.md) | Active queue, live stellar response, numerical gates, long orbital forcing and physical heating estimate |
 | [Modelling plan](docs/MODELLING_PLAN.md) | Adopted fit sequence and exact CLI choices |
