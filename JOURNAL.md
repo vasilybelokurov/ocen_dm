@@ -6186,3 +6186,25 @@ No, for both.
   Proposed next step (not started): assemble tail members with velocities from
   existing surveys (Gaia DR3 RVS, APOGEE, GALAH, S5, Gaia-ESO) via WSDB, and
   forward-model the same selection on the N-body snapshots.
+
+## 2026-09-29 -- Figure index for the N-body comparison (catch-up)
+
+Figures produced 2026-09-24/25 but not listed above (scripts in bin/nbody/):
+  plots/nbody_state_t0250.png, nbody_state_t0210.png - both models side by
+    side in the Galactocentric X-Y plane, all species, at the 3rd pericentre
+    (t = 250 Myr, r_gal 1.76 kpc) and 3rd apocentre (t = 210 Myr, 6.94 kpc)
+    (`plot_snapshot.py`); same epoch = same orbital phase in both panels.
+  plots/nbody_state_stars_t0210.png, nbody_state_stars_t0250.png - stars
+    only (`plot_snapshot.py --stars-only`); bound stars 99.2 / 98.9% (A) vs
+    99.7 / 99.5% (B).
+  plots/nbody_tail_kinematics_t0250.png, _t0210.png - early tail kinematics
+    (`plot_tail_kinematics.py`): dE rms 3963 vs 4190 and 3895 vs 4166
+    km^2/s^2, dLz rms ~40 kpc km/s in both; dispersions equal within 10%.
+  plots/nbody_tails_test_history.png, nbody_tails_test_tails_t0170.png -
+    development runs of `analyse_tails.py` at t = 170 Myr (superseded by the
+    nbody_tails_today_* figures).
+Note: the t0210/t0250/t0170 figures were made before the AGAMA time-unit fix
+(2026-09-25): their orbit tracks and along-orbit time offsets are 2.2% short
+in time; the particle positions, bound fractions and the "same epoch"
+comparison are unaffected. The "Myr before today" in their titles assumed
+today = 2000 Myr (correct: 1955.6 Myr).
