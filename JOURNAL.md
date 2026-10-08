@@ -6408,3 +6408,12 @@ PM-plane panel added to plots/omegacat_inner10_nonmember_cmd.png: the 62 inner-1
 roughly isotropically to large PMs (median |mu| 14 mas/yr, 90th pct 25, max 67; 4 beyond 30), whereas the field
 clump sits at 6 mas/yr with sd ~1.3; only 1 candidate lies within 3 mas/yr of it. The inner candidates are
 dominated by spurious large PMs (crowding), consistent with the half-plane balance (32 vs 30).
+
+## 2026-10-08 -- Restricted runner: update-interval convergence on the orbit (first 300 Myr) -- PASS
+
+bin/streams/compare_live.py on pairs (results/plot_data/streams_tupd_convergence.json, plots/streams_tupd_convergence.png):
+A (no DM), tupd 4 vs 2 Myr, t = 50-300 Myr: unbound stellar fraction identical to 1e-4 (0.0122 at 300 Myr), debris
+dE rms and dLz rms within 0.5%, shell width/dispersions within 1-2%, bound stars to 1e-4.
+B (DM), tupd 2 vs 1 Myr: unbound stellar fraction 0.0057 vs 0.0055 at 300 Myr (3.5%), bound halo mass identical
+to 0.1% (1.81e6 -> 6.55e5 Msun by 300 Myr), dE/dLz within 1.4%, width within 2%.
+-> tupd = 2 Myr adopted (validation queue uses it). Check-run snapshots deleted (diagnostics kept).
