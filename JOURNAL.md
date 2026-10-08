@@ -6441,3 +6441,19 @@ plots/streams_validation_A.png): unbound stellar fraction 0.0032/0.0032 (100), 0
 end; tolerance 20%); robust dE and dLz spreads within 3%; shell width and dispersions within 5%. (The rms dLz at
 1500 Myr differed by 29% from a few outliers; robust MAD spreads now reported.) Present-day centre 0.29 pc from
 omega Cen's position. Remaining runs (A frozen, B refit, B frozen) launched: bin/streams/run_validation.sh.
+
+## 2026-10-08 -- Prescribed (frozen) progenitor potential, 200k massless star tracers (user's specification)
+
+bin/streams/run_prescribed.py: satellite potential = the fitted model's total enclosed-mass profile
+(results/nbody/<model>/model_profiles.json), fixed, moving on the point-mass orbit (McMillan17, 1955.58 Myr);
+200000 star tracers from the model's DF-sampled ICs; stars with r_max(E) < 30 pc cannot escape a fixed
+potential and are counted only (exact); the rest integrated in one agama.orbit call. 5.5 min per model with the
+CPU shared with barchevrons (A: 41294 integrated; B: 38807). Centre today 0.54 pc from omega Cen.
+Results (unbound stellar fraction; robust dE [km^2/s^2], dLz [kpc km/s]; width / sigma_normal of debris 0.3-2 kpc):
+  A t=301:  0.0121, 5487, 55.7, 429 pc, 27.8      B t=301:  0.0051, 6240, 57.4, 428 pc, 26.9
+  A t=1003: 0.0318, 5736, 60.1, 420 pc, 34.8      B t=1003: 0.0192, 6277, 66.2, 392 pc, 32.0
+  A today:  0.0473, 5914, 61.9, 441 pc, 26.6      B today:  0.0362, 5854, 68.4, 472 pc, 27.8
+A vs live pyfalcon: unbound 0.0473 vs 0.0538 today (-12%), dLz 61.9 vs 61.1, width 441 vs 453, sigma 26.6 vs 28.1.
+B keeps its full halo forever here (no stripping), so it loses fewer stars than live B (0.036 vs 0.041); A/B = 1.31
+today (2.4 at 300 Myr). 5x-DM model: extending the taper is infeasible (rho ~ r^-3 -> M ~ ln r); options proposed
+to the user (r^-2 outer extension beyond 50 pc recommended), awaiting decision.
