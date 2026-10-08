@@ -6577,7 +6577,9 @@ v_los, distance scanned 2.5-6.5 kpc, integrated back 1.5 Gyr; closest phase-spac
 (metric sqrt((dx/0.2 kpc)^2+(dv/20 km/s)^2)). Both hosts give the same picture:
   b < 30 (14 stars): return to omega Cen at d_best 4.5-5.6 kpc, dx 0.02-0.33 kpc, dv 4-35 km/s, 24-870 Myr ago (metric 0.6-2.6).
   b > 32 (15 stars, the knee): no return at any distance: dx 0.2-1.2 kpc with dv 37-150 km/s (metric 2.4-7.9).
-So in McMillan17 and DB98 the knee stars are not on orbits that connect to omega Cen within 1.5 Gyr, while the near-cluster
-arm is. This is why no progenitor change (rotation, DM, time) moved the model arm onto the knee. Caveats: a static,
+So in a STATIC McMillan17 or DB98 host, as test particles, the knee stars are not on orbits that connect to omega Cen within
+1.5 Gyr, while the near-cluster arm is. This does NOT mean the knee is not omega Cen debris: Ibata+2019 fitted it with a live
+N-body model and state that the gravity of debris lost at earlier times (>= 5 Gyr of disruption) was required. All our runs
+(test particles in fixed or refitted cluster potentials) omit that by construction. Other caveats: a static,
 axisymmetric host (no bar, no LMC); older debris (> 1.5 Gyr) not tested; per-star PM/v_los errors (few km/s) far below the
 40-150 km/s mismatch; STREAMFINDER selects along orbit templates in its own potential.
