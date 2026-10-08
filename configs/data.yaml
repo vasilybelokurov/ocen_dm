@@ -59,3 +59,12 @@ streamfinder_ibata2024_dr3:
   path: ~/data/catalogues/streamfinder_ibata2024_dr3_mrt.txt
   fits: ~/data/catalogues/streamfinder_ibata2024_dr3.fits
   fimbulthul_stream_ids: [54, 55]
+
+omegacen_hst_large_programme:
+  # HST LP on omega Cen (GO-14118+14662, PI Bedin), public e-material from
+  # https://web.oapd.inaf.it/bedin/files/PAPERs_eMATERIALs/wCen_HST_LargeProgram/ (fetched 2026-10-08, approved).
+  # Provenance + sha256: ~/data/catalogues/omegacen_hst_lp/README_provenance.txt.
+  # P04 (Scalco+2021, arXiv:2107.08726): fields F2, F3 UV-IR catalogue + PMs; P05 (Gerasimov+2022,
+  # arXiv:2111.10063): primary-field ultracool-dwarf catalogue; P06 (Scalco+2024, A&A 688, A180): fields F1, F4, F5;
+  # P07 (Scalco+2024, A&A 691, A96, arXiv:2409.04533): WD luminosity function only (no public WD star catalogue).
+  path: ~/data/catalogues/omegacen_hst_lp

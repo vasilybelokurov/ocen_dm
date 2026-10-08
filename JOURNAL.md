@@ -6330,3 +6330,8 @@ it follows the turnoff/upper MS. Deeper WD data (arXiv IDs checked): Calamida+20
 candidates); HST Large Programme on omega Cen (GO-14118/14662, PI Bedin; field ~12' out): IV catalogue
 (2107.08726, MNRAS 505, 3549), VII WD cooling sequence (2409.04533, A&A; end at m_F606W ~ 30.1);
 JWST GO-5110 papers I (2508.00069) and II (2510.08715, split WD sequence; He-rich WD fraction lower outside).
+Deeper WD data fetched (user request) to ~/data/catalogues/omegacen_hst_lp/ (321 MB, provenance README with
+sha256): HST LP P04 (F2/F3 catalogue), P05 (primary-field ultracool-dwarf catalogue), P06 (F1/F4/F5), P07 (WD
+luminosity function). The deep primary-field WD star catalogue of Paper VII is NOT public (only stacked images,
+not downloaded, 4 x ~360 MB); the JWST GO-5110 MAST DOI 10.17909/7prx-4905 holds observations, not catalogues;
+no Calamida+2008 catalogue found on VizieR.
