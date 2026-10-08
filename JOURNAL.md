@@ -6503,19 +6503,24 @@ the models have sparse debris with pmdec reaching -15..-25 (A shows a coherent s
 ~ -20 at b ~ -22) - the same sense as Fimbulthul-S but sparser and offset; observed Fimbulthul-S v_los runs from
 +155 to below -100 km/s across b = -33..-20, within the broad model v_los range there. Again no DM-case dependence.
 
-## 2026-10-08 -- Northern arm: model vs observed PM gradient and the bend at b ~ 30 (bin/streams/arm_profile_b.py)
+## 2026-10-08 -- Northern arm: pmra ridge vs b, models vs Ibata+2024 stream 54 (bin/streams/arm_profile_b.py)
 
-Medians in 5-deg b bins along the arm (b > 15, -75 < l < -15); models = prescribed-potential debris today.
-  b       l (A / obs)     pmra (A / B / C / obs)       pmdec (A / obs)   d_model A [kpc]   plx_obs [mas]
-  15-20   -55 / -57       -3.7 / -3.6 / -4.8 / -3.7    -6.4 / -6.3       5.43              0.25 +- 0.01
-  25-30   -57 / -57       -5.7 / -5.7 / -5.1 / -5.6    -6.8 / -7.2       5.27              0.23 +- 0.02
-  30-35   -56 / -51       -7.1 / -6.8 / -7.0 / -8.1    -7.0 / -8.4       5.11              0.26 +- 0.01
-  35-40   -53 / -46       -8.6 / -9.3 / -9.0 / -11.6   -7.5 / -9.8       4.72              0.28 +- 0.01
-Up to b = 30 models and data agree in l, pmra and pmdec to <~0.5 mas/yr. Beyond b = 30 the observed arm turns to
-smaller |l| and its |mu| is ~33% larger (15.2 vs 11.4 mas/yr at b = 35-40). Median arm PMs of A, B, C agree to
-<~0.7 mas/yr (differences are in spread/counts, not in the median track). Distance: the observed parallax rises by
-~12-20% from b = 15-30 to 35-40 (closer), the model arm comes ~13% closer over the same range: no clear evidence that
-the observed arm is much closer than the model's, so the excess |mu| implies a larger tangential velocity. Caveat: the
-absolute parallax near the cluster (0.25 mas) exceeds omega Cen's 0.184 (D = 5.43 kpc) by 0.065 mas (zero point for
-faint stars and/or selection), so only relative trends are used. STREAMFINDER selects stars along orbit templates in its
-own potential, which may shape the member PM track (v_los, measured independently, matches the models).
+Arm region b > 15, -75 < l < -15. Ridge = mode of pmra in 2.5-deg b bins (0.5 mas/yr histogram), then median within
++-1.5 mas/yr. (A first version compared bin medians and wrongly reported agreement at b < 30: model medians are dragged
+by a broad low-pmra spray; corrected after the user's objection.)
+  b          ridge pmra A / B / C / obs          frac > 3 mas/yr below ridge A / B / C / obs
+  15-17.5    -3.40 / -3.44 / -3.58 / -3.40       0.28 / 0.22 / 0.47 / 0.00
+  20-22.5    -4.11 / -4.16 / -4.00 / -4.33       0.22 / 0.27 / 0.36 / 0.00
+  22.5-25    -4.29 / -4.30 / -4.07 / -4.85       0.17 / 0.20 / 0.47 / 0.00
+  25-27.5    -5.07 / -4.64 / -4.62 / -5.47       0.24 / 0.45 / 0.25 / 0.00
+  27.5-30    -5.67 / -4.43 / -4.63 / -5.99       0.25 / 0.12 / 0.37 / 0.00
+  32.5-35    -6.54 / -6.26 / -6.37 / -7.02
+  35-37.5    -8.17 / -7.35 / -7.67 / -10.18
+  37.5-40    -7.37 / -7.93 / -8.75 / -11.78
+Same start at the cluster; the observed ridge is steeper already at b < 30 (by 0.3 mas/yr vs A, 1.4-1.6 vs B/C at
+27.5-30) and the gap grows to 2.5-4 mas/yr beyond b ~ 33, where the observed arm also bends to l ~ -46. At b < 30 the
+observed arm is a single narrow sequence; 12-47% of the model tracers lie > 3 mas/yr below the ridge (STREAMFINDER
+selection may suppress such stars). Among models the ridge steepens most in A (A > B ~ C at b = 25-30); model bins hold
+15-75 tracers (noisy). Parallax (median + 0.017 mas): 0.25, 0.23, 0.23, 0.26, 0.28 mas at b = 15-20 ... 35-40 (+-0.01-0.02),
+vs 0.184 expected for omega Cen at 5.43 kpc (absolute offset 0.065 mas: zero point and/or selection); model A arm
+distance 5.43 -> 4.72 kpc over the same range.
