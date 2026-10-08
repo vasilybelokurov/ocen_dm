@@ -6226,3 +6226,14 @@ beyond ~80-200 pc and is unconstrained by the kinematics; the DM axis must be de
 AGAMA 1.0.152 already provides particle spray (Fardal+15, Chen+24) and restricted
 N-body with satellite potential refitted from bound tracers (tutorial_streams.ipynb,
 example_tidal_stream.py); nothing in the repo yet.
+
+## 2026-10-08 -- Stream experiments: user decisions; Fimbulthul data fetched
+
+Decisions (user): DM cases = no DM, moderate, 5x moderate (exact definition pending,
+see the reply/plan); host and time as proposed (McMillan17 vs DB98 Model 1, 2 vs ~5
+Gyr); no rotation; fetch STREAMFINDER data.
+Data: the Ibata+2024 DR3 member list is not on VizieR or the ApJ page. Fetched instead
+Ibata+2021 EDR3 STREAMFINDER (J/ApJ/914/123/table1, 5960 stars) to
+~/data/catalogues/streamfinder_ibata2021_edr3.fits (registered in configs/data.yaml).
+omega Cen/Fimbulthul is Stream 16: 1006 stars (RA 186.8-222.2 deg), 33 with HRV
+(median 197.7 km/s); all 309 I19 candidates are in it (match < 1 arcsec).
