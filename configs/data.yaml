@@ -36,3 +36,14 @@ kuzma2026_spectroscopy:
 
 fimbulthul_ibata2019:
   file_glob: fimbulthul_supp_table1.*
+
+streamfinder_ibata2021_edr3:
+  # Ibata+2021, ApJ 914, 123 (arXiv:2012.05245), VizieR J/ApJ/914/123/table1: STREAMFINDER
+  # DR2 detections with EDR3 astrometry, 5960 stars, HRV where measured. Fetched 2026-10-08
+  # (approved) into the canonical store, not copied here. sha256 of the FITS written from the
+  # VizieR VOTable: d5cdffa67a79f4170d3d8866bf72a888617c3a0de22ddf18029202293a90859b.
+  # omega Cen / Fimbulthul = Stream 16: 1006 stars, 33 with HRV; contains all 309 I19 members
+  # (positional match < 1 arcsec). The Ibata+2024 DR3 atlas (arXiv:2311.17202) member list
+  # was not found on VizieR or the ApJ page on 2026-10-08.
+  path: ~/data/catalogues/streamfinder_ibata2021_edr3.fits
+  fimbulthul_stream_id: 16
