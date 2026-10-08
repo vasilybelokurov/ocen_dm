@@ -6530,3 +6530,7 @@ observed pmra clump (by ~0.5-1 mas/yr, clearest in B and C) and is much narrower
 pmra -4.5..-6 while the data descend to -5.5..-7, and in pmdec the data turn down to -8 by b ~ 32 while the models stay
 at ~-7. The mode-based ridge above understates this. Model PMs are not convolved with Gaia errors (affects width, not
 the offset).
+pmdec (user): beyond b = 30 the observed arm drops to pmdec -8..-12.5 (bin medians -8.4 / -9.8 / -10.8 at b = 30-35 /
+35-40 / 40-45) while all three models continue the shallow track (A -7.0 / -7.5 / -8.5; B -7.1 / -7.5 / -8.3; C -7.0 /
+-7.3 / -8.3): a 1.3-2.5 mas/yr deficit, identical for A, B and C. At b < 30 the model pmdec track lies inside the
+observed clump.
