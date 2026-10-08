@@ -6488,3 +6488,11 @@ v_los (within the model spread) in all three DM cases; the models also have lead
 b = -5..15 where STREAMFINDER finds nothing (low latitude, crowded). No model reproduces the high-PM branch to
 (-45, 33): same orbit/integration-time mismatch as with the live runs. The three DM cases are indistinguishable by
 eye in these projections; only the counts differ (A > C > B).
+40-deg version with b on the abscissa of the PM and v_los rows: plots/streams_debris_vs_ibata2024_r40_xb.png
+(--radius 40 --xlower b). Within 40 deg: A 2219, B 1566, C 1728 unbound tracers; Ibata 54: 3724 (29 v_los), 55: 29 (1).
+Trailing arm (b > 15): models run from (pmra*, pmdec) = (-3.2, -6.7) at the cluster to about (-8..-12, -8..-9) at
+b = 40-45; observed Fimbulthul reaches pmra* < -15 and pmdec -10..-13 already at b = 35-40, i.e. the observed PM
+gradient along the arm is ~1.5-2x steeper (closer debris and/or different orbit). v_los: both decline from ~240
+near the cluster to ~200-210 km/s at b ~ 40 - consistent. On the sky the observed arm bends to l ~ -30 at b = 32-40,
+whereas the model arm stays at l = -50..-60 up to b = 45: the track direction differs. Fimbulthul-S (55) at
+(l, b) ~ (-30..-45, -20): the models' leading debris reaches that region sparsely. No DM case changes any of this.
