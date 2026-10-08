@@ -6583,3 +6583,23 @@ N-body model and state that the gravity of debris lost at earlier times (>= 5 Gy
 (test particles in fixed or refitted cluster potentials) omit that by construction. Other caveats: a static,
 axisymmetric host (no bar, no LMC); older debris (> 1.5 Gyr) not tested; per-star PM/v_los errors (few km/s) far below the
 40-150 km/s mismatch; STREAMFINDER selects along orbit templates in its own potential.
+
+## 2026-10-08 -- The knee IS in the models: a closer, under-populated branch released ~0.4-0.5 Gyr ago
+
+Codex second opinion (ask-codex, --dir, effort high): no handedness / PM / velocity-sign / time-direction bug in frames.py and
+run_prescribed.py; leading hypothesis: a missing or under-weighted debris branch of different release phase; second:
+heliocentric projection. (Ibata-frame DB98 runs: centre ended 7.26 pc off because the centre orbit used AGAMA's default
+accuracy 1e-8 (round trip loses 5-12 pc over 2 Gyr); run_prescribed/run_restricted/centre_orbit now use 1e-12. Irrelevant
+for the arm; those runs were deleted and not rerun at the user's request.)
+bin/streams/knee_region_check.py: boxes knee (l -45..-28, b 31..41) and arm (l -62..-50, b 20..30), medians:
+  Ibata 54   knee N 533 pmra -14.8 pmdec -10.9 plx 0.287 | arm N 869 pmra -4.6 pmdec -6.7 plx 0.217; knee v_los ~190-225 (15 stars)
+  McMillan17+rot  knee N 20-26  pmra -15.7..-17.7 pmdec -8.2..-8.4 v_los 170-186 d 3.9-4.0 | arm N 104-191 d 5.4-5.5
+  DB98+rot        knee N 47-61  pmra -16.7..-18.5 pmdec -8.4..-8.7 v_los 175-181 d 3.6-3.8 | arm N 119-222 d 5.5-5.6
+  (max rotation: as McMillan17+rot). Knee/arm ratio: data 0.61, models 0.14-0.40 (C highest in DB98: 0.39).
+bin/streams/knee_release_time.py (last snapshot within 0.2 kpc of the centre): knee debris released 376 (McMillan17) / 501
+(DB98) Myr ago, 16-84% 300-600 Myr, none > 1 Gyr; arm debris 150 Myr ago. Pericentres every ~87-94 Myr. Ibata+2019: the
+Fimbulthul material was removed ~0.4 Gyr ago. So the knee is debris lost ~4-6 pericentres ago that has moved to ~3.7 kpc
+from the Sun; our earlier scatter plots hid it because it is sparse. Remaining mismatches of the knee branch: model pmdec
+~2.3 mas/yr too shallow, v_los ~30 km/s low, pmra ~1-3 mas/yr too negative; under-populated relative to the arm. Note the
+knee is ~0.9 mag closer than the arm, so a magnitude-limited sample (Gaia/STREAMFINDER) over-represents it relative to
+the tracers: untested.
