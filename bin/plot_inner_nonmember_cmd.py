@@ -56,16 +56,16 @@ def main():
         ring = (R >= lo) & (R < hi)
         bg = ring & np.isfinite(ma) & ~cand & phot
         a.plot(C[bg], M[bg], ".", color="#c9c8c0", ms=2 if lo == 0 else 0.6, alpha=0.7, rasterized=True,
-               label=f"other stars with PMs (cluster), N = {bg.sum():,}")
+               label=f"all other stars with PMs (cluster), N = {bg.sum():,}")
         fs = ring & cand & side & phot; fa = ring & cand & ~side & phot
         a.plot(C[fs], M[fs], "o", color="#2a78d6", ms=7 if lo == 0 else 3, mec="white", mew=0.6, alpha=0.9,
-               label=f"|mu| > 4, field side, N = {fs.sum()}")
+               label=f"PM points towards the field clump\n(field stars + cluster contaminants), N = {fs.sum()}")
         a.plot(C[fa], M[fa], "s", color="#eb6834", ms=6 if lo == 0 else 3, mec="white", mew=0.6, alpha=0.9,
-               label=f"|mu| > 4, far side (leakage), N = {fa.sum()}")
+               label=f"PM points away from the field clump\n(cluster contaminants only), N = {fa.sum()}")
         if lo == 0:
             wf = ring & win_f & phot; wc = ring & win_c & phot
-            a.plot(C[wf], M[wf], "o", mfc="none", mec="#0d366b", ms=15, mew=2, label=f"in field window, N = {wf.sum()}")
-            a.plot(C[wc], M[wc], "o", mfc="none", mec="#6b6a64", ms=15, mew=2, label=f"in control window, N = {wc.sum()}")
+            a.plot(C[wf], M[wf], "o", mfc="none", mec="#0d366b", ms=15, mew=2, label=f"within 3 mas/yr of the field clump, N = {wf.sum()}")
+            a.plot(C[wc], M[wc], "o", mfc="none", mec="#6b6a64", ms=15, mew=2, label=f"within 3 mas/yr of the mirrored point, N = {wc.sum()}")
             nophot = ring & cand & ~phot
             out["inner10"] = dict(n_candidates=int((ring & cand).sum()), n_field_side=int((ring & cand & side).sum()),
                                   n_far_side=int((ring & cand & ~side).sum()), n_without_photometry=int(nophot.sum()),
@@ -76,13 +76,14 @@ def main():
         a.set_xlim(-0.6, 2.6); a.set_ylim(11.5, -1.5)
         a.set_xlabel("(F625W - F814W)$_0$", color=INK)
         a.set_title(title, fontsize=10.5, color=INK, loc="left")
-        a.legend(fontsize=8, frameon=False, loc="lower right" if lo == 0 else "upper right", markerscale=1.0)
+        a.legend(fontsize=8, frameon=True, framealpha=0.9, edgecolor="none", loc="upper right", markerscale=1.0)
         a.tick_params(colors=MUTED, labelsize=9)
         for sp in ("top", "right"):
             a.spines[sp].set_visible(False)
     ax[0].set_ylabel("$M_{F625W}$", color=INK)
-    fig.suptitle("oMEGACat: CMD of proper-motion non-member candidates (|mu| > 4 mas/yr, chi2 > 25, PM err < 0.5); "
-                 "D = 5.43 kpc, E(B-V) = 0.12", fontsize=11, color=INK)
+    fig.suptitle("oMEGACat: CMD of proper-motion non-member candidates (PM > 4 mas/yr from the cluster, chi2 > 25, PM err < 0.5); "
+                 "D = 5.43 kpc, E(B-V) = 0.12\nCandidates are split by the direction of their PM: field stars all move towards (-2.6, +5.4) "
+                 "mas/yr, so the opposite half (orange) measures the contamination", fontsize=10.5, color=INK)
     fig.tight_layout()
     fig.savefig(ROOT/"plots/omegacat_inner10_nonmember_cmd.png", dpi=130)
     (ROOT/"results/plot_data/omegacat_inner10_nonmember_cmd.json").write_text(json.dumps(out, indent=1))
