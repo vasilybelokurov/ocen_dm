@@ -6244,3 +6244,27 @@ Dec -50..-20; contains 264 of the 309 I19 candidates. Stream 55 (Fimbulthul-S, 1
 stars, 25 VHel) is interpreted in the paper as closer (~3 kpc) omega Cen trailing debris
 lost 0.5-1 Gyr ago; both go into the comparison. The paper notes Fimbulthul's complex
 structure from the progenitor's rotation and excludes it from their potential fit.
+
+## 2026-10-08 -- Restricted N-body runner; DB98 Model 1 host; central-cusp bug fixed
+
+Code: src/ocen_dm/streams/restricted.py (+ analysis.py), bin/streams/run_restricted.py,
+check_isolation.py, compare_live.py, run_checks.sh, run_validation.sh; debug scripts in
+bin/streams/debug/. Particles (all species) are massless tracers in McMillan17 + the satellite
+potential moving on the point-mass orbit of the centre (no friction); AGAMA kpc units, time unit
+977.79 Myr. Two versions (user, 2026-10-08): REFIT (satellite potential refitted every tupd from
+the bound particles, so DM stripping follows from the orbit) and FROZEN (fitted once at t = 0;
+control). Cost: 0.005 s per particle-Gyr on 14 threads, i.e. ~1.5-2 h for 5e5 particles over
+1.96 Gyr (the live ICs are reused as is: same particles as the live runs).
+Host for the track stage: configs/potentials/DB98_Model1.ini (Ibata+2019's host), built from
+DB98 Tables 1 and 3 (= AGAMA BT08.ini with DB98 scale heights 0.18/1.0/0.04 kpc); checks:
+v_c(R0) = 222.0 km/s (paper 222), Sigma(|z|<1.1 kpc) = 67.7 (paper 68.0) Msun/pc^2.
+BUG (found in the isolation test, fixed): AGAMA's particle Multipole extrapolates the density
+inside its innermost node as a power law whose slope is set by a few particles; the central
+density varied by up to x60 between refits and, intermittently (model A, t = 40-42 Myr in
+isolation, 20-24 Myr on the orbit), produced a spurious central cusp that ejected ~4700 core
+particles (E ~ -2300 km^2/s^2 -> unbound, v up to 115 km/s; r_half 10.3 -> 12.2 pc). A replay
+from the snapshot did not reproduce it (chaotic trigger). Fix: the satellite potential is now
+built from the bound particles' M(<r), PCHIP in (ln r, ln M) (rho >= 0), constant density inside
+the radius enclosing 300 particles. M_fit/M_model = 0.96-1.00 (A), 0.91-1.00 (B) at 0.3-1000 pc
+(0.3 pc: IC sampling noise). Old-potential isolation: B passed (max density dev 3.3%), A failed.
+Isolation and tupd-convergence checks rerun with the fix (results/streams/checks/).
