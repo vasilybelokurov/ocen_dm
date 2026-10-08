@@ -6367,3 +6367,14 @@ control stars (R = 5-9.5'', 4-8.5 mas/yr, i.e. 105-220 km/s at 5.43 kpc, far abo
 are most likely crowding/measurement artefacts (one has F625W - F814W = -0.62; two with consecutive IDs
 are 15.9'' apart, so not a blended pair); they are
 the leakage the control is meant to measure, not field stars.
+
+## 2026-10-08 -- oMEGACat field = everything outside the cluster PM clump (bin/plot_field_counts_outside.py)
+
+Selection: PM err < 0.5 mas/yr, chi2 > 25 against the cluster, |mu_rel| > 3 / 4 / 5 mas/yr. Leakage = 2 x the
+count in the PM half-plane facing away from the field centroid (isotropic cluster tails assumed).
+Net field density (|mu| > 4): ~25-38 arcmin^-2 flat from ~60'' to ~370'' (stable for 3 and 5 mas/yr cuts;
+~1.6x the 3-mas/yr-window estimate, which missed field stars outside the window); inside ~100'' it is a small
+difference of large numbers (raw 690 vs leakage 661 arcmin^-2 at 0-30'') and unconstrained.
+Inner 10'' (|mu| > 4): all outside 62 = [4, 6, 14, 13, 25] per 2'' annulus; 2 x far half 60 = [4, 4, 10, 22, 20];
+net 2 +- 13.5 against 2.6 expected for a uniform 30 arcmin^-2 field: no detectable field excess or deficit;
+the inner region is entirely leakage-dominated. plots/omegacat_field_counts_outside.png (middle panel).
