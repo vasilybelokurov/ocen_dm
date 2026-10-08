@@ -6662,3 +6662,8 @@ All stream-54 segments, including the part next to the cluster, are more metal-r
 G: the XP-bright members (G < 17.6) are dominated by foreground dwarfs everywhere, so XP cannot separate the knee from the
 near-cluster arm; if anything the knee is closer to omega Cen than the near-cluster group. Inconclusive for the knee question.
 (Calibration caveat: crowding at 0.2-0.6 deg can affect the omega Cen XP spectra.) Plot: plots/stream_xp_metallicity.png.
+Bright cut (user request): G < 15.5 -- omega Cen N 1163 median -1.47 (logg>4: 0.01); 54 b<25 N 16 median -1.60 (KS p 0.17);
+54 knee b>32 N 19 median -1.36 (p 0.61); 55 N 18 median -1.31 (p 0.80). G < 15: omega Cen -1.48; 54 b<25 -1.79 (N 13, p 0.06);
+knee -1.82 (N 10, p 0.03); 55 -1.49 (N 9, p 0.24). Contamination by metal-rich dwarfs sets in from G ~ 16-16.5. The bright
+(giant) knee members are metal-poor with the broad omega Cen spread: chemistry supports the knee being omega Cen debris
+(small N). Hence the knee is most likely omega Cen debris on a track our models do not produce.
