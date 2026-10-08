@@ -6727,3 +6727,12 @@ The bar steepens pmdec: Omega_b = 33 follows the data to b = 37 (where its arm e
 b = 39-41. The axisymmetric controls stay 1-2.5 mas/yr shallow. On the sky the barred arms turn towards smaller |l| by ~3-7 deg
 over b = 31-41 (axi ~ 0-4 deg), about half the observed ~10 deg turn. pmra: barred ridges reach -9..-14 at b = 35-41 (data
 -7.9..-12.6) but are noisy. First evidence that the bar drives the knee; not yet a full reproduction (sky turn too small).
+
+## 2026-10-08 -- Fitting-campaign plan (Codex literature pass + own draft)
+
+docs/STREAM_FIT_CAMPAIGN_PLAN.md (plan, not started); Codex report saved as docs/codex_research_fit_campaign_2026-10-08.md
+(fallback web research; 12 arXiv IDs checked; corrections: Koposov+2019 Orphan = arXiv:1812.08172; the 2026 spectroscopy paper
+is Kuzma et al. arXiv:2605.23474). Stages: 0 data track (b-parametrised ridges, mixture per bin, block bootstrap, selection
+variants incl. an independent Gaia selection); 1 AGAMA particle spray in the rotating bar, validated on the existing tracer
+runs; 2 bar fit (Omega_b, angle, amplitude + omega Cen 6D nuisance); 3 robustness; 4 tracer-run check; 5 DM test (A/B/C tracer
+runs at the fitted host, nuisance refits, mocks; criterion Delta lnL > 4.6 and >= 90% mock recovery).
