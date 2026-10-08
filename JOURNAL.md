@@ -6621,3 +6621,8 @@ change vs b at b ~ 30-35 in DR3 stream 54 is reproduced by no published model; t
 wrong. Lead (untested): stream 54 joins the near-cluster arm and the DR2 Fimbulthul arc, which Ibata+2019 Fig. 3 places
 ~1.5 kpc closer than omega Cen from a 0.7 mag CMD offset; a distance step would produce part of the PM change (PM ~ 1/d).
 Test: photometric (CMD-offset) distances in b bins along stream 54.
+
+## 2026-10-08 -- Consolidated write-up
+
+docs/STREAM_KNEE_INVESTIGATION.md: summary, data, models (rotation, frames), all runs with counts and figures, release
+times, backtracking, corrections/pitfalls, literature, user decisions, next steps, code index.
