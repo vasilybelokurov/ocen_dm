@@ -6736,3 +6736,12 @@ is Kuzma et al. arXiv:2605.23474). Stages: 0 data track (b-parametrised ridges, 
 variants incl. an independent Gaia selection); 1 AGAMA particle spray in the rotating bar, validated on the existing tracer
 runs; 2 bar fit (Omega_b, angle, amplitude + omega Cen 6D nuisance); 3 robustness; 4 tracer-run check; 5 DM test (A/B/C tracer
 runs at the fitted host, nuisance refits, mocks; criterion Delta lnL > 4.6 and >= 90% mock recovery).
+
+## 2026-10-09 -- Methods review: fitting stream models to data
+
+docs/STREAM_FIT_METHODS_REVIEW.md: Gibbons+2014 (mLCS; phase chi ordering, first apocentre per arm), Erkal+2019 (per-star
+likelihood, local linear fit to particles within +-2.5 deg), Koposov+2023 (spline-knot data tracks, model error of the mean,
+sigma_sim < sigma_data/5, nuisance floors, kink masking), Dillamore+2022 (GD-1 with a massive Sgr: per-observable KDE
+likelihood, annealing; a good fit can hide arm inversion; progenitor phase space absorbs perturbations), Chemaly+2026 /
+StreaMAX (JAX spray; G14-type ordering + unwrap; 2D only; the bar potential is not wired into the integrator). Campaign plan
+revised accordingly (docs/STREAM_FIT_CAMPAIGN_PLAN.md).
