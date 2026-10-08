@@ -12,8 +12,15 @@ is a member if mu_a^2/(sigma^2+e_a^2) + mu_d^2/(sigma^2+e_d^2) < 11.83 (2 dof, 9
 NB: the published flag `selection_hq_astrometry_and_membership` is NOT PM-only: 97% of the
 hq-astrometry stars it rejects have |mu| < 2 mas/yr, and they form sharp-edged sequences either
 side of the main ridge (blue MS, red populations/binaries), i.e. it includes a CMD selection.
-Rows: (1) PM members; (2) PM members that the published flag removes (its CMD cut);
-(3) PM non-members (field).
+Rows: (1) PM members (Hess diagram); (2) zoom on the white-dwarf region (F625W - F814W < 0.6,
+F625W 19.5-26) as points. Row 2 uses a different parent, because the hq-astrometry selection removes
+almost all faint blue stars (1096 of 26492 with PMs at colour < 0.35, F625W > 21): the photometric
+quality flags only (selection_hq_f625w & selection_hq_f814w), same PM membership cut (sigma of the
+annulus from the hq stars). A looser parent (any photometry, PM errors < 0.5 mas/yr) gives a diffuse
+cloud of poorly measured stars and no sequence (tested 2026-10-08). Estimated start of the WD
+cooling sequence: (m-M)_0 = 13.67 (5.43 kpc), A_F625W ~ 0.32 (E(B-V) = 0.12) -> F625W ~ 23.5-24 for
+M ~ 9.5-10, i.e. within ~1 mag of the depth of this catalogue (photometric-quality sample 99.9th
+percentile F625W = 25.2), so at most the top of the sequence is accessible.
 Colour F625W - F814W, magnitude F625W (Vega, not extinction-corrected; E(B-V) ~ 0.12 for omega Cen).
 
 Usage: python bin/plot_cmd_radial.py [--edges 0 30 60 120 200 340]
@@ -39,7 +46,7 @@ from astropy.io import fits
 
 RAMP = LinearSegmentedColormap.from_list("blue", ["#e8f0fb", "#9ec5f4", "#3987e5", "#1c5cab", "#0d366b"])
 INK, MUTED = "#1f1f1e", "#6b6a64"
-CBINS = np.arange(-0.2, 2.0, 0.01)
+CBINS = np.arange(-0.8, 2.0, 0.01)
 MBINS = np.arange(12.0, 25.5, 0.04)
 
 
@@ -59,7 +66,8 @@ def main():
     good = np.isfinite(f6) & np.isfinite(f8)
     edges = args.edges
     n = len(edges)-1
-    fig, axes = plt.subplots(3, n, figsize=(3.4*n, 14.5), sharex=True, sharey=True)
+    fig, axes = plt.subplots(2, n, figsize=(3.4*n, 10.5))
+    loose = good & np.isfinite(ma) & np.isfinite(md) & (np.asarray(t["selection_hq_f625w"]) == 1) & (np.asarray(t["selection_hq_f814w"]) == 1)
     out = dict(source="oMEGACat catalog_and_selections.fits", edges_arcsec=edges, annuli=[])
     for i in range(n):
         ann = (R >= edges[i]) & (R < edges[i+1]) & good & hq & np.isfinite(ma) & np.isfinite(md)
@@ -69,28 +77,37 @@ def main():
         sig = float(np.sqrt(max(mad**2-e2, 1e-4)))
         chi2 = ma**2/(sig**2+ea**2) + md**2/(sig**2+ed**2)
         sel_m = ann & (chi2 < 11.83)
-        sel_c = sel_m & ~flag
-        sel_f = ann & ~(chi2 < 11.83)
+        ring = (R >= edges[i]) & (R < edges[i+1])
+        sel_w = ring & loose & (chi2 < 11.83)
+        wd = sel_w & (f6-f8 < 0.6) & (f6 > 19.5)
         out["annuli"].append(dict(r_in=edges[i], r_out=edges[i+1], sigma_pm_masyr=sig, n_hq=int(ann.sum()),
-                                  n_pm_members=int(sel_m.sum()), n_pm_members_removed_by_published_flag=int(sel_c.sum()),
-                                  n_pm_nonmembers=int(sel_f.sum())))
-        for row, (sel, lab) in enumerate(((sel_m, f"PM members\n(sigma_PM = {sig:.2f} mas/yr)"),
-                                          (sel_c, "PM members cut by\npublished flag"), (sel_f, "PM non-members\n(field)"))):
-            ax = axes[row, i]
-            H, _, _ = np.histogram2d(f6[sel]-f8[sel], f6[sel], bins=(CBINS, MBINS))
-            if H.sum() > 0:
-                ax.pcolormesh(CBINS, MBINS, H.T, cmap=RAMP, norm=LogNorm(vmin=1, vmax=max(H.max(), 2)), rasterized=True)
-            ax.set_title(f"{edges[i]:.0f}-{edges[i+1]:.0f} arcsec: N = {sel.sum():,}\n{lab}", fontsize=9.5, color=INK, loc="left")
-            ax.tick_params(colors=MUTED, labelsize=9)
-            for s in ("top", "right"):
-                ax.spines[s].set_visible(False)
-            if row == 2:
-                ax.set_xlabel("F625W - F814W", color=INK)
+                                  n_pm_members=int(sel_m.sum()), n_pm_nonmembers=int((ann & ~(chi2 < 11.83)).sum()),
+                                  n_loose_pm_members=int(sel_w.sum()), n_loose_members_in_wd_box=int(wd.sum())))
+        ax = axes[0, i]
+        H, _, _ = np.histogram2d(f6[sel_m]-f8[sel_m], f6[sel_m], bins=(CBINS, MBINS))
+        ax.pcolormesh(CBINS, MBINS, H.T, cmap=RAMP, norm=LogNorm(vmin=1, vmax=max(H.max(), 2)), rasterized=True)
+        ax.set_xlim(CBINS[0], CBINS[-1]); ax.set_ylim(MBINS[-1], MBINS[0])
+        ax.set_title(f"{edges[i]:.0f}-{edges[i+1]:.0f} arcsec: N = {sel_m.sum():,}\nPM members, hq astrometry\n"
+                     f"(sigma_PM = {sig:.2f} mas/yr)", fontsize=9.5, color=INK, loc="left")
+        ax.add_patch(plt.Rectangle((-0.8, 19.5), 1.4, 6.5, fill=False, ec=MUTED, lw=0.8, ls="--"))
+        ax = axes[1, i]
+        ax.plot(f6[wd]-f8[wd], f6[wd], ".", color="#2a78d6", ms=2.2, alpha=0.6, mew=0, rasterized=True)
+        ax.set_xlim(-0.8, 0.6); ax.set_ylim(26, 19.5)
+        ax.axhspan(23.5, 24.0, color="#efeee8", zorder=0)
+        if i == 0:
+            ax.text(-0.75, 23.45, "expected top of WD sequence", fontsize=8, color=MUTED, va="bottom")
+        ax.set_title(f"{edges[i]:.0f}-{edges[i+1]:.0f} arcsec: N = {wd.sum():,} in box\nPM members, photometric-quality\n"
+                     "flags only (no astrometric hq cut)", fontsize=9.5, color=INK, loc="left")
+        ax.set_xlabel("F625W - F814W", color=INK)
+        for row in (0, 1):
+            a = axes[row, i]
+            a.tick_params(colors=MUTED, labelsize=9)
+            for sp in ("top", "right"):
+                a.spines[sp].set_visible(False)
             if i == 0:
-                ax.set_ylabel("F625W", color=INK)
-    axes[0, 0].set_xlim(CBINS[0], CBINS[-1]); axes[0, 0].set_ylim(MBINS[-1], MBINS[0])
-    fig.suptitle("omega Cen HST CMDs by radius (oMEGACat, hq astrometry): PM-only members (top), PM members that the published "
-                 "membership flag removes (middle), PM non-members (bottom)\ncolour = log counts per 0.01 x 0.04 mag cell",
+                a.set_ylabel("F625W", color=INK)
+    fig.suptitle("omega Cen HST CMDs by radius (oMEGACat), PM-selected members. Top: hq-astrometry sample, log counts per "
+                 "0.01 x 0.04 mag cell (dashed box = zoom). Bottom: white-dwarf region, photometric-quality sample",
                  fontsize=11, color=INK)
     fig.tight_layout()
     fig.savefig(ROOT/"plots/cmd_radial_omegacat.png", dpi=130)

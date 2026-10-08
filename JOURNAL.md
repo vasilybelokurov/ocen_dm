@@ -6316,3 +6316,10 @@ magnitude selection removing ~9% of PM members (1054-22275 per annulus). Our lik
 not use it (hst_profile uses selection_hq_astrometry; counts use no flag), but it is used in
 src/ocen_dm/plotting/data_overview.py:605, plotting/constraints.py:983 and
 selection/hst_gaia_match.py:72 (hst_quality column of the HST-Gaia match): not changed, flagged.
+Update: the CMD figure now has two rows: PM members (hq astrometry) and a zoom on the white-dwarf
+region (colour -0.8..0.6, F625W 19.5-26). No WD cooling sequence is visible. The hq-astrometry
+selection keeps only 1096 faint blue stars; a loose parent (PM err < 0.5) gives a diffuse cloud of
+poorly measured stars; the photometric-quality-flag parent (used in the zoom) shows a handful of
+blue stars and nothing sequence-like. Estimated top of the WD sequence F625W ~ 23.5-24
+((m-M)_0 = 13.67, A_F625W ~ 0.32, M ~ 9.5-10), while that sample's depth is F625W ~ 24.5-25
+(99.9th pct 25.2) with falling completeness: this catalogue is ~1 mag too shallow for WDs.
