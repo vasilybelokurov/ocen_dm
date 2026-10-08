@@ -6475,3 +6475,16 @@ flat in time at ~60 / 67 / 82 kpc km/s for A / B / C (+11% / +34%), i.e. stars e
 radius. dE: B = A, C +11%. Width and sigma oscillate strongly with orbital phase; values today differ by <~15-25%.
 The sky distributions of the three are similar in extent and morphology (rosette, debris |b| < ~45 deg).
 Caveat: the potential is frozen, so the DM is never stripped (upper limit on its effect for a given profile).
+
+## 2026-10-08 -- Debris within 20 deg vs Ibata+2024 (bin/streams/plot_debris_vs_ibata.py)
+
+plots/streams_debris_vs_ibata2024.png: rows l-b, l-pmra*, l-pmdec, l-vlos; columns A, B, C (unbound tracers today,
+prescribed potential, McMillan17, 1.96 Gyr; centre = the known orbit end) and Ibata+2024 streams 54/55.
+Within 20 deg: A 793, B 579, C 625 unbound tracers (of 200k); Ibata 54: 2431 stars (17 with v_los); 55: none.
+Observed: a dense trailing clump at l = -53..-65, b = 15-27 (pmra* -2.5..-7, pmdec -5..-7.5, v_los 200-250) plus a
+branch to (l, b) ~ (-45, 33) with pmra* down to -13 and pmdec to -10 (Fimbulthul proper, I19 region).
+Models: the trailing debris occupies the same l-b region as the observed clump with matching pmra*, pmdec and
+v_los (within the model spread) in all three DM cases; the models also have leading debris at l = -30..-48,
+b = -5..15 where STREAMFINDER finds nothing (low latitude, crowded). No model reproduces the high-PM branch to
+(-45, 33): same orbit/integration-time mismatch as with the live runs. The three DM cases are indistinguishable by
+eye in these projections; only the counts differ (A > C > B).
