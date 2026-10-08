@@ -6584,7 +6584,7 @@ N-body model and state that the gravity of debris lost at earlier times (>= 5 Gy
 axisymmetric host (no bar, no LMC); older debris (> 1.5 Gyr) not tested; per-star PM/v_los errors (few km/s) far below the
 40-150 km/s mismatch; STREAMFINDER selects along orbit templates in its own potential.
 
-## 2026-10-08 -- The knee IS in the models: a closer, under-populated branch released ~0.4-0.5 Gyr ago
+## 2026-10-08 -- Knee-box medians and release times (CORRECTED: no coherent model knee)
 
 Codex second opinion (ask-codex, --dir, effort high): no handedness / PM / velocity-sign / time-direction bug in frames.py and
 run_prescribed.py; leading hypothesis: a missing or under-weighted debris branch of different release phase; second:
@@ -6603,3 +6603,10 @@ from the Sun; our earlier scatter plots hid it because it is sparse. Remaining m
 ~2.3 mas/yr too shallow, v_los ~30 km/s low, pmra ~1-3 mas/yr too negative; under-populated relative to the arm. Note the
 knee is ~0.9 mag closer than the arm, so a magnitude-limited sample (Gaia/STREAMFINDER) over-represents it relative to
 the tracers: untested.
+CORRECTION (same day, after plotting; plots/streams_knee_release_db98_rot_A_nodm.png, bin/streams/plot_knee_release.py):
+the model tracers in the knee box are a sparse, diffuse spray of 400-600 Myr debris, not a coherent branch; their box medians
+above are not evidence of a model knee. The bulk of the 300-600 Myr debris forms the upper model arm, which stays at
+l = -50..-60 up to b ~ 45 with pmra -6..-9 and pmdec -7..-8.5 at b = 35-40 (data -10..-18, -9..-12.5); v_los agrees
+(200-230 vs 190-225). Data parallax distances (1/median(plx+0.017)) are 3.2-4.4 kpc along the arm vs 4.5-5.6 kpc for the
+model arm (cf. the 0.065 mas absolute offset at the cluster). Conclusion unchanged: no model reproduces the knee. Solid
+new fact: model debris at b > 30 was released 300-600 Myr ago (Ibata+2019: ~0.4 Gyr).
