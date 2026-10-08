@@ -6348,3 +6348,15 @@ Median colour offsets from it (bootstrap errors): F5 (4.6') -0.041 +- 0.021 (N 7
 (135), F2 (11.2') -0.001 +- 0.015 (62), F3 (12.4') +0.022 +- 0.012 (43), F1 (16.3') +0.047 +- 0.013 (9).
 Not yet interpretable: the fields cover different M ranges (F4/F5 shallower), come from two catalogue releases
 (P04, P06) with separate calibrations, and differential reddening (~0.01-0.03 in colour) is not corrected.
+
+## 2026-10-08 -- oMEGACat field stars: radial surface density (bin/plot_field_counts.py)
+
+Parent: stars with PMs and PM errors < 0.5 mas/yr (1.32e6). A chi2 > 25 cut against the cluster alone is
+dominated by cluster stars in the non-Gaussian PM-error tails (centrally concentrated: 690 -> 50 arcmin^-2).
+Field population: clump at relative PM (-2.58, +5.37) mas/yr (6.0 mas/yr from the cluster, robust sd ~1.3).
+Selection: within 3 mas/yr of it, > 4 mas/yr from the cluster, chi2 > 25 (N = 2070). Control: the mirrored
+window (+2.58, -5.37), same distance from the cluster, no field population (N = 429) -> cluster leakage
+19 arcmin^-2 at the centre, ~1 beyond 200''. Field minus control: flat, 15-22 arcmin^-2 from 0 to ~370''
+(no sign of central incompleteness of the PM-selected field at this precision), falling beyond ~400'' where
+coverage is < 10% and PMs degrade. F625W < 20 field stars (no leakage subtraction needed): flat ~3-6 arcmin^-2.
+No photometry beyond ~380'' (magnitude-binned curves stop there). plots/omegacat_field_counts.png.
