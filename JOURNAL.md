@@ -6685,3 +6685,18 @@ draws): all stream-54 v_los members (N 29, at the CMD-shift distance scale and +
 (MC 95%, both hosts); stream 55 (N 25, 3.0 +- 0.4 kpc): 10.6-13.5 kpc; every unbound model tracer of the northern arm (A, rot,
 N 1173 McMillan17 / 1589 DB98, integrated back in the host): 10.3-11.7 kpc. Sgr never came within ~10 kpc of any part of the
 stream in the last 600 Myr.
+
+## 2026-10-08 -- Codex research pass on the knee (fallback web research, not Deep Research)
+
+Saved: docs/codex_research_knee_2026-10-08.md. All 9 key arXiv IDs checked against the arXiv API (titles/authors match).
+Verdict: the rotating Galactic bar is the leading candidate (omega Cen's pericentre lies well inside corotation; the present
+knee at R ~ 5.5-6 kpc, z ~ 2.8 kpc is near corotation 6.1+-0.5 kpc, Portail+2017 arXiv:1608.07954; pattern speed 33-39,
+Clarke & Gerhard 2021 arXiv:2107.10875); differential bar torques at pericentre reshape low-pericentre streams (Hattori+2016
+arXiv:1512.04536 Ophiuchus; Pearson+2017 arXiv:1703.04627 Pal 5). Order of magnitude 10-60 km/s per strong passage; a 90 km/s
+differential kick not demonstrated. Argument against: a persistent 90 km/s offset over 300 Myr would separate by ~28 kpc,
+not ~1 kpc. Spirals, GMCs (only a close 1e7-1e8 Msun encounter), LMC (~9 km/s differential over 5 kpc), halo shape, disc
+mass, omega Cen's PM errors judged secondary. Dillamore, Zhang & Belokurov 2026 (arXiv:2606.12516) studied bar-driven
+migration of omega Cen (needs Omega_b <~ 26). Spectroscopy: GALAH (Simpson+2020 arXiv:1911.01548) has two candidates at
+b = 33 and 37 (l ~ -51, -49), v 215-219 km/s, [Fe/H] -1.88/-1.53 -- before the knee; no published RVs in the distal knee.
+Suggested tests: independent RVs of knee giants; blind Gaia phase-space map without STREAMFINDER weights; forward models with
+a rotating bar (grid in pattern speed, strength, orientation).
