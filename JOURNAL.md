@@ -6457,3 +6457,21 @@ A vs live pyfalcon: unbound 0.0473 vs 0.0538 today (-12%), dLz 61.9 vs 61.1, wid
 B keeps its full halo forever here (no stripping), so it loses fewer stars than live B (0.036 vs 0.041); A/B = 1.31
 today (2.4 at 300 Myr). 5x-DM model: extending the taper is infeasible (rho ~ r^-3 -> M ~ ln r); options proposed
 to the user (r^-2 outer extension beyond 50 pc recommended), awaiting decision.
+
+## 2026-10-08 -- Three DM cases with the prescribed progenitor potential (A no DM, B moderate, C 5x inside 200 pc)
+
+C (user choice): B unchanged inside 63 pc (edge of the kinematic data), DM density constant 0.159 Msun/pc^3 in
+63-200 pc (B: 0.129 at 63 pc), B's halo beyond; tanh edges 3 pc (bin/streams/make_shell_model.py ->
+results/nbody/C_dm5x_shell/model_profiles.json). M_DM(<200 pc) 1.15e6 -> 5.73e6; total DM 1.81e6 -> 6.48e6;
+M_total(<200) 8.6e6. Star tracers: B's DF sample (equilibrium inside 63 pc; stars beyond become more bound).
+Run time 3 min (CPU shared). Comparison: bin/streams/compare_models.py -> plots/streams_dm_models.png,
+results/plot_data/streams_dm_models.json. Today (1955.6 Myr):
+  model   unbound frac   dE mad   dLz mad   width   sigma_N
+  A        0.0473         5914     61.9      441     26.6
+  B        0.0362         5854     68.4      472     27.8
+  C        0.0300         6576     83.2      510     32.9
+DM suppresses escape (A/B 1.31, A/C 1.58 today; larger early on) and broadens the debris in Lz: the dLz spread is
+flat in time at ~60 / 67 / 82 kpc km/s for A / B / C (+11% / +34%), i.e. stars escape through a larger Jacobi
+radius. dE: B = A, C +11%. Width and sigma oscillate strongly with orbital phase; values today differ by <~15-25%.
+The sky distributions of the three are similar in extent and morphology (rosette, debris |b| < ~45 deg).
+Caveat: the potential is frozen, so the DM is never stripped (upper limit on its effect for a given profile).
