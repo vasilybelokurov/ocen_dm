@@ -6626,3 +6626,22 @@ Test: photometric (CMD-offset) distances in b bins along stream 54.
 
 docs/STREAM_KNEE_INVESTIGATION.md: summary, data, models (rotation, frames), all runs with counts and figures, release
 times, backtracking, corrections/pitfalls, literature, user decisions, next steps, code index.
+
+## 2026-10-08 -- Distance along stream 54 from CMD shifts: follows the model; the PM knee is a velocity mismatch
+
+bin/streams/stream54_cmd_distance.py (plots/stream54_cmd_distance.png, results/plot_data/stream54_cmd_distance.json):
+dereddened G, BP-RP from the Ibata+2024 table; reference = stream stars at b = 15-20 (N 1000); per b bin, joint fit of a
+magnitude shift dm and colour shift dc maximising the likelihood under a KDE of the reference, normalised for the G = 20
+limit. Tests: split-half dm +0.08, dc +0.01 (expect 0); injection (-0.50, -0.04) recovered (-0.48, -0.03).
+  b       N    dm (joint)        dc            d/d_ref     model A arm d/d(15-20) (5-deg bins)
+  20-25   878  +0.04 +- 0.06   +0.010          1.02        1.00 (20-25)
+  25-30   127  -0.04 +- 0.08   -0.010          0.98        0.97 (25-30)
+  30-33    97  -0.10 +- 0.09   -0.010          0.95        0.94 (30-35)
+  33-36   557  -0.18 +- 0.03   +0.010          0.92
+  36-39   797  -0.28 +- 0.03   +0.010          0.88        0.87 (35-40)
+  39-42   137  -0.24 +- 0.04   +0.040          0.90        0.77 (40-45)
+The observed arm comes ~10-12% closer by b = 36-42, as the model arm does (13%); no ~30% distance step. User's point: the
+disruption model predicts distance, so the test is the distance track vs the model's, and it agrees. Hence the steep
+pmra/pmdec change at b ~ 33 is a tangential-velocity mismatch at the same distance: at b = 35-40, d ~ 4.8 kpc, observed
+|mu| ~ 15 mas/yr (~340 km/s heliocentric tangential) vs model ~ 11 (~250 km/s): ~90 km/s. Caveat: relative distances only
+(reference bin assumed at the cluster distance); STREAMFINDER's isochrone/distance templates could shape the member CMDs.
