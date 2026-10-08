@@ -6541,3 +6541,24 @@ projection on the sky", and excludes 54's structure from their potential fit. Zh
 0.8 Gyr): "the observed structure of the Fimbulthul stream exhibits stronger bending than that seen in the simulated particle
 distributions. Similar discrepancies are also present in the simulations of Ibata et al." Our models are non-rotating (user
 decision), so they test the no-rotation case.
+
+## 2026-10-08 -- Rotating progenitor, three DM cases (prescribed potential; user request)
+
+Recipe (Ibata+2019, arXiv:1902.09544, Methods): rotating Varri-Bertin DF fitted to present-day rotation; axis PA 12 deg
+E of N, right-handed pole inclined 45 deg towards us (Bianchini+2018); DB98 Model 1; live gyrfalcON, 1e5 particles, 5 Gyr;
+a non-rotating King model gave a "substantially wider" stream. Ferrone+2023 (e-TidalGCs, arXiv:2301.05166) is test-particle.
+Ours (src/ocen_dm/streams/rotation.py): Lynden-Bell flips of the DF-sampled tracers about the spin axis (counter-rotating
+stars flipped with probability q(r_max) = q0 x^2/(1+x^2)/(1+(r_max/r_q)^2), x = r_max/r_1); E and |v| unchanged (max change
+1e-13 km/s), so equilibrium in the spherical potential is exact. Axis fixed in the Galactic frame at today's orientation.
+Sense from our data: oMEGACat VI v_los maximal at PA 103 (east receding) -> pole sky PA 192; Gaia DR3 PM rotation N -> E
+(bin/streams/measure_gaia_rotation.py: -0.285, -0.245, -0.193, -0.125, -0.039 +- 0.005-0.014 mas/yr at 3-6, 6-10, 10-15,
+15-25, 25-36 arcmin; + = N -> W) -> pole towards us. Fit (bin/streams/fit_spin.py, results/streams/spin/): tilt, q0, r_1, r_q
+to Gaia PM + oMEGACat LOS amplitudes (r > 30''): tilt 50 deg (Ibata 45), q0 = 1, r_1 = 4 pc, r_q = 63 pc, identical for A, B,
+C; chi2 PM 7-13 (5 bins), LOS 60-63 (20 bins; model 1.5-2 km/s too high inside 2'). Projected model v_los max receding at
+PA 100-103 (independent check). Rotation at 36-60': 0.04-0.05 mas/yr (~1 km/s); 22-24% of r_max >= 48.5 pc stars flipped.
+Runs: results/streams/prescribed_rot/ (bin/streams/run_prescribed.py --spin), 3 min each, ~1300% CPU.
+Result: unbound tracers within 70 deg A 7890 -> 8073, B 5306 -> 5375, C 4949 -> 4990 (+1-2%). Sky track, pmra-b and pmdec-b
+of the northern arm unchanged: no bend at b ~ 30, same shallow PM gradients (plots/streams_arm_overlay_pm_b_rot.png,
+plots/streams_debris_vs_ibata2024_r70_xb_prescribed_rot.png). With the observed (data-constrained) rotation, which is ~0 in
+the region the escapers come from, rotation does not produce the knee in this set-up. Not tested: Ibata's other ingredients
+(DB98 host, 5 Gyr, live self-gravity of the stream, flattened progenitor with rotation extending further out).
