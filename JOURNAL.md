@@ -6323,3 +6323,10 @@ poorly measured stars; the photometric-quality-flag parent (used in the zoom) sh
 blue stars and nothing sequence-like. Estimated top of the WD sequence F625W ~ 23.5-24
 ((m-M)_0 = 13.67, A_F625W ~ 0.32, M ~ 9.5-10), while that sample's depth is F625W ~ 24.5-25
 (99.9th pct 25.2) with falling completeness: this catalogue is ~1 mag too shallow for WDs.
+Update: CMDs now in M_F625W vs (F625W-F814W)_0: D = 5.43 kpc ((m-M)_0 = 13.674), E(B-V) = 0.12, A_V = 3.1 E(B-V),
+filter extinctions from MIST BCs as in build_mass_function.py: A_F625W = 0.316, A_F814W = 0.219,
+E(F625W-F814W) = 0.096 (previous versions were NOT dereddened). MIST MS (12.5 Gyr, [Fe/H] = -1.53) overlaid;
+it follows the turnoff/upper MS. Deeper WD data (arXiv IDs checked): Calamida+2008 (0712.0603, ACS, ~6500 WD
+candidates); HST Large Programme on omega Cen (GO-14118/14662, PI Bedin; field ~12' out): IV catalogue
+(2107.08726, MNRAS 505, 3549), VII WD cooling sequence (2409.04533, A&A; end at m_F606W ~ 30.1);
+JWST GO-5110 papers I (2508.00069) and II (2510.08715, split WD sequence; He-rich WD fraction lower outside).
