@@ -6524,3 +6524,9 @@ selection may suppress such stars). Among models the ridge steepens most in A (A
 15-75 tracers (noisy). Parallax (median + 0.017 mas): 0.25, 0.23, 0.23, 0.26, 0.28 mas at b = 15-20 ... 35-40 (+-0.01-0.02),
 vs 0.184 expected for omega Cen at 5.43 kpc (absolute offset 0.065 mas: zero point and/or selection); model A arm
 distance 5.43 -> 4.72 kpc over the same range.
+Overlay (user objection: the dense part is already wrong at b < 30): plots/streams_arm_overlay_pm_b.png
+(bin/streams/plot_arm_overlay.py). At b = 15-25 the dense model arm runs along the upper (less negative) edge of the
+observed pmra clump (by ~0.5-1 mas/yr, clearest in B and C) and is much narrower; at b = 25-33 the model arm stays at
+pmra -4.5..-6 while the data descend to -5.5..-7, and in pmdec the data turn down to -8 by b ~ 32 while the models stay
+at ~-7. The mode-based ridge above understates this. Model PMs are not convolved with Gaia errors (affects width, not
+the offset).
