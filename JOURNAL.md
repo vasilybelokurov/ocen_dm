@@ -6297,3 +6297,7 @@ Figure plots/streams_isolation_evolution.png (bin/streams/plot_isolation_evoluti
 for the restricted runner (0-100 Myr) and the live runs of the same ICs (0-20 Myr), plus shell
 ratios vs time. Both codes behave alike: within ~2% beyond 1.5 pc; inside 1 pc fluctuations of
 5-15% that scatter about 1 at the Poisson level of those shells (N0 = 200-900) with no secular trend.
+User accepted the isolation results (2026-10-08). Queue bin/streams/run_queue_20261008.sh (running):
+tupd convergence on the orbit over 300 Myr (A: 4 vs 2 Myr; B: 2 vs 1 Myr), then the four validation
+runs (A, B x refit, frozen; 1955.58 Myr; snapshots every 50 Myr). The CPU is shared with an unrelated
+job (barchevrons), so the queue will take ~10-12 h.
