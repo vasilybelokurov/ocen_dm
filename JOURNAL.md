@@ -6534,3 +6534,10 @@ pmdec (user): beyond b = 30 the observed arm drops to pmdec -8..-12.5 (bin media
 35-40 / 40-45) while all three models continue the shallow track (A -7.0 / -7.5 / -8.5; B -7.1 / -7.5 / -8.3; C -7.0 /
 -7.3 / -8.3): a 1.3-2.5 mas/yr deficit, identical for A, B and C. At b < 30 the model pmdec track lies inside the
 observed clump.
+Literature (arXiv HTML full text searched): the bend has been noted, a PM-gradient mismatch not explicitly.
+Ibata+2019 (1902.09544): progenitor rotation was needed to match the stream morphology; Ibata+2024 (2311.17202, Sec. IX.5)
+says the rotation was "also found to be necessary to reproduce the peculiar knee-shaped structure of the stream as seen in
+projection on the sky", and excludes 54's structure from their potential fit. Zheng+2026 (2603.02904, PeTar, MWPotential2014,
+0.8 Gyr): "the observed structure of the Fimbulthul stream exhibits stronger bending than that seen in the simulated particle
+distributions. Similar discrepancies are also present in the simulations of Ibata et al." Our models are non-rotating (user
+decision), so they test the no-rotation case.
