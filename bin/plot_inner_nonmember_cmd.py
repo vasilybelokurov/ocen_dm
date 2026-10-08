@@ -2,9 +2,10 @@
 """CMD of the proper-motion non-member candidates within 10'' of the omega Cen centre (oMEGACat).
 
 Selection as bin/plot_field_counts_outside.py: PM errors < 0.5 mas/yr, chi2 > 25 against the cluster
-(sigma = 0.81 mas/yr inside 30''), |mu_rel| > 4 mas/yr. Candidates are split by the half of the PM plane they
-fall in: towards the field centroid (-2.58, +5.37) mas/yr ("field side") or away from it ("far side", which holds
-no field population and traces cluster leakage). Stars in the 3-mas/yr field window and the mirrored control
+(sigma = 0.81 mas/yr inside 30''), |mu_rel| > 4 mas/yr. Candidates are split by the half of the relative-PM plane they lie
+in: the dividing line passes through the cluster PM (origin), perpendicular to the direction of the field centroid
+(-2.58, +5.37) mas/yr. The half containing the field clump holds field stars + cluster contaminants; the opposite
+half holds no field population and traces cluster leakage. Stars in the 3-mas/yr field window and the mirrored control
 window (bin/plot_field_counts_inner.py) are ringed.
 Left: R < 10''; background = all other stars there with PMs (cluster). Right: same selection at 150-270'',
 where the field dominates, as the reference for where real field stars sit in the CMD.
@@ -59,9 +60,9 @@ def main():
                label=f"all other stars with PMs (cluster), N = {bg.sum():,}")
         fs = ring & cand & side & phot; fa = ring & cand & ~side & phot
         a.plot(C[fs], M[fs], "o", color="#2a78d6", ms=7 if lo == 0 else 3, mec="white", mew=0.6, alpha=0.9,
-               label=f"PM points towards the field clump\n(field stars + cluster contaminants), N = {fs.sum()}")
+               label=f"PM in the half-plane containing the field clump\n(field stars + cluster contaminants), N = {fs.sum()}")
         a.plot(C[fa], M[fa], "s", color="#eb6834", ms=6 if lo == 0 else 3, mec="white", mew=0.6, alpha=0.9,
-               label=f"PM points away from the field clump\n(cluster contaminants only), N = {fa.sum()}")
+               label=f"PM in the opposite half-plane\n(cluster contaminants only), N = {fa.sum()}")
         if lo == 0:
             wf = ring & win_f & phot; wc = ring & win_c & phot
             a.plot(C[wf], M[wf], "o", mfc="none", mec="#0d366b", ms=15, mew=2, label=f"within 3 mas/yr of the field clump, N = {wf.sum()}")
@@ -82,8 +83,8 @@ def main():
             a.spines[sp].set_visible(False)
     ax[0].set_ylabel("$M_{F625W}$", color=INK)
     fig.suptitle("oMEGACat: CMD of proper-motion non-member candidates (PM > 4 mas/yr from the cluster, chi2 > 25, PM err < 0.5); "
-                 "D = 5.43 kpc, E(B-V) = 0.12\nCandidates are split by the direction of their PM: field stars all move towards (-2.6, +5.4) "
-                 "mas/yr, so the opposite half (orange) measures the contamination", fontsize=10.5, color=INK)
+                 "D = 5.43 kpc, E(B-V) = 0.12\nCandidates split by the half of the PM plane (relative to the cluster) they lie in; the dividing line "
+                 "passes through the cluster PM, perpendicular to the field clump at (-2.6, +5.4) mas/yr; the half without field stars (orange) measures contamination", fontsize=10.5, color=INK)
     fig.tight_layout()
     fig.savefig(ROOT/"plots/omegacat_inner10_nonmember_cmd.png", dpi=130)
     (ROOT/"results/plot_data/omegacat_inner10_nonmember_cmd.json").write_text(json.dumps(out, indent=1))
