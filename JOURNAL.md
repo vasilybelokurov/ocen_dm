@@ -6421,3 +6421,23 @@ Interim validation (A, refitted potential vs live pyfalcon run of the same ICs),
 fraction 0.0031/0.0032, 0.0079/0.0078, 0.0122/0.0124, 0.0195/0.0205, 0.0271/0.0284 (restricted/live; restricted
 4-5% low by 500-750 Myr); debris dE rms within 1%, dLz rms equal, width (0.3-2 kpc shell, normal) within 2%,
 normal velocity dispersion within 4%. All inside the pre-stated tolerances (20% / 10% / 15%).
+
+## 2026-10-08 -- Restricted runner made fast: frozen core (--rfreeze); A validated against the live run
+
+User: a restricted run should take minutes, not hours. Cause: all 5e5 particles were integrated, including the
+deeply bound core (orbital periods 0.05-0.1 Myr -> 1e4-1e5 orbits each over 2 Gyr) which never escapes.
+Evidence (full-sample A run to 800 Myr): all 13310 escapers had initial radial apocentre r_max(E) >= 48.5 pc
+(median 92 pc; r_J ~ 79 pc at pericentre); 89% of particles have r_max < 40 pc.
+Fix: particles with initial r_max(E) < 30 pc (81%: 404899 particles, 2.64e6 Msun in A) become a FrozenCore,
+a fixed spherical mass profile added to every satellite-potential fit; only 95101 particles are integrated.
+Cost 0.7-1.5 s per 2-Myr update -> ~12 min per 1956 Myr (was ~2 h). Refit 0.04 s; the rest is integration
+(near-escapers plunge through the centre; the MW potential is evaluated every step). Neither the integrator
+accuracy (1e-6..1e-8) nor the centre-track sampling (0.05..1 Myr) changes the cost.
+Frozen core vs full sample, same particles (A, refit, t = 100-850 Myr): unbound stellar fraction 0.0271/0.0271
+and 0.0293/0.0293 at 750/850 Myr; other metrics within a few per cent -> freezing loses no escapers.
+Validation A (refit, frozen core) vs live pyfalcon, 100-1956 Myr (results/plot_data/streams_validation_A.json,
+plots/streams_validation_A.png): unbound stellar fraction 0.0032/0.0032 (100), 0.0124/0.0124 (300),
+0.0200/0.0205 (500), 0.0326/0.0344 (1000), 0.0443/0.0457 (1500), 0.0486/0.0538 today (restricted 10% low at the
+end; tolerance 20%); robust dE and dLz spreads within 3%; shell width and dispersions within 5%. (The rms dLz at
+1500 Myr differed by 29% from a few outliers; robust MAD spreads now reported.) Present-day centre 0.29 pc from
+omega Cen's position. Remaining runs (A frozen, B refit, B frozen) launched: bin/streams/run_validation.sh.
