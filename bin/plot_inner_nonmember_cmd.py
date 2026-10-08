@@ -51,7 +51,11 @@ def main():
     side = (ma*FC[0]+md*FC[1]) > 0
     win_f = cand & (np.hypot(ma-FC[0], md-FC[1]) < 3)
     win_c = cand & (np.hypot(ma+FC[0], md+FC[1]) < 3)
-    fig, ax = plt.subplots(1, 2, figsize=(13, 7.2), sharey=True)
+    fig = plt.figure(figsize=(20, 7.4))
+    gs = fig.add_gridspec(1, 3, width_ratios=[1, 1, 1.05])
+    ax = [fig.add_subplot(gs[0, 0])]
+    ax.append(fig.add_subplot(gs[0, 1], sharey=ax[0]))
+    axp = fig.add_subplot(gs[0, 2])
     out = {}
     for a, (lo, hi, title) in zip(ax, ((0, 10, "R < 10''"), (150, 270, "150-270'' (reference: field dominates)"))):
         ring = (R >= lo) & (R < hi)
@@ -82,6 +86,33 @@ def main():
         for sp in ("top", "right"):
             a.spines[sp].set_visible(False)
     ax[0].set_ylabel("$M_{F625W}$", color=INK)
+    # PM plane: where the two classes lie
+    from matplotlib.colors import LogNorm, LinearSegmentedColormap
+    ramp = LinearSegmentedColormap.from_list("grey", ["#f3f2ee", "#c9c8c0", "#8d8c85", "#4a4945"])
+    L = 30.
+    ref = (R >= 150) & (R < 270) & par
+    H, xe, ye = np.histogram2d(ma[ref], md[ref], bins=(np.linspace(-L, L, 241), np.linspace(-L, L, 241)))
+    axp.pcolormesh(xe, ye, H.T, cmap=ramp, norm=LogNorm(vmin=1, vmax=H.max()), rasterized=True)
+    inn = (R < 10)
+    axp.plot(ma[inn & par & ~cand], md[inn & par & ~cand], ".", color="#9ec5f4", ms=2, alpha=0.6,
+             label=f"R < 10'' stars not selected, N = {(inn & par & ~cand).sum():,}")
+    fs = inn & cand & side; fa = inn & cand & ~side
+    axp.plot(ma[fs], md[fs], "o", color="#2a78d6", ms=7, mec="white", mew=0.6, label=f"R < 10'', half-plane with the field clump, N = {fs.sum()}")
+    axp.plot(ma[fa], md[fa], "s", color="#eb6834", ms=6, mec="white", mew=0.6, label=f"R < 10'', opposite half-plane, N = {fa.sum()}")
+    th = np.linspace(0, 2*np.pi, 300)
+    axp.plot(4*np.cos(th), 4*np.sin(th), "-", color=INK, lw=1, label="|mu| = 4 mas/yr")
+    u = FC/np.hypot(*FC); perp = np.array([-u[1], u[0]])
+    axp.plot([-L*perp[0], L*perp[0]], [-L*perp[1], L*perp[1]], "--", color=INK, lw=1, label="dividing line (through the cluster PM)")
+    axp.plot(*FC, "x", color="#0d366b", ms=12, mew=2.5, label="field clump centre (-2.58, +5.37)")
+    nout = int(((np.abs(ma) > L) | (np.abs(md) > L))[inn & cand].sum())
+    axp.set_xlim(-L, L); axp.set_ylim(-L, L); axp.set_aspect("equal")
+    axp.set_xlabel(r"$\mu_{\alpha*}$ relative to cluster [mas/yr]", color=INK); axp.set_ylabel(r"$\mu_\delta$ relative to cluster [mas/yr]", color=INK)
+    axp.set_title("PM plane (R < 10'' candidates)\ngrey: all stars at 150-270'', log density (cluster + field clump)"
+                  + (f"; {nout} beyond +-{L:g} mas/yr" if nout else ""), fontsize=9.5, color=INK, loc="left")
+    axp.legend(fontsize=7.5, frameon=True, framealpha=0.9, edgecolor="none", loc="lower left")
+    axp.tick_params(colors=MUTED, labelsize=9)
+    for sp in ("top", "right"):
+        axp.spines[sp].set_visible(False)
     fig.suptitle("oMEGACat: CMD of proper-motion non-member candidates (PM > 4 mas/yr from the cluster, chi2 > 25, PM err < 0.5); "
                  "D = 5.43 kpc, E(B-V) = 0.12\nCandidates split by the half of the PM plane (relative to the cluster) they lie in; the dividing line "
                  "passes through the cluster PM, perpendicular to the field clump at (-2.6, +5.4) mas/yr; the half without field stars (orange) measures contamination", fontsize=10.5, color=INK)

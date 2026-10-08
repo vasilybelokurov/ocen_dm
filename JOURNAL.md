@@ -6404,3 +6404,7 @@ Check against the radial behaviour of red candidates: |mu| 4-15 mas/yr, field si
 30-150'', 10-30'') -> a crowding-artefact population (spurious large PMs, red blends), which at the 10-30'' rate
 predicts ~2.4 in <10'' (3 seen). So the inner CMD shows ~1 plausible genuine field star, consistent with the
 extrapolation. plots/omegacat_inner10_nonmember_cmd.png.
+PM-plane panel added to plots/omegacat_inner10_nonmember_cmd.png: the 62 inner-10'' candidates scatter
+roughly isotropically to large PMs (median |mu| 14 mas/yr, 90th pct 25, max 67; 4 beyond 30), whereas the field
+clump sits at 6 mas/yr with sd ~1.3; only 1 candidate lies within 3 mas/yr of it. The inner candidates are
+dominated by spurious large PMs (crowding), consistent with the half-plane balance (32 vs 30).
