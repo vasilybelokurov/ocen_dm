@@ -6745,3 +6745,21 @@ sigma_sim < sigma_data/5, nuisance floors, kink masking), Dillamore+2022 (GD-1 w
 likelihood, annealing; a good fit can hide arm inversion; progenitor phase space absorbs perturbations), Chemaly+2026 /
 StreaMAX (JAX spray; G14-type ordering + unwrap; 2D only; the bar potential is not wired into the integrator). Campaign plan
 revised accordingly (docs/STREAM_FIT_CAMPAIGN_PLAN.md).
+
+## 2026-10-09 -- Stage 0 data track and Stage 1 spray validation
+
+Stage 0 (src/ocen_dm/streams/track.py, bin/streams/measure_track.py; results/plot_data/stream54_track.json, plots/stream54_track.png):
+Gaia DR3 PM errors for all 5458 members (source_id join; median 0.23/0.19 mas/yr; results/plot_data/stream5455_gaia_errors.npz).
+Per 2-deg b bin, per observable: ML mixture (Gaussian stream with intrinsic width + per-star errors, uniform background over
+median +- 8 deg / 6 / 4 mas/yr), block bootstrap over 0.5-deg sub-blocks. All members (N 3681) vs G < 19 (N 2252) agree
+within errors. Ridge: l -56.0 (b 16) -> -59.9 (24) -> -54.9 (30) -> -43.7 (40); pmra -3.53 -> -5.82 (30) -> -12.62 (40);
+pmdec -6.02 -> -7.68 (30) -> -10.65 (40); errors 0.01-0.15 (pmdec), up to 0.9 (pmra at b 36, where the arm is broad, pmra
+width ~2 mas/yr). The members fan out to l ~ -30 at b 34-40, but the ridge turns only to -44. Independent Gaia selection: to do.
+Stage 1 (src/ocen_dm/streams/spray.py; bin/streams/validate_spray.py; plots/streams_spray_validation.png): Fardal+15/gala
+release, host evaluated at release time, r_J with M(<r_J) of model A, moving progenitor potential. Cost: 8000 particles in
+2.9 s (axi) / 5.7 s (bar), 8 threads. Spray vs tracer runs through the same estimator: pmdec agrees to 0.0-0.4 mas/yr in all
+four hosts; pmra agrees except in bins where the estimator fails (bimodal/sparse model bins); l: spray 1-3 deg more negative
+than the tracer runs at b = 20-36 (systematic; tracer runs include fitted rotation, spray does not; release offsets calibrated
+for low-mass clusters). Only ~11% of spray particles land in the northern-arm window; 20-100 per bin -> model noise 0.1-0.5
+mas/yr, far above the data errors (sigma_sim < sigma_data/5 needs ~10^2-10^3 more per bin). Next: release only trailing-arm
+particles over the last ~1 Gyr, more particles, flag multi-valued (failed-fit) model bins, then Stage 2 grid.
