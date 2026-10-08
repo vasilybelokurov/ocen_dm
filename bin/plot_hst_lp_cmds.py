@@ -115,7 +115,7 @@ def main():
         if i == 0:
             ax.legend(fontsize=8, frameon=False, loc="lower left")
         ax = axes[1, i]
-        ax.plot(col[wd], M[wd], ".", color="#2a78d6", ms=2.5, alpha=0.6, mew=0, rasterized=True)
+        ax.plot(col[wd], M[wd], "o", color="#2a78d6", ms=5, alpha=0.75, mec="white", mew=0.5)
         ax.set_xlim(-1.0, 0.6); ax.set_ylim(13.5, 8)
         ax.set_title(f"{field}: white-dwarf region, N = {wd.sum():,}", fontsize=9.5, color=INK, loc="left")
         for row in (0, 1):
