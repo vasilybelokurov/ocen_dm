@@ -6496,3 +6496,9 @@ gradient along the arm is ~1.5-2x steeper (closer debris and/or different orbit)
 near the cluster to ~200-210 km/s at b ~ 40 - consistent. On the sky the observed arm bends to l ~ -30 at b = 32-40,
 whereas the model arm stays at l = -50..-60 up to b = 45: the track direction differs. Fimbulthul-S (55) at
 (l, b) ~ (-30..-45, -20): the models' leading debris reaches that region sparsely. No DM case changes any of this.
+70-deg version including all of Fimbulthul-S (Ibata+2024 stream 55: 1734 stars, 25 v_los; l = -47..+8, b = -33..-14,
+36-68 deg from omega Cen; pmra* -21..-4, pmdec -31..-17): plots/streams_debris_vs_ibata2024_r70_xb.png. Within 70 deg:
+A 7890, B 5306, C 4949 unbound tracers. Most model debris sits towards the bulge (|l| < 20, |b| < 10). At b = -20..-35
+the models have sparse debris with pmdec reaching -15..-25 (A shows a coherent sequence from pmdec ~ -5 at b ~ 0 to
+~ -20 at b ~ -22) - the same sense as Fimbulthul-S but sparser and offset; observed Fimbulthul-S v_los runs from
++155 to below -100 km/s across b = -33..-20, within the broad model v_los range there. Again no DM-case dependence.
