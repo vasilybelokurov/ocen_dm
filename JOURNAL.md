@@ -6360,3 +6360,9 @@ window (+2.58, -5.37), same distance from the cluster, no field population (N = 
 (no sign of central incompleteness of the PM-selected field at this precision), falling beyond ~400'' where
 coverage is < 10% and PMs degrade. F625W < 20 field stars (no leakage subtraction needed): flat ~3-6 arcmin^-2.
 No photometry beyond ~380'' (magnitude-binned curves stop there). plots/omegacat_field_counts.png.
+Inner 10'' (bin/plot_field_counts_inner.py, plots/omegacat_field_counts_inner10.png): 3452 stars with PM errors
+< 0.5 mas/yr; field window 1 star (expected 1.7 for a uniform 19 arcmin^-2 field), control window 5. The field
+star (R = 4.7'', F625W - F814W = 2.26, PM 8.3 mas/yr from the cluster) is a plausible red foreground dwarf. The
+control stars (R = 5-9.5'', 4-8.5 mas/yr, i.e. 105-220 km/s at 5.43 kpc, far above the central escape speed)
+are most likely crowding/blend artefacts (two have consecutive IDs; one has F625W - F814W = -0.62); they are
+the leakage the control is meant to measure, not field stars.
