@@ -6268,3 +6268,12 @@ built from the bound particles' M(<r), PCHIP in (ln r, ln M) (rho >= 0), constan
 the radius enclosing 300 particles. M_fit/M_model = 0.96-1.00 (A), 0.91-1.00 (B) at 0.3-1000 pc
 (0.3 pc: IC sampling noise). Old-potential isolation: B passed (max density dev 3.3%), A failed.
 Isolation and tupd-convergence checks rerun with the fix (results/streams/checks/).
+
+## 2026-10-08 -- Housekeeping: superseded dynamics snapshots deleted (user request)
+
+64 files snapshots.nemo / snapshots.h5 under results/dynamics (48.2 GB; 47 -> 1.9 GB); list with
+sizes in results/maintenance/deleted_dynamics_snapshots_20261008.txt. Kept: run.yaml, json
+summaries, diagnostics.ecsv, logs, ICs, batch_analysis_20260921_v2. They were large because each
+2026-09-21/22 run stored all 1e5 particles (m, x, v, keys, acc, pot) at every output (251 per
+lifetime run, 0.6-1.7 GB each) for ~30 runs and controls. Only bin/analyse_dynamical_batch.py and
+bin/compare_dynamical_analytics.py read them; rerunning those needs the batch to be rerun.
