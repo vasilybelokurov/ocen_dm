@@ -6293,3 +6293,7 @@ A 3.4% (pass), B 9.8% (fail). The live pyfalcon isolation runs of the same ICs s
 two innermost shells after 20 Myr. The residual is confined to < 1 pc and is of the same size as
 the IC sample's own inner noise; it is irrelevant for escape (r_J ~ 80 pc) but the stated criterion
 is not met. Decision on acceptance left to the user.
+Figure plots/streams_isolation_evolution.png (bin/streams/plot_isolation_evolution.py): rho(r,t)/rho(r,0)
+for the restricted runner (0-100 Myr) and the live runs of the same ICs (0-20 Myr), plus shell
+ratios vs time. Both codes behave alike: within ~2% beyond 1.5 pc; inside 1 pc fluctuations of
+5-15% that scatter about 1 at the Poisson level of those shells (N0 = 200-900) with no secular trend.
