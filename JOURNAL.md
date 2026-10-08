@@ -6700,3 +6700,30 @@ migration of omega Cen (needs Omega_b <~ 26). Spectroscopy: GALAH (Simpson+2020 
 b = 33 and 37 (l ~ -51, -49), v 215-219 km/s, [Fe/H] -1.88/-1.53 -- before the knee; no published RVs in the distal knee.
 Suggested tests: independent RVs of knee giants; blind Gaia phase-space map without STREAMFINDER weights; forward models with
 a rotating bar (grid in pattern speed, strength, orientation).
+
+## 2026-10-08 -- Rotating bar (Hunter+2024 MW): steepens the pmdec gradient to the observed one and bends the arm part-way
+
+Set-up: host_potential(bar_omega=...) = Hunter+2024 barred MW (../oCen_bar/agama_potentials/MWPotentialHunter24_full.ini),
+constant pattern speed, bar angle 28 deg today; AGAMA rotation convention verified (rotation +a puts the bar axis at +a;
+prograde = positive in our frame; as ../chevron_bar_subhalo); control = MWPotentialHunter24_axi.ini. run_prescribed.py now
+integrates the centre backwards from timestart = T (needed for time-dependent hosts). Model A, fitted rotation, 1955.58 Myr,
+baumgardt frame (note Hunter+24 v_c(R0) = 228.8 vs Vsun 252.24: same in control and barred runs). Runs (8 threads; axi 3.4 min,
+bars 6.3-6.6 min): results/streams/{hunter_axi,hunter_bar33,hunter_bar37.5,hunter_bar41}/A_nodm (bin/streams/run_bar_tests.sh).
+Figures: plots/streams_bar_comparison.png (sky, PMs, v_los), plots/streams_bar_ridges.png (bin/streams/plot_bar_ridges.py; ridge =
+mode-refined median in 2-deg b bins; pmra ridges are noisy in sparse bins).
+Ridges at b = 31 / 33 / 35 / 37 / 39 / 41:
+  pmdec  data          -7.9  -8.2  -8.6  -9.2 -10.2 -10.8
+         McMillan17 axi -7.0  -7.0  -7.1  -7.5  -7.7  -8.2
+         Hunter axi     -7.2  -7.2  -7.7  -8.0  -8.2  -8.5
+         bar 33         -7.5  -8.2  -8.6  -9.3   (arm ends)
+         bar 37.5       -7.6  -8.2  -8.3  -8.7  -9.1  -9.6
+         bar 41         -7.6  -7.9  -8.5  -9.0  -9.3  -9.7
+  l      data         -54.4 -51.6 -50.1 -48.3 -45.3 -43.9
+         Hunter axi   -60.2 -57.6 -55.8 -57.1 -54.2 -51.6
+         bar 33       -53.4 -54.0 -52.7 -51.0
+         bar 37.5     -55.5 -55.2 -54.1 -53.0 -51.9 -50.6
+         bar 41       -57.5 -56.9 -55.4 -53.1 -48.5 -52.2
+The bar steepens pmdec: Omega_b = 33 follows the data to b = 37 (where its arm ends); 37.5/41 fall 0.5-1.1 mas/yr short at
+b = 39-41. The axisymmetric controls stay 1-2.5 mas/yr shallow. On the sky the barred arms turn towards smaller |l| by ~3-7 deg
+over b = 31-41 (axi ~ 0-4 deg), about half the observed ~10 deg turn. pmra: barred ridges reach -9..-14 at b = 35-41 (data
+-7.9..-12.6) but are noisy. First evidence that the bar drives the knee; not yet a full reproduction (sky turn too small).
