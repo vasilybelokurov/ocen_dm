@@ -6417,3 +6417,7 @@ dE rms and dLz rms within 0.5%, shell width/dispersions within 1-2%, bound stars
 B (DM), tupd 2 vs 1 Myr: unbound stellar fraction 0.0057 vs 0.0055 at 300 Myr (3.5%), bound halo mass identical
 to 0.1% (1.81e6 -> 6.55e5 Msun by 300 Myr), dE/dLz within 1.4%, width within 2%.
 -> tupd = 2 Myr adopted (validation queue uses it). Check-run snapshots deleted (diagnostics kept).
+Interim validation (A, refitted potential vs live pyfalcon run of the same ICs), t = 100-750 Myr: unbound stellar
+fraction 0.0031/0.0032, 0.0079/0.0078, 0.0122/0.0124, 0.0195/0.0205, 0.0271/0.0284 (restricted/live; restricted
+4-5% low by 500-750 Myr); debris dE rms within 1%, dLz rms equal, width (0.3-2 kpc shell, normal) within 2%,
+normal velocity dispersion within 4%. All inside the pre-stated tolerances (20% / 10% / 15%).
