@@ -6378,3 +6378,16 @@ difference of large numbers (raw 690 vs leakage 661 arcmin^-2 at 0-30'') and unc
 Inner 10'' (|mu| > 4): all outside 62 = [4, 6, 14, 13, 25] per 2'' annulus; 2 x far half 60 = [4, 4, 10, 22, 20];
 net 2 +- 13.5 against 2.6 expected for a uniform 30 arcmin^-2 field: no detectable field excess or deficit;
 the inner region is entirely leakage-dominated. plots/omegacat_field_counts_outside.png (middle panel).
+Field density per magnitude (outer reference 150-270'', full coverage; |mu| > 4, chi2 > 25, PM err < 0.5, net of
+half-plane leakage) and the extrapolation into R < 10'' (0.0873 arcmin^2):
+  F625W   outer net [arcmin^-2]   predicted <10''   completeness proxy   scaled
+  <18        1.77 +- 0.29            0.15              1.00               0.15
+  18-20      4.41 +- 0.46            0.38              1.00               0.38
+  20-22      7.82 +- 0.65            0.68              0.92               0.63
+  22-24     11.73 +- 1.06            1.02              0.68               0.70
+  24-30      4.93 +- 0.72            0.43              0.28               0.12
+  total                              2.68                                 1.99
+Completeness proxy = (inner/outer surface density of all detected stars in the bin) / (same for F625W < 18),
+capped at 1: it folds in mass segregation (which lowers the faint-star ratio even at full completeness), so the
+scaled total is a lower bound -> expected 2.0-2.7 field stars inside 10''. The earlier "~30 arcmin^-2" mixed
+magnitudes and used the 150-330'' annulus without coverage correction (densities ~10% low there).
