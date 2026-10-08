@@ -6391,3 +6391,16 @@ Completeness proxy = (inner/outer surface density of all detected stars in the b
 capped at 1: it folds in mass segregation (which lowers the faint-star ratio even at full completeness), so the
 scaled total is a lower bound -> expected 2.0-2.7 field stars inside 10''. The earlier "~30 arcmin^-2" mixed
 magnitudes and used the 150-330'' annulus without coverage correction (densities ~10% low there).
+
+## 2026-10-08 -- CMD of the inner-10'' PM non-member candidates (bin/plot_inner_nonmember_cmd.py)
+
+62 candidates (|mu| > 4, chi2 > 25, PM err < 0.5) inside 10'': 32 field side, 30 far side; 47 with photometry.
+Most lie on the cluster MS/SGB on both sides -> cluster stars with bad PMs (leakage). Blue off-sequence points occur
+on both sides (artefacts). Four red stars ((F625W-F814W)_0 > 1.4), all on the field side: one at |mu| = 8.3 mas/yr
+(the field-window star) and three at |mu| = 19, 20, 67 mas/yr.
+Check against the radial behaviour of red candidates: |mu| 4-15 mas/yr, field side minus far side at 150-270'' ->
+8.4 arcmin^-2 -> 0.74 expected in <10'' (1 seen). Red |mu| > 15 mas/yr: isotropic in PM (field side ~ far side:
+150 vs 173 at 30-150'', 19 vs 18 at 10-30'') and centrally concentrated (0.23 -> 8 -> 27 arcmin^-2 at 150-270'',
+30-150'', 10-30'') -> a crowding-artefact population (spurious large PMs, red blends), which at the 10-30'' rate
+predicts ~2.4 in <10'' (3 seen). So the inner CMD shows ~1 plausible genuine field star, consistent with the
+extrapolation. plots/omegacat_inner10_nonmember_cmd.png.
