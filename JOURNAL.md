@@ -6667,3 +6667,16 @@ Bright cut (user request): G < 15.5 -- omega Cen N 1163 median -1.47 (logg>4: 0.
 knee -1.82 (N 10, p 0.03); 55 -1.49 (N 9, p 0.24). Contamination by metal-rich dwarfs sets in from G ~ 16-16.5. The bright
 (giant) knee members are metal-poor with the broad omega Cen spread: chemistry supports the knee being omega Cen debris
 (small N). Hence the knee is most likely omega Cen debris on a track our models do not produce.
+
+## 2026-10-08 -- Recent Sgr passages: no close encounter with omega Cen or the knee debris
+
+bin/streams/sgr_recent_passages.py (results/plot_data/sgr_recent_passages.json). M54 and omega Cen present-day points from
+~/data/catalogues/gc_catalog_full.fits (Baumgardt & Vasiliev 2021 compilation; M54: 283.76385, -30.47986, d 26.28+-0.33 kpc,
+PM -2.682/-1.374 +-0.007, v_los 143.13+-0.43; an earlier quick estimate used v_los 141.3 from memory -- superseded), Monte Carlo
+over the errors (500 draws), last 600 Myr (the release epoch of the knee debris; no dynamical friction needed over this span),
+AGAMA accuracy 1e-10. Sgr-omega Cen separation minima (nominal; t ago, d, dv): McMillan17 57.5 Myr 14.16 kpc 663 km/s,
+151.5/26.2/301, 288.8/41.3/167, 469.5/37.8/72, 585.2/25.7/373; DB98 61.5/14.62/631, 163.5/28.3/265, 489.2/46.5/77. Closest over
+600 Myr (MC 95%): 13.45-14.84 kpc (McMillan17), 13.90-15.32 (DB98). Observed knee members with v_los (N 15, b > 32), integrated
+back at 4.4 / 4.8 / 5.2 kpc: closest Sgr approach to any knee star 9.8-12.1 kpc (MC 95%, both hosts). Differential (tidal)
+velocity kick across a 1-kpc segment at 11 kpc, v_rel ~ 600 km/s: 2 G M dx / (d^2 v) = 0.05 km/s (M = 4e8) to 0.24 km/s (2e9),
+vs ~90 km/s needed. Sgr excluded. (A slow Python DF integrator was started and stopped; its outputs deleted.)
