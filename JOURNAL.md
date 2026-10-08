@@ -6277,3 +6277,19 @@ summaries, diagnostics.ecsv, logs, ICs, batch_analysis_20260921_v2. They were la
 2026-09-21/22 run stored all 1e5 particles (m, x, v, keys, acc, pot) at every output (251 per
 lifetime run, 0.6-1.7 GB each) for ~30 runs and controls. Only bin/analyse_dynamical_batch.py and
 bin/compare_dynamical_analytics.py read them; rerunning those needs the batch to be rerun.
+
+## 2026-10-08 -- Restricted-runner isolation tests (100 Myr, no host)
+
+Satellite potential: PCHIP of M(<r), constant core inside 50 particles, nodes merged to >= 400
+particles per interval (src/ocen_dm/streams/restricted.py). Results (bin/streams/check_isolation.py;
+acceptance inherited from the live tests: single-snapshot shell density within 5% at 0.3-30 pc for
+shells with >= 400 particles, r_half drift < 2%, bound stars < 0.1%):
+  A: bound stars unchanged, r_half +0.12%, max shell dev 5.4% (0.66-0.92 pc); FAIL by 0.4%.
+  B: bound stars unchanged, r_half +0.20%, max shell dev 12.3% (0.66-0.92 pc); FAIL.
+  Time-mean (t = 10-100 Myr) shell ratios: within 1% beyond 1.3 pc in both; inside 1 pc
+  0.97/0.97/1.02 (A) and 1.04/0.95/1.05 (B).
+Earlier variants: 300-particle core: A 6.6% (fail), B 4.9% (pass); 50-particle core without merging:
+A 3.4% (pass), B 9.8% (fail). The live pyfalcon isolation runs of the same ICs show 6-11% at the
+two innermost shells after 20 Myr. The residual is confined to < 1 pc and is of the same size as
+the IC sample's own inner noise; it is irrelevant for escape (r_J ~ 80 pc) but the stated criterion
+is not met. Decision on acceptance left to the user.
