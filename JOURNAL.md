@@ -6610,3 +6610,14 @@ l = -50..-60 up to b ~ 45 with pmra -6..-9 and pmdec -7..-8.5 at b = 35-40 (data
 (200-230 vs 190-225). Data parallax distances (1/median(plx+0.017)) are 3.2-4.4 kpc along the arm vs 4.5-5.6 kpc for the
 model arm (cf. the 0.065 mas absolute offset at the cluster). Conclusion unchanged: no model reproduces the knee. Solid
 new fact: model debris at b > 30 was released 300-600 Myr ago (Ibata+2019: ~0.4 Gyr).
+
+## 2026-10-08 -- No published model shows the PM knee (user check)
+
+Ibata+2019 (arXiv:1902.09544) Fig. 1 shows PMs vs l only for the DR2 Fimbulthul stars (b ~ 35, l = -52..-32); the arm
+from the cluster to b ~ 30 is not plotted and nothing is plotted vs b. Their "knee" (l ~ -57, b ~ 20, Fig. 4b) is a sky
+feature near the cluster. Ibata+2024 (arXiv:2311.17202) excludes stream 54 from the fit; Fig. 23 compares stream 55 (v_los,
+parallax). Zheng+2026 (arXiv:2603.02904): observed bending stronger than their simulations and Ibata's. So the steep pmra/pmdec
+change vs b at b ~ 30-35 in DR3 stream 54 is reproduced by no published model; the premise "Ibata reproduces the knee" was
+wrong. Lead (untested): stream 54 joins the near-cluster arm and the DR2 Fimbulthul arc, which Ibata+2019 Fig. 3 places
+~1.5 kpc closer than omega Cen from a 0.7 mag CMD offset; a distance step would produce part of the PM change (PM ~ 1/d).
+Test: photometric (CMD-offset) distances in b bins along stream 54.
