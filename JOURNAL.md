@@ -6335,3 +6335,10 @@ sha256): HST LP P04 (F2/F3 catalogue), P05 (primary-field ultracool-dwarf catalo
 luminosity function). The deep primary-field WD star catalogue of Paper VII is NOT public (only stacked images,
 not downloaded, 4 x ~360 MB); the JWST GO-5110 MAST DOI 10.17909/7prx-4905 holds observations, not catalogues;
 no Calamida+2008 catalogue found on VizieR.
+Figure plots/cmd_hst_lp_fields.png (bin/plot_hst_lp_cmds.py): HST LP outer fields F5 (4.6'), F4 (5.3'), F2 (11.2'),
+F3 (12.4'), F1 (16.3'); WFC3/UVIS KS2 method 2, membership probability >= 90% (catalogue values are in per cent),
+QFIT >= 0.8 in F606W and F814W, unsaturated (m1 flag); D = 5.43 kpc, E(B-V) = 0.12 -> A_F606W = 0.334,
+A_F814W = 0.221 (MIST WFC3/UVIS). Members: 30967 / 28174 / 10020 / 10502 / 3667. WD cooling sequence visible:
+F2/F3 a clean sequence M_F606W ~ 10 -> 12.7 (49-69 stars per field), F4/F5 a broader clump at 10-11.5 (110-205).
+Member photometry reaches F606W ~ 27 (M ~ 13) in F1-F3, ~24 in F4/F5. The MIST MS (12.5 Gyr, [Fe/H] -1.53) is
+~0.1-0.15 mag too blue on the lower MS.
