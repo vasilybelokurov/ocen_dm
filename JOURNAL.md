@@ -6562,3 +6562,22 @@ of the northern arm unchanged: no bend at b ~ 30, same shallow PM gradients (plo
 plots/streams_debris_vs_ibata2024_r70_xb_prescribed_rot.png). With the observed (data-constrained) rotation, which is ~0 in
 the region the escapers come from, rotation does not produce the knee in this set-up. Not tested: Ibata's other ingredients
 (DB98 host, 5 Gyr, live self-gravity of the stream, flattened progenitor with rotation extending further out).
+
+## 2026-10-08 -- Fixed-potential tests of the knee: max rotation, DB98; backtracking of the observed stream stars
+
+T1 max rotation (every counter-rotating tracer flipped, McMillan17, 1.96 Gyr; results/streams/prescribed_maxrot): within 70 deg
+A 8004, B 5377, C 5134 (fitted rotation 8073 / 5375 / 4990); arm unchanged (plots/streams_arm_overlay_pm_b_maxrot.png).
+T2 DB98 Model 1, fitted rotation, 1.96 Gyr (results/streams/db98_rot): 9866 / 7321 / 6742 within 70 deg; the arm is broader in
+pmra at b = 30-40 but its dense part is unchanged; pmdec still flat; no bend (plots/streams_arm_overlay_pm_b_db98rot.png,
+plots/streams_debris_vs_ibata2024_r70_xb_db98_rot.png). T3 (DB98, 5 Gyr) running. Queue: bin/streams/run_rotation_tests.sh
+(OMP_NUM_THREADS=10). A refit (mass-losing) DB98 5 Gyr run was started and stopped at the user's request (redundant with T3
+for A); run_restricted.py now has --spin (stars+remnants only) and host_potential accepts an .ini path.
+Backtracking (bin/streams/backtrack_fimbulthul.py, results/plot_data/fimbulthul_backtrack.json): the 29 stream-54 stars with
+v_los, distance scanned 2.5-6.5 kpc, integrated back 1.5 Gyr; closest phase-space approach to omega Cen's orbit
+(metric sqrt((dx/0.2 kpc)^2+(dv/20 km/s)^2)). Both hosts give the same picture:
+  b < 30 (14 stars): return to omega Cen at d_best 4.5-5.6 kpc, dx 0.02-0.33 kpc, dv 4-35 km/s, 24-870 Myr ago (metric 0.6-2.6).
+  b > 32 (15 stars, the knee): no return at any distance: dx 0.2-1.2 kpc with dv 37-150 km/s (metric 2.4-7.9).
+So in McMillan17 and DB98 the knee stars are not on orbits that connect to omega Cen within 1.5 Gyr, while the near-cluster
+arm is. This is why no progenitor change (rotation, DM, time) moved the model arm onto the knee. Caveats: a static,
+axisymmetric host (no bar, no LMC); older debris (> 1.5 Gyr) not tested; per-star PM/v_los errors (few km/s) far below the
+40-150 km/s mismatch; STREAMFINDER selects along orbit templates in its own potential.
