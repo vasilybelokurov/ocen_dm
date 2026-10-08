@@ -6680,3 +6680,8 @@ AGAMA accuracy 1e-10. Sgr-omega Cen separation minima (nominal; t ago, d, dv): M
 back at 4.4 / 4.8 / 5.2 kpc: closest Sgr approach to any knee star 9.8-12.1 kpc (MC 95%, both hosts). Differential (tidal)
 velocity kick across a 1-kpc segment at 11 kpc, v_rel ~ 600 km/s: 2 G M dx / (d^2 v) = 0.05 km/s (M = 4e8) to 0.24 km/s (2e9),
 vs ~90 km/s needed. Sgr excluded. (A slow Python DF integrator was started and stopped; its outputs deleted.)
+Whole stream (bin/streams/sgr_stream_approach.py, results/plot_data/sgr_stream_approach.json; 600 Myr, 0.25 Myr sampling, 201 Sgr
+draws): all stream-54 v_los members (N 29, at the CMD-shift distance scale and +-0.4 kpc): closest Sgr approach 10.0-12.2 kpc
+(MC 95%, both hosts); stream 55 (N 25, 3.0 +- 0.4 kpc): 10.6-13.5 kpc; every unbound model tracer of the northern arm (A, rot,
+N 1173 McMillan17 / 1589 DB98, integrated back in the host): 10.3-11.7 kpc. Sgr never came within ~10 kpc of any part of the
+stream in the last 600 Myr.
