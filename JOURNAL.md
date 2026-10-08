@@ -6645,3 +6645,20 @@ disruption model predicts distance, so the test is the distance track vs the mod
 pmra/pmdec change at b ~ 33 is a tangential-velocity mismatch at the same distance: at b = 35-40, d ~ 4.8 kpc, observed
 |mu| ~ 15 mas/yr (~340 km/s heliocentric tangential) vs model ~ 11 (~250 km/s): ~90 km/s. Caveat: relative distances only
 (reference bin assumed at the cluster distance); STREAMFINDER's isochrone/distance templates could shape the member CMDs.
+
+## 2026-10-08 -- Gaia XP (Andrae+2023) metallicities of stream 54/55 members: inconclusive, bright members contaminated
+
+WSDB: Ibata+2024 members (5458) q3c_join 1'' to gaia_dr3.gaia_source, left join koposov.andrae2023_v21_table1 by source_id
+(5481 matches, 23 duplicates dropped by requiring source_id = Ibata ID; 1028 with mh_xgboost; G <~ 17.6 only):
+results/plot_data/stream_xp_metallicity_members.npz. Calibration: omega Cen PM members 0.2-0.6 deg, G < 17.6 (q3c cone, 3 s):
+results/plot_data/ocen_members_andrae.npz. XGBoost [M/H] of omega Cen is biased metal-rich towards faint G (true ~ -1.6):
+median -1.48 (G 10-15), -1.28 (15-16.5), -0.93 (16.5-17.6). Matched-G comparison (G 16.5-17.6; 15-16.5 similar):
+  omega Cen        N 2055 median -0.93  logg 3.80  frac logg>4 0.34
+  54 b<25          N  331 median -0.55  logg 4.26  frac 0.77   KS p 5e-47
+  54 b 25-32       N   28 median -0.61  logg 4.30  frac 0.93   KS p 1e-5
+  54 b>32 (knee)   N  217 median -0.75  logg 4.25  frac 0.85   KS p 1e-5
+  55               N  163 median -0.98  logg 4.26  frac 0.90   KS p 0.28
+All stream-54 segments, including the part next to the cluster, are more metal-rich and dwarf-like than omega Cen at the same
+G: the XP-bright members (G < 17.6) are dominated by foreground dwarfs everywhere, so XP cannot separate the knee from the
+near-cluster arm; if anything the knee is closer to omega Cen than the near-cluster group. Inconclusive for the knee question.
+(Calibration caveat: crowding at 0.2-0.6 deg can affect the omega Cen XP spectra.) Plot: plots/stream_xp_metallicity.png.
