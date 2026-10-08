@@ -47,3 +47,15 @@ streamfinder_ibata2021_edr3:
   # was not found on VizieR or the ApJ page on 2026-10-08.
   path: ~/data/catalogues/streamfinder_ibata2021_edr3.fits
   fimbulthul_stream_id: 16
+
+streamfinder_ibata2024_dr3:
+  # Ibata+2024, ApJ 967, 89 (arXiv:2311.17202; ADS 2024ApJ...967...89I), Table 1 machine-readable
+  # file apjad382dt1_mrt.txt from content.cld.iop.org (not on VizieR). Fetched 2026-10-08 (approved).
+  # 24,540 STREAMFINDER stars in Gaia DR3 with VHel where measured (e_VHel = 300 means null).
+  # sha256 (MRT text): 76742daaf44d69e1afe71b56f49ec93c88631a6ae10261cc4adcb6f8485644ba.
+  # Stream 54 = Fimbulthul: 3724 stars, 29 with VHel; 264 of the 309 I19 candidates.
+  # Stream 55 = Fimbulthul-S (paper: also omega Cen trailing debris, ~3 kpc): 1734 stars, 25 VHel.
+  # This supersedes streamfinder_ibata2021_edr3 as the main Fimbulthul sample.
+  path: ~/data/catalogues/streamfinder_ibata2024_dr3_mrt.txt
+  fits: ~/data/catalogues/streamfinder_ibata2024_dr3.fits
+  fimbulthul_stream_ids: [54, 55]

@@ -6237,3 +6237,10 @@ Ibata+2021 EDR3 STREAMFINDER (J/ApJ/914/123/table1, 5960 stars) to
 ~/data/catalogues/streamfinder_ibata2021_edr3.fits (registered in configs/data.yaml).
 omega Cen/Fimbulthul is Stream 16: 1006 stars (RA 186.8-222.2 deg), 33 with HRV
 (median 197.7 km/s); all 309 I19 candidates are in it (match < 1 arcsec).
+Update (same day): the Ibata+2024 DR3 table IS public as the ApJ machine-readable file
+(apjad382dt1_mrt.txt; not on VizieR). Fetched to ~/data/catalogues/: 24,540 stars.
+Fimbulthul = stream 54: 3724 stars, 29 with VHel (median 225 km/s), RA 183-225,
+Dec -50..-20; contains 264 of the 309 I19 candidates. Stream 55 (Fimbulthul-S, 1734
+stars, 25 VHel) is interpreted in the paper as closer (~3 kpc) omega Cen trailing debris
+lost 0.5-1 Gyr ago; both go into the comparison. The paper notes Fimbulthul's complex
+structure from the progenitor's rotation and excludes it from their potential fit.
