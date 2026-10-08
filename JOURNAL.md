@@ -6301,3 +6301,18 @@ User accepted the isolation results (2026-10-08). Queue bin/streams/run_queue_20
 tupd convergence on the orbit over 300 Myr (A: 4 vs 2 Myr; B: 2 vs 1 Myr), then the four validation
 runs (A, B x refit, frozen; 1955.58 Myr; snapshots every 50 Myr). The CPU is shared with an unrelated
 job (barchevrons), so the queue will take ~10-12 h.
+
+## 2026-10-08 -- Radial CMDs of PM-selected members (oMEGACat); the published membership flag has a CMD cut
+
+bin/plot_cmd_radial.py -> plots/cmd_radial_omegacat.png (data results/plot_data/cmd_radial_omegacat.json).
+Parent: selection_hq_astrometry; annuli 0-30-60-120-200-340 arcsec; PM-only membership: per annulus
+intrinsic sigma_PM (1.4826 MAD within 3 mas/yr, deconvolved with the median error) = 0.81, 0.78,
+0.73, 0.66, 0.58 mas/yr; member if chi2 = sum mu^2/(sigma^2+e^2) < 11.83 (2 dof, 99.73%).
+Members 12000 / 36053 / 124402 / 210010 / 285634; field 9 / 35 / 167 / 423 / 1061 (0.1-0.4%).
+FINDING: the catalogue flag selection_hq_astrometry_and_membership is not PM-only. Of the
+hq-astrometry stars it rejects (59129), 97% have |mu| < 2 mas/yr; in the CMD they form sharp-edged
+bands on both sides of the main ridge (blue MS, red sequences/binaries) plus the HB: a colour-
+magnitude selection removing ~9% of PM members (1054-22275 per annulus). Our likelihood products do
+not use it (hst_profile uses selection_hq_astrometry; counts use no flag), but it is used in
+src/ocen_dm/plotting/data_overview.py:605, plotting/constraints.py:983 and
+selection/hst_gaia_match.py:72 (hst_quality column of the HST-Gaia match): not changed, flagged.
