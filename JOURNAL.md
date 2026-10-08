@@ -6208,3 +6208,21 @@ Note: the t0210/t0250/t0170 figures were made before the AGAMA time-unit fix
 in time; the particle positions, bound fractions and the "same epoch"
 comparison are unaffected. The "Myr before today" in their titles assumed
 today = 2000 Myr (correct: 1955.6 Myr).
+
+## 2026-10-08 -- Scoping: restricted N-body tails with different DM amounts vs Fimbulthul
+
+Proposal only; see docs/STREAM_EXPERIMENTS_PLAN.md (decisions D1-D5 pending).
+Codex consulted twice: a plan critique (repo-aware) and a literature pass (web fallback);
+13 arXiv IDs checked against the arXiv API.
+New diagnostic `bin/streams/scope_jacobi.py` (results/plot_data/streams_scope_jacobi.json):
+instantaneous r_J in spherically averaged McMillan17 at peri 1.42 / apo 7.11 kpc.
+  A no DM: M(<r_J) 3.24e6, r_J 78.7 / 195 pc; rho20 = 1: 3.39e6, 79.9 / 201;
+  rho20 = 4: 3.91e6, 83.8 / 219; B (mps 9): 3.63e6, 81.8 / 210.
+The fitted halos (r_s = 5 pc) are traded against M_star, so across the kinematically
+allowed range r_J changes by <= 6.5% at pericentre: width/dispersion differences <~7%
+(M^1/3), consistent with the live runs (10%). DM that can matter for the tails lies
+beyond ~80-200 pc and is unconstrained by the kinematics; the DM axis must be defined
+(rho20 grid as control vs extended halos as test).
+AGAMA 1.0.152 already provides particle spray (Fardal+15, Chen+24) and restricted
+N-body with satellite potential refitted from bound tracers (tutorial_streams.ipynb,
+example_tidal_stream.py); nothing in the repo yet.
