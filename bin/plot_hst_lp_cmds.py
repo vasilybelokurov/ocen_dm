@@ -11,7 +11,9 @@ QFIT >= 0.8 in both, not saturated in the long exposures (flag from the m1 files
 Absolute magnitudes: D = 5.43 kpc, E(B-V) = 0.12, A_V = 3.1 E(B-V); A_F606W, A_F814W from the MIST
 bolometric-correction tables for WFC3/UVIS (median over the main sequence), as in bin/build_mass_function.py.
 Top row: Hess diagram of members with the MIST main sequence (12.5 Gyr, [Fe/H] = -1.53); bottom row: zoom
-on the white-dwarf region as points.
+on the white-dwarf region as points. WD track: one empirical quadratic colour(M) ridge fitted to the WD-box stars
+of ALL fields pooled (9.5 < M_F606W < 12.5, iterative 2.5-sigma clipping), drawn identically in every panel;
+per field the median colour offset of the stars within 2.5 sigma of it, with a bootstrap error.
 
 Usage: python bin/plot_hst_lp_cmds.py [--pmin 90] [--qfit 0.8] [--method m2]
 Output: plots/cmd_hst_lp_fields.png, results/plot_data/cmd_hst_lp_fields.json
@@ -40,6 +42,7 @@ RAMP = LinearSegmentedColormap.from_list("blue", ["#e8f0fb", "#9ec5f4", "#3987e5
 INK, MUTED = "#1f1f1e", "#6b6a64"
 CB = np.arange(-1.0, 2.6, 0.02)
 MB = np.arange(2.0, 14.0, 0.05)
+WD_FIT_RANGE = (9.5, 12.5)      # M_F606W range of the pooled white-dwarf track fit
 
 
 def extinction_and_isochrone(age=12.5, feh=-1.53, ebv=0.12):
@@ -90,7 +93,8 @@ def main():
     out = dict(distance_kpc=args.distance, dm0=dm0, A_F606W=a6, A_F814W=a8, pmin=args.pmin, qfit=args.qfit,
                method=args.method, fields=[])
     c0 = SkyCoord(*CENTRE, unit="deg")
-    for i, (kind, field) in enumerate(fields):
+    data = []
+    for kind, field in fields:
         f = load_field(kind, field, args.method)
         m6, m8 = f["F606W_mag"], f["F814W_mag"]
         ok = (m6 > -90) & (m8 > -90) & (f["F606W_qfit"] >= args.qfit) & (f["F814W_qfit"] >= args.qfit) \
@@ -100,14 +104,45 @@ def main():
         M = m6 - dm0 - a6
         col = (m6 - m8) - (a6 - a8)
         wd = mem & (col < 0.6) & (M > 8)
+        data.append(dict(field=field, m6=m6, ok=ok, mem=mem, r=r, M=M, col=col, wd=wd))
+    # one empirical WD track for all fields: quadratic colour(M) fitted to the pooled WD-box stars with
+    # WD_FIT_RANGE in M, iterative 2.5-sigma clipping (robust sigma from the MAD)
+    cs = np.concatenate([d["col"][d["wd"]] for d in data]); Ms = np.concatenate([d["M"][d["wd"]] for d in data])
+    use = (Ms > WD_FIT_RANGE[0]) & (Ms < WD_FIT_RANGE[1])
+    keep = use.copy()
+    for _ in range(10):
+        coef = np.polyfit(Ms[keep], cs[keep], 2)
+        res = cs - np.polyval(coef, Ms)
+        sig = 1.4826*np.median(np.abs(res[keep]-np.median(res[keep])))
+        new_keep = use & (np.abs(res) < 2.5*sig)
+        if np.array_equal(new_keep, keep):
+            break
+        keep = new_keep
+    track_M = np.linspace(*WD_FIT_RANGE, 100)
+    track_c = np.polyval(coef, track_M)
+    out["wd_track"] = dict(coef_colour_of_M=coef.tolist(), fit_range_M=list(WD_FIT_RANGE), clip_sigma=float(sig),
+                           n_used=int(keep.sum()))
+    rng = np.random.default_rng(1)
+    for i, d in enumerate(data):
+        field, m6, ok, mem, r, M, col, wd = (d[k] for k in ("field", "m6", "ok", "mem", "r", "M", "col", "wd"))
+        res = col - np.polyval(coef, M)
+        on = wd & (M > WD_FIT_RANGE[0]) & (M < WD_FIT_RANGE[1]) & (np.abs(res) < 2.5*sig)
+        if on.sum() >= 3:
+            off = float(np.median(res[on]))
+            boot = [np.median(rng.choice(res[on], on.sum())) for _ in range(2000)]
+            off_err = float(np.std(boot))
+        else:
+            off, off_err = float("nan"), float("nan")
         out["fields"].append(dict(field=field, n=int(len(m6)), n_quality=int(ok.sum()), n_members=int(mem.sum()),
-                                  r_arcmin_median=float(np.median(r)), n_wd_box=int(wd.sum()),
+                                  r_arcmin_median=float(np.median(r)), n_wd_box=int(wd.sum()), n_wd_on_track=int(on.sum()),
+                                  wd_colour_offset=off, wd_colour_offset_err=off_err,
                                   F606W_member_99pct=float(np.percentile(m6[mem], 99)) if mem.any() else None))
         ax = axes[0, i]
         H, _, _ = np.histogram2d(col[mem], M[mem], bins=(CB, MB))
         if H.sum():
             ax.pcolormesh(CB, MB, H.T, cmap=RAMP, norm=LogNorm(vmin=1, vmax=max(H.max(), 2)), rasterized=True)
-        ax.plot(iso_c-(a6-a8)*0, iso_M, "-", color="#eb6834", lw=1.2, label="MIST MS")
+        ax.plot(iso_c, iso_M, "-", color="#eb6834", lw=1.2, label="MIST MS")
+        ax.plot(track_c, track_M, "-", color="#1baf7a", lw=1.5, label="WD track (pooled fit)")
         ax.add_patch(plt.Rectangle((-1.0, 8), 1.6, 5.5, fill=False, ec=MUTED, lw=0.8, ls="--"))
         ax.set_xlim(CB[0], CB[-1]); ax.set_ylim(MB[-1], MB[0])
         ax.set_title(f"{field} (r ~ {np.median(r):.1f}'): N = {mem.sum():,}\nmembers (P >= {args.pmin:.0f}%), QFIT >= {args.qfit}",
@@ -115,20 +150,26 @@ def main():
         if i == 0:
             ax.legend(fontsize=8, frameon=False, loc="lower left")
         ax = axes[1, i]
-        ax.plot(col[wd], M[wd], "o", color="#2a78d6", ms=5, alpha=0.75, mec="white", mew=0.5)
+        ax.plot(col[wd & ~on], M[wd & ~on], "o", color="#9ec5f4", ms=5, alpha=0.8, mec="white", mew=0.5, label="WD box")
+        ax.plot(col[on], M[on], "o", color="#2a78d6", ms=5, alpha=0.9, mec="white", mew=0.5, label="within 2.5 sigma of track")
+        ax.plot(track_c, track_M, "-", color="#1baf7a", lw=2, label="WD track (same in all panels)")
+        ax.plot(track_c+2.5*sig, track_M, ":", color="#1baf7a", lw=1); ax.plot(track_c-2.5*sig, track_M, ":", color="#1baf7a", lw=1)
         ax.set_xlim(-1.0, 0.6); ax.set_ylim(13.5, 8)
-        ax.set_title(f"{field}: white-dwarf region, N = {wd.sum():,}", fontsize=9.5, color=INK, loc="left")
+        ax.set_title(f"{field}: WD region, N = {wd.sum():,}\noffset from track: {off:+.3f} +- {off_err:.3f} mag (N = {on.sum()})",
+                     fontsize=9.5, color=INK, loc="left")
+        if i == 0:
+            ax.legend(fontsize=7.5, frameon=False, loc="lower left")
         for row in (0, 1):
             a = axes[row, i]
             a.tick_params(colors=MUTED, labelsize=9)
-            for s in ("top", "right"):
-                a.spines[s].set_visible(False)
+            for s_ in ("top", "right"):
+                a.spines[s_].set_visible(False)
             a.set_xlabel("(F606W - F814W)$_0$", color=INK)
             if i == 0:
                 a.set_ylabel("$M_{F606W}$", color=INK)
     fig.suptitle(f"omega Cen HST Large Programme outer fields (WFC3/UVIS, KS2 {args.method}), PM members; "
                  f"D = {args.distance} kpc, E(B-V) = 0.12 (A_F606W = {a6:.3f}, A_F814W = {a8:.3f})\n"
-                 "Top: log counts (dashed box = zoom). Bottom: white-dwarf region", fontsize=10.5, color=INK)
+                 "Top: log counts (dashed box = zoom). Bottom: white-dwarf region with one pooled empirical WD track (green)", fontsize=10.5, color=INK)
     fig.tight_layout()
     fig.savefig(ROOT/"plots/cmd_hst_lp_fields.png", dpi=130)
     (ROOT/"results/plot_data/cmd_hst_lp_fields.json").write_text(json.dumps(out, indent=1))

@@ -6342,3 +6342,9 @@ A_F814W = 0.221 (MIST WFC3/UVIS). Members: 30967 / 28174 / 10020 / 10502 / 3667.
 F2/F3 a clean sequence M_F606W ~ 10 -> 12.7 (49-69 stars per field), F4/F5 a broader clump at 10-11.5 (110-205).
 Member photometry reaches F606W ~ 27 (M ~ 13) in F1-F3, ~24 in F4/F5. The MIST MS (12.5 Gyr, [Fe/H] -1.53) is
 ~0.1-0.15 mag too blue on the lower MS.
+WD track (same figure): one quadratic colour(M) ridge fitted to the pooled WD-box stars of all five fields
+(9.5 < M_F606W < 12.5, 2.5-sigma clipping, sigma = 0.111 mag, 328 stars), drawn identically in each panel.
+Median colour offsets from it (bootstrap errors): F5 (4.6') -0.041 +- 0.021 (N 79), F4 (5.3') +0.004 +- 0.010
+(135), F2 (11.2') -0.001 +- 0.015 (62), F3 (12.4') +0.022 +- 0.012 (43), F1 (16.3') +0.047 +- 0.013 (9).
+Not yet interpretable: the fields cover different M ranges (F4/F5 shallower), come from two catalogue releases
+(P04, P06) with separate calibrations, and differential reddening (~0.01-0.03 in colour) is not corrected.
