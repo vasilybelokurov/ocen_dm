@@ -7065,3 +7065,7 @@ tracers, 11.5 min each at 8 threads; results/streams/prescribed/rotB_{nospin,spi
 Test A: spray release gained an optional rotation term (release_ic spin=: + v_rot(r_J) e_phi at the release point; our extension
 of Fardal+15; tests/test_spray_spin.py 2 pass). Launched: paired spin test (2 models x 3 seeds, 4x particles) then grid4 with
 spin (448 points, 1x, seed 1, paired with grid4), 8 threads, ~1.5 h.
+Paired spin test (4x particles, seeds 1-3, common random numbers; results/plot_data/spin_pair_test.json): lnL(spin) - lnL(no spin)
+= +20, +34, -23 (16 deg) and +21, +39, +37 (20 deg). dlnL(16-20): no spin 465/512/537 (mean 505), spin 464/508/477 (mean 483).
+Rotation in this prescription changes lnL by ~+25 (seed sd at 4x ~36) and the angle gap by ~-20: small; does not remove the
+cluster-vs-knee tension. grid4_spin running (1x, ~1.4 h).
