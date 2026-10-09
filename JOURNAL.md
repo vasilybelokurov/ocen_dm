@@ -6906,3 +6906,6 @@ v_los 232.78):
 Within its catalogue errors omega Cen's distance alone changes lnL by several thousand (peak near d ~ 5.5); pmdec within the
 Gaia systematic floor by ~ +-700. These are as large as the bar-angle effect (16 vs 28 deg ~ 3000 at amplitude 1.2): the present
 day state must be fitted as nuisance parameters with priors, and the small-angle preference may be partly a distance effect.
+Fit launched (bin/streams/fit_bar_ocen.py, 4 threads): angle 28 fixed; free Omega_b [33, 37], amplitude [0.8, 1.2] with prior
+N(1.0, 0.1) (user: avoid very strong bars), d ~ N(5.43, 0.15), PMs ~ N(catalogue, 0.027); v_los fixed; Nelder-Mead, 2 starts,
+<= 45 evaluations each; log results/plot_data/fit_bar_ocen.json.
