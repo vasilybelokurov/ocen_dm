@@ -6780,3 +6780,20 @@ Codex review (docs/codex_track_objective_2026-10-09.md): do not use release age 
 use a per-star local likelihood conditional on sky position (KDE in l given b, and in PMs/v_los given (l, b), with per-star
 errors and a background term), overshoot fraction as a separate diagnostic (weight needs the user's approval), kernels instead
 of bins, common random numbers, validation by re-scoring the 45 models against a visual ranking. Adopted as the next step.
+
+## 2026-10-09 -- Stream unwrapping of the spray models: Gibbons chi works, orbital-plane angle fails
+
+src/ocen_dm/streams/spray.py: spray_unwrapped() integrates released particles with trajectories (240 samples each) and returns
+chi = integral (|r| - |r_prog|) dt from release to today (time-weighted Gibbons+2014 Eq. 3) and psi = unwrapped angle in the
+progenitor's present orbital plane (Chemaly+2026 style). bin/streams/test_unwrapping.py (plots/unwrapping_33_28_1.0.png,
+results/plot_data/unwrapping_33_28_1.0.npz); bar (33, 28, 1.0), model A, release over the last 800 Myr, 12000 particles, 7 s.
+- chi sign separates the arms: chi > 0 for 96% of trailing, chi < 0 for 92% of leading particles.
+- chi vs release age: increasing with spikes at pericentres (Spearman 0.83); psi is useless for this orbit: the whole trailing
+  arm (0-450 Myr) spans only 0-30 deg in psi (eccentric inner orbit, peri ~2 kpc; Spearman age-|psi| 0.51).
+- Model track along chi (20 quantile bins of 289 particles): continuous single curve: (l, b) = (-55, 16) -> (-60, 22-26) ->
+  (-57, 28.6) -> turn: (-51, 29.6) -> (-46, 29.3) -> (-37, 28.0) -> (-24, 23) -> descends to the bulge region; at the turn
+  pmra -10.8 -> -17.9, pmdec -7.5 -> -9.9, v_los 240 -> 178, d 4.4 -> 3.6 kpc, age 300-370 Myr; widths (IQR) grow from ~2.5 to
+  ~10 deg in l through the turn.
+Result: chi unwraps the model stream cleanly. The model arm rises only to b ~ 30 and then turns towards smaller |l| at nearly
+constant b; the data rise to b ~ 40 (at l ~ -44) before ending. The bar turns the arm ~10 deg too early in b; at the data's
+l ~ -46 the model is at b 29 (data 38), pmra -14.1 (data -11.9), pmdec -8.4 (-10.15), d 4.0 kpc (~4.8).
