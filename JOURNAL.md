@@ -7000,3 +7000,16 @@ The conditional optimiser refit did not run (argparse edit did not apply; it exi
 fixed-28 best). Replaced, after discussion with the user, by a 4D grid (bin/streams/grid4.py): Omega_b {33, 34, 34.5, 35, 35.5, 36, 37}
 x angle {16, 20, 24, 28} x amplitude {1.0, 1.2, 1.4, 1.6} x distance {5.45, 5.50, 5.55, 5.60}; PMs at the free-angle best; score_conditional
 (chord GC frame); 448 sprays saved (results/streams/spray_grid4/); restarted at 8 threads (user), ~1.6 h.
+
+### 4D grid result (2026-10-09; results/plot_data/grid4.json, plots/grid4_maps.png)
+448 sprays, 8 threads, ~11 s each. Conditional likelihood (chord GC frame), PMs fixed (-3.2223, -6.7517). Profile Delta lnL (max over
+the other three):
+- Omega_b: 33 -820, 34 -30, 34.5 0, 35 -71, 35.5 -267, 36 -678, 37 -1590 -> bracketed, peak 34-35.
+- angle: 16 0, 20 -296, 24 -806, 28 -1447 -> still at the lower grid edge, well outside the N(27, 2) prior (prior penalty at 16 deg
+  ~15 in lnL, inert against these differences).
+- amplitude: 1.0 -362, 1.2 -30, 1.4 0, 1.6 -13 -> plateau >= 1.2.
+- distance: 5.45 -13, 5.50 -156, 5.55 -186, 5.60 0 -> not monotonic; trades against amplitude (amp 1.6 with d 5.45, amp 1.4 with
+  d 5.60). Treat as spray-noise/ridge, not a measurement.
+Best: (34.5, 16, 1.4, 5.60), lnL -22745. Best at 20 deg: (34.5, 20, 1.2, 5.60), Delta -296. KDE contour plots of both
+(plots/kde_model_om34.5_an{16,20}_*_d5.6_contours_robust.png) look very similar by eye; differences in lnL of hundreds again
+reflect the 3681 members treated as independent (calibration still open). plot_kde_model.py gained --dir=.
