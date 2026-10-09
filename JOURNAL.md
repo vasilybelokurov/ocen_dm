@@ -7051,3 +7051,17 @@ Codex review of the calibration (docs/codex_likelihood_calibration_2026-10-09.md
 - grid PMs (-3.2223, -6.7517) differ from catalogue (-3.2499, -6.7461) (confirmed; fit_bar_ocen.py frees them).
 - key point: the conditional statistic removes the along-stream density, which is where DM changed the debris (counts) -> the
   DM test needs a density-sensitive statistic or must show the track-only statistic has power (mocks).
+
+### Cluster rotation (2026-10-09)
+The spray had no internal rotation; the tracer runs can (--spin, Lynden-Bell flips; tested earlier only in axisymmetric hosts).
+Rotation profile of the spun A_nodm model (bin/streams/spin_vrot_profile.py -> results/streams/spin/A_nodm_vrot.json): |v_rot|
+~11 km/s at < 5 pc, 5.6 at 20-30 pc, 1.5 at 60-80 pc, < 0.7 beyond 80 pc. Along the best orbit r_J = 59 (pericentre) - 191 (median)
+- 228 pc; v_J 2.7-4.4 km/s.
+Test B (tracer runs, run_prescribed.py gained --bar-amp, --dist, --pm; Omega_b 34.5, angle 20, amp 1.2, d 5.6, grid PMs, 200k
+tracers, 11.5 min each at 8 threads; results/streams/prescribed/rotB_{nospin,spin}; bin/streams/compare_spin_tracers.py): only
+~450 debris tracers in the observed footprint per run. Spin - no spin medians in phi1 segments (|dphi2| < 6): near cluster dphi2
+-0.71+-0.41, pmra +0.09+-0.10, pmdec +0.01+-0.04, vlos +0.2+-1.1; middle and knee all within 1.7 sigma. Not detected, but the
+16 vs 20 deg spray models differ by only 0.1-0.2 mas/yr in the same segments -> B is too noisy to decide; inconclusive.
+Test A: spray release gained an optional rotation term (release_ic spin=: + v_rot(r_J) e_phi at the release point; our extension
+of Fardal+15; tests/test_spray_spin.py 2 pass). Launched: paired spin test (2 models x 3 seeds, 4x particles) then grid4 with
+spin (448 points, 1x, seed 1, paired with grid4), 8 threads, ~1.5 h.
