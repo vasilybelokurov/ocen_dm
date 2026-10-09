@@ -6841,3 +6841,11 @@ model (34.5, 24, 1.2); next: (36, 24, 1.2) -278, (36, 24, 1.0) -284, (36, 28, 1.
 the members' likelihood comes from chi 0-30 (41%), 30-60 (29%), 60-105 (27%), 105-150 (3%), > 150 (0.1%): the observed stream
 maps onto the single-valued chi < 105 part, the fold explains nothing. Both scores prefer angle ~24 and Omega 34.5-36 at the
 grid edge.
+Figures: plots/chikde_om34.5_an24_am1.2.png (model density per chi bin with members at their most likely chi bin; knee members
+at chi 45-95 sit on the upper edge in b, lower edge in pmdec and v_los of the model density), plots/chikde_grid_maps.png (chi-KDE
+vs sky-score Delta lnL maps; chi-KDE smoother, best Omega 34.5-36, angle 24-28, amp 1.0-1.2, Omega 36 column near the top ->
+extend the grid), plots/members_vs_track_om34.5_an24_am1.2_kde.png (score.chi_kde_track: mode of the per-chi-bin 4D KDE in
+(l, b, pmra, pmdec), extras as medians within one bandwidth of the mode). The KDE-mode track reaches b ~ 35 at l ~ -41..-45
+(median track: ~33-34) and is noisier (bin modes jump); the knee conclusion is unchanged: the model turns at b ~ 32-35 instead of
+spreading over b 30-41, with pmra/pmdec plunging at b 32-35, v_los dropping to 160-210 and d 3.6-4.2 kpc vs data 190-225 km/s and
+4.8-5.0 kpc at b 35-40.
