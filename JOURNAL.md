@@ -6797,3 +6797,20 @@ results/plot_data/unwrapping_33_28_1.0.npz); bar (33, 28, 1.0), model A, release
 Result: chi unwraps the model stream cleanly. The model arm rises only to b ~ 30 and then turns towards smaller |l| at nearly
 constant b; the data rise to b ~ 40 (at l ~ -44) before ending. The bar turns the arm ~10 deg too early in b; at the data's
 l ~ -46 the model is at b 29 (data 38), pmra -14.1 (data -11.9), pmdec -8.4 (-10.15), d 4.0 kpc (~4.8).
+
+## 2026-10-09 -- Grid re-scored with the per-star sky-conditional likelihood and chi unwrapping
+
+src/ocen_dm/streams/score.py (per member: ln p(l|b) from kernels on model trailing particles (h = 1 deg), ln p(PM|l,b) with Gaia
+covariance + (0.3 mas/yr)^2 smoothing, ln p(v_los|l,b) for 29 stars with 5 km/s smoothing, 5% uniform background per term; no
+along-stream density; overshoot fraction = young (< 450 Myr, b > 12) trailing debris > 2 deg from every member, diagnostic only).
+bin/streams/spray_bar_grid2.py: same 45 bar models, release over the last 1000 Myr at common epochs (8000 x 2 particles), Gibbons
+chi stored; ~13 s per model; particles in results/streams/spray_grid2/, summary results/plot_data/spray_bar_grid2.json;
+plots/spray_bar_grid2_models.png, plots/spray_bar_grid2_maps.png. Smoke test: Omega 33/28 with amp 0 (no bar) lnL -30368 vs
+amp 1 -24552 (pm term +4460, sky +1360), overshoot 0.44 -> 0.27.
+Ranking (Delta lnL vs best; sky, pm, v_los; overshoot): (34.5, 24, 1.2) 0 (-10467, -12526, -123; 0.22); (36, 28, 1.2) -526;
+(34.5, 24, 1.0) -620; (33, 24, 1.0) -840; (36, 24, 1.2) -896; ... old chi2 'best' (34.5, 32, 1.2) -2013 (overshoot 0.27);
+worst Omega 30 (-13200 to -14000; their arm never rises). By eye the ranking agrees: the top models carry the arm (250-350 Myr
+debris) up to b ~ 33-38 with PMs overlapping the data to b ~ 38; the chi track turns at b ~ 32-34 (vs 29-30 for the old best).
+Remaining misfit: at b 33-38 the model arm lies at l -50..-57 (data -44..-50) and v_los 215-240 (data 190-225). The best
+points sit at the grid edges (angle 24, amplitude 1.2, Omega 34.5-36): the grid must be extended (lower angle, stronger bar,
+faster pattern).
