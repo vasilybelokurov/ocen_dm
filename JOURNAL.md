@@ -6920,3 +6920,6 @@ in the outer contours); pmdec band to -10; v_los clump at b 32-37 at 215-232 (me
 User decision: bar angle not fixed -- soft prior N(27, 2) deg, bounds 21-33 (Wegg & Gerhard 2013; Bland-Hawthorn & Gerhard 2016).
 Re-fit launched: fit_bar_ocen.py --free-angle (6 free parameters; starts at the fixed-angle best with angle 28, 24, 32; <= 40
 evaluations each; 4 threads; log results/plot_data/fit_bar_ocen_freeangle.json).
+Optimiser-sample landscape (bin/streams/plot_fit_landscape.py -> plots/fit_landscape.png; 154 evaluations so far, not a sampled
+posterior): Omega_b tightly localised at ~34.8-35.1; amplitude pushes to the 1.2 cap; angle drifts to ~24 (lowest sampled);
+pmra to ~-3.22 (+1 sigma); d ~ 5.50-5.53 kpc. Proper maps need profile scans / a grid around the optimum.
