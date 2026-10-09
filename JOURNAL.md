@@ -6814,3 +6814,17 @@ debris) up to b ~ 33-38 with PMs overlapping the data to b ~ 38; the chi track t
 Remaining misfit: at b 33-38 the model arm lies at l -50..-57 (data -44..-50) and v_los 215-240 (data 190-225). The best
 points sit at the grid edges (angle 24, amplitude 1.2, Omega 34.5-36): the grid must be extended (lower angle, stronger bar,
 faster pattern).
+
+## 2026-10-09 -- Display ridge for spray models; corrected plot layering
+
+plots/spray_bar_grid2_models.png was misleading in the sky panel: members drawn with plot() (zorder 2) hid the model scatter
+(zorder 1); fixed (model on top, member-density contours at 2 and 10 per deg^2). With the fix, the best models populate the
+observed knee on the sky. The chi-quantile median track (score.chi_track) is not a ridge (separate medians of l and b in mixed
+bins fall into empty space); chi-binned density peaks (chi_ridge) jump because chi spikes at pericentres and the arm at b 25-33
+is sparse. Adopted for display: score.age_ridge -- 15-Myr release-age bins (0-450 Myr), particles within 1.5 deg of the cluster
+excluded (still bound / recaptured; Gibbons+2014: ~25% of spray particles stay with the progenitor), tracking peak = argmax of
+2D kernel density (h = 1 deg) x exp(-|c - previous|^2 / (2 x 4^2)). Not used in the likelihood.
+Best model (34.5, 24, 1.2) ridge: (l, b) -55.2, 16.3 (8 Myr) -> -60, 22 (130 Myr) -> -57, 28.5 (200) -> -52.8, 32.8 (262) ->
+-48, 32-35 (350-412 Myr), where pmra -11.2..-12.8, pmdec -8.6..-9.1, v_los 209-219, d 4.1-4.2 kpc; data at b 34-36: l -50.8/-48.3,
+pmra -8.5/-10.0, pmdec -8.54/-9.53, v_los ~205-225, d ~4.8-5.0. The ridge then leaves the arm (428-442 Myr: -38.8, 21.6).
+On the knee: sky position and v_los match; pmdec within ~0.5; pmra ~1.5 too negative; distance ~0.6 kpc too close.
