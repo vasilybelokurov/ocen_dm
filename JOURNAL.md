@@ -6923,3 +6923,6 @@ evaluations each; 4 threads; log results/plot_data/fit_bar_ocen_freeangle.json).
 Optimiser-sample landscape (bin/streams/plot_fit_landscape.py -> plots/fit_landscape.png; 154 evaluations so far, not a sampled
 posterior): Omega_b tightly localised at ~34.8-35.1; amplitude pushes to the 1.2 cap; angle drifts to ~24 (lowest sampled);
 pmra to ~-3.22 (+1 sigma); d ~ 5.50-5.53 kpc. Proper maps need profile scans / a grid around the optimum.
+Queued after the free-angle fit (bin/streams/run_scan_after_fit.sh -> scan_best_fit.py, 4 threads, ~31 min): conditional 1D
+slices around the best fit (angle 21-33, Omega 33.5-36.5, amp 0.8-1.4, d +-0.2, PMs +-0.06; 9 points each) and an angle x
+amplitude grid (21-31 by 2 x 0.9-1.3 by 0.1); output results/plot_data/scan_best_fit.json, plots/scan_best_fit.png.
