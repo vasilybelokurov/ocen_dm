@@ -7019,3 +7019,9 @@ plots/condmodel_om34.5_an16_am1.4_d5.6.png and condmodel_om34.5_an20_am1.2_d5.6.
 Same conditional model recast into the original observable space (bin/streams/plot_conditional_orig.py, plots/condorig_<tag>.png):
 row 1 = particle weights 1/(K n_k) x n_data(phi1)/[(1-eps) f_u + eps g_u] (model density along phi1 replaced by the members', as the
 likelihood effectively does); row 2 = base weights. Fixed likelihood kernels (0.5 deg, 0.2 mas/yr, 5 km/s; d 0.1 kpc display only).
+Kernel check (bin/streams/kernel_check.py, results/plot_data/kernel_check.json; 8 grid4 models, no new sprays):
+- n_eff of particles contributing to f at each member (fixed kernels 0.5 deg, 0.2 mas/yr, 5 km/s): median 5.4-8.0, 10th percentile
+  1.1-1.6; 35-49% of members have n_eff < 5, ~80% < 20 -> the KDE is particle-noise dominated at the members (the lumpy contours).
+- Bandwidth x1.5 and x2: angle sequence unchanged (20 deg: -296/-299/-330; 24: -982/-986/-995; 28: -1634/-1626/-1627 relative to best);
+  top two (34.5,16,1.4,5.6) and (34,16,1.2,5.6) swap (within 40); far models (Omega 36, 33) shift by 100s-800.
+  Conclusion: coarse ranking robust to the kernel; differences of tens are not. Fix = more particles (seed test pending), not wider kernels.
