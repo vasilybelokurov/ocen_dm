@@ -6961,3 +6961,18 @@ results/streams/spray_grid2/fitfree_best.npz): plots/kde_model_fitfree_best_cont
 contour runs continuously from the cluster through the knee to b ~ 38 at l ~ -43..-50 and is narrower in l at b 25-32 than the
 28-deg fit; pmdec band to -10..-11 at b 38-40; pmra band to ~ -12..-13 at b 37 (deep tail to -20 still outer contours); v_los
 clump at b 32-37, 215-232 km/s (members 190-225); CMD distances on the contours.
+
+## 2026-10-09 -- Smooth stream path and along/across coordinates (s, x)
+
+Motivation (user): our chi-KDE likelihood is not density-free along the stream (joint KDE in (l, b, PM) with flat chi weights
+-> the chi-to-sky mapping sets an along-stream density); Dillamore+2022 condition on the observed along-stream coordinate. b is not
+single-valued at the top of the arc (b 35-37: l peaks -49 and -37). src/ocen_dm/streams/path.py, bin/streams/build_stream_path.py
+(results/plot_data/stream54_path.json, plots/stream54_path.png): gnomonic projection about (l, b) = (-48, 28); ordered ridge points
+= Stage-0 ridge up to b 36 + median b in 2-deg l bins from -46 to -28 (members with b > 30); cubic parametric smoothing spline
+(splprep, smoothing 316 = largest keeping all 18 ridge points within 0.97 deg); extended 3 deg at both ends; length 43 deg.
+s = arc length to the nearest path point, x = signed perpendicular distance. Members: s 0..51, |x| median 1.15, 95% 3.6 deg.
+b vs s: rises to b ~ 38 at s ~ 32, then decreases (the turnover is handled; s is monotonic along the arm). Across-stream check
+(16 equal-number s bins, KDE h = 0.4): the arc (s 20-51) has single peaks (minor +-1 deg secondaries = KDE noise across a 1-2 deg
+wide stream); the broad near-cluster part (s 3-20, b 16-26) shows secondary peaks at x ~ +2..+4.6: a lobe at l ~ -61..-65,
+b ~ 21-27 east of the main ridge -- genuine across-stream substructure (or a second structure in the member list), not a
+folding of the coordinate. A likelihood conditional on s handles it through the across-stream KDE.
