@@ -6931,3 +6931,16 @@ Free-angle fit finished (results/plot_data/fit_bar_ocen_freeangle.json; 3 starts
 pmdec -6.7517 (-0.2 sigma): lnL -36338, lnprior -3.2, lnpost -36341. Start 0: angle 26.15, lnpost -36557. Start 2 (from 32 deg)
 stopped at 31.3 deg, lnpost -37140 (not converged in 40 evaluations / local optimum). Free angle gains ~420 over the fixed-28 best
 (-36757) and beats the 16-deg grid leader at this particle number (-36643 +- 121).
+
+## 2026-10-09 -- Conditional likelihood scans around the free-angle best fit
+
+plots/scan_best_fit.png, results/plot_data/scan_best_fit.json (84 sprays). Slices (Delta lnpost vs best fit, others fixed):
+angle 21: -61, 22.5: -4, 24: -185, 27: -467, 30: -1322, 33: -1960; Omega_b peak 34.6-35.0 (33.5: -1228, 36.5: -2418); amplitude
+0.8: -1878, 1.1: -214, 1.175: +34, 1.25: -20, 1.4: -52 (plateau above ~1.15); distance sharpest: 5.405: -2428, 5.505: 0,
+5.605: -754 (5.305: -8212); pmra flat within +-0.06 at the roughness level; pmdec peak at -6.752 (+-0.015: -150..-300).
+Angle x amplitude grid (21-31 x 0.9-1.3): best at the corner (21, 1.3); smaller angle and stronger bar are degenerate.
+Two caveats: (1) the surface is rough at the ~100-200 level (24.14 -> 24.00 deg costs 185 with common random numbers);
+(2) the priors are negligible against Delta lnL of 10^2-10^3 (lnpost and lnL curves coincide): with 3681 members treated as
+independent the likelihood is far too confident, so only the hard bounds (amplitude cap) act. A calibrated likelihood
+(effective sample size / correlated-error treatment / tempering) is needed before priors can mean anything -- to be discussed
+with the user (no ad hoc inflation without approval).
