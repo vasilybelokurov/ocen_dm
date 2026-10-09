@@ -6909,3 +6909,11 @@ day state must be fitted as nuisance parameters with priors, and the small-angle
 Fit launched (bin/streams/fit_bar_ocen.py, 4 threads): angle 28 fixed; free Omega_b [33, 37], amplitude [0.8, 1.2] with prior
 N(1.0, 0.1) (user: avoid very strong bars), d ~ N(5.43, 0.15), PMs ~ N(catalogue, 0.027); v_los fixed; Nelder-Mead, 2 starts,
 <= 45 evaluations each; log results/plot_data/fit_bar_ocen.json.
+Fit result (84 evaluations; results/plot_data/fit_bar_ocen.json): start 1 best Omega_b 35.04, amplitude 1.178, d 5.508 kpc
+(+1.6 catalogue sigma; +0.5 sigma of the 0.15 prior), pmra -3.2367 (+0.5 sigma of 0.027), pmdec -6.7700 (-0.9 sigma); lnL -36756,
+lnprior -2.2. Start 0: Omega 34.97, amp 1.085, d 5.497, pmra -3.2508, pmdec -6.7654: lnL -36840. The 16-deg grid leader at the
+same particle number: -36643 +- 121 (seed scatter). So with the bar angle fixed at 28 deg and amplitude <= 1.2, freeing omega
+Cen's distance (+0.07-0.08 kpc) and pmdec (-0.02 mas/yr) recovers essentially all of the small-angle gain (remaining
+difference ~100-200, of order the seed noise). KDE contours of the best fit (plots/kde_model_fit28_best_contours_robust.png):
+dense contour continuous from the cluster into the knee to b ~ 37 at l -45..-50; pmra band to -12 at b 37 (deep tail to -20 still
+in the outer contours); pmdec band to -10; v_los clump at b 32-37 at 215-232 (members 190-225); CMD distances on the contours.
