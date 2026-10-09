@@ -7069,3 +7069,7 @@ Paired spin test (4x particles, seeds 1-3, common random numbers; results/plot_d
 = +20, +34, -23 (16 deg) and +21, +39, +37 (20 deg). dlnL(16-20): no spin 465/512/537 (mean 505), spin 464/508/477 (mean 483).
 Rotation in this prescription changes lnL by ~+25 (seed sd at 4x ~36) and the angle gap by ~-20: small; does not remove the
 cluster-vs-knee tension. grid4_spin running (1x, ~1.4 h).
+grid4 with cluster rotation finished (448 points, paired with grid4; results/plot_data/grid4_spin.json, plots/grid4_spin_maps.png):
+lnL(spin) - lnL(no spin) median +3, 16-84% [-93, +100] (= spray noise at 1x); rank correlation 0.997; same best point
+(34.5, 16, 1.4, 5.6); profiles: angle 20/24/28 = -300/-962/-1476 (no spin -296/-806/-1447); Omega_b peak 34.5. Rotation (this
+prescription) does not change the fit or the low-angle preference.
