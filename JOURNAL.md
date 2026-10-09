@@ -6944,3 +6944,6 @@ Two caveats: (1) the surface is rough at the ~100-200 level (24.14 -> 24.00 deg 
 independent the likelihood is far too confident, so only the hard bounds (amplitude cap) act. A calibrated likelihood
 (effective sample size / correlated-error treatment / tempering) is needed before priors can mean anything -- to be discussed
 with the user (no ad hoc inflation without approval).
+2D maps with the pattern speed launched (bin/streams/scan_omega_pairs.py, 4 threads, ~40 min): Omega_b 33.75-36.25 (0.5) x
+{angle 20-30 (2), d 5.40-5.65 (0.05), pmdec -6.80..-6.70 (0.02)}, others at the best fit; scan_best_fit.py refactored into main()
+so it can be imported.
