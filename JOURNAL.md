@@ -6888,3 +6888,21 @@ preference for 16 deg is ~15-20x the seed scatter. But lnL depends on particle n
 1404): the KDE bandwidth scales as n^(-1/8), so lnL is only comparable at fixed particle number, and the size of Delta changes
 with N. Together with treating 3681 members as independent, Delta lnL overstates the significance; the angle goes to the
 literature prior as decided.
+
+## 2026-10-09 -- Bar angle from the literature; sensitivity to omega Cen's present-day state
+
+Bar angle (checked in the papers): Wegg & Gerhard 2013 (arXiv:1308.0593) b/p bulge 27 +- 2 deg (systematic-dominated);
+Bland-Hawthorn & Gerhard 2016 (arXiv:1602.07702, Sec. 4) phi_bp = 27 +- 2 deg, long bar 28-33 deg (Wegg, Gerhard & Portail 2015);
+Hunter+2024 (arXiv:2403.18000, Sec. 4.1) adopt 28 deg. Adopted: 28 deg fixed now; prior N(27, 2) later.
+Vasiliev & Baumgardt 2021 (MNRAS 505, 5978; arXiv:2102.09568, abstract): systematic floor on mean PMs 0.025 mas/yr (I used
+0.026 in the test below -- negligible difference).
+Sensitivity at (34.5, 28, 1.2), common random numbers (bin/streams/ocen_state_sensitivity.py,
+results/plot_data/ocen_state_sensitivity.json), Delta lnL (robust chi-KDE) vs baseline (OCEN_TODAY: d 5.43, PM -3.2499/-6.7461,
+v_los 232.78):
+  d +0.10 (+2 sig) +2069; d -0.10 -6240; d +0.2 +1469; d -0.2 -8403
+  pmra +-0.022 (2 sig) -339 / +128; pmra +-0.026 -166 / +430
+  pmdec +-0.022 -915 / +526; pmdec +-0.026 -921 / +674
+  v_los +-0.42 +50 / -79 (within the seed noise ~ +-110 of single runs; CRN differences are less noisy)
+Within its catalogue errors omega Cen's distance alone changes lnL by several thousand (peak near d ~ 5.5); pmdec within the
+Gaia systematic floor by ~ +-700. These are as large as the bar-angle effect (16 vs 28 deg ~ 3000 at amplitude 1.2): the present
+day state must be fitted as nuisance parameters with priors, and the small-angle preference may be partly a distance effect.
