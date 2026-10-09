@@ -6917,3 +6917,6 @@ Cen's distance (+0.07-0.08 kpc) and pmdec (-0.02 mas/yr) recovers essentially al
 difference ~100-200, of order the seed noise). KDE contours of the best fit (plots/kde_model_fit28_best_contours_robust.png):
 dense contour continuous from the cluster into the knee to b ~ 37 at l -45..-50; pmra band to -12 at b 37 (deep tail to -20 still
 in the outer contours); pmdec band to -10; v_los clump at b 32-37 at 215-232 (members 190-225); CMD distances on the contours.
+User decision: bar angle not fixed -- soft prior N(27, 2) deg, bounds 21-33 (Wegg & Gerhard 2013; Bland-Hawthorn & Gerhard 2016).
+Re-fit launched: fit_bar_ocen.py --free-angle (6 free parameters; starts at the fixed-angle best with angle 28, 24, 32; <= 40
+evaluations each; 4 threads; log results/plot_data/fit_bar_ocen_freeangle.json).
