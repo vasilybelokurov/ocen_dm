@@ -6828,3 +6828,16 @@ Best model (34.5, 24, 1.2) ridge: (l, b) -55.2, 16.3 (8 Myr) -> -60, 22 (130 Myr
 -48, 32-35 (350-412 Myr), where pmra -11.2..-12.8, pmdec -8.6..-9.1, v_los 209-219, d 4.1-4.2 kpc; data at b 34-36: l -50.8/-48.3,
 pmra -8.5/-10.0, pmdec -8.54/-9.53, v_los ~205-225, d ~4.8-5.0. The ridge then leaves the arm (428-442 Myr: -38.8, 21.6).
 On the knee: sky position and v_los match; pmdec within ~0.5; pmra ~1.5 too negative; distance ~0.6 kpc too close.
+
+## 2026-10-09 -- chi-binned KDE likelihood (Dillamore+2022 style, latent chi)
+
+src/ocen_dm/streams/score.py: score_chi_kde -- bins of 5 kpc Myr in the Gibbons phase chi (trailing arm, age < 700 Myr, >= 20
+particles); per bin a Gaussian KDE in (l, b, pmra, pmdec) with diagonal Scott bandwidths floored at 0.5 deg / 0.2 mas/yr, kernel
+convolved with each member's Gaia PM covariance; v_los as a 5th dimension for the 29 stars (bandwidth >= 5 km/s + e_v);
+L_i = 0.95 sum_k (1/K) KDE_k(x_i) + 0.05 background; flat weights in chi (along-stream density not used; segments that explain no
+members dilute L -> overshoot penalised implicitly). bin/streams/rescore_chi_kde.py re-scores the 45 saved sprays
+(results/plot_data/spray_bar_grid2_chikde.json; 0.3 s per model). Rank correlation with the sky-conditional score 0.87; same best
+model (34.5, 24, 1.2); next: (36, 24, 1.2) -278, (36, 24, 1.0) -284, (36, 28, 1.2) -311, (34.5, 24, 1.0) -555. In the best model
+the members' likelihood comes from chi 0-30 (41%), 30-60 (29%), 60-105 (27%), 105-150 (3%), > 150 (0.1%): the observed stream
+maps onto the single-valued chi < 105 part, the fold explains nothing. Both scores prefer angle ~24 and Omega 34.5-36 at the
+grid edge.
