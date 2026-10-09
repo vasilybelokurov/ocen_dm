@@ -7041,3 +7041,13 @@ Block bootstrap (bin/streams/bootstrap_grid4.py; per-star lnL of all 448 grid4 m
 - Cumulative dlnL along phi1: the 20-deg model is better near the cluster (phi1 -2..4, by ~190); 16 deg wins in the knee
   (phi1 17-25, by ~490). The angle preference is a trade between two regions -> no model in the grid fits both.
 Combined (4x particles, bootstrap sd ~220-300 at 2-4 deg blocks, seed sd ~40): 16 vs 20 deg ~1.7-2.3 sigma, not decisive.
+Codex review of the calibration (docs/codex_likelihood_calibration_2026-10-09.md; ordinary Codex, high effort). Verified by me:
+- bootstrap: fixed pair selected on full data; equal-probability blocks with varying star counts -> P(dlnL<=0) is not a calibrated
+  probability; block scan = sensitivity only (confirmed in code).
+- seed test confounds particle number with release-epoch spacing (linspace 8000 vs 32000) (confirmed); suggestion: average
+  per-member densities over seeds before the log.
+- background box: w_box x-width 12 deg, but member dphi2 spans -8.5..+21.3 (119 members |dphi2| > 6, 38 > 8; all near the cluster,
+  l ~ -64, b 16-25, where the chord frame runs across the stream) -> uniform background not normalised there (confirmed; fix pending).
+- grid PMs (-3.2223, -6.7517) differ from catalogue (-3.2499, -6.7461) (confirmed; fit_bar_ocen.py frees them).
+- key point: the conditional statistic removes the along-stream density, which is where DM changed the debris (counts) -> the
+  DM test needs a density-sensitive statistic or must show the track-only statistic has power (mocks).
