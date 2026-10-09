@@ -6926,3 +6926,8 @@ pmra to ~-3.22 (+1 sigma); d ~ 5.50-5.53 kpc. Proper maps need profile scans / a
 Queued after the free-angle fit (bin/streams/run_scan_after_fit.sh -> scan_best_fit.py, 4 threads, ~31 min): conditional 1D
 slices around the best fit (angle 21-33, Omega 33.5-36.5, amp 0.8-1.4, d +-0.2, PMs +-0.06; 9 points each) and an angle x
 amplitude grid (21-31 by 2 x 0.9-1.3 by 0.1); output results/plot_data/scan_best_fit.json, plots/scan_best_fit.png.
+Free-angle fit finished (results/plot_data/fit_bar_ocen_freeangle.json; 3 starts x <= 40 evaluations): best (start 1) angle
+24.14 deg (-1.4 sigma of the N(27, 2) prior), Omega_b 34.85, amplitude 1.175, d 5.505 kpc, pmra -3.2223 (+1.0 sigma of 0.027),
+pmdec -6.7517 (-0.2 sigma): lnL -36338, lnprior -3.2, lnpost -36341. Start 0: angle 26.15, lnpost -36557. Start 2 (from 32 deg)
+stopped at 31.3 deg, lnpost -37140 (not converged in 40 evaluations / local optimum). Free angle gains ~420 over the fixed-28 best
+(-36757) and beats the 16-deg grid leader at this particle number (-36643 +- 121).
