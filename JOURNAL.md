@@ -6956,3 +6956,8 @@ so it can be imported.
   once Omega is right (the 1D slice exaggerated it); Omega off by 0.5 costs ~300-1000.
 Robust result: the bar pattern speed is localised at Omega_b ~ 34.5-35.3 km/s/kpc whatever the angle, distance or pmdec; its
 degeneracies with them are weak. Surface roughness ~100-200 applies; likelihood not yet calibrated (priors inert).
+KDE contours of the free-angle best fit (24.14, 34.85, 1.175, d 5.505, pmra -3.2223, pmdec -6.7517; sprays saved as
+results/streams/spray_grid2/fitfree_best.npz): plots/kde_model_fitfree_best_contours_robust.png (fit28 version kept). The densest
+contour runs continuously from the cluster through the knee to b ~ 38 at l ~ -43..-50 and is narrower in l at b 25-32 than the
+28-deg fit; pmdec band to -10..-11 at b 38-40; pmra band to ~ -12..-13 at b 37 (deep tail to -20 still outer contours); v_los
+clump at b 32-37, 215-232 km/s (members 190-225); CMD distances on the contours.
