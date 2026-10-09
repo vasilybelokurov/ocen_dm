@@ -6994,3 +6994,9 @@ A (-716), 4th in C (-338). Background share of the numerator 0.21-0.28 (a quarte
 model: to be located). Conclusion: the along-stream density term was not what drove the ranking; the small-angle / strong-bar
 preference persists in the density-free likelihood; the fits should be redone with score_conditional (they were optimised with
 the old score).
+Refit launched with score_conditional (variant A): fit_bar_ocen.py --free-angle --conditional (same priors/bounds; starts at
+the free-angle best with angle 24.14, 28, 22; <= 40 evaluations each; 4 threads; log results/plot_data/fit_bar_ocen_freeangle_cond.json).
+The conditional optimiser refit did not run (argparse edit did not apply; it exited at once; it would also have started from the
+fixed-28 best). Replaced, after discussion with the user, by a 4D grid (bin/streams/grid4.py): Omega_b {33, 34, 34.5, 35, 35.5, 36, 37}
+x angle {16, 20, 24, 28} x amplitude {1.0, 1.2, 1.4, 1.6} x distance {5.45, 5.50, 5.55, 5.60}; PMs at the free-angle best; score_conditional
+(chord GC frame); 448 sprays saved (results/streams/spray_grid4/); restarted at 8 threads (user), ~1.6 h.
