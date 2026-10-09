@@ -7025,3 +7025,19 @@ Kernel check (bin/streams/kernel_check.py, results/plot_data/kernel_check.json; 
 - Bandwidth x1.5 and x2: angle sequence unchanged (20 deg: -296/-299/-330; 24: -982/-986/-995; 28: -1634/-1626/-1627 relative to best);
   top two (34.5,16,1.4,5.6) and (34,16,1.2,5.6) swap (within 40); far models (Omega 36, 33) shift by 100s-800.
   Conclusion: coarse ranking robust to the kernel; differences of tens are not. Fix = more particles (seed test pending), not wider kernels.
+
+### Likelihood calibration: seed test + block bootstrap (2026-10-09)
+Seed test (bin/streams/seed_test.py; models (34.5,16,1.4,5.6) vs (34.5,20,1.2,5.6); results/plot_data/seed_test.json):
+- 8000 epochs, seeds 1-5: dlnL(16-20) = 296, 582, 547, 489, 378 -> mean 459, sd 119 (grid4 used seed 1 = lowest).
+- 32000 epochs (4x), seeds 1-3: dlnL = 465, 512, 537 -> mean 505, sd 36. Absolute lnL rises by ~550 at 4x (KDE bias with few
+  particles), so lnL is only comparable at fixed particle number.
+Block bootstrap (bin/streams/bootstrap_grid4.py; per-star lnL of all 448 grid4 models in results/plot_data/grid4_perstar.npz;
+2000 resamples; plots/bootstrap_grid4.png):
+- sd of dlnL(best - best at 20 deg): iid 50; blocks 0.5 deg 125; 1 deg 168; 2 deg 224; 4 deg 305 (9 blocks). Does not converge
+  with block size; autocorrelation of per-star dlnL along phi1 still 0.5 at 2 deg -> misfit coherent over many degrees; the
+  bootstrap with <= 9 blocks is itself unreliable, so these are lower bounds. Inflation vs iid 20-37 -> N_eff ~ 100-180 or fewer.
+- P(dlnL <= 0) for the pair: 0.03 (1 deg), 0.08 (2 deg), 0.17 (4 deg). Angle-16 wins the profile in 94-100% of resamples (but
+  16 is the grid edge). Omega_b argmax 34-35 in all variants; amp 1.4-1.6; d 5.45-5.6.
+- Cumulative dlnL along phi1: the 20-deg model is better near the cluster (phi1 -2..4, by ~190); 16 deg wins in the knee
+  (phi1 17-25, by ~490). The angle preference is a trade between two regions -> no model in the grid fits both.
+Combined (4x particles, bootstrap sd ~220-300 at 2-4 deg blocks, seed sd ~40): 16 vs 20 deg ~1.7-2.3 sigma, not decisive.
