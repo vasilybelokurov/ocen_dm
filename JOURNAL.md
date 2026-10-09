@@ -7016,3 +7016,6 @@ reflect the 3681 members treated as independent (calibration still open). plot_k
 Plots of the model as score_conditional sees it (bin/streams/plot_conditional_model.py): p(q | phi1) of the model + 5% background
 mixture for q = dphi2, pmra, pmdec, v_los, same cuts/bins/fixed bandwidths as the likelihood (Gaia per-star errors not added);
 plots/condmodel_om34.5_an16_am1.4_d5.6.png and condmodel_om34.5_an20_am1.2_d5.6.png.
+Same conditional model recast into the original observable space (bin/streams/plot_conditional_orig.py, plots/condorig_<tag>.png):
+row 1 = particle weights 1/(K n_k) x n_data(phi1)/[(1-eps) f_u + eps g_u] (model density along phi1 replaced by the members', as the
+likelihood effectively does); row 2 = base weights. Fixed likelihood kernels (0.5 deg, 0.2 mas/yr, 5 km/s; d 0.1 kpc display only).
