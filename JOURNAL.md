@@ -6763,3 +6763,20 @@ than the tracer runs at b = 20-36 (systematic; tracer runs include fitted rotati
 for low-mass clusters). Only ~11% of spray particles land in the northern-arm window; 20-100 per bin -> model noise 0.1-0.5
 mas/yr, far above the data errors (sigma_sim < sigma_data/5 needs ~10^2-10^3 more per bin). Next: release only trailing-arm
 particles over the last ~1 Gyr, more particles, flag multi-valued (failed-fit) model bins, then Stage 2 grid.
+
+## 2026-10-09 -- Spray grid (45 points), overshoot/fold diagnosis, Codex design review of the objective
+
+Grid (bin/streams/spray_bar_grid.py; results/plot_data/spray_bar_grid.json; plots/spray_bar_grid_chi2.png, spray_bar_grid_best.png):
+Omega_b 30-36 x angle 24/28/32 x amplitude 0.8/1.0/1.2 (host_potential(bar_amp=...): Hunter axi + A x (baryon_full - baryon_axi),
+A = 1 reproduces the full model to 1e-15, A = 0 the axi one exactly; bar force ~3% of total). "Best": (34.5, 32, 1.2) chi2 174,
+(33, 28, 1.2) 185, (33, 28, 1.0) 228 -- but with 5-8 of 13 l/pmra bins masked; chi2 surface noisy. The user saw in
+plots/spray_vs_data_best.png (bin/streams/plot_spray_vs_data.py) that these models overshoot: the trailing arm continues beyond
+b ~ 40 and turns over; binning all trailing particles in b mixes the folded segment into the main-arm bins, the mixture fails,
+bins are masked and chi2 drops -- the objective rewarded folding. Age-ordered medians (release over the last 800 Myr): 0-300 Myr
+debris = main arm (l -56 -> -54, b 17 -> 30, d 5.45 -> 4.6); 300-400 Myr debris turns over at b ~ 25-29, l -38..-45, pmra
+-14..-17, pmdec -7.7..-9.6, v_los 190-235, d 3.4-4.0 kpc vs the observed knee at b 34-40, l -44..-50, d ~4.8: the model knee is
+~8 deg too low and ~1 kpc too close. Longer disruption (3, 5 Gyr; bin/streams/spray_length_test.py) does not lengthen the arm.
+Codex review (docs/codex_track_objective_2026-10-09.md): do not use release age as the likelihood coordinate (not monotonic);
+use a per-star local likelihood conditional on sky position (KDE in l given b, and in PMs/v_los given (l, b), with per-star
+errors and a background term), overshoot fraction as a separate diagnostic (weight needs the user's approval), kernels instead
+of bins, common random numbers, validation by re-scoring the 45 models against a visual ranking. Adopted as the next step.
