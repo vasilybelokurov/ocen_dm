@@ -7079,3 +7079,8 @@ Redone with the stream footprint |dphi2| < 6 deg (2-deg phi1 bins, bootstrap err
 overlap everywhere. Model (20 deg, Omega_b 34.5, amp 1.2) vs members: pmra, v_los, dphi2 follow the members to phi1 ~ 19; pmdec
 is 0.3-0.5 mas/yr less negative than the members at phi1 5-21; beyond phi1 ~ 21 the tracer debris thins out (counts drop from
 ~50 to ~5 per 2-deg bin) and does not reach the members' steep knee (members pmdec -10..-12, pmra -13..-18 at phi1 23-27).
+Exaggerated rotation (bin/streams/spin_exaggerate.py; v_rot x 0, 1, 3, 10, -10; 4x particles, seed 1; plots/spin_exaggerate.png):
+dlnL vs no rotation: best (34.5,16,1.4,5.6): +20, +70, -44, -427; prior-angle (35.5,28,1.2,5.6): -55, +7, +171, -222.
+Medians along phi1 (footprint) of pmra, pmdec, v_los are indistinguishable for all factors; dphi2 shifts <~0.3-0.5 deg, counts ~10%.
+Even x10 (~15 km/s at the pericentric r_J, unphysical) leaves the 28-deg model ~1400 below the 16-deg one; reversed spin hurts both.
+Both setups miss the members' pmdec at phi1 > 19 (models ~0.5-1 mas/yr less negative). Rotation cannot produce the knee.
