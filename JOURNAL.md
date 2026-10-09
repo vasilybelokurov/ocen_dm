@@ -6865,3 +6865,9 @@ b ~ 40; the model arm ends ~2-3 deg short of the members (b 41) in pmra/pmdec; v
 (model ~10-20 km/s high); CMD distances lie inside the dense contours. score_chi_kde(robust=True) uses the same bandwidths;
 re-scored grid (results/plot_data/spray_bar_grid2_chikde_robust.json): same best (34.5, 24, 1.2); next (34.5, 24, 1.0) -114,
 (36, 24, 1.2) -354, (36, 28, 1.2) -498; rank correlation with the default chi-KDE 0.977, with the sky score 0.906.
+Grid 3 interim leader (34.5, 16, 1.4): plots/kde_model_om34.5_an16_am1.4_contours_robust.png. Compared with (34.5, 24, 1.2): the
+model now has TWO density maxima on the sky -- the near-cluster arm (b 15-27) and a separate dense clump in the knee (l -45..-52,
+b 30-38) -- with a low-density neck at b ~ 27-30, as in the data (the members' neck at b 28-30 holds only 27-31 stars); the
+contours reach b ~ 40-41; pmdec follows the members to -10..-11 at b 38-40; pmra dense band to -12..-13 at b 37 (members' deep
+tail to -20 in the 10^-1.5..-2 contours); v_los dense clump at b 32-37 at 215-232 km/s (members 190-225); CMD distances on the
+dense contours. Caveat: angle 16 deg and 1.4x Hunter bar are outside most published bar estimates; grid edge.
