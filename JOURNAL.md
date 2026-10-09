@@ -6947,3 +6947,12 @@ with the user (no ad hoc inflation without approval).
 2D maps with the pattern speed launched (bin/streams/scan_omega_pairs.py, 4 threads, ~40 min): Omega_b 33.75-36.25 (0.5) x
 {angle 20-30 (2), d 5.40-5.65 (0.05), pmdec -6.80..-6.70 (0.02)}, others at the best fit; scan_best_fit.py refactored into main()
 so it can be imported.
+2D maps done (plots/scan_omega_pairs.png, results/plot_data/scan_omega_pairs.json; 108 sprays). Delta lnpost vs each map's best:
+- Omega x angle: best (34.75, 22); weak diagonal ridge (smaller angle <-> lower Omega: 33.75/20 -325, 34.25/20 -261; 28 deg best at
+  34.75-35.25, -728/-883); Omega confined to ~34.25-35.25 at every angle; angles 20-24 preferred, >= 28 cost >= ~700.
+- Omega x distance: best (35.25, 5.50), (34.75, 5.50) -66, (34.75, 5.55) -173; weak anti-correlation (larger d <-> slightly lower
+  Omega); d = 5.40 costs 2500-3800 at every Omega; d >= 5.60 costs >= 600.
+- Omega x pmdec: the Omega = 34.75 column is good over pmdec -6.80..-6.72 (0, -210, -101, -170, -193): pmdec is weakly constrained
+  once Omega is right (the 1D slice exaggerated it); Omega off by 0.5 costs ~300-1000.
+Robust result: the bar pattern speed is localised at Omega_b ~ 34.5-35.3 km/s/kpc whatever the angle, distance or pmdec; its
+degeneracies with them are weak. Surface roughness ~100-200 applies; likelihood not yet calibrated (priors inert).
