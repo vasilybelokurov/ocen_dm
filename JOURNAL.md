@@ -7013,3 +7013,6 @@ the other three):
 Best: (34.5, 16, 1.4, 5.60), lnL -22745. Best at 20 deg: (34.5, 20, 1.2, 5.60), Delta -296. KDE contour plots of both
 (plots/kde_model_om34.5_an{16,20}_*_d5.6_contours_robust.png) look very similar by eye; differences in lnL of hundreds again
 reflect the 3681 members treated as independent (calibration still open). plot_kde_model.py gained --dir=.
+Plots of the model as score_conditional sees it (bin/streams/plot_conditional_model.py): p(q | phi1) of the model + 5% background
+mixture for q = dphi2, pmra, pmdec, v_los, same cuts/bins/fixed bandwidths as the likelihood (Gaia per-star errors not added);
+plots/condmodel_om34.5_an16_am1.4_d5.6.png and condmodel_om34.5_an20_am1.2_d5.6.png.
