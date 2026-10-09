@@ -7073,3 +7073,9 @@ grid4 with cluster rotation finished (448 points, paired with grid4; results/plo
 lnL(spin) - lnL(no spin) median +3, 16-84% [-93, +100] (= spray noise at 1x); rank correlation 0.997; same best point
 (34.5, 16, 1.4, 5.6); profiles: angle 20/24/28 = -300/-962/-1476 (no spin -296/-806/-1447); Omega_b peak 34.5. Rotation (this
 prescription) does not change the fit or the low-angle preference.
+Correction: the first versions of plots/rotB_along_phi1.png and rotB_observables.png (commit bb3144d) were wrong for the purpose:
+medians/contours over all unbound tracers, dominated by debris far from the observed stream (other wraps, leading arm; dphi2 ~ -45).
+Redone with the stream footprint |dphi2| < 6 deg (2-deg phi1 bins, bootstrap errors; tracers as points): spin and no spin
+overlap everywhere. Model (20 deg, Omega_b 34.5, amp 1.2) vs members: pmra, v_los, dphi2 follow the members to phi1 ~ 19; pmdec
+is 0.3-0.5 mas/yr less negative than the members at phi1 5-21; beyond phi1 ~ 21 the tracer debris thins out (counts drop from
+~50 to ~5 per 2-deg bin) and does not reach the members' steep knee (members pmdec -10..-12, pmra -13..-18 at phi1 23-27).
