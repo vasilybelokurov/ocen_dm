@@ -6875,3 +6875,16 @@ User decision: the bar angle will get a tighter literature prior in the fit (doc
 Omega 34.5: chi-KDE Delta lnL (16, 1.4) 0 vs (24, 1.2) -1824 = ~0.5 per member (visually modest); smooth trend favouring smaller
 angles at every amplitude; non-monotonic points (20 deg: amp 1.4 worse than 1.2) suggest MC noise of order 10^2. Noise test
 queued after grid 3 (bin/streams/noise_test.py: seeds 2, 3, 4 and 2x particles for both models; 4 threads).
+
+## 2026-10-09 -- Grid 3 results and chi-KDE noise test
+
+Grid 3 (96 points; plots/grid3_maps.png, bin/streams/plot_grid3_maps.py, results/plot_data/spray_bar_grid3.json): robust chi-KDE
+best (34.5, 16, 1.4) 0; (34.5, 16, 1.6) -8; (36, 16, 1.6) -130; (34.5, 16, 1.2) -378; (34.5, 20, 1.2) -598; (36, 16, 1.4) -687.
+Omega_b is bracketed inside the grid (34.5-36 best; 33 and >= 37.5 worse at every angle/amplitude); amplitude 1.4-1.6 flat; the
+angle still prefers the edge (16 deg). Overshoot 0.21-0.22 for the leaders, up to 0.36 elsewhere.
+Noise test (bin/streams/noise_test.py, results/plot_data/noise_test.json; 4 threads): lnL over seeds 2/3/4 at 8000 release
+epochs: (34.5, 16, 1.4) -36643 +- 121 (std); (34.5, 24, 1.2) -38662 +- 105. Delta lnL per seed 1766 / 2187 / 2105 -> the
+preference for 16 deg is ~15-20x the seed scatter. But lnL depends on particle number (16000 epochs: -37709 and -39113, Delta
+1404): the KDE bandwidth scales as n^(-1/8), so lnL is only comparable at fixed particle number, and the size of Delta changes
+with N. Together with treating 3681 members as independent, Delta lnL overstates the significance; the angle goes to the
+literature prior as decided.
