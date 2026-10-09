@@ -6857,3 +6857,11 @@ b ~ 37 (members -8..-11); distance ridge 5.5 -> ~4.8-5.0 kpc at b 30-40, matchin
 deep tail (-12..-20 at b 35-40) is denser than the model there; v_los: model ridge ~215-225 at b 35-38, members 190-225 (model
 ~10-20 km/s high). The earlier "too low / ~1 kpc too close" statements came from per-chi-bin medians/modes, which are pulled by
 the fanning, nearer debris; in density the bulk of the knee debris is at the right distance.
+Contours (plots/kde_model_om34.5_an24_am1.2_contours.png) were over-smoothed: Scott x std per chi bin is inflated where a bin
+mixes arm and fan (h_l ~ 2.5 deg). Robust bandwidths (Scott factor x 1.4826 MAD, floors 0.2 deg / 0.1 mas/yr / 3 km/s / 0.05 kpc,
+caps 1 deg / 0.5 mas/yr / 10 km/s / 0.3 kpc; Dillamore+2022 also capped bandwidths): plots/kde_model_om34.5_an24_am1.2_contours_robust.png.
+The highest contour (10^-0.5 of peak) now follows the arm into the knee to b ~ 36-38 at l -45..-50; the 10^-1 contour reaches
+b ~ 40; the model arm ends ~2-3 deg short of the members (b 41) in pmra/pmdec; v_los at b 35-38 sits in the 10^-1..-1.5 contours
+(model ~10-20 km/s high); CMD distances lie inside the dense contours. score_chi_kde(robust=True) uses the same bandwidths;
+re-scored grid (results/plot_data/spray_bar_grid2_chikde_robust.json): same best (34.5, 24, 1.2); next (34.5, 24, 1.0) -114,
+(36, 24, 1.2) -354, (36, 28, 1.2) -498; rank correlation with the default chi-KDE 0.977, with the sky score 0.906.
