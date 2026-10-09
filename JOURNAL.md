@@ -6976,3 +6976,21 @@ b vs s: rises to b ~ 38 at s ~ 32, then decreases (the turnover is handled; s is
 wide stream); the broad near-cluster part (s 3-20, b 16-26) shows secondary peaks at x ~ +2..+4.6: a lobe at l ~ -61..-65,
 b ~ 21-27 east of the main ridge -- genuine across-stream substructure (or a second structure in the member list), not a
 folding of the coordinate. A likelihood conditional on s handles it through the across-stream KDE.
+
+## 2026-10-09 -- Conditional (density-free along the stream) chi-KDE likelihood: implemented, tested, grid re-scored
+
+Codex review: docs/codex_conditional_kde_2026-10-09.md. src/ocen_dm/streams/score.py::score_conditional: chi bins (equal prior
+weight), product-Gaussian KDE with FIXED bandwidths for all models (h_u 0.5 deg, h_x 0.5 deg, h_pm 0.2 mas/yr, h_v 5 km/s), PM kernel
++ Gaia covariance; conditional of the joint model+background mixture,
+L_i = [(1-eps) f(u_i, w_i) + eps g_u g_w] / [(1-eps) f_u(u_i) + eps g_u], eps 0.05, uniform background over the members' u range and
+w box (12 deg x 30 x 30 mas/yr [x 400 km/s]). tests/test_score_conditional.py (5 pass): background-only when K = 0 and when
+eps = 1; a model with uniform vs linearly rising density along u gives the same score within 2% (along-u density cancels);
+duplicating a chi bin changes nothing; a 1 mas/yr PM shift is strongly penalised.
+Re-score of grid 3 + fit bests (bin/streams/rescore_conditional.py, results/plot_data/rescore_conditional.json; 77 s):
+variant A (chord great-circle phi1, dphi2), B (A without phi1 < 4 deg, predeclared near-cluster exclusion), C (spline s, x).
+Rank correlation with the old robust chi-KDE: A 0.939, B 0.941, C 0.949; A vs B 0.988, A vs C 0.940. Top models unchanged:
+(34.5, 16, 1.4) and (34.5, 16, 1.6), (36, 16, 1.6); fitfree_best (angle 24, omega Cen state refitted with the old score) is 5th in
+A (-716), 4th in C (-338). Background share of the numerator 0.21-0.28 (a quarter of the members are poorly explained by any
+model: to be located). Conclusion: the along-stream density term was not what drove the ranking; the small-angle / strong-bar
+preference persists in the density-free likelihood; the fits should be redone with score_conditional (they were optimised with
+the old score).
