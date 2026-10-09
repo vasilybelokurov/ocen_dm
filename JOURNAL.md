@@ -6849,3 +6849,11 @@ extend the grid), plots/members_vs_track_om34.5_an24_am1.2_kde.png (score.chi_kd
 (median track: ~33-34) and is noisier (bin modes jump); the knee conclusion is unchanged: the model turns at b ~ 32-35 instead of
 spreading over b 30-41, with pmra/pmdec plunging at b 32-35, v_los dropping to 160-210 and d 3.6-4.2 kpc vs data 190-225 km/s and
 4.8-5.0 kpc at b 35-40.
+KDE model view (user request: show the KDE model of the spray, not a track): bin/streams/plot_kde_model.py ->
+plots/kde_model_om34.5_an24_am1.2.png: p(x) = (1/K) sum_k KDE_k(x) projected into (l,b), (b,l), (b,pmra), (b,pmdec), (b,v_los),
+(b,d) as log-density images with members overplotted; all chi bins (K = 55) and chi <= 105 (K = 21) look alike. The dense model
+debris overlaps the members in all panels: sky ridge up to b ~ 36-37 at l ~ -45..-50 (members to b ~ 41); pmdec reaches -9..-10 at
+b ~ 37 (members -8..-11); distance ridge 5.5 -> ~4.8-5.0 kpc at b 30-40, matching the CMD-shift distances; pmra: the members'
+deep tail (-12..-20 at b 35-40) is denser than the model there; v_los: model ridge ~215-225 at b 35-38, members 190-225 (model
+~10-20 km/s high). The earlier "too low / ~1 kpc too close" statements came from per-chi-bin medians/modes, which are pulled by
+the fanning, nearer debris; in density the bulk of the knee debris is at the right distance.
