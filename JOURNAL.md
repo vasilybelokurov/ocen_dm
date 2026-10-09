@@ -6871,3 +6871,7 @@ b 30-38) -- with a low-density neck at b ~ 27-30, as in the data (the members' n
 contours reach b ~ 40-41; pmdec follows the members to -10..-11 at b 38-40; pmra dense band to -12..-13 at b 37 (members' deep
 tail to -20 in the 10^-1.5..-2 contours); v_los dense clump at b 32-37 at 215-232 km/s (members 190-225); CMD distances on the
 dense contours. Caveat: angle 16 deg and 1.4x Hunter bar are outside most published bar estimates; grid edge.
+User decision: the bar angle will get a tighter literature prior in the fit (docs/STREAM_FIT_CAMPAIGN_PLAN.md). Grid 3 at
+Omega 34.5: chi-KDE Delta lnL (16, 1.4) 0 vs (24, 1.2) -1824 = ~0.5 per member (visually modest); smooth trend favouring smaller
+angles at every amplitude; non-monotonic points (20 deg: amp 1.4 worse than 1.2) suggest MC noise of order 10^2. Noise test
+queued after grid 3 (bin/streams/noise_test.py: seeds 2, 3, 4 and 2x particles for both models; 4 threads).
