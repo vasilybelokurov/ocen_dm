@@ -7186,3 +7186,5 @@ baseline (-23714.4; 16-deg reference -22207.4):
 - slowing bar with Omega_b(today) 31-34: all worse (best Omega 34: -689 for eta 0.002 and 0.004; lower Omega much worse).
 The queued M4b and P1 runs did not start (nohup watchers died with their parent shell); relaunched as one chain together with the
 Omega_b 37/38 extension.
+M4b (release concentrated at pericentres, Gaussian sigma 10 / 20 Myr; pericentres ~88 Myr apart): dlnL vs the 28-deg uniform
+baseline: 28 deg -960 / -102; 16 deg -154 / +1186 (uniform: +1507). Pericentre-concentrated release worsens both; not a fix.
