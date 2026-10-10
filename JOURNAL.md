@@ -7172,3 +7172,9 @@ Knee spread + frame check (bin/streams/knee_spread_and_frame.py; plots/knee_spre
   is a sizeable systematic on lnL differences.
 Launched: longer-bar grid (size 1.15/1.3 x amp 1.0/1.2 x Omega_b 33-36 x PMs catalogue/-1s/-2s, angle 28, d 5.6; 48 sprays) and
 slowing bar with Omega_b re-scan (eta 0.002/0.004 x Omega_b today 31-34; 8 sprays); 4x, seed 1, 8 threads, ~50 min.
+Distance check in the knee (models vs CMD distance track, results/plot_data/stream54_cmd_distance.json; ratio d/d_ocen, footprint
+debris age < 700): b 33-36: CMD 0.920+-0.011, 16 deg 0.854, 28 deg 0.827; b 36-39: CMD 0.879+-0.014, 16 deg 0.819, 28 deg 0.805;
+b 39-42: CMD 0.895+-0.018, 16 deg 0.794, 28 deg 0.756; b 20-33 within 1-2 sigma. -> In the knee all models put the debris 7-10%
+too close (5-7 sigma of the CMD track) AND with pmdec ~1 mas/yr too shallow: at the right distance the model PMs would be smaller
+still, so the tangential-velocity deficit is ~1.5 mas/yr x 4.74 x 5 kpc ~ 35 km/s. Distance is not in the likelihood (by design),
+so the angle choice is not penalised for it; the low angle does not fix it (16 deg only slightly closer to the CMD track).
