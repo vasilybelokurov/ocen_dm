@@ -7188,3 +7188,14 @@ The queued M4b and P1 runs did not start (nohup watchers died with their parent 
 Omega_b 37/38 extension.
 M4b (release concentrated at pericentres, Gaussian sigma 10 / 20 Myr; pericentres ~88 Myr apart): dlnL vs the 28-deg uniform
 baseline: 28 deg -960 / -102; 16 deg -154 / +1186 (uniform: +1507). Pericentre-concentrated release worsens both; not a fix.
+P1 potential shape at 28 deg (axisymmetric variants at fixed v_c(R0) = 228.8; bar unchanged), dlnL vs baseline and knee diagnostics
+(d/d_ocen in CMD bins b 33-36 / 36-39 / 39-42: CMD 0.920 / 0.879 / 0.895; pmdec medians at phi1 ~21 / 23 / 25; members ~ -9.8 / -10.6 / -11.0):
+baseline 0 | 0.827 0.805 0.756 | -8.59 -9.06 -9.50
+halo q 0.8 -1572 | 0.781 0.738 0.721 | -8.93 -9.47 -10.16;   q 0.9 -120;   q 1.2 -487 | 0.853 0.811 0.791 | -8.42 -8.71 -9.06
+disc x0.8 -341 | 0.866 0.807 0.811 | -8.62 -8.97 -9.34;   disc x1.2 -3433 | 0.729 0.698 0.669 | -9.22 -9.75 -10.43
+q 0.8 + disc x1.2 -5734;   q 1.2 + disc x0.8 -2964 | 0.975 0.925 0.895 | -7.88 -8.07 -8.37
+-> In the models, knee distance and pmdec are anti-correlated: a stronger vertical pull gives steeper pmdec but closer debris;
+a weaker pull matches the CMD distance track (q 1.2 + disc x0.8 hits it) but flattens pmdec further. The data want both farther AND
+steeper -> no axisymmetric reshaping fixes the knee; all variants lower the (distance-free) lnL.
+Omega_b extension for the longer bar (size 1.15): Omega 37 amp 1.2 -680, amp 1.4 0; Omega 38 amp 1.2 -595, amp 1.4 -146 (vs baseline)
+-> Omega_b peak at 36 is bracketed; best literature-angle model stays size 1.15 / amp 1.2 / Omega_b 36 (+721; gap to 16 deg -786).
