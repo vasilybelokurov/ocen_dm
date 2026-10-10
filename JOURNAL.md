@@ -7160,3 +7160,15 @@ results/streams/prescribed/m1_28, 16 min at 8 threads; plots/m1_tracer_vs_spray.
 Bug fix: bootstrap errors in compare_spin_tracers.py / m1_tracer_vs_spray.py re-seeded the RNG per resample (all resamples identical,
 errors 0). The earlier "bootstrap errors" in plots/rotB_along_phi1.png (commit 34092eb) were therefore zero; replotted with
 correct errors (the coarse-segment numbers in the journal used one RNG and are unaffected).
+Knee spread + frame check (bin/streams/knee_spread_and_frame.py; plots/knee_spread.png; results/plot_data/frame_check.json):
+- 16 vs 28 deg in the knee: pmdec distributions nearly identical for both angles (e.g. phi1 21-23 medians -9.30 / -9.31 vs members
+  -10.16; 23-25: -9.88 / -9.78 vs -10.85), both narrower than the members (Gaia errors not added in the histograms). The 16-deg gain
+  is in pmra at phi1 15-21: 28-deg model median too negative by ~1 mas/yr (15-17: -9.07 vs members -7.75; 17-19: -10.15 vs -8.93;
+  19-21: -11.44 vs -10.52), 16-deg matches (-8.13, -9.23, -10.41). At 25-27 the 28-deg pmra matches (-16.95 vs -16.75), 16-deg does not (-15.76).
+  -> two separate problems: P2 (low angle) = pmra track at phi1 15-21; P1 (pmdec too shallow by 0.5-1 mas/yr at phi1 > 19) is
+  common to all angles.
+- Spline-path frame (s, x) instead of the chord frame: Delta lnL vs 28 deg = 16 deg +933 (-186 / +182 / +937), 20 deg +493,
+  24 deg +306 (chord frame: +1555, +1090, +576). Same ordering and same knee origin; magnitudes change by ~40% -> frame choice
+  is a sizeable systematic on lnL differences.
+Launched: longer-bar grid (size 1.15/1.3 x amp 1.0/1.2 x Omega_b 33-36 x PMs catalogue/-1s/-2s, angle 28, d 5.6; 48 sprays) and
+slowing bar with Omega_b re-scan (eta 0.002/0.004 x Omega_b today 31-34; 8 sprays); 4x, seed 1, 8 threads, ~50 min.
