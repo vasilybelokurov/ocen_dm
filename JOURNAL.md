@@ -7106,3 +7106,19 @@ end-to-end checks, all run by me and passed:
 Age-cut rescoring of the stored grid4 sprays (bin/streams/agecut_rescore.py): best point and angle preference unchanged:
 age_max 500: best (34.5,16,1.6,5.45), angle profile 0/-426/-843/-1263; 700: (34.5,16,1.4,5.6), 0/-296/-806/-1447;
 1000: (34.5,16,1.4,5.6), 0/-278/-693/-1176. Omega_b peak 34.5 for all cuts.
+
+### Diagnostic plan (docs/STREAM_DIAGNOSTIC_PLAN.md) -- execution (2026-10-10)
+Code for Phase 2: host_potential gained bar_eta (slowing bar, Dillamore+2024 late branch, normalised to today's Omega_b and angle;
+bar size S = Omega_today/Omega(t)), bar_size (static size factor) and bar_model ('portail17' = Hunter axi + Portail17 non-axi part);
+tests/test_host_bar.py (5 pass: old/new path identical, slowing bar = constant bar today, angle history, Portail orientation, size).
+Portail17 and Hunter24 bars both lie along x in their files; non-axisymmetric potential amplitude similar (Portail 1-30% stronger
+at R = 1 kpc, ~2-4% at 2-4 kpc). make_spray gained pm=, host_kw=, window_myr=.
+M5 (independent Gaia DR3 selection, no orbit templates; bin/streams/m5_independent_selection.py; plots/m5_independent_selection.png):
+q3c_poly box RA 188.6-228.6, Dec -38.9..-16.9; G < 20, ruwe < 1.4, parallax cuts, broad PM window (pmra -25..2, pmdec -17..-1),
+CMD within max(0.05, 1.5 sigma) of the members' locus, G 16-20 (1.04M stars). On-stream (|dphi2 - members' median| < 1.5 deg)
+minus area-scaled off-stream strips; aperture (0.75 mas/yr) significance. Strongest PM overdensity per 2-deg phi1 bin:
+phi1 14-16 (-7.1, -8.1) 4.9 sig | members (-7.5, -8.2); 16-18 (-8.4, -8.6) 4.3 | (-8.3, -8.5); 18-20 (-10.1, -9.1) 5.3 | (-9.8, -9.0);
+20-22 (-11.9, -9.6) 4.7 | (-11.7, -9.8); 22-24 (-13.6, -10.6) 2.8 | (-13.4, -10.6). At 24-26 a visible overdensity at the members'
+PMs but not the global peak; beyond 26 and below 14 no independent detection (peaks ~3 sigma elsewhere = noise level of the map).
+-> The PM knee (steepening to pmra -13.6, pmdec -10.6 by phi1 24) is recovered without orbit templates: it is not a STREAMFINDER
+selection artefact. The steepest part (phi1 > 24) rests on the STREAMFINDER members alone.
