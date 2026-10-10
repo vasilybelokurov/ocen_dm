@@ -7152,3 +7152,11 @@ Footprint medians: every variant (and the 16-deg reference) stays 0.5-1 mas/yr l
 phi1 19-27; size x1.3 comes closest. The 16-deg gain is therefore not in the pmdec median; it must come from the shape/spread of
 the model debris (to check). Caveat: one ingredient at a time at fixed Omega_b 35.5; a slowing or longer bar shifts resonances, so
 Omega_b should be re-profiled for any promising variant.
+M1 (tracer run vs Fardal spray, same host and state; 28 deg / Omega_b 35.5 / amp 1.2 / d 5.6 / catalogue PMs; tracer run
+results/streams/prescribed/m1_28, 16 min at 8 threads; plots/m1_tracer_vs_spray.png; also the 20-deg pair): the tracer debris
+(460 in the footprint) has pmdec 0.3-0.4 mas/yr LESS negative than the spray at phi1 9-19 (tracer errors 0.06-0.14) and pmra
+0.4-1.9 less negative at phi1 15-21; i.e. the realistic release is further from the members' knee than the spray. Same at 20 deg.
+-> The spray release prescription is not hiding the knee; if anything the spray flatters the fit. M1 does not fix P1/P2.
+Bug fix: bootstrap errors in compare_spin_tracers.py / m1_tracer_vs_spray.py re-seeded the RNG per resample (all resamples identical,
+errors 0). The earlier "bootstrap errors" in plots/rotB_along_phi1.png (commit 34092eb) were therefore zero; replotted with
+correct errors (the coarse-segment numbers in the journal used one RNG and are unaffected).
