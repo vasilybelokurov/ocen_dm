@@ -7214,3 +7214,14 @@ with the cluster distance. The STREAMFINDER members next to the cluster are 0.06
 same magnitudes -> member parallaxes are biased high (STREAMFINDER uses parallax in the membership likelihood with template
 distances, plus possible foreground contamination). Member parallaxes are therefore not a clean distance check either.
 Decision (user, 2026-10-10): avoid the CMD distance track (rabbit hole); keep the fit distance-free.
+Codex on distances and remaining misfit (docs/codex_distances_and_misfit_2026-10-10.md; full source embedded). Verified by me:
+- CMD track: normalisation corrects only for the upper G limit (norm = mean(ref G + dm < 20)), not for the lower G bound (15.5) or the
+  colour window; joint colour shift partly degenerate with dm; bins in b, not phi1; bootstrap uses 50 resamples (docstring said 200;
+  fixed). Codex: do not use it as a distance calibration -> consistent with the user's decision to drop it.
+- Parallax: our offset interpretation (STREAMFINDER selection) is plausible but unproven (cluster sample not matched in colour/quality,
+  global ZP band). Not pursued further (user: avoid rabbit holes).
+- Distance-free likelihood: defensible as a conditional track+kinematics fit; it leaves distance / transverse velocity / solar reflex /
+  orbit geometry partly degenerate.
+- Next physics tests proposed: (1) solar frame (R0, V_sun) x omega Cen distance (5.43 / 5.6) grid at the working model -- cheap and
+  directly shifts PMs (note: grid4 preferred d = 5.6 at its upper edge); (2) bar angle x longer bar coupled grid; (3) LMC + reflex and
+  alternative progenitor profiles (expensive).
