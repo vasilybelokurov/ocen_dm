@@ -7122,3 +7122,16 @@ phi1 14-16 (-7.1, -8.1) 4.9 sig | members (-7.5, -8.2); 16-18 (-8.4, -8.6) 4.3 |
 PMs but not the global peak; beyond 26 and below 14 no independent detection (peaks ~3 sigma elsewhere = noise level of the map).
 -> The PM knee (steepening to pmra -13.6, pmdec -10.6 by phi1 24) is recovered without orbit templates: it is not a STREAMFINDER
 selection artefact. The steepest part (phi1 > 24) rests on the STREAMFINDER members alone.
+D3 (free omega Cen PMs at 28 deg: Omega_b 35.5, amp 1.2, d 5.6; 5x5 PM grid at catalogue +- 1, 2 sigma, sigma 0.027 mas/yr; 4x,
+seed 1; results/plot_data/d3_free_pm.json): lnL rises monotonically towards more negative pmra and pmdec; best at the corner
+(-2 sigma, -2 sigma) = (-3.3039, -6.8001): -23196 vs catalogue -23714 (+518) and grid PMs -23763 (+567). pmdec is the stronger
+lever (+518 over -2..+2 sigma at fixed pmra = -2 sigma: -23196 vs -24280). The gap to the best 16-deg model (-22207, grid PMs) shrinks
+from 1555 to ~990 but the optimum lies outside 2 sigma -> with the overconfident likelihood, a free-PM fit will run beyond the
+catalogue errors (prior penalty at 2 sigma only 4 in lnL).
+D1 (best model per angle, 4x, seed 1; per-star scores split by phi1 segment and observable; plots/d1_segments.png), Delta lnL vs 28 deg:
+joint: 16 deg -38 (phi1<4) / +307 (4-17) / +1286 (>17) = +1555; 20 deg +75/+210/+805; 24 deg +62/+103/+412.
+dphi2 only: 16 deg +133/+168/+689; PM pair only: 16 deg +50/+202/+1228; v_los only: <= 6 (29 stars).
+-> The low-angle preference comes from the knee (phi1 > 17, 1316 members) and mainly from the PMs; near the cluster the 16-deg model
+is slightly worse jointly. The knee PMs are real to phi1 ~ 24 (M5). So P2 is the model's failure to steepen the knee PMs at the
+literature angle; lowering the angle (or more negative omega Cen PMs) is the grid's only available way to do it.
+D2 launched (100 mocks per truth, 56 candidates, 8 processes, ~9 min).
