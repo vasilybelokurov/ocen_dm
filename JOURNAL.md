@@ -7199,3 +7199,9 @@ a weaker pull matches the CMD distance track (q 1.2 + disc x0.8 hits it) but fla
 steeper -> no axisymmetric reshaping fixes the knee; all variants lower the (distance-free) lnL.
 Omega_b extension for the longer bar (size 1.15): Omega 37 amp 1.2 -680, amp 1.4 0; Omega 38 amp 1.2 -595, amp 1.4 -146 (vs baseline)
 -> Omega_b peak at 36 is bracketed; best literature-angle model stays size 1.15 / amp 1.2 / Omega_b 36 (+721; gap to 16 deg -786).
+CORRECTION / PROVISIONAL: literature review of stream distances (docs/literature/omega_cen_stream_distances_2026-10-10.md) puts the
+knee at ~0.70-0.75 of omega Cen's distance (Ibata+2019 CMD shift 0.7 mag ~ 4.1 kpc; STREAMFINDER dSF median 4.1 kpc in the knee box;
+mean parallax 0.25-0.27 mas ~ 3.8-4.0 kpc before zero-point correction). Our CMD track (0.88-0.92, relative to members at b 15-20)
+is the outlier; the models (0.76-0.85) lie in between. The claim above that "all models put the knee debris 7-10% too close" rests
+on our CMD track alone and is withdrawn pending checks: (1) zero-point-corrected weighted parallaxes for the knee, the b 15-20
+reference and the cluster; (2) CMD shift relative to omega Cen's own CMD.
