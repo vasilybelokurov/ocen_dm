@@ -7205,3 +7205,12 @@ mean parallax 0.25-0.27 mas ~ 3.8-4.0 kpc before zero-point correction). Our CMD
 is the outlier; the models (0.76-0.85) lie in between. The claim above that "all models put the knee debris 7-10% too close" rests
 on our CMD track alone and is withdrawn pending checks: (1) zero-point-corrected weighted parallaxes for the knee, the b 15-20
 reference and the cluster; (2) CMD shift relative to omega Cen's own CMD.
+Parallax sanity check (bin/streams/parallax_check.py; WSDB local_join, results/streams/stream54_parallax.npz):
+members' error-weighted mean Gaia DR3 parallax (no ZP correction): phi1 < 4: 0.2277 +- 0.0027 mas; 4-17: 0.2162 +- 0.0048;
+17-23: 0.2485 +- 0.0037; > 23: 0.3046 +- 0.0074 (median error 0.24 mas). Models (omega Cen at 5.6 kpc): near cluster 0.179,
+knee 0.22-0.25. omega Cen's own stars (non-STREAMFINDER: r 10-36', PM within 0.7 mas/yr of the cluster, G 16-20, ruwe < 1.4;
+46425 stars) at the members' magnitudes: 0.1646 +- 0.0009 mas (0.163-0.177 by G bin) -> +0.017 ZP gives 0.182 (5.5 kpc), consistent
+with the cluster distance. The STREAMFINDER members next to the cluster are 0.063 mas higher than the cluster's own stars at the
+same magnitudes -> member parallaxes are biased high (STREAMFINDER uses parallax in the membership likelihood with template
+distances, plus possible foreground contamination). Member parallaxes are therefore not a clean distance check either.
+Decision (user, 2026-10-10): avoid the CMD distance track (rabbit hole); keep the fit distance-free.
