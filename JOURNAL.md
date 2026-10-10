@@ -7294,3 +7294,15 @@ Per-observable gain vs B/B (segments <4, 4-17, >17): V_sun,y 232 alone: track dp
   PM distribution shape in the knee, not in the medians.
 - Grid edges now bracketed: 16 deg size 1.0 peaks at Omega_b 34 (33: -23055, 32: -24515 vs 34: -22388); 28 deg size 1.3 peaks
   at amp 1.4 (amp 1.6: -23433 vs 1.4: -22719). The 331 gap (16 vs 28 + longer bar) stands.
+
+## 2026-10-10 -- Codex on the frame decomposition (docs/codex_frame_decomp_next_2026-10-10.md)
+- Agrees the knee-track gain is an orbit (IC) effect; warns the crossed runs interact strongly, so the total-lnL split is not
+  clean (expected: crossed runs put omega Cen off its observed PM).
+- Ranks: present-day velocity conversion (tested) > inner force profile / bar forcing > distance (prior 5.43+-0.05 too narrow
+  to give 15-20 km/s) > LMC (later).
+- Verified: mw_variants keep_vc=False leaves halo factor 1 -- a halo-normalisation sweep needs a new parameter. Agreed.
+- Literature range for v_c(R0) ~225-235 (Eilers+2019 229.0, arXiv:1810.09466; McMillan 2017 232.8+-3.0, arXiv:1608.00971);
+  220/240 as stress points. Inner mass: Portail+2017 1.84e10 Msun in the bulge/bar box, arXiv:1608.07954.
+- Proposed: halo-only sweep v_c(R0) 220, 225, baseline 228.8, 235, 240 x 3 seeds at W (15 sprays), Omega_b fixed; whole-potential
+  scaling as a separate control; report bar-force fraction and enclosed mass along the orbit; rescan Omega_b only if a trend.
+- Tooling: move single_scores into an import-safe module (frame_obs_split execs d1_segments source up to a marker).
