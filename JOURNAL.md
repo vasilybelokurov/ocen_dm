@@ -7141,3 +7141,14 @@ truth (35.5, 28, 1.2): recovered angle 28 in 100/100, Omega_b 35.5 in 100/100; D
 truth (34.5, 20, 1.2): recovered angle 20 in 90/100, 24 in 10/100, never 16; Omega_b 34.5 (91) / 35.0 (9).
 -> The conditional likelihood and grid do not pull the angle low: the 16-deg preference in the data is genuine model-data misfit
 (the knee PMs, D1), not a statistical artefact. Gate passed -> Phase 2 (missing physics).
+Phase 2 variants at 28 deg (Omega_b 35.5, amp 1.2, d 5.6, catalogue PMs; 4x, seed 1; bin/streams/phase2_variants.py;
+plots/phase2_variants.png). dlnL vs baseline (-23714), segments phi1 < 4 / 4-17 / > 17:
+M2 slowing bar eta 0.002 -383 (-71/-96/-215); 0.004 -447; 0.008 -889 (+82/-173/-797).
+M3a Portail bar amp 1.0 -343; amp 1.2 -132.
+M3b Hunter bar size x1.15 +622 (-10/+151/+481); x1.3 +698 (-121/+171/+649).
+M4 release over 1500 Myr: age<1000 -457; age<1500 -2821.
+Reference 16 deg (grid PMs) +1507 (-69/+277/+1299).
+Footprint medians: every variant (and the 16-deg reference) stays 0.5-1 mas/yr less negative than the members in pmdec at
+phi1 19-27; size x1.3 comes closest. The 16-deg gain is therefore not in the pmdec median; it must come from the shape/spread of
+the model debris (to check). Caveat: one ingredient at a time at fixed Omega_b 35.5; a slowing or longer bar shifts resonances, so
+Omega_b should be re-profiled for any promising variant.
