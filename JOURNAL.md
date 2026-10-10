@@ -7084,3 +7084,14 @@ dlnL vs no rotation: best (34.5,16,1.4,5.6): +20, +70, -44, -427; prior-angle (3
 Medians along phi1 (footprint) of pmra, pmdec, v_los are indistinguishable for all factors; dphi2 shifts <~0.3-0.5 deg, counts ~10%.
 Even x10 (~15 km/s at the pericentric r_J, unphysical) leaves the 28-deg model ~1400 below the 16-deg one; reversed spin hurts both.
 Both setups miss the members' pmdec at phi1 > 19 (models ~0.5-1 mas/yr less negative). Rotation cannot produce the knee.
+
+### Codex: diagnostic experiment programme (2026-10-10; docs/codex_diagnostic_experiments_2026-10-10.md)
+Proposed (priority order): 1 audit bar clock / r_J derivatives / centre orbit / frame; 2 segment- and observable-resolved rescoring
+of existing sprays; 3 mock injection-recovery (truth at 28 and 20 deg); 4 free omega Cen PMs at 28 deg; 5 tracer vs spray in the
+barred host (28, 16 deg); 6 release window / age cut (1500 Myr, cuts 500-1500); 7 decelerating bar; 8 other bar shape / halo / LMC.
+Audit done by me (no sprays): d2Phi/dr2 from host.eval(der=True) vs finite differences at t = 0.5, 1.3, T: rel. error 1e-6 to 6e-6;
+per-point time arrays equal scalar-t evaluation; bar major axis from the density at R = 2 kpc: 16.0 deg today (requested 16) and
+178.5 deg 97.8 Myr earlier (expected 178.3 mod 360); centre orbit back-and-forward round trip 0.005 pc, < 1e-4 km/s. -> no bug in
+bar clock, r_J derivatives or centre orbit. Frame sensitivity not yet checked.
+Note: the rotB tracer run (20 deg) misses the knee pmdec like the spray does -> weighs against the spray release as the cause at
+20 deg (Codex rates release mismatch "high plausibility"); 28 deg tracer not yet run.
