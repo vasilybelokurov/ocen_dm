@@ -7274,3 +7274,23 @@ Best lnL per (angle, size), relative to the overall best (16 deg, size 1.0, Omeg
   (3) extend the T2 edges (Omega_b < 34 at 16 deg; amp > 1.4 at 28 deg, size 1.3); (4) LMC only after these.
 - Minor: results JSON written non-atomically (true; per-run NPZ allows recovery). No frame-transform round-trip test exists
   (my ad hoc round trip passed; to add as a unit test).
+
+## 2026-10-10 -- Frame decomposition + grid edges (bin/streams/frame_decomp_edges.py, frame_obs_split.py)
+W model (28 deg, size 1.15, Omega_b 36, amp 1.2), d 5.6, 4x. make_spray gained proj_frame (IC frame vs projection frame).
+lnL (segments <4, 4-17, >17): B/B -22994 (-10011 -2503 -10480); I/I -22153 (-10645 -2328 -9180);
+IC I / proj B -23339 (-11763 -2664 -8912); IC B / proj I -26005 (-10734 -3161 -12111).
+One-at-a-time (same frame for IC and projection): V_sun,y 232.24 alone -22178 (reproduces ibata19 entirely); R0 8.122 alone
+-22878 (+116); z_sun 17 pc alone -23121 (-127).
+Per-observable gain vs B/B (segments <4, 4-17, >17): V_sun,y 232 alone: track dphi2 -67 +51 +620; PMs -513 +154 +1161; v_los 0.
+- The knee gain follows the IC frame (orbit), not the projection: IC I gives knee -8912/-9180 with either projection;
+  IC B gives -10480/-12111. Crosses wreck the near-cluster segment because omega Cen itself no longer projects onto its
+  observed PM.
+- Clean check: V_sun,y does not move debris on the sky, yet the V_sun,y-only run gains +620 in the knee track (dphi2). That
+  gain can only come from the orbit.
+- Conclusion: the stream wants omega Cen's Galactocentric velocity shifted by ~20 km/s in model v_y (-25 -> -45 km/s) at fixed
+  observables. V_sun is excluded by Sgr A* (see above), and omega Cen's PM errors (0.027 mas/yr = 0.7 km/s) are far too small.
+  What is left is the potential along the orbit, or omega Cen's distance. The orbit change costs -500 in near-cluster PMs.
+- Footprint median PMs barely differ between B/B and I/I (plots/frame_decomp_medians.png): the gain is in the track and the
+  PM distribution shape in the knee, not in the medians.
+- Grid edges now bracketed: 16 deg size 1.0 peaks at Omega_b 34 (33: -23055, 32: -24515 vs 34: -22388); 28 deg size 1.3 peaks
+  at amp 1.4 (amp 1.6: -23433 vs 1.4: -22719). The 331 gap (16 vs 28 + longer bar) stands.
