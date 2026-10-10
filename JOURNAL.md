@@ -7250,3 +7250,18 @@ make_spray gained `frame=` (used for both the omega Cen IC and the projection; r
   velocity shift that either (a) changes omega Cen's Galactocentric orbit (v_y -25 -> -45 km/s) or (b) changes the reflex
   projection of the debris. Not yet separated (decomposition test: ibata19 IC + baumgardt projection and vice versa, 4 sprays).
 - omega Cen distance: frames.py uses 5.43 (Baumgardt & Vasiliev 2021, https://arxiv.org/abs/2105.09526); our grids use 5.6.
+
+## 2026-10-10 -- T2: bar angle x bar size (x Omega_b 34-37 x amp 1.2/1.4; baumgardt frame, d 5.6, catalogue PMs, 4x)
+
+Best lnL per (angle, size), relative to the overall best (16 deg, size 1.0, Omega_b 34 [grid edge], amp 1.2):
+
+| angle | size 1.0 | size 1.15 | size 1.3 |
+|---|---|---|---|
+| 16 | 0 (Om 34*) | -228 | -934 |
+| 20 | -318 | -307 | -751 |
+| 24 | -803 | -507 | -691 |
+| 28 | -1368 | -405 | -331 (Om 36, amp 1.4) |
+
+- A longer bar helps only at the literature angle: the 28-vs-16 gap falls from 1368 (size 1) to 331 (size 1.3). At 16 deg
+  the longer bar makes things worse. Angle and bar length trade off; the low angle partly stands in for a longer bar.
+- Spray noise at 4x is ~+-36 per model, so the remaining 331 is real. Edges: Omega_b 34 for 16 deg; amp 1.4 for 28 deg.
