@@ -7095,3 +7095,14 @@ per-point time arrays equal scalar-t evaluation; bar major axis from the density
 bar clock, r_J derivatives or centre orbit. Frame sensitivity not yet checked.
 Note: the rotB tracer run (20 deg) misses the knee pmdec like the spray does -> weighs against the spray release as the cause at
 20 deg (Codex rates release mismatch "high plausibility"); 28 deg tracer not yet run.
+Codex line-by-line code review (full source of 12 files embedded; docs/codex_code_review_2026-10-10.md): no definite bug; proposed
+end-to-end checks, all run by me and passed:
+- to_model -> observables round trip (200 random stars): max errors 1e-13 deg, 1e-14 mas/yr, 4e-13 km/s.
+- arm vs chi: arm +1 has chi > 0 for 96.6-96.9% (psi < 0 96.2%), arm -1 has chi > 0 for 3.3% (age < 700) -> labels agree; the score
+  keeps arm +1 & chi > 0.
+- data: all PMs, errors, correlations finite; min PM error 0.010 mas/yr; all covariance determinants > 0; N = 3681.
+- bar geometry: point at +16 deg from +x at R = 2 kpc is at l = +5.0 deg (near end at l > 0); Sun in model frame has Lz > 0
+  (v = (-11.1, 252.2, 7.2)) and the bar angle increases with time -> bar rotates prograde.
+Age-cut rescoring of the stored grid4 sprays (bin/streams/agecut_rescore.py): best point and angle preference unchanged:
+age_max 500: best (34.5,16,1.6,5.45), angle profile 0/-426/-843/-1263; 700: (34.5,16,1.4,5.6), 0/-296/-806/-1447;
+1000: (34.5,16,1.4,5.6), 0/-278/-693/-1176. Omega_b peak 34.5 for all cuts.
