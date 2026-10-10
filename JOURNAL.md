@@ -7178,3 +7178,11 @@ b 39-42: CMD 0.895+-0.018, 16 deg 0.794, 28 deg 0.756; b 20-33 within 1-2 sigma.
 too close (5-7 sigma of the CMD track) AND with pmdec ~1 mas/yr too shallow: at the right distance the model PMs would be smaller
 still, so the tangential-velocity deficit is ~1.5 mas/yr x 4.74 x 5 kpc ~ 35 km/s. Distance is not in the likelihood (by design),
 so the angle choice is not penalised for it; the low angle does not fix it (16 deg only slightly closer to the CMD track).
+Phase 2b grid (bin/streams/phase2b_grid.py; results/plot_data/phase2b_grid.json; 28 deg, d 5.6, 4x, seed 1), dlnL vs the 28-deg
+baseline (-23714.4; 16-deg reference -22207.4):
+- longer bar: best size 1.15, amp 1.2, Omega_b 36, catalogue PMs: +721 (gap to 16 deg -786); profiles: size 1.15 +721, 1.3 +470;
+  amp 1.0 +479, 1.2 +721; Omega_b 33 -462, 34 +74, 35 +479, 36 +721 (edge -> extension to 37, 38 run); PMs cat +721, -1s +498,
+  -2s +454 (with the longer bar the PM shift no longer helps).
+- slowing bar with Omega_b(today) 31-34: all worse (best Omega 34: -689 for eta 0.002 and 0.004; lower Omega much worse).
+The queued M4b and P1 runs did not start (nohup watchers died with their parent shell); relaunched as one chain together with the
+Omega_b 37/38 extension.
