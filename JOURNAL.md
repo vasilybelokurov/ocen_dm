@@ -7265,3 +7265,12 @@ Best lnL per (angle, size), relative to the overall best (16 deg, size 1.0, Omeg
 - A longer bar helps only at the literature angle: the 28-vs-16 gap falls from 1368 (size 1) to 331 (size 1.3). At 16 deg
   the longer bar makes things worse. Angle and bar length trade off; the low angle partly stands in for a longer bar.
 - Spray noise at 4x is ~+-36 per model, so the remaining 331 is real. Edges: Omega_b 34 for 16 deg; amp 1.4 for 28 deg.
+
+## 2026-10-10 -- Codex on T1/T2 (docs/codex_T1T2_next_steps_2026-10-10.md)
+- Agrees T1 cannot separate orbit from projection (one `frame` drives both, grid4_common.py make_spray); also flags that the
+  frames differ in z_sun (0 vs 17 pc) and R0, not only V_sun,y. Verified.
+- Next, in order: (1) IC-frame x projection-frame factorial at d 5.6 (the 2 diagonal cells exist; 2 new sprays), then 5.43 if
+  the IC frame matters; (2) one-at-a-time controls V_sun,y / R0 / z_sun, then host v_c(R0) with solar motion consistent;
+  (3) extend the T2 edges (Omega_b < 34 at 16 deg; amp > 1.4 at 28 deg, size 1.3); (4) LMC only after these.
+- Minor: results JSON written non-atomically (true; per-run NPZ allows recovery). No frame-transform round-trip test exists
+  (my ad hoc round trip passed; to add as a unit test).
