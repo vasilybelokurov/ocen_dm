@@ -7225,3 +7225,28 @@ Codex on distances and remaining misfit (docs/codex_distances_and_misfit_2026-10
 - Next physics tests proposed: (1) solar frame (R0, V_sun) x omega Cen distance (5.43 / 5.6) grid at the working model -- cheap and
   directly shifts PMs (note: grid4 preferred d = 5.6 at its upper edge); (2) bar angle x longer bar coupled grid; (3) LMC + reflex and
   alternative progenitor profiles (expensive).
+
+## 2026-10-10 -- T1: solar frame x omega Cen distance (Codex follow-up; bin/streams/sun_dist_bar_grids.py T1)
+
+4x particles, seed 1. W = 28 deg, size 1.15, Omega_b 36, amp 1.2, catalogue PMs; R16 = 16 deg, 34.5, 1.4, grid PMs.
+make_spray gained `frame=` (used for both the omega Cen IC and the projection; round trip exact in both frames).
+
+| frame | d [kpc] | W lnL | R16 lnL | W - R16 | W segments (<4, 4-17, >17) |
+|---|---|---|---|---|---|
+| baumgardt | 5.43 | -25510 | -22709 | -2801 | -10215 -3167 -12128 |
+| baumgardt | 5.60 | -22994 | -22212 | -782 | -10011 -2503 -10480 |
+| baumgardt | 5.80 | -23778 | -23911 | +133 | -10631 -2564 -10584 |
+| ibata19 | 5.43 | -21926 | -21322 | -605 | -10266 -2580 -9080 |
+| ibata19 | 5.60 | -22153 | -22059 | -93 | -10645 -2328 -9180 |
+| ibata19 | 5.80 | -22588 | -22748 | +160 | -10957 -2360 -9271 |
+
+- The solar frame is the largest lever found so far: ibata19 improves W by +841 to +1067 (best d 5.43), mostly in the knee
+  (phi1 > 17: +1300 to +1400) at a cost near the cluster (-250 to -630). The 28-vs-16 gap shrinks to 93 at ibata19 d 5.6.
+- Knee PMs are very sensitive to omega Cen's distance: 5.43 -> 5.6 kpc (3%) moves model pmra at phi1 25 by ~2.5 mas/yr
+  (plots/sun_dist_T1_medians.png).
+- Caveat: ibata19's V_sun,y = 232.24 km/s at R0 8.122 gives Omega_sun = 28.6 km/s/kpc, vs 6.411 mas/yr x 4.7405 = 30.39 km/s/kpc
+  from the Sgr A* proper motion (Reid & Brunthaler 2020, https://arxiv.org/abs/2001.04386; error 0.008 mas/yr). So that frame is
+  excluded as a solar motion; baumgardt (252.24/8.178 = 30.84) is within 1.5%. The gain therefore signals a ~15-20 km/s
+  velocity shift that either (a) changes omega Cen's Galactocentric orbit (v_y -25 -> -45 km/s) or (b) changes the reflex
+  projection of the debris. Not yet separated (decomposition test: ibata19 IC + baumgardt projection and vice versa, 4 sprays).
+- omega Cen distance: frames.py uses 5.43 (Baumgardt & Vasiliev 2021, https://arxiv.org/abs/2105.09526); our grids use 5.6.
