@@ -7331,3 +7331,12 @@ Delta lnL vs reference (mean +- sd over 3 seeds; segment means <4, 4-17, >17; kn
 - Seed scatter: sd 45-240 between seeds at the same model (reference: -22988, -23033, -23161). The earlier +-36 (4x) underestimates it
   for some models; differences below ~200 should not be trusted from single seeds.
 - Bar share of the force along the orbit 6-7% of the axisymmetric force; peri/apo 1.4-1.8 / 7.1-7.2 kpc.
+
+## 2026-10-10 -- Is 16 deg really preferred? Codex on a profile-likelihood plan (docs/codex_profile_likelihood_plan_2026-10-10.md)
+- User: 16 deg is the grid edge, and no grid varied all parameters jointly (T2 fixed d 5.6 and PMs; grid4 fixed size and PMs;
+  T1 shows the ranking flips with d). Correct: "prefers 16 deg" is not established.
+- Codex: profile likelihood is the right design; paired 16 vs 28 first. Objective is jagged (chi-bin membership/nmin in
+  score_conditional), so coarse space-filling search + bounded multi-start Powell/COBYQA, not one Nelder-Mead. Report data-only
+  and "penalised" (d, PM measurement terms) profiles; physical bounds only for size/amp. No generic Delta lnL threshold:
+  paired seed differences + mock-calibrated equivalence margin; profiled mock recovery (28-deg truth, 16-deg control) before
+  any preference claim. Check sensitivity to dchi/nmin. D2 as written fixes d and PMs -- cannot answer this. Verified.
