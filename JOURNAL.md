@@ -7306,3 +7306,28 @@ Per-observable gain vs B/B (segments <4, 4-17, >17): V_sun,y 232 alone: track dp
 - Proposed: halo-only sweep v_c(R0) 220, 225, baseline 228.8, 235, 240 x 3 seeds at W (15 sprays), Omega_b fixed; whole-potential
   scaling as a separate control; report bar-force fraction and enclosed mass along the orbit; rescan Omega_b only if a trend.
 - Tooling: move single_scores into an import-safe module (frame_obs_split execs d1_segments source up to a marker).
+
+## 2026-10-10 -- Host-mass sweep at W (bin/streams/mass_sweep.py; 27 sprays, seeds 1-3, 4x)
+New options: mw_variants.axisymmetric_variant(vc_target=...) (halo normalised to v_c(R0)); host_potential(mass_scale=...) (whole
+host incl. bar term scaled; unit tests pass). Reference = halo variant at vc0 = 228.83 km/s.
+Delta lnL vs reference (mean +- sd over 3 seeds; segment means <4, 4-17, >17; knee dphi2 / knee PM / near-cluster PM single scores):
+
+| | v_c(R0) | dlnL | segments | knee x | knee pm | near pm |
+|---|---|---|---|---|---|---|
+| halo | 220 | -758+-55 | -265 -533 +40 | -452 | +766 | -149 |
+| halo | 225 | -546+-76 | -54 -130 -363 | -666 | -103 | -29 |
+| halo | 235 | -1855+-121 | -48 -226 -1581 | -1177 | -1194 | -39 |
+| halo | 240 | -3528+-240 | -79 -660 -2789 | -1571 | -1985 | -76 |
+| whole | 220 | -1033+-111 | -713 -326 +6 | -82 | +899 | -517 |
+| whole | 225 | -1516+-76 | -515 -300 -701 | -239 | -110 | -449 |
+| whole | 235 | -2082+-190 | -271 -380 -1431 | -1452 | -1582 | -268 |
+| whole | 240 | -3633+-211 | -216 -791 -2626 | -2133 | -2675 | -179 |
+
+- The current host mass (v_c 228.8) is the best of all points; every change is worse. A lighter Galaxy does NOT reproduce the
+  V_sun,y/ibata19 knee gain (+1300): at 220 km/s the knee PMs improve (+770/+900) but the knee track worsens and the total drops.
+  The '7% lighter Galaxy' hypothesis is rejected. The required change is in the direction of omega Cen's velocity (v_R vs v_phi),
+  which a mass rescaling cannot mimic.
+- Literature range 225-235 km/s therefore does not help; the knee pins v_c(R0) near the Hunter+2024 value (given everything else).
+- Seed scatter: sd 45-240 between seeds at the same model (reference: -22988, -23033, -23161). The earlier +-36 (4x) underestimates it
+  for some models; differences below ~200 should not be trusted from single seeds.
+- Bar share of the force along the orbit 6-7% of the axisymmetric force; peri/apo 1.4-1.8 / 7.1-7.2 kpc.
