@@ -7135,3 +7135,9 @@ dphi2 only: 16 deg +133/+168/+689; PM pair only: 16 deg +50/+202/+1228; v_los on
 is slightly worse jointly. The knee PMs are real to phi1 ~ 24 (M5). So P2 is the model's failure to steepen the knee PMs at the
 literature angle; lowering the angle (or more negative omega Cen PMs) is the grid's only available way to do it.
 D2 launched (100 mocks per truth, 56 candidates, 8 processes, ~9 min).
+D2 (mock injection-recovery; bin/streams/d2_mock_recovery.py; truth sprays seed 7, 4x; candidates 56 grid4 sprays at d 5.6, amp 1.2/1.4,
+seed 1; 100 mocks per truth with the members' phi1, Gaia covariances and v_los pattern; results/plot_data/d2_mock_recovery.json):
+truth (35.5, 28, 1.2): recovered angle 28 in 100/100, Omega_b 35.5 in 100/100; Delta lnL(best16 - best28) = -1974 (16-84%: -2077..-1875).
+truth (34.5, 20, 1.2): recovered angle 20 in 90/100, 24 in 10/100, never 16; Omega_b 34.5 (91) / 35.0 (9).
+-> The conditional likelihood and grid do not pull the angle low: the 16-deg preference in the data is genuine model-data misfit
+(the knee PMs, D1), not a statistical artefact. Gate passed -> Phase 2 (missing physics).
