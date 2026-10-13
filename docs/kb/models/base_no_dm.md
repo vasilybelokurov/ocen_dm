@@ -118,6 +118,34 @@ with the earlier Jeans model (dashed). Bottom row: residuals; the count
 panel shows signed Poisson deviance residuals. Both fits are evaluated with
 the corrected count likelihood.*
 
+## Properties of the fitted model
+
+![Mass components of the base model](../../../plots/base_model_20261013_components.png)
+
+*By component: (a) density; (b) enclosed mass with half-mass radii dotted;
+(c) circular velocity; (d) remnant share, local and cumulative; (e)
+dynamical-to-stellar mass ratio. Grey: outside the radial range of the
+kinematic data (0.1–63 pc).*
+
+![Internal kinematics of the base model](../../../plots/base_model_20261013_kinematics.png)
+
+*(a) Intrinsic radial and tangential dispersions; (b) anisotropy β(r);
+(c) stellar surface density with half-mass radii; (d) projected
+line-of-sight and proper-motion dispersions from the DF (before the
+published rotation is subtracted).*
+
+![Structure of the base-model DF](../../../plots/df_structure_dftwo_counts_area_20261013_observed_no_halo_start3.png)
+
+*(a) Intrinsic moments; (b) anisotropy bias b(q) over the action
+distributions of the HST/MUSE and Gaia stars; (c) f(J_r, L).*
+
+Key numbers (current fit): stellar half-mass radius 10.4 pc (projected
+7.7 pc), remnant half-mass radius 2.8 pc; remnants 66% of the central
+density; \(M_{\rm tot}/M_\star\) from 2.9 in the centre to 1.09 overall;
+peak circular velocity 27.0 km/s at 9 pc; central dispersion 21.4 km/s;
+β peaks at +0.15 near 8 pc and reaches −0.53 at 100 pc. Interpretation:
+[Results](../results.md#base-model-fits).
+
 ## What has been tested
 
 - **Convergence**: 4 of 6 starts valid (2 Latin starts infeasible), all four
