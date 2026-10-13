@@ -137,8 +137,8 @@ def _literature_page():
 
 
 def on_files(files, config):
-    for png in sorted((ROOT/"plots").glob("*.png")):
-        files.append(File(f"plots/{png.name}", str(ROOT), config["site_dir"], config["use_directory_urls"]))
+    for rel in sorted(t for t in _tracked() if t.startswith("plots/") and t.endswith(".png")):   # committed plots only
+        files.append(File(rel, str(ROOT), config["site_dir"], config["use_directory_urls"]))
     pages = dict(_journal_pages())
     pages["spec.md"] = (ROOT/"OCEN_DM_TAILS_PROJECT.md").read_text()
     pages["kb/data/sources.md"] = _sources_page()
@@ -179,7 +179,7 @@ def _rewrite(page_uri, target):
         return None
     if rel_repo.startswith("docs/") and real.exists() and not rel_repo.startswith("docs/hooks/"):
         virtual = rel_repo[len("docs/"):]
-    elif rel_repo.startswith("plots/") and real.exists():
+    elif rel_repo.startswith("plots/") and rel_repo in _tracked():
         virtual = rel_repo
     elif rel_repo == "JOURNAL.md":
         virtual = "journal/index.md"
