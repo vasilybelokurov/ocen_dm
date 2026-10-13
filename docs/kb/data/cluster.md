@@ -2,6 +2,42 @@
 
 Shorthands (`CAT`, `raw/`, `proc/`) are defined on the [Data products](index.md) page.
 
+## Figures
+
+All drawn from the current processed products (`bin/plot_data_products.py`, `ocen plot-data`, `bin/build_mass_function.py`).
+
+![Kinematic profiles](../../../plots/data_kinematics.png)
+
+*The 89 kinematic bins of the baseline fit (colour) and published profiles that are not fitted. Top: HST proper-motion dispersions, radial and tangential (ours, black; oMEGACat VI published, grey) continued outward by our Gaia EDR3 profiles (blue); dashed: the rotation term each fitted profile carries. Bottom left: MUSE line-of-sight dispersion with its rotation term (v_rot/√2). Bottom right: published one-dimensional Gaia proper-motion profiles (Vasiliev & Baumgardt 2021, Baumgardt+2019) against ours; the Vasiliev & Baumgardt profile lies below the HST values inside ~200″. Proper motions in mas/yr (right axis: km/s at 5.43 kpc).*
+
+![Rotation inputs](../../../plots/data_rotation.png)
+
+*Rotation used in the streaming correction. Left: Vasiliev & Baumgardt 2021 proper-motion rotation curve (median, 16–84% and 2–98%), peaking at 0.25 mas/yr (≈6.4 km/s) near 450″. Right: MUSE line-of-sight rotation amplitude (oMEGACat VI), rising from ~3 to ~7 km/s between 30″ and 300″.*
+
+![Star-count products](../../../plots/data_counts.png)
+
+*The Poisson star-count products. Left: surface number density, HST F625W < 19 (2–250″, 117,751 stars) and Gaia G < 17 (300–2400″, 18,289 stars including field). Middle: stars per bin. Right: covered fraction of each annulus (≥ 0.995).*
+
+![oMEGACat VI published profiles](../../../plots/omegacat_vi_profiles.png)
+
+*The published oMEGACat VI profiles: proper-motion dispersions (combined, radial, tangential), the σ_R/σ_T anisotropy diagnostic (isotropic inside ~100″, radially biased outside), MUSE line-of-sight dispersion and rotation.*
+
+![3D kinematics of the core](../../../plots/omegacat_vi_3d_velocities.png)
+
+*Three-dimensional kinematics of the core from the same stars: line-of-sight velocity field with the fitted rotation axis; plane-of-sky versus line-of-sight rotation; the three velocity components; and proper-motion against line-of-sight dispersions, which agree at the adopted distance.*
+
+![Light profile check](../../../plots/light_profile_star_counts.png)
+
+*Shape of the light profile: the MGE of the Trager+1995 profile (used as the tracer of the earlier Jeans fits) against star counts from HST oMEGACat, Gaia EDR3 members and Gaia+Pristine members, each anchored where complete. Beyond the Trager data the MGE is an extrapolation.*
+
+![oMEGACat CMD](../../../plots/omegacat_cmd_20260923.png)
+
+*oMEGACat colour–magnitude diagram, 30–250″, all stars (left) and with both quality flags (right). Dotted: F625W = 18 (turnoff), 19 (count-product limit) and 23 (luminosity-function turnover).*
+
+![Present-day mass function](../../../plots/mass_function_20260923.png)
+
+*Present-day mass function from the unflagged oMEGACat sample with a MIST 12.5 Gyr isochrone: CMD and ridge line; luminosity functions in five radial zones; mass functions over 0.52–0.78 M☉ with slopes steepening outward (−1.37 to −1.77); the light-following mass per F625W < 19 star for each variant; and the budget in the 60–100″ zone (observed main sequence, extrapolation below 0.52 M☉, evolved stars, white dwarfs).*
+
 ## 0. How the baseline DF likelihood consumes its data
 
 - **Driver.** `bin/run_compact_df_recovery.py`.

@@ -5,6 +5,16 @@ Every dataset the project uses: where it comes from, how it is processed, what c
 !!! note "Provenance of this page"
     Compiled on 2026-10-13 from the code, `provenance/`, `configs/data.yaml` and the project journal, with file sizes checked on disk. Paths to `data/` and `results/` are local (not committed). Anything without a recorded source is marked **UNVERIFIED**.
 
+## At a glance
+
+![Kinematic profiles](../../../plots/data_kinematics.png)
+
+*The kinematic profiles of the baseline fit and the published profiles not fitted; details and the other figures on [Cluster kinematics, counts and light](cluster.md) and [Periphery, tails and streams](tails_streams.md).*
+
+![Star counts](../../../plots/data_counts.png)
+
+*The two star-count products.*
+
 ## Where things live
 
 
