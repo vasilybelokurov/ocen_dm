@@ -4,14 +4,14 @@
 
 | Model | What it adds to the base model | Purpose | Status |
 |---|---|---|---|
-| [Base no-DM model](base_no_dm.md) | — | Reference fit | Fitted 2026-09-23; refit with corrected counts running |
+| [Base no-DM model](base_no_dm.md) | — | Reference fit | Refitted 2026-10-13 with the corrected count likelihood |
 | Free cored halo | gNFW halo with γ = 0, free \(\rho_{20}\) and \(r_s\) | Do the data want extended dark matter? | Free fit goes to \(\rho_{20}=0\) (2026-09-23, old counts) |
 | \(\rho_{20}\) profile | \(\rho_{20}\) fixed at 0.25, 0.5, 1, 2, 4 M☉ pc⁻³, all else refitted | How much DM is allowed at fixed fit quality | Δ objective +0.5 … +10.6; a sensitivity curve, not a limit (mocks scatter by ±0.7) |
 | Mass-per-star scan | HST count amplitude pinned at 8–12 M☉ per F625W < 19 star, free halo | How the star/dark split depends on the assumed stellar mass | \(\rho_{20}\) ≈ 2–4 at the photometric 8–9, 0 at the dynamical 10.7 |
 
 Main results, figures and mock tests: [DF observed-fit write-up](../../df_observed_fit.pdf)
-([LaTeX](../../df_observed_fit.tex)). Numbers above use the count products
-from before the 2026-10-13 fix.
+([LaTeX](../../df_observed_fit.tex)). The halo and scan numbers above use the
+count products from before the 2026-10-13 fix and have not been rerun.
 
 **What the data constrain.** Twelve mocks drawn from the base model recover
 the total mass to ±3% at 20 pc and ±5% over 2–40 pc, but the recovered

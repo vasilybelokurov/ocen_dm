@@ -5,7 +5,7 @@ Found in the 2026-10-13 audit. Each item is open unless marked otherwise.
 
 1. **Baseline counts use the old (schema-1) products.** *In progress.*
    - `dftwo_counts_20260923`, `rho20scan_*` and `mpsscan_*` used schema-1 counts (star-weighted bin average, biased; see `counts.py`). Their frozen inputs still replay exactly; the old products are kept as `*_schema1_20260923.*`.
-   - The canonical `ocen_counts_*.json` are schema 2 since commit `1af8c33`. The base model is being refitted with them (`results/df/dftwo_counts_area_20261013`); the scans have not been rerun.
+   - The canonical `ocen_counts_*.json` are schema 2 since commit `1af8c33`. The base model was refitted with them on 2026-10-13 (`results/df/dftwo_counts_area_20261013`); the scans have not been rerun.
 2. **Docstring and metadata drift.**
    - *Fixed 2026-10-13:* the `bin/build_count_profiles.py` docstring described the old quantile nodes.
    - `selection/field_template.py:107` writes `"parallax_over_error_max": 5` into the product's `cuts` metadata, but no parallax cut is applied (`parallax_cut: none`). The metadata is misleading.

@@ -4,19 +4,20 @@ The reference model for the cluster mass distribution. Every dark-matter
 variant is compared with it.
 
 !!! info "Status (2026-10-13)"
-    Fitted to the real data on 2026-09-23
-    (`results/df/dftwo_counts_20260923`, best job `observed_no_halo_start0`,
-    source commit `36bca6f`). The fit is numerically validated but **fails
-    its own data-fit gate**. The count likelihood was corrected on 2026-10-13
-    (commit `1af8c33`); the model has not yet been refitted with the
-    corrected count products.
+    Refitted on 2026-10-13 with the corrected (area-weighted) count
+    likelihood: `results/df/dftwo_counts_area_20261013`, best job
+    `observed_no_halo_start3`. The fit is numerically validated but **fails
+    its own data-fit gate**. It supersedes the 2026-09-23 fit
+    (`results/df/dftwo_counts_20260923`), whose star-weighted count averages
+    were biased; parameters moved by ≤ 4% and the mass per counted star by
+    −1.8%.
 
 ## Mass components
 
 | Component | Form | Free parameters (range) | Best fit |
 |---|---|---|---|
 | Stars | Self-consistent spherical action DF (below); both the counted tracer and the mass that follows the light | \(M_\star\) (1–6×10⁶ M☉, log) | 3.00×10⁶ M☉ |
-| Remnants | Plummer potential; gravity only, no DF, not a tracer | \(M_{\rm rem}\) (10²–10⁶ M☉, log), \(a_{\rm rem}\) (0.3–20 pc, log) | 2.62×10⁵ M☉, 2.15 pc |
+| Remnants | Plummer potential; gravity only, no DF, not a tracer | \(M_{\rm rem}\) (10²–10⁶ M☉, log), \(a_{\rm rem}\) (0.3–20 pc, log) | 2.73×10⁵ M☉, 2.18 pc |
 | Dark matter | none (\(\rho_{20}=0\)) | — | — |
 | Central black hole | none | — | — |
 
@@ -45,12 +46,12 @@ anisotropic at intermediate radii and tangential outside.
 
 | Parameter | Meaning | Range | Best fit |
 |---|---|---|---|
-| \(J_0\) | envelope scale (pc km/s) | 30–800, log | 54.1 |
+| \(J_0\) | envelope scale (pc km/s) | 30–800, log | 56.0 |
 | \(\alpha\) | envelope sharpness | 0.6–3 | 0.80 |
-| \(b_{\rm out}\) | intermediate anisotropy | −2 to 2 | +0.74 (radial) |
-| \(J_a\) | first transition (pc km/s) | 5–500, log | 64.1 |
+| \(b_{\rm out}\) | intermediate anisotropy | −2 to 2 | +0.77 (radial) |
+| \(J_a\) | first transition (pc km/s) | 5–500, log | 65.5 |
 | \(b_{\rm outer}\) | outer anisotropy | −4 to 2 | −0.33 (tangential) |
-| \(J_{\rm outer}\) | second transition (pc km/s) | 2–100 × \(J_a\) | 319 |
+| \(J_{\rm outer}\) | second transition (pc km/s) | 2–100 × \(J_a\) | 312 |
 
 ### Remnant component
 
@@ -85,38 +86,49 @@ Objective \(=-2\ln L\) (up to a constant):
 | Distance prior | — | Gaussian |
 
 The count amplitude converts to a mass per counted star: the best fit has
-10.67 M☉ of light-following mass per F625W < 19 star. Details of every
+10.48 M☉ of light-following mass per F625W < 19 star (10.67 in the
+2026-09-23 fit). Details of every
 product: [Data products](../data/index.md).
 
 ## Fit quality
 
-| Term | Value | Gate | Pass |
-|---|---|---|---|
-| \(\chi^2_{\rm kin}\) per bin | 158.2 / 89 = 1.78 | ≤ 1.3 | no |
-| HST PM radial | 2.07 per bin | ≤ 2.0 | no |
-| HST PM tangential | 1.95 per bin | ≤ 2.0 | yes |
-| MUSE LOS | 1.31 per bin | ≤ 2.0 | yes |
-| Gaia PM radial | 1.55 per bin | ≤ 2.0 | yes |
-| Gaia PM tangential | 2.42 per bin | ≤ 2.0 | no |
-| HST count deviance | 98.8 / 20 = 4.9 per bin | ≤ 2.0 | no |
-| Gaia count deviance | 26.3 / 12 = 2.2 per bin | ≤ 2.0 | no |
-| Total objective | 285.6 (incl. distance prior 2.2) | — | — |
+| Term | 2026-10-13 | 2026-09-23 | Gate | Pass |
+|---|---|---|---|---|
+| \(\chi^2_{\rm kin}\) per bin | 156.4 / 89 = 1.76 | 158.1 / 89 = 1.78 | ≤ 1.3 | no |
+| HST PM radial | 2.03 per bin | 2.06 | ≤ 2.0 | no |
+| HST PM tangential | 1.89 per bin | 1.95 | ≤ 2.0 | yes |
+| MUSE LOS | 1.31 per bin | 1.31 | ≤ 2.0 | yes |
+| Gaia PM radial | 1.60 per bin | 1.55 | ≤ 2.0 | yes |
+| Gaia PM tangential | 2.39 per bin | 2.43 | ≤ 2.0 | no |
+| HST count deviance | 96.9 / 20 = 4.8 per bin | 98.9 | ≤ 2.0 | no |
+| Gaia count deviance | 25.2 / 12 = 2.1 per bin | 26.3 | ≤ 2.0 | no |
+| Total objective | 280.7 (incl. distance prior 2.2) | 285.6 | — | — |
 
-The HST count residuals are structured: the model is ~4% low at 2–4 pc,
-~4% high at 5–6.5 pc, and low inside 0.1 pc. Replaying the same parameters
-with the corrected count products gives HST deviance 98.1 and Gaia 27.2.
+The two fits use different count likelihoods, so their objectives are not
+directly comparable; the table shows that the correction changes little.
+The HST count residuals remain structured: the data lie below the model
+near 1 pc and in the outermost HST bin (~6 pc), with deviance residuals of
+about −4, and above it at 3–4 pc (+4.6).
+
+![Data versus the base model, both fits](../../../plots/base_area_20261013_data.png)
+
+*Counts (HST and Gaia), MUSE line-of-sight and HST/Gaia proper-motion
+dispersions against the 2026-10-13 (blue) and 2026-09-23 (orange) fits,
+with the earlier Jeans model (dashed). Bottom row: residuals; the count
+panel shows signed Poisson deviance residuals. Both fits are evaluated with
+the corrected count likelihood.*
 
 ## What has been tested
 
 - **Convergence**: 4 of 6 starts valid (2 Latin starts infeasible), all four
-  reach the same minimum; no parameter at a bound.
+  reach the same minimum (objectives within 0.01); no parameter at a bound.
 - **Numerics**: grid refinement shifts predictions by 0.0005σ; direct
   projection checks agree to ≤ 5×10⁻⁴ in Σ, LOS, PM_R and PM_T.
-- **Estimator recovery**: 12 mocks drawn from this model with published
+- **Estimator recovery** (2026-09-23 fit, old count likelihood): 12 mocks drawn from this model with published
   kinematic noise and Poisson counts recover the total mass to ±3% at 20 pc
   and ±5% over 2–40 pc, \(M_\star\) to ±6%, \(M_{\rm rem}\) to ±23%.
 
-Not yet tested: a refit with the corrected count products; mocks whose truth
+Not yet tested: mocks whose truth
 breaks the model's own assumptions (mass segregation, rotation, another
 remnant shape); calibration of the error bars.
 

@@ -7,9 +7,9 @@ supersede earlier ones.
 ## Cluster mass model
 
 - The two-transition DF with Poisson star counts and a distance prior fits
-  all kinematic data without dark matter: χ²_kin = 158 for 89 bins. It does
-  not pass the project's own data-fit gate (χ²_kin per bin 1.78 against ≤ 1.3;
-  HST count deviance 4.9 per bin). See the [base model](models/base_no_dm.md).
+  all kinematic data without dark matter: χ²_kin = 156 for 89 bins. It does
+  not pass the project's own data-fit gate (χ²_kin per bin 1.76 against ≤ 1.3;
+  HST count deviance 4.8 per bin). See the [base model](models/base_no_dm.md).
 - The data identify the total mass profile, not how it splits between stars,
   remnants and dark matter. On realistic mocks \(\rho_{20}\) scatters by
   ±0.7 M☉ pc⁻³.
@@ -18,8 +18,9 @@ supersede earlier ones.
   and 0 at the dynamically preferred 10.7. The photometric uncertainty
   (≳ 1 M☉ per star) is too large to decide between them.
 - 2026-10-13: a bias in the count likelihood (star-weighted rather than
-  area-weighted bin averages) was fixed; it moves the existing best fit by
-  0.2% in mass per star. The models are being refitted.
+  area-weighted bin averages) was fixed. The refitted base model moves by
+  ≤ 4% in every parameter and by −1.8% in mass per counted star (10.67 →
+  10.48 M☉). The halo and mass-per-star scans have not been rerun.
 
 Reports: [DF observed-fit write-up (PDF)](../df_observed_fit.pdf);
 [data analysis (PDF)](../data_analysis.pdf).

@@ -14,10 +14,10 @@ the current results, the literature and the journal. Its sources are in
 ## Status (2026-10-13)
 
 - **Cluster mass model.** A two-transition action DF with Poisson star counts
-  fits the 89 kinematic bins without dark matter (χ²_kin = 158) but fails its
+  fits the 89 kinematic bins without dark matter (χ²_kin = 156) but fails its
   own data-fit gate. The data fix the total mass profile, not the split
-  between stars and dark mass. A count-likelihood bias was fixed on 2026-10-13;
-  the refit is running. [Base model](docs/kb/models/base_no_dm.md).
+  between stars and dark mass. A count-likelihood bias was fixed on 2026-10-13
+  and the base model refitted; the DM scans are not yet rerun. [Base model](docs/kb/models/base_no_dm.md).
 - **DM survival and tails.** N-body tails of no-DM and DM models agree to 10%;
   the differences are not testable with published tail data.
 - **Stream 54.** A rotating bar and the LMC bend the stream part-way; the
