@@ -1,0 +1,188 @@
+# Jeans comparison model: no dark matter, free black hole
+
+The best model of the earlier [Jeans ladder](index.md#earlier-spherical-jeans-ladder-historical)
+(rung 2, `results/fits/rung2_K1_turnover`). It is shown as the dashed curve in
+the base-model figures and is the reference for the question of a central
+black hole. It is fitted to the same 89-bin kinematic snapshot as the
+[DF base model](base_no_dm.md), so the kinematic χ² of the two compare directly.
+
+!!! info "Status"
+    Completed 2026-09-21 (nested sampling, 15,972 posterior samples). A
+    historical comparison model: it is not refitted with the star counts, and
+    its stellar distribution function is not shown to be non-negative (below).
+
+## Model definition
+
+**Jeans equation.** For a spherical tracer of density \(\nu(r)\) in a mass
+profile \(M(<r)\) with anisotropy \(\beta(r)\),
+
+\[
+\frac{d(\nu\sigma_r^2)}{dr}+\frac{2\beta}{r}\nu\sigma_r^2=-\nu\frac{GM(<r)}{r^2},
+\qquad
+\nu\sigma_r^2(r)=\frac{1}{g(r)}\int_r^\infty g(s)\,\nu(s)\frac{GM(<s)}{s^2}\,ds,
+\]
+
+with \(g(r)=\exp\left(2\int^r\beta/t\,dt\right)\). The line-of-sight and radial and
+tangential proper-motion dispersions follow from the standard projection
+integrals (Binney & Mamon 1982; van der Marel 1994) and are averaged over each
+bin as for the DF. The published rotation is subtracted from the model's
+second moments exactly as in the DF fit. Solver: `src/ocen_dm/kinematics/jeans.py`.
+
+**Tracer.** Fixed, not fitted: an 11-component multi-Gaussian expansion of the
+composite light profile (oMEGACat star counts inside 25″, Trager+1995 outside;
+fit residual 0.18 mag rms), deprojected spherically.
+
+**Mass components.**
+
+| Component | Form | Parameters |
+|---|---|---|
+| Stars | mass follows the MGE light | \(M_\star\) |
+| Remnants | Plummer sphere | \(M_{\rm rem}\), \(a_{\rm rem}\) |
+| Black hole | point mass at the centre | \(M_{\rm BH}\) |
+| Dark matter | none | — |
+
+**Anisotropy ("turnover").** Three levels joined by two smooth transitions
+(`src/ocen_dm/kinematics/anisotropy.py`):
+
+\[
+\beta(r)=\beta_0(1-f_1)+\beta_{\rm mid}(f_1-f_2)+\beta_\infty f_2,
+\qquad f_i=\frac{r^2}{r^2+r_i^2},\quad r_2=r_1+\Delta r .
+\]
+
+The weights are non-negative and sum to one, so β never leaves the range of
+its three levels.
+
+## Parameters
+
+| Parameter | Prior | Posterior median (16–84%) | Maximum likelihood |
+|---|---|---|---|
+| \(M_{\rm BH}\) [M☉] | log-uniform 10²–3×10⁵ | 4.25 (3.92–4.58) ×10⁴ | 4.41×10⁴ |
+| \(M_\star\) [M☉] | log-uniform 10⁶–10⁷ | 2.66 (2.49–2.85) ×10⁶ | 2.37×10⁶ |
+| \(M_{\rm rem}\) [M☉] | log-uniform 10⁴–3×10⁶ | 5.4 (3.8–7.0) ×10⁵ | 7.7×10⁵ |
+| \(a_{\rm rem}\) [pc] | log-uniform 0.3–20 | 5.3 (4.8–5.6) | 5.7 |
+| \(\beta_0\) | uniform −1 to −0.5 | −0.53 (−0.57 to −0.51) | −0.50 |
+| \(\beta_{\rm mid}\) | uniform −1 to 1 | 0.19 (0.18–0.21) | 0.20 |
+| \(\beta_\infty\) | uniform −1 to 1 | −0.81 (−0.94 to −0.63) | −0.98 |
+| \(r_1\) [pc] | log-uniform 0.05–30 | 1.09 (0.98–1.20) | 1.16 |
+| \(\Delta r=r_2-r_1\) [pc] | log-uniform 0.5–150 | 38 (33–43) | 44 |
+| D [kpc] | normal 5.43 ± 0.05 | 5.36 (5.34–5.38) | 5.34 |
+
+Fit: χ²_kin = 190.0 for 89 bins at maximum likelihood (DF base model: 156.4);
+ln Z = 85.96. Sampler: UltraNest, 400 live points, Δln Z = 0.5, slice steps
+2 × ndim, seed 42.
+
+The upper bound of the β₀ prior is physical, not empirical: a cored tracer
+around a point mass has a non-negative distribution function only if
+β₀ ≤ −½ ([An & Evans 2006](https://arxiv.org/abs/astro-ph/0511686)). The
+posterior piles up against that bound.
+
+## Mass components
+
+![Mass components of the Jeans model against the DF base model](../../../plots/jeans_rung2_K1_turnover_components.png)
+
+*(a) Enclosed mass by component (Jeans: posterior median and 16–84% from 300
+saved draws; DF base model dashed). (b) Circular velocity. (c) Non-stellar
+share of the enclosed mass. Grey: outside the radial range of the data.*
+
+- **The black hole dominates the centre.** It holds more than half of the
+  enclosed mass out to 1.3 pc; the stars and remnants inside 0.3 pc add only
+  ~560 M☉. The circular velocity therefore rises towards the centre
+  (Keplerian, 43 km/s at 0.1 pc), whereas in the DF model it falls to zero.
+- **Beyond ~3 pc the two models agree** on the total mass to within a few per
+  cent (Jeans 3.24×10⁶ M☉ in total, DF 3.26×10⁶) and on the circular-velocity
+  peak (~27–28 km/s near 9 pc).
+- **They split the non-stellar mass differently.** The Jeans model puts
+  5×10⁵ M☉ in a Plummer of 5.3 pc plus the 4×10⁴ M☉ black hole; the DF
+  puts 2.7×10⁵ M☉ in a Plummer of 2.2 pc. At 10 pc the non-stellar share is
+  ~23% (Jeans) against 15% (DF).
+
+## Anisotropy
+
+![Anisotropy of the Jeans model against the DF base model](../../../plots/jeans_rung2_K1_turnover_beta.png)
+
+*β(r) of the Jeans model (posterior median, 16–84% and 2–98% from 3,000
+draws; transition radii r₁ and r₂ dotted) against the DF base model (dashed).
+Shaded: radial ranges of the HST/MUSE and Gaia data.*
+
+- **Inside ~1 pc the models differ in sign.** The Jeans model is tangential
+  (β ≈ −0.52 at the centre, −0.48 at 0.3 pc, −0.20 at 1 pc), as the black hole
+  requires; the DF core is isotropic.
+- **Between 3 and 15 pc they agree:** mildly radial, peaking at β ≈ +0.15.
+- **Outside ~20 pc both turn tangential;** the Jeans model more strongly
+  (−0.67 at 100 pc against −0.53), where only the Gaia data constrain it.
+
+## Posterior and degeneracies
+
+![Posterior of the Jeans model](../../../plots/jeans_rung2_K1_turnover_corner.png)
+
+*Posterior of the black-hole mass and the parameters it trades against
+(15,972 samples; dashed lines: 16, 50 and 84%).*
+
+- **M_BH is well bounded within this model:** 4.25×10⁴ M☉, 95% interval
+  3.6–4.9×10⁴; no posterior sample is below 10⁴ M☉.
+- **β₀ is pinned at its bound** (−0.525, +0.019/−0.042), so the black-hole
+  mass is measured conditional on the most radial central anisotropy the
+  model allows.
+- **M_BH correlates with the remnant scale and r₁** (correlation +0.53 and
+  +0.51): a more extended remnant component or a larger tangential core needs
+  a heavier black hole.
+- **The leading degeneracy is stars against remnants** (M_rem–M★ −0.95,
+  M_rem–a_rem +0.94), the same stars-versus-dark-mass trade seen in the DF fits.
+
+## Central bins
+
+![Central bins: data, Jeans and DF](../../../plots/jeans_rung2_K1_turnover_centre.png)
+
+*Bins inside 2 pc: HST radial and tangential proper-motion dispersions and
+MUSE line-of-sight dispersions, with the Jeans (solid) and DF (dashed)
+predictions and residuals.*
+
+| Data inside 2 pc | Bins | χ² Jeans | χ² DF |
+|---|---|---|---|
+| HST PM radial | 13 | 21.5 | 22.3 |
+| HST PM tangential | 13 | 16.7 | 23.1 |
+| MUSE line of sight | 17 | 20.8 | 19.4 |
+| **Total** | 43 | **59.0** | **64.8** |
+
+- **The black hole gains Δχ² ≈ 6 in the central 43 bins,** almost entirely
+  from the tangential proper motions inside 0.3 pc, where the data rise to
+  0.81–0.86 mas/yr and the DF stays at 0.76.
+- **It overshoots the tangential dispersions at 0.4–1.4 pc** (residuals −1 to
+  −2.5σ), and the MUSE dispersions do not discriminate.
+- **Over all 89 bins the DF fits better by Δχ² = 34,** mostly at 2–20 pc; see
+  [Comparison with the Jeans model](base_no_dm.md#comparison-with-the-jeans-model-dashed-curves).
+
+## Physical consistency
+
+The spatial densities of all components are non-negative. The stellar
+distribution function is not shown to exist: under the separable
+construction, the second-derivative condition fails at 0.02–0.18 pc for the
+best sample and for 89.7% of posterior draws
+([DF consistency audit](../../DF_CONSISTENCY_AUDIT.md)). A non-separable DF is
+not excluded. The DF base model is non-negative by construction.
+
+## What this model says about a black hole
+
+Within the Jeans framework the central rise of the HST proper-motion
+dispersions is fitted by a 4×10⁴ M☉ point mass with tangential central orbits.
+The evidence is local (Δχ² ≈ 6 from a few bins inside 0.3 pc), it depends on
+an anisotropy forced to its physical limit, and the resulting model has no
+demonstrated non-negative distribution function. Alternatives that are not
+yet tested in the DF framework are a point mass with a self-consistent
+DF, radially biased orbits in the core, and mass segregation of the
+remnants.
+
+## Reproduce
+
+```bash
+source <venv>/bin/activate
+export PYTHONPATH=src
+python bin/run_rung2_fits.py launch results/launches/<new_batch> --profile turnover   # rung-2 batch driver; fresh batch directory
+python bin/plot_jeans_comparison_model.py --name rung2_K1_turnover \
+  --jeans results/fits/rung2_K1_turnover \
+  --df results/df/dftwo_counts_area_20261013::observed_no_halo_start3
+```
+
+The figures need only the saved run (posterior, profile draws) and the DF
+base model, rebuilt once (~1 min on one core). Numbers plotted:
+`results/plot_data/jeans_rung2_K1_turnover.json`.

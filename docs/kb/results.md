@@ -35,6 +35,8 @@ counts). Both fits are evaluated with the corrected count likelihood.*
 
 ### Comparison with the Jeans model (dashed curves)
 
+Full description, figures and posterior: [Jeans comparison model](models/jeans_comparison.md).
+
 The dashed curves are the best rung-2 spherical Jeans fit without dark matter
 (`results/fits/rung2_K1_turnover`), the best model of the earlier
 [Jeans ladder](models/index.md#earlier-spherical-jeans-ladder-historical).
