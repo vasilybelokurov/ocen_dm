@@ -51,9 +51,21 @@ def sha256(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def nodes(r):
-    q = (np.arange(N_NODES)+.5)/N_NODES
-    return np.quantile(np.asarray(r, float), q)
+def quadrature(lo, hi, covered_area=None):
+    """Area-midpoint nodes of N_NODES sub-rings (equal width in ln R) and their covered-area weights.
+
+    Node j sits at R_j^2 = (r_j^2 + r_{j+1}^2)/2, the midpoint in the area variable, so
+    sum_j w_j Sigma(R_j) is the area average of Sigma over the covered part of [lo, hi)
+    (second order in the sub-ring width; relative error <= 6e-4 for Sigma ~ R^0..R^-3 at the HST bin width).
+    ``covered_area(r1, r2)`` returns the covered area of a sub-ring; None means full annuli.
+    Returns (nodes, weights, effective area).
+    """
+    e = np.geomspace(lo, hi, N_NODES+1)
+    ring = np.pi*(e[1:]**2-e[:-1]**2)
+    a = ring if covered_area is None else np.array([covered_area(r1, r2) for r1, r2 in zip(e[:-1], e[1:])])
+    if a.sum() <= 0:
+        raise ValueError(f"no covered area in [{lo}, {hi})")
+    return np.sqrt(.5*(e[1:]**2+e[:-1]**2)), a/a.sum(), float(a.sum())
 
 
 def hst_counts(edges, mag_cut=19., cell=3., full_inside=30.):
@@ -71,16 +83,29 @@ def hst_counts(edges, mag_cut=19., cell=3., full_inside=30.):
     cells = np.unique(ix*10**6+iy)
     cx = (cells//10**6-10**5+.5)*cell
     cy = (cells % 10**6-10**5+.5)*cell
-    Rc = np.hypot(cx, cy)
+    # covered area per sub-ring: occupied cells subsampled on a SUB x SUB grid of points
+    SUB = 10
+    off = ((np.arange(SUB)+.5)/SUB-.5)*cell
+    px = (cx[:, None, None]+off[None, :, None]+0*off[None, None, :]).ravel()
+    py = (cy[:, None, None]+0*off[None, :, None]+off[None, None, :]).ravel()
+    Rp = np.sort(np.hypot(px, py))
+    dA = (cell/SUB)**2
+
+    def covered(r1, r2):
+        if r2 <= full_inside:
+            return np.pi*(r2**2-r1**2)
+        return min((np.searchsorted(Rp, r2)-np.searchsorted(Rp, r1))*dA, np.pi*(r2**2-r1**2))
+
     rows = []
     for lo, hi in zip(edges[:-1], edges[1:]):
-        annulus = np.pi*(hi**2-lo**2)
-        cov = 1. if hi <= full_inside else min(np.sum((Rc >= lo) & (Rc < hi))*cell**2/annulus, 1.)
+        nd, wt, area = quadrature(lo, hi, covered)
         k = sel & (R >= lo) & (R < hi)
-        rows.append((lo, hi, int(k.sum()), cov, annulus*cov, nodes(R[k])))
+        rows.append((lo, hi, int(k.sum()), area/(np.pi*(hi**2-lo**2)), area, nd, wt))
     meta = dict(catalogue=str(path.relative_to(ROOT)), catalogue_sha256=sha256(path), centre="pixel (15000, 15000), 0.04 arcsec/px",
                 selection=f"all stars with measured F625W < {mag_cut:g} (no quality flag)", n_selected=int(sel.sum()),
-                coverage_method=f"occupancy of {cell:g}-arcsec cells by any catalogue star; 1 inside {full_inside:g} arcsec")
+                coverage_method=f"occupancy of {cell:g}-arcsec cells by any catalogue star, subsampled {SUB}x{SUB} per cell into "
+                                f"{N_NODES} sub-rings per bin; 1 inside {full_inside:g} arcsec",
+                quadrature=f"{N_NODES} sub-rings per bin, equal in ln R; node at the area midpoint; weights = covered-area fractions")
     return rows, meta
 
 
@@ -95,19 +120,22 @@ def gaia_counts(edges, mag_cut=17.):
     rows = []
     for lo, hi in zip(edges[:-1], edges[1:]):
         k = sel & (R >= lo) & (R < hi)
-        rows.append((lo, hi, int(k.sum()), 1., np.pi*(hi**2-lo**2), nodes(R[k])))
+        nd, wt, area = quadrature(lo, hi)
+        rows.append((lo, hi, int(k.sum()), 1., area, nd, wt))
     meta = dict(catalogue=str(path.relative_to(ROOT)), catalogue_sha256=sha256(path),
                 centre=f"({OCEN_RA}, {OCEN_DEC}) deg", selection=f"all catalogue stars with G < {mag_cut:g} (members and field)",
-                n_selected=int(sel.sum()), coverage_method="full annuli (Gaia all-sky)")
+                n_selected=int(sel.sum()), coverage_method="full annuli (Gaia all-sky)",
+                quadrature=f"{N_NODES} sub-rings per bin, equal in ln R; node at the area midpoint; weights = area fractions")
     return rows, meta
 
 
 def build(name, rows, meta, source, fit_field, note):
-    lo, hi, n, cov, area, nd = (np.array([r[i] for r in rows]) for i in range(6))
+    lo, hi, n, cov, area, nd, wt = (np.array([r[i] for r in rows]) for i in range(7))
     profile = CountProfile(name, lo, hi, nd, n.astype(int), area, source, meta["selection"], fit_field, note,
-                           dict(meta, built_utc=datetime.now(timezone.utc).isoformat(), coverage=cov.tolist()))
+                           dict(meta, built_utc=datetime.now(timezone.utc).isoformat(), coverage=cov.tolist()),
+                           node_weights=wt)
     out = processed_dir()/"kinematics"
-    table = Table(dict(r_lower=lo, r_upper=hi, r_median=profile.r_median, n_stars=n.astype(int), coverage=cov,
+    table = Table(dict(r_lower=lo, r_upper=hi, r_median=np.sqrt(lo*hi), n_stars=n.astype(int), coverage=cov,
                        area_arcsec2=area, density_per_arcmin2=n/area*3600., poisson_err_per_arcmin2=np.sqrt(np.maximum(n, 1))/area*3600.),
                   meta=dict(meta, product=name, fit_field=fit_field, note=note))
     table.write(out/f"{name}.ecsv", format="ascii.ecsv", overwrite=True)

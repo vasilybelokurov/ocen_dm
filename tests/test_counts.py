@@ -77,3 +77,50 @@ def test_fixed_amplitude_matches_profiled_at_optimum_and_is_worse_elsewhere():
     assert q.compare(shape_q, amplitude=1e-3)["field"] == 0.
     with pytest.raises(ValueError):
         p.compare(shape, amplitude=-1.)
+
+
+def _quadrature():
+    import importlib.util
+    from pathlib import Path
+    spec = importlib.util.spec_from_file_location("bcp", Path(__file__).resolve().parents[1]/"bin"/"build_count_profiles.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod.quadrature
+
+
+@pytest.mark.parametrize("slope", [0., -1., -2., -3.])
+def test_area_weighted_bin_average_matches_annulus_integral(slope):
+    quadrature = _quadrature()
+    edges = np.geomspace(2., 250., 21)          # the HST product's bins
+    nodes, weights, areas = zip(*(quadrature(lo, hi) for lo, hi in zip(edges[:-1], edges[1:])))
+    p = CountProfile("pl", edges[:-1], edges[1:], np.array(nodes), np.ones(20, int), np.array(areas), "s", "sel",
+                     fit_field=False, node_weights=np.array(weights))
+    got = p.bin_average(np.array(nodes)**slope)
+    lo, hi = edges[:-1], edges[1:]
+    exact = (2*np.log(hi/lo) if slope == -2 else 2*(hi**(slope+2)-lo**(slope+2))/(slope+2))/(hi**2-lo**2)
+    np.testing.assert_allclose(got, exact, rtol=1e-3)   # vs a 1-6% star-weighted bias
+    np.testing.assert_allclose(areas, np.pi*(hi**2-lo**2), rtol=1e-12)
+
+
+def test_partial_coverage_weights_follow_covered_area():
+    quadrature = _quadrature()
+    cut = 100.*2**.5                      # sub-ring edge 4 of 8 in [100, 200)
+    nodes, w, area = quadrature(100., 200., lambda r1, r2: np.pi*(r2**2-r1**2)*(r1 < cut-1e-9))
+    assert np.all(w[4:] == 0.) and np.all(w[:4] > 0.) and w.sum() == pytest.approx(1.)
+    assert area == pytest.approx(np.pi*(cut**2-100.**2), rel=1e-12)
+
+
+def test_weighted_profile_roundtrip_and_legacy_replay():
+    lo, hi = np.array([1., 2.]), np.array([2., 4.])
+    nodes = np.array([[1.2, 1.8], [2.5, 3.5]])
+    w = np.array([[.3, .7], [.5, .5]])
+    p = CountProfile("x", lo, hi, nodes, np.array([10, 5]), np.ones(2), "s", "sel", fit_field=False, node_weights=w)
+    q = CountProfile.from_dict(p.to_dict())
+    assert p.to_dict()["schema_version"] == 2
+    np.testing.assert_array_equal(q.node_weights, w)
+    np.testing.assert_allclose(q.bin_average(nodes), [.3*1.2+.7*1.8, 3.])
+    legacy = CountProfile("x", lo, hi, nodes, np.array([10, 5]), np.ones(2), "s", "sel", fit_field=False)
+    assert legacy.to_dict()["schema_version"] == 1 and CountProfile.from_dict(legacy.to_dict()).node_weights is None
+    np.testing.assert_allclose(legacy.bin_average(nodes), [1.5, 3.])
+    with pytest.raises(ValueError):
+        CountProfile("x", lo, hi, nodes, np.array([10, 5]), np.ones(2), "s", "sel", node_weights=np.array([[.3, .6], [.5, .5]]))

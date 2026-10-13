@@ -55,7 +55,7 @@ def mock_counts_problem(template, counts, truth, amplitudes, fields=None, rng=No
     pc_per_arcsec = truth.config.distance_kpc*1000/ARCSEC_PER_RAD
     mocks = []
     for c in counts:
-        sigma = truth.projected_moments(np.asarray(c.r_nodes).ravel()*pc_per_arcsec)["Sigma"].reshape(c.r_nodes.shape).mean(axis=1)
+        sigma = c.bin_average(truth.projected_moments(np.asarray(c.r_nodes).ravel()*pc_per_arcsec)["Sigma"])
         b = (fields or {}).get(c.name, 0.) if c.fit_field else 0.
         mu = c.area_arcsec2*(amplitudes[c.name]*sigma+b)
         n = rng.poisson(mu) if rng is not None else np.round(mu).astype(int)

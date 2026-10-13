@@ -6,8 +6,13 @@ model predicts the tracer surface density ``Sigma(R)`` up to an amplitude, so
 
     mu_i = A_i * (a * Sigma_bar_i + b),      N_i ~ Poisson(mu_i),
 
-with ``Sigma_bar_i`` the model averaged over the stars' radii (equal-count
-quantile nodes, as for the kinematic bins), ``a >= 0`` the number of stars per
+with ``Sigma_bar_i`` the area average of the model over the bin's effective
+area, ``sum_j w_ij Sigma(R_ij)`` with nodes ``R_ij`` and covered-area weights
+``w_ij`` (``node_weights``; rows sum to 1). Products without weights (schema 1,
+equal-count quantile nodes of the stars' radii with an equal-weight mean) are
+read for replay only: that mean is star-weighted, i.e. it estimates
+int Sigma^2 dA / int Sigma dA instead of the area mean, and is biased high by
+~3% per bin for Sigma ~ R^-2 at the HST bin width. ``a >= 0`` the number of stars per
 unit model surface density (profiled analytically at every evaluation, or held
 at a given value when the mass per counted star is an external assumption) and
 ``b >= 0`` an optional uniform field density (profiled when ``fit_field``).
@@ -105,7 +110,7 @@ class CountProfile:
     name: str
     r_lower: np.ndarray            # arcsec
     r_upper: np.ndarray
-    r_nodes: np.ndarray            # (n_bins, k) equal-count quantile radii of the counted stars, arcsec
+    r_nodes: np.ndarray            # (n_bins, k) quadrature radii of each bin, arcsec
     counts: np.ndarray             # integers
     area_arcsec2: np.ndarray       # coverage-corrected effective area per bin
     source: str
@@ -113,6 +118,7 @@ class CountProfile:
     fit_field: bool = True
     note: str = ""
     meta: dict = field(default_factory=dict)
+    node_weights: np.ndarray | None = None   # (n_bins, k) covered-area fractions; None = legacy equal weights
 
     def __post_init__(self):
         arrays = (self.r_lower, self.r_upper, self.counts, self.area_arcsec2)
@@ -125,6 +131,11 @@ class CountProfile:
             raise ValueError(f"{self.name}: counts must be non-negative integers")
         if np.any(np.asarray(self.area_arcsec2) <= 0) or np.any(~np.isfinite(self.r_nodes)):
             raise ValueError(f"{self.name}: areas must be positive and nodes finite")
+        if self.node_weights is not None:
+            w = np.asarray(self.node_weights, float)
+            if w.shape != np.asarray(self.r_nodes).shape or np.any(~np.isfinite(w)) or np.any(w < 0) \
+                    or not np.allclose(w.sum(axis=1), 1., rtol=0, atol=1e-10):
+                raise ValueError(f"{self.name}: node weights must match the nodes, be >= 0 and sum to 1 per bin")
 
     @property
     def n(self):
@@ -133,6 +144,13 @@ class CountProfile:
     @property
     def r_median(self):
         return np.median(self.r_nodes, axis=1)
+
+    def bin_average(self, sigma_nodes):
+        """Model surface density averaged over each bin (area-weighted if weights are stored)."""
+        sigma_nodes = np.asarray(sigma_nodes, float).reshape(self.r_nodes.shape)
+        if self.node_weights is None:
+            return sigma_nodes.mean(axis=1)
+        return np.sum(np.asarray(self.node_weights, float)*sigma_nodes, axis=1)
 
     def compare(self, sigma_nodes, amplitude=None):
         """Poisson fit given the model surface density at ``r_nodes`` (same shape).
@@ -143,7 +161,7 @@ class CountProfile:
         sigma_nodes = np.asarray(sigma_nodes, float).reshape(self.r_nodes.shape)
         if np.any(~np.isfinite(sigma_nodes)) or np.any(sigma_nodes <= 0):
             raise ValueError(f"{self.name}: invalid projected surface density")
-        shape = sigma_nodes.mean(axis=1)
+        shape = self.bin_average(sigma_nodes)
         a, b, mu = poisson_profile_fit(self.counts, self.area_arcsec2, shape, self.fit_field, amplitude=amplitude)
         res = deviance_residuals(self.counts, mu)
         n = np.asarray(self.counts, float)
@@ -154,18 +172,23 @@ class CountProfile:
                     field_density_per_arcmin2=b*3600., loglike=loglike, n=self.n)
 
     def to_dict(self):
-        return dict(schema_version=1, name=self.name, r_lower=self.r_lower.tolist(),
-                    r_upper=self.r_upper.tolist(), r_nodes=np.asarray(self.r_nodes).tolist(),
-                    counts=[int(c) for c in self.counts], area_arcsec2=self.area_arcsec2.tolist(),
-                    source=self.source, selection=self.selection, fit_field=self.fit_field,
-                    note=self.note, meta=dict(self.meta))
+        row = dict(schema_version=1, name=self.name, r_lower=self.r_lower.tolist(),
+                   r_upper=self.r_upper.tolist(), r_nodes=np.asarray(self.r_nodes).tolist(),
+                   counts=[int(c) for c in self.counts], area_arcsec2=self.area_arcsec2.tolist(),
+                   source=self.source, selection=self.selection, fit_field=self.fit_field,
+                   note=self.note, meta=dict(self.meta))
+        if self.node_weights is not None:
+            row.update(schema_version=2, node_weights=np.asarray(self.node_weights).tolist())
+        return row
 
     @classmethod
     def from_dict(cls, row):
         row = dict(row)
-        if row.pop("schema_version") != 1:
+        version = row.pop("schema_version")
+        if version not in (1, 2):
             raise ValueError("unsupported count-profile snapshot")
-        arrays = {k: np.array(row.pop(k), float) for k in ("r_lower", "r_upper", "r_nodes", "area_arcsec2")}
+        keys = ("r_lower", "r_upper", "r_nodes", "area_arcsec2")+(("node_weights",) if version == 2 else ())
+        arrays = {k: np.array(row.pop(k), float) for k in keys}
         counts = np.array(row.pop("counts"), int)
         return cls(counts=counts, **arrays, **row)
 
