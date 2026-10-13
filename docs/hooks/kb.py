@@ -1,8 +1,8 @@
 """MkDocs hook for the oCen_dm knowledge base.
 
-* Serves files that live outside ``docs/``: ``plots/*.png`` at ``plots/``,
-  JOURNAL.md as month pages under ``journal/``, OCEN_DM_TAILS_PROJECT.md as
-  ``spec.md``.
+* Serves files that live outside ``docs/``: committed ``plots/*.png`` at
+  ``plots/`` and OCEN_DM_TAILS_PROJECT.md as ``spec.md``. The project journal
+  is kept locally and is not published; links to it become plain text.
 * Generates two pages from committed sources so they cannot drift:
   ``kb/data/sources.md`` from ``provenance/datasets.yaml`` and
   ``kb/literature.md`` from ``docs/kb/literature.json``.
@@ -45,22 +45,6 @@ def _tracked():
 
 
 # ---------------------------------------------------------------- generated pages
-def _journal_pages():
-    text = (ROOT/"JOURNAL.md").read_text()
-    head, *entries = re.split(r"(?m)^(?=## )", text)
-    months = defaultdict(list)
-    for e in entries:
-        m = re.match(r"## (\d{4}-\d{2})", e)
-        months[m.group(1) if m else "undated"].append(e)
-    pages = {}
-    for month, es in months.items():
-        pages[f"journal/{month}.md"] = f"# Journal, {month}\n\n" + "".join(es)
-    index = ["# Journal", "",
-             "Chronological record of the project, split by month from the repository's `JOURNAL.md`.",
-             "Later entries can supersede earlier ones; corrections are recorded as new entries.", ""]
-    index += [f"- [{m}]({m}.md): {len(months[m])} entries" for m in sorted(months, reverse=True)]
-    pages["journal/index.md"] = "\n".join(index)+"\n"
-    return pages
 
 
 def _sources_page():
@@ -139,13 +123,12 @@ def _literature_page():
 def on_files(files, config):
     for rel in sorted(t for t in _tracked() if t.startswith("plots/") and t.endswith(".png")):   # committed plots only
         files.append(File(rel, str(ROOT), config["site_dir"], config["use_directory_urls"]))
-    pages = dict(_journal_pages())
+    pages = {}
     pages["spec.md"] = (ROOT/"OCEN_DM_TAILS_PROJECT.md").read_text()
     pages["kb/data/sources.md"] = _sources_page()
     pages["kb/literature.md"] = _literature_page()
     for uri, content in pages.items():
-        _REAL[uri] = ROOT/("JOURNAL.md" if uri.startswith("journal/") else
-                           "OCEN_DM_TAILS_PROJECT.md" if uri == "spec.md" else "docs/"+uri)
+        _REAL[uri] = ROOT/("OCEN_DM_TAILS_PROJECT.md" if uri == "spec.md" else "docs/"+uri)
         files.append(File.generated(config, uri, content=content))
     return files
 
@@ -181,8 +164,6 @@ def _rewrite(page_uri, target):
         virtual = rel_repo[len("docs/"):]
     elif rel_repo.startswith("plots/") and rel_repo in _tracked():
         virtual = rel_repo
-    elif rel_repo == "JOURNAL.md":
-        virtual = "journal/index.md"
     elif rel_repo == "OCEN_DM_TAILS_PROJECT.md":
         virtual = "spec.md"
     elif rel_repo in _tracked() or (real.is_dir() and any(t.startswith(rel_repo+"/") for t in _tracked())):

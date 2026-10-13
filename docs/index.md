@@ -38,8 +38,6 @@ A joint kinematic-and-tail inference is the long-term goal and is not built.
   they rest on.
 - **[Literature](kb/literature.md)**: every paper the project cites, by topic,
   mirrored in the public [SciX library](https://scixplorer.org/public-libraries/RSXq3-NtTTCApvfPUbdwrg).
-- **[Journal](journal/index.md)**: the chronological record. Later entries can
-  supersede earlier results.
 - **[Reviews](reviews/index.md)**: external (Codex) reviews of code and plans.
 
 Code: <https://github.com/vasilybelokurov/ocen_dm>

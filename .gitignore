@@ -36,3 +36,5 @@ tmp/
 recovery_snapshot_*.tar.gz
 # MkDocs build output
 site/
+# project journal: kept locally, never committed
+JOURNAL.md

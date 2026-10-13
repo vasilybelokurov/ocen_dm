@@ -82,8 +82,8 @@ of minutes; some tests skip without those inputs.
 - Plots are PNG files in `plots/`; plotted tables and JSON provenance go to
   `results/plot_data/`. Compiled PDFs sit next to their LaTeX in `docs/`.
 - `data/` and `results/` are not committed.
-- Results are recorded in `JOURNAL.md` as they happen; corrections are new
-  entries, not edits of old ones.
+- Results are recorded in a project journal that is kept locally (not in
+  git); the reports in `docs/` carry the results that are shared.
 - External reviews go to `docs/reviews/`.
 
 ## Building this site
@@ -95,7 +95,6 @@ mkdocs build --strict   # the link check used before publishing
 mkdocs gh-deploy        # publish to GitHub Pages
 ```
 
-The build hook (`docs/hooks/kb.py`) serves `plots/`, splits the journal by
-month, generates the [registered sources](data/sources.md) and
+The build hook (`docs/hooks/kb.py`) serves `plots/`, generates the [registered sources](data/sources.md) and
 [literature](literature.md) pages from committed files, and points code links
 to GitHub.

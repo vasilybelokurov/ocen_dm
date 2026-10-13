@@ -1,7 +1,6 @@
 # Reviews
 
 Independent reviews by OpenAI Codex (read-only access to the repository), newest first.
-The journal entry of the same date records which findings were checked and acted on.
 These files moved from `docs/` to `docs/reviews/` on 2026-10-13. Links to `results/` inside them point to local run outputs that are not in the repository.
 
 | Date | Review | Subject |

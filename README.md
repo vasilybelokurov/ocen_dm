@@ -5,7 +5,7 @@ the stars, remnants and central mass that fit its internal kinematics?
 
 **Knowledge base: <https://vasilybelokurov.github.io/ocen_dm/>.** It describes
 every data product (source, processing, use), the base model and its variants,
-the current results, the literature and the journal. Its sources are in
+the current results and the literature. Its sources are in
 `docs/`; preview locally with `mkdocs serve`.
 
 **Literature:** public SciX library
@@ -23,7 +23,7 @@ the current results, the literature and the journal. Its sources are in
 - **Stream 54.** A rotating bar and the LMC bend the stream part-way; the
   proper-motion knee is not reproduced. [Current note](docs/STREAM_PM_REFINEMENT_2026-10-13.md).
 
-Details: [results](docs/kb/results.md) and the chronological [journal](JOURNAL.md).
+Details: [results](docs/kb/results.md).
 
 ## Quick start
 

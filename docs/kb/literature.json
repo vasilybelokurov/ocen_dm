@@ -11,11 +11,10 @@
    "topic": "data-source",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:7646",
     "docs/codex_mass_model_next_2026-10-13.md:25",
     "docs/progenitor_orbits.tex:681"
    ],
-   "note": "arXiv ID came from a Codex report flagged \"not yet checked\" (JOURNAL.md:7646); ADS confirms it matches.",
+   "note": "arXiv ID came from a Codex report flagged \"not yet checked\" (the project journal); ADS confirms it matches.",
    "needs_resolution": false
   },
   {
@@ -27,7 +26,6 @@
    "topic": "data-source",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:7252",
     "docs/DF_ANISOTROPY_DIAGNOSTICS.md:125",
     "docs/LITERATURE_BASELINES.md:20"
    ],
@@ -60,7 +58,6 @@
    "relevance": "core",
    "files": [
     "OCEN_DM_TAILS_PROJECT.md:160",
-    "JOURNAL.md:34",
     "provenance/datasets.yaml:14"
    ],
    "note": "DOI/bibcode from ADS (repo cites arXiv only)",
@@ -76,7 +73,6 @@
    "relevance": "core",
    "files": [
     "OCEN_DM_TAILS_PROJECT.md:143",
-    "JOURNAL.md:33",
     "docs/DF_MODEL_LITERATURE_REVIEW.md:186"
    ],
    "note": "",
@@ -92,7 +88,6 @@
    "relevance": "core",
    "files": [
     "OCEN_DM_TAILS_PROJECT.md:114",
-    "JOURNAL.md:35",
     "docs/MANUAL_DOWNLOADS.md:58"
    ],
    "note": "",
@@ -122,7 +117,6 @@
    "topic": "data-source",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:6538",
     "docs/STREAM_EXPERIMENTS_PLAN.md:96",
     "docs/STREAM_KNEE_INVESTIGATION.md:37"
    ],
@@ -139,7 +133,6 @@
    "relevance": "core",
    "files": [
     "OCEN_DM_TAILS_PROJECT.md:78",
-    "JOURNAL.md:32",
     "docs/MANUAL_DOWNLOADS.md:99"
    ],
    "note": "",
@@ -155,10 +148,9 @@
    "relevance": "core",
    "files": [
     "OCEN_DM_TAILS_PROJECT.md:98",
-    "JOURNAL.md:33",
     "docs/MANUAL_DOWNLOADS.md:14"
    ],
-   "note": "bib file uses placeholder key 2026MNRAS.stag1147K (not a real bibcode; ADS bibcode 2026MNRAS.550g1147K recorded in JOURNAL.md:367). Codex report codex_research_fit_campaign:130 misattributes it as \"Ibata et al. 2026\" (corrected in JOURNAL.md:6734).",
+   "note": "bib file uses placeholder key 2026MNRAS.stag1147K (not a real bibcode; ADS bibcode 2026MNRAS.550g1147K recorded in the project journal). Codex report codex_research_fit_campaign:130 misattributes it as \"Ibata et al. 2026\" (corrected in the project journal).",
    "needs_resolution": false
   },
   {
@@ -171,7 +163,6 @@
    "relevance": "core",
    "files": [
     "OCEN_DM_TAILS_PROJECT.md:121",
-    "JOURNAL.md:40",
     "docs/literature/omega_cen_stream_distances_2026-10-10.md:20"
    ],
    "note": "",
@@ -186,7 +177,6 @@
    "topic": "data-source",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:6331",
     "bin/plot_hst_lp_cmds.py:5"
    ],
    "note": "",
@@ -201,7 +191,6 @@
    "topic": "data-source",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:740",
     "docs/OBSERVED_DF_FLEXIBILITY.md:69",
     "docs/df_observed_fit.tex:145"
    ],
@@ -217,7 +206,6 @@
    "topic": "data-source",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:680",
     "docs/DF_ANISOTROPY_DIAGNOSTICS.md:50",
     "docs/DF_MODEL_LITERATURE_REVIEW.md:188"
    ],
@@ -234,7 +222,6 @@
    "relevance": "core",
    "files": [
     "OCEN_DM_TAILS_PROJECT.md:131",
-    "JOURNAL.md:34",
     "docs/LIFETIME_EVOLUTION.md:49"
    ],
    "note": "",
@@ -293,7 +280,6 @@
    "topic": "omega-cen-mass-imbh",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:7647",
     "docs/LITERATURE_BASELINES.md:73",
     "docs/STREAM_EXPERIMENTS_PLAN.md:98"
    ],
@@ -325,7 +311,6 @@
    "topic": "omega-cen-mass-imbh",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:880",
     "docs/LITERATURE_BASELINES.md:21",
     "src/ocen_dm/kinematics/presets.py:54"
    ],
@@ -341,7 +326,6 @@
    "topic": "omega-cen-mass-imbh",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:1236",
     "docs/LITERATURE_BASELINES.md:57",
     "src/ocen_dm/kinematics/presets.py:89"
    ],
@@ -471,7 +455,6 @@
    "topic": "omega-cen-mass-imbh",
    "relevance": "context",
    "files": [
-    "JOURNAL.md:7647",
     "docs/codex_mass_model_next_2026-10-13.md:30"
    ],
    "note": "",
@@ -502,7 +485,6 @@
    "topic": "omega-cen-mass-imbh",
    "relevance": "context",
    "files": [
-    "JOURNAL.md:7646",
     "docs/DF_MODEL_LITERATURE_REVIEW.md:167",
     "docs/LITERATURE_BASELINES.md:60"
    ],
@@ -518,7 +500,6 @@
    "topic": "cluster-dynamics-methods",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:876",
     "docs/CODE_ANALYSIS_AUDIT.md:190",
     "docs/DF_CONSISTENCY_AUDIT.md:115"
    ],
@@ -580,7 +561,6 @@
    "topic": "cluster-dynamics-methods",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:3726",
     "docs/NBODY_IC_PROPOSAL.md:58",
     "docs/PROGENITOR_ORBITS.md:57"
    ],
@@ -596,7 +576,6 @@
    "topic": "cluster-dynamics-methods",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:7646",
     "docs/DF_MODEL_LITERATURE_REVIEW.md:161",
     "docs/codex_mass_model_next_2026-10-13.md:26"
    ],
@@ -628,7 +607,6 @@
    "topic": "cluster-dynamics-methods",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:7647",
     "docs/AGAMA_DF_MODELS.md:84",
     "docs/DF_MODEL_LITERATURE_REVIEW.md:49"
    ],
@@ -706,7 +684,6 @@
    "topic": "cluster-dynamics-methods",
    "relevance": "context",
    "files": [
-    "JOURNAL.md:3907",
     "docs/NBODY_IC_PROPOSAL.md:44",
     "docs/codex_review_nbody_2026-09-20.md:47"
    ],
@@ -738,7 +715,6 @@
    "topic": "cluster-dynamics-methods",
    "relevance": "context",
    "files": [
-    "JOURNAL.md:7646",
     "docs/DF_CAPACITY_CHALLENGE.md:74",
     "docs/codex_mass_model_next_2026-10-13.md:28"
    ],
@@ -754,7 +730,6 @@
    "topic": "cluster-dynamics-methods",
    "relevance": "context",
    "files": [
-    "JOURNAL.md:7647",
     "docs/codex_mass_model_next_2026-10-13.md:29"
    ],
    "note": "",
@@ -931,7 +906,6 @@
    "topic": "tides-and-dm-survival",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:3915",
     "docs/dm_capture_constraints.tex:1164",
     "docs/progenitor_orbits.tex:687"
    ],
@@ -978,7 +952,6 @@
    "topic": "tides-and-dm-survival",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:3915",
     "docs/dm_capture_constraints.tex:1159",
     "docs/progenitor_orbits.tex:688"
    ],
@@ -1106,7 +1079,6 @@
    "topic": "tails-and-streams",
    "relevance": "context",
    "files": [
-    "JOURNAL.md:6549",
     "docs/STREAM_KNEE_INVESTIGATION.md:129"
    ],
    "note": "",
@@ -1165,7 +1137,6 @@
    "topic": "tails-and-streams",
    "relevance": "context",
    "files": [
-    "JOURNAL.md:6699",
     "docs/codex_research_knee_2026-10-08.md:59",
     "docs/literature/omega_cen_stream_distances_2026-10-10.md:19"
    ],
@@ -1181,7 +1152,6 @@
    "topic": "tails-and-streams",
    "relevance": "context",
    "files": [
-    "JOURNAL.md:6540",
     "docs/STREAM_KNEE_INVESTIGATION.md:127",
     "docs/codex_research_knee_2026-10-08.md:68"
    ],
@@ -1211,7 +1181,6 @@
    "topic": "mw-potential-bar-lmc",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:3752",
     "docs/progenitor_orbits.tex:683",
     "src/ocen_dm/tails/bar_migration.py:11"
    ],
@@ -1227,7 +1196,6 @@
    "topic": "mw-potential-bar-lmc",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:6895",
     "bin/streams/fit_bar_ocen.py:2",
     "bin/streams/ocen_state_sensitivity.py:3"
    ],
@@ -1274,7 +1242,6 @@
    "topic": "mw-potential-bar-lmc",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:3703",
     "docs/LIFETIME_EVOLUTION.md:52",
     "docs/PROGENITOR_ORBITS.md:118"
    ],
@@ -1290,7 +1257,6 @@
    "topic": "mw-potential-bar-lmc",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:7462",
     "docs/STREAM_EXPERIMENTS_PLAN.md:94",
     "docs/STREAM_FIT_CAMPAIGN_PLAN.md:6"
    ],
@@ -1307,10 +1273,9 @@
    "relevance": "core",
    "files": [
     "README.md:16",
-    "JOURNAL.md:3769",
     "docs/NBODY_CODE_ASSESSMENT.md:27"
    ],
-   "note": "barred host potential (AGAMA example_mw_potential_hunter24). JOURNAL.md:7441 marks the paper itself UNVERIFIED/not retrieved; ADS confirms the arXiv ID",
+   "note": "barred host potential (AGAMA example_mw_potential_hunter24). the project journal marks the paper itself UNVERIFIED/not retrieved; ADS confirms the arXiv ID",
    "needs_resolution": false
   },
   {
@@ -1322,7 +1287,6 @@
    "topic": "mw-potential-bar-lmc",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:2565",
     "docs/PROGENITOR_ORBITS.md:25",
     "docs/SECTION11_TESTS.md:107"
    ],
@@ -1338,7 +1302,6 @@
    "topic": "mw-potential-bar-lmc",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:6693",
     "docs/codex_frame_decomp_next_2026-10-10.md:31",
     "docs/codex_research_fit_campaign_2026-10-08.md:78"
    ],
@@ -1386,7 +1349,6 @@
    "topic": "mw-potential-bar-lmc",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:7464",
     "docs/STREAM_EXPERIMENTS_PLAN.md:95",
     "docs/data_analysis.tex:580"
    ],
@@ -1402,7 +1364,6 @@
    "topic": "mw-potential-bar-lmc",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:6894",
     "bin/streams/fit_bar_ocen.py:34"
    ],
    "note": "bar-angle prior in bin/streams/fit_bar_ocen.py",
@@ -1417,7 +1378,6 @@
    "topic": "mw-potential-bar-lmc",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:7440",
     "bin/streams/bar3d_sweep.py:23"
    ],
    "note": "bar length for corotation cut (bin/streams/bar3d_sweep.py)",
@@ -1447,9 +1407,7 @@
    "title": "The Milky Way-Large Magellanic Cloud interaction with simulation-based inference",
    "topic": "mw-potential-bar-lmc",
    "relevance": "context",
-   "files": [
-    "JOURNAL.md:7471"
-   ],
+   "files": [],
    "note": "",
    "needs_resolution": false
   },
@@ -1477,7 +1435,6 @@
    "topic": "mw-potential-bar-lmc",
    "relevance": "context",
    "files": [
-    "JOURNAL.md:6694",
     "docs/codex_research_fit_campaign_2026-10-08.md:78",
     "docs/codex_research_knee_2026-10-08.md:22"
    ],
@@ -1507,7 +1464,6 @@
    "topic": "mw-potential-bar-lmc",
    "relevance": "context",
    "files": [
-    "JOURNAL.md:7304",
     "docs/codex_frame_decomp_next_2026-10-10.md:29"
    ],
    "note": "",
@@ -1521,9 +1477,7 @@
    "title": "Equilibrium models of the Milky Way mass are biased high by the LMC",
    "topic": "mw-potential-bar-lmc",
    "relevance": "context",
-   "files": [
-    "JOURNAL.md:7470"
-   ],
+   "files": [],
    "note": "",
    "needs_resolution": false
   },
@@ -1535,9 +1489,7 @@
    "title": "Detection of the LMC-induced sloshing of the Galactic halo",
    "topic": "mw-potential-bar-lmc",
    "relevance": "context",
-   "files": [
-    "JOURNAL.md:7470"
-   ],
+   "files": [],
    "note": "",
    "needs_resolution": false
   },
@@ -1550,7 +1502,6 @@
    "topic": "mw-potential-bar-lmc",
    "relevance": "context",
    "files": [
-    "JOURNAL.md:6695",
     "docs/codex_research_knee_2026-10-08.md:28"
    ],
    "note": "",
@@ -1564,9 +1515,7 @@
    "title": "Disentangling the Morphology of Palomar 5: Effects of the Bar, Spiral Arms, LMC, and Halo Flattening",
    "topic": "mw-potential-bar-lmc",
    "relevance": "context",
-   "files": [
-    "JOURNAL.md:7474"
-   ],
+   "files": [],
    "note": "",
    "needs_resolution": false
   },
@@ -1579,7 +1528,6 @@
    "topic": "mw-potential-bar-lmc",
    "relevance": "context",
    "files": [
-    "JOURNAL.md:3730",
     "docs/NBODY_IC_PROPOSAL.md:55",
     "docs/PROGENITOR_ORBITS.md:46"
    ],
@@ -1594,9 +1542,7 @@
    "title": "Dynamically constraining the length of the Milky Way bar",
    "topic": "mw-potential-bar-lmc",
    "relevance": "context",
-   "files": [
-    "JOURNAL.md:7441"
-   ],
+   "files": [],
    "note": "",
    "needs_resolution": false
   },
@@ -1609,7 +1555,6 @@
    "topic": "mw-potential-bar-lmc",
    "relevance": "context",
    "files": [
-    "JOURNAL.md:6695",
     "docs/codex_research_knee_2026-10-08.md:28"
    ],
    "note": "",
@@ -1637,9 +1582,7 @@
    "title": "The Proper Motion of Sagittarius A*. III. The Case for a Supermassive Black Hole",
    "topic": "mw-potential-bar-lmc",
    "relevance": "context",
-   "files": [
-    "JOURNAL.md:7248"
-   ],
+   "files": [],
    "note": "",
    "needs_resolution": false
   },
@@ -1651,9 +1594,7 @@
    "title": "The Effect of the LMC on the Milky Way System",
    "topic": "mw-potential-bar-lmc",
    "relevance": "context",
-   "files": [
-    "JOURNAL.md:7468"
-   ],
+   "files": [],
    "note": "",
    "needs_resolution": false
   },
@@ -1665,9 +1606,7 @@
    "title": "Dear Magellanic Clouds, welcome back!",
    "topic": "mw-potential-bar-lmc",
    "relevance": "context",
-   "files": [
-    "JOURNAL.md:7468"
-   ],
+   "files": [],
    "note": "",
    "needs_resolution": false
   },
@@ -1679,9 +1618,7 @@
    "title": "GSE versus LMC: reshaping of radially biased stellar haloes by satellites",
    "topic": "mw-potential-bar-lmc",
    "relevance": "tangential",
-   "files": [
-    "JOURNAL.md:7472"
-   ],
+   "files": [],
    "note": "journal notes \"not directly relevant\"",
    "needs_resolution": false
   },
@@ -1695,7 +1632,6 @@
    "relevance": "core",
    "files": [
     "README.md:23",
-    "JOURNAL.md:7617",
     "docs/STREAM_EXPERIMENTS_PLAN.md:42"
    ],
    "note": "release model in src/ocen_dm/streams/escape.py; published ApJS 2025 (ADS)",
@@ -1711,7 +1647,6 @@
    "relevance": "core",
    "files": [
     "OCEN_DM_TAILS_PROJECT.md:290",
-    "JOURNAL.md:6226",
     "docs/STREAM_DIAGNOSTIC_PLAN.md:44"
    ],
    "note": "",
@@ -1726,7 +1661,6 @@
    "topic": "stream-fitting-methods",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:6743",
     "docs/STREAM_FIT_CAMPAIGN_PLAN.md:23",
     "docs/STREAM_FIT_METHODS_REVIEW.md:6"
    ],
@@ -1742,7 +1676,6 @@
    "topic": "stream-fitting-methods",
    "relevance": "context",
    "files": [
-    "JOURNAL.md:7394",
     "docs/STREAM_FIT_METHODS_REVIEW.md:6"
    ],
    "note": "",
@@ -1771,7 +1704,6 @@
    "topic": "stream-fitting-methods",
    "relevance": "context",
    "files": [
-    "JOURNAL.md:6744",
     "docs/STREAM_FIT_CAMPAIGN_PLAN.md:43",
     "docs/STREAM_FIT_METHODS_REVIEW.md:6"
    ],
@@ -1817,7 +1749,6 @@
    "topic": "stream-fitting-methods",
    "relevance": "context",
    "files": [
-    "JOURNAL.md:6742",
     "docs/STREAM_EXPERIMENTS_PLAN.md:10",
     "docs/STREAM_FIT_CAMPAIGN_PLAN.md:34"
    ],
@@ -1833,11 +1764,10 @@
    "topic": "stream-fitting-methods",
    "relevance": "context",
    "files": [
-    "JOURNAL.md:6734",
     "docs/STREAM_FIT_CAMPAIGN_PLAN.md:5",
     "docs/codex_research_fit_campaign_2026-10-08.md:20"
    ],
-   "note": "Codex report gave arXiv:1812.08192 for this paper (ERRONEOUS; corrected in JOURNAL.md:6734 and STREAM_FIT_CAMPAIGN_PLAN.md:5); the DOI stz457 it gave is correct",
+   "note": "Codex report gave arXiv:1812.08192 for this paper (ERRONEOUS; corrected in the project journal and STREAM_FIT_CAMPAIGN_PLAN.md:5); the DOI stz457 it gave is correct",
    "needs_resolution": false
   },
   {
@@ -1936,9 +1866,7 @@
    "title": "On the White Dwarf Cooling Sequence of the Globular Cluster omega Centauri",
    "topic": "stellar-populations-mf",
    "relevance": "context",
-   "files": [
-    "JOURNAL.md:6329"
-   ],
+   "files": [],
    "note": "",
    "needs_resolution": false
   },
@@ -1951,7 +1879,6 @@
    "topic": "stellar-populations-mf",
    "relevance": "context",
    "files": [
-    "JOURNAL.md:6331",
     "docs/dm_capture_constraints.tex:1101"
    ],
    "note": "",
@@ -1965,9 +1892,7 @@
    "title": "JWST imaging of omega Centauri: I. Luminosity and mass functions of its main-sequence populations",
    "topic": "stellar-populations-mf",
    "relevance": "context",
-   "files": [
-    "JOURNAL.md:6332"
-   ],
+   "files": [],
    "note": "",
    "needs_resolution": false
   },
@@ -1979,9 +1904,7 @@
    "title": "JWST imaging of omega Centauri: II. Evidence of a split white dwarf cooling sequence in the near-infrared",
    "topic": "stellar-populations-mf",
    "relevance": "context",
-   "files": [
-    "JOURNAL.md:6332"
-   ],
+   "files": [],
    "note": "",
    "needs_resolution": false
   },
@@ -2010,7 +1933,6 @@
    "topic": "other",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:3746",
     "docs/PROGENITOR_ORBITS.md:70",
     "docs/progenitor_orbits.tex:694"
    ],
@@ -2042,7 +1964,6 @@
    "topic": "other",
    "relevance": "context",
    "files": [
-    "JOURNAL.md:3961",
     "docs/dm_capture_constraints.tex:38"
    ],
    "note": "",
@@ -2071,7 +1992,6 @@
    "topic": "other",
    "relevance": "context",
    "files": [
-    "JOURNAL.md:3960",
     "docs/dm_capture_constraints.tex:36"
    ],
    "note": "",
@@ -2086,7 +2006,6 @@
    "topic": "other",
    "relevance": "context",
    "files": [
-    "JOURNAL.md:3961",
     "docs/dm_capture_constraints.tex:36"
    ],
    "note": "",
@@ -2129,7 +2048,6 @@
    "topic": "other",
    "relevance": "context",
    "files": [
-    "JOURNAL.md:3744",
     "docs/PROGENITOR_ORBITS.md:66",
     "docs/progenitor_orbits.tex:695"
    ],
@@ -2145,7 +2063,6 @@
    "topic": "other",
    "relevance": "context",
    "files": [
-    "JOURNAL.md:3961",
     "docs/dm_capture_constraints.tex:38"
    ],
    "note": "",
@@ -2160,7 +2077,6 @@
    "topic": "other",
    "relevance": "context",
    "files": [
-    "JOURNAL.md:3745",
     "docs/PROGENITOR_ORBITS.md:68",
     "docs/progenitor_orbits.tex:698"
    ],
@@ -2190,7 +2106,6 @@
    "topic": "data-source",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:6649",
     "docs/STREAM_KNEE_INVESTIGATION.md:28",
     "docs/codex_research_knee_2026-10-08.md:108"
    ],
@@ -2249,7 +2164,6 @@
    "topic": "data-source",
    "relevance": "tangential",
    "files": [
-    "JOURNAL.md:745",
     "docs/DATA_GAPS_PLAN.md:40",
     "provenance/datasets.yaml:238"
    ],
@@ -2306,9 +2220,7 @@
    "title": "",
    "topic": "omega-cen-mass-imbh",
    "relevance": "context",
-   "files": [
-    "JOURNAL.md:1581"
-   ],
+   "files": [],
    "note": "perspective rotation for omega Cen Resolved in ADS 2026-10-13 by bibstem/volume/page or author/year search: 2006A&A...445..513V.",
    "needs_resolution": false
   },
@@ -2321,7 +2233,6 @@
    "topic": "cluster-dynamics-methods",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:1577",
     "src/ocen_dm/kinematics/perspective.py:4"
    ],
    "note": "perspective effects, src/ocen_dm/kinematics/perspective.py Resolved in ADS 2026-10-13 by bibstem/volume/page or author/year search: 2020MNRAS.497.4162V. NOTE: MNRAS 497, 4162 is 'The last breath of the Sagittarius dSph'; the code cites it for perspective effects.",
@@ -2449,7 +2360,6 @@
    "topic": "tails-and-streams",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:6548",
     "src/ocen_dm/streams/rotation.py:4"
    ],
    "note": "omega Cen rotation axis (Gaia DR2) used in src/ocen_dm/streams/rotation.py Resolved in ADS 2026-10-13 by bibstem/volume/page or author/year search: 2018MNRAS.481.2125B.",
@@ -2464,7 +2374,6 @@
    "topic": "tails-and-streams",
    "relevance": "core",
    "files": [
-    "JOURNAL.md:6121",
     "docs/df_observed_fit.tex:1409",
     "bin/nbody/plot_observed_comparison.py:10"
    ],
@@ -2481,7 +2390,6 @@
    "relevance": "core",
    "files": [
     "README.md:15",
-    "JOURNAL.md:6233",
     "docs/STREAM_EXPERIMENTS_PLAN.md:58"
    ],
    "note": "host potential configs/potentials/DB98_Model1.ini Resolved in ADS 2026-10-13 by bibstem/volume/page or author/year search: 1998MNRAS.294..429D.",
@@ -2563,19 +2471,19 @@
    "id": "arXiv:1812.08192 as \"Koposov et al. 2019 Orphan-Chenab\"",
    "where": "docs/codex_research_fit_campaign_2026-10-08.md:20,120",
    "correct": "arXiv:1812.08172 (2019MNRAS.485.4726K); 1812.08192 is Erkal+2019",
-   "source": "JOURNAL.md:6734; STREAM_FIT_CAMPAIGN_PLAN.md:5"
+   "source": "the project journal; STREAM_FIT_CAMPAIGN_PLAN.md:5"
   },
   {
    "id": "\"Ibata et al. 2026\" (omega Cen spectroscopy, stream 55)",
    "where": "docs/codex_research_fit_campaign_2026-10-08.md:130",
    "correct": "Kuzma et al. 2026, arXiv:2605.23474",
-   "source": "JOURNAL.md:6734"
+   "source": "the project journal"
   },
   {
    "id": "bibcode 2026MNRAS.stag1147K (bib key)",
    "where": "docs/df_observed_fit_extra.bib:95; docs/df_observed_fit.tex:1408",
    "correct": "2026MNRAS.550g1147K",
-   "source": "JOURNAL.md:367; ADS"
+   "source": "the project journal; ADS"
   },
   {
    "id": "DOI 10.1093/mnras/stw2357 for Erkal+2017",

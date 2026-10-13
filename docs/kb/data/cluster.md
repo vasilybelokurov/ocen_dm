@@ -177,7 +177,7 @@ Shorthands (`CAT`, `raw/`, `proc/`) are defined on the [Data products](index.md)
 - **Metadata note.** HST PMs are relative, so only differences and dispersions are comparable.
 - **Consumers.** `plotting/constraints.py:936,1014`.
 - **Status.** d.
-- **Caveat.** JOURNAL (2026-10-08, around line 6318) flags that its `hst_quality` column (`hst_gaia_match.py:72`) uses `selection_hq_astrometry_and_membership`, which contains a CMD cut. This was flagged in JOURNAL and left unchanged.
+- **Caveat.** The project journal (2026-10-08) flags that its `hst_quality` column (`hst_gaia_match.py:72`) uses `selection_hq_astrometry_and_membership`, which contains a CMD cut. This was flagged in JOURNAL and left unchanged.
 
 ## C1/C2. Poisson count profiles
 
@@ -248,7 +248,7 @@ Shorthands (`CAT`, `raw/`, `proc/`) are defined on the [Data products](index.md)
 
 - **Inputs.**
   - oMEGACat `catalog_and_selections.fits`: unflagged stars with F625W and F814W in zones 10–30–60–100–175–250″, with a common fit limit F625W < 21.0.
-  - MIST v1.2 bolometric-correction tables, through minimint 0.5.1. `HST_ACSWF.txz` and `HST_WFC3.txz` were downloaded from waps.cfa.harvard.edu/MIST/BC_tables/v1/ and prepared into the prefix `$OCEN_ISOCHRONES/minimint_hst/`. That directory exists (241 MB; 70 filter files plus symlinks to the base grid). See JOURNAL.md:5634–5646.
+  - MIST v1.2 bolometric-correction tables, through minimint 0.5.1. `HST_ACSWF.txz` and `HST_WFC3.txz` were downloaded from waps.cfa.harvard.edu/MIST/BC_tables/v1/ and prepared into the prefix `$OCEN_ISOCHRONES/minimint_hst/`. That directory exists (241 MB; 70 filter files plus symlinks to the base grid). See the project journal.
 - **Builder.** `bin/build_mass_function.py`:
   - isochrone `minimint.Interpolator(["ACS_WFC_F625W", "ACS_WFC_F814W"])` at line 82;
   - 12.5 Gyr, D = 5.43 kpc, E(B−V) = 0.12;
@@ -258,9 +258,9 @@ Shorthands (`CAT`, `raw/`, `proc/`) are defined on the [Data products](index.md)
   - `results/mass_function/mass_function_feh153_20260923.json` (9,275 B).
   - Keys: `age_gyr`, `feh_adopted`, `ridge_fits`, `dm0`, `a625`/`a814`, `m_turnoff`, `zones` and others.
   - Plot: `plots/mass_function_*.png`.
-- **Result** (JOURNAL.md:5648ff). M/N19 = 8.4–9.5 M☉ per star in the kinematically dominant zones.
+- **Result** (the project journal). M/N19 = 8.4–9.5 M☉ per star in the kinematically dominant zones.
 - **Use.** An external prior. `bin/run_mass_per_star_scan.sh` pins the HST count amplitude with `--mass-per-star ocen_counts_hst_f625w19=M` for M = 7–12, writing `results/df/mpsscan_*`, `mpsmock_*` and related plots. It is not part of the baseline.
-- **Provenance gap.** Not in `datasets.yaml`. The MIST citation and URL appear only in JOURNAL.
+- **Provenance gap.** Not in `datasets.yaml`. The MIST citation and URL appear only in the project journal.
 
 ## O1. Unused oMEGACat VI files
 

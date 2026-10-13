@@ -38,8 +38,8 @@ Found in the 2026-10-13 audit. Each item is open unless marked otherwise.
 8. **Selection inconsistencies within the light and tracer chain.**
    - L2 (Jeans tracer and K4 depth term) uses oMEGACat `selection_hq_f625w` star counts inside 25″.
    - C1 (DF baseline) deliberately avoids that flag as 12–15 % radially incomplete.
-   - K10 `hst_quality` uses a flag that contains a CMD cut (JOURNAL 2026-10-08, flagged and not changed).
-9. **Unverified references** (per `datasets.yaml` or JOURNAL):
+   - K10 `hst_quality` uses a flag that contains a CMD cut (project journal, 2026-10-08; flagged and not changed).
+9. **Unverified references** (per `datasets.yaml` or the project journal):
    - Trager 1995 ADS link (`verified: false`).
    - Baumgardt+2019 DOI (`verified: false`).
    - Baumgardt GC database version.

@@ -1,28 +1,75 @@
 # Results
 
-Current findings by strand. Each links the report it rests on; the
-[journal](../journal/index.md) has the full record, and later entries can
-supersede earlier ones.
+Current findings by strand. Each links the report it rests on.
 
-## Cluster mass model
+## Base model fits
 
-- The two-transition DF with Poisson star counts and a distance prior fits
-  all kinematic data without dark matter: χ²_kin = 156 for 89 bins. It does
-  not pass the project's own data-fit gate (χ²_kin per bin 1.76 against ≤ 1.3;
-  HST count deviance 4.8 per bin). See the [base model](models/base_no_dm.md).
-- The data identify the total mass profile, not how it splits between stars,
-  remnants and dark matter. On realistic mocks \(\rho_{20}\) scatters by
-  ±0.7 M☉ pc⁻³.
-- With the stellar mass per counted star fixed from the oMEGACat mass
-  function, \(\rho_{20}\) ≈ 2–4 at the photometric 8–9 M☉ per F625W < 19 star
-  and 0 at the dynamically preferred 10.7. The photometric uncertainty
-  (≳ 1 M☉ per star) is too large to decide between them.
-- 2026-10-13: a bias in the count likelihood (star-weighted rather than
-  area-weighted bin averages) was fixed. The refitted base model moves by
-  ≤ 4% in every parameter and by −1.8% in mass per counted star (10.67 →
-  10.48 M☉). The halo and mass-per-star scans have not been rerun.
+The reference result of the project: the [base no-DM model](models/base_no_dm.md)
+(two-transition action DF for the stars, a Plummer remnant component, no dark
+matter, no central black hole) fitted jointly to 89 kinematic bins and the HST
+and Gaia star counts.
 
-Reports: [DF observed-fit write-up (PDF)](../df_observed_fit.pdf);
+### Current fit (2026-10-13)
+
+Batch `results/df/dftwo_counts_area_20261013`, refitted after the count-likelihood
+correction. All four valid starts reach the same minimum (objectives within
+0.01); numerical validation passes; no parameter sits at a bound.
+
+| Quantity | 2026-10-13 (current) | 2026-09-23 (superseded) |
+|---|---|---|
+| \(\chi^2_{\rm kin}\) (89 bins) | 156.4 (1.76 per bin) | 158.1 (1.78) |
+| HST count deviance (20 bins) | 96.9 | 98.9 |
+| Gaia count deviance (12 bins) | 25.2 | 26.3 |
+| \(M_\star\) | 3.00×10⁶ M☉ | 3.00×10⁶ M☉ |
+| \(M_{\rm rem}\), \(a_{\rm rem}\) | 2.73×10⁵ M☉, 2.18 pc | 2.62×10⁵ M☉, 2.15 pc |
+| Distance | 5.356 kpc | 5.356 kpc |
+| Mass per F625W < 19 star | 10.48 M☉ | 10.67 M☉ |
+| Data-fit gate | fails | fails |
+
+![Data versus the base model, both fits](../../plots/base_area_20261013_data.png)
+
+*Star counts, MUSE line-of-sight and HST/Gaia proper-motion dispersions
+against the current (blue) and superseded (orange) fits; dashed: the earlier
+Jeans model. Bottom row: residuals (signed Poisson deviance residuals for the
+counts). Both fits are evaluated with the corrected count likelihood.*
+
+**Enclosed mass of the current fit**
+
+| r (pc) | Stars (10⁶ M☉) | Remnants (10⁶ M☉) | Total (10⁶ M☉) | Remnant fraction |
+|---|---|---|---|---|
+| 1 | 0.012 | 0.020 | 0.032 | 62% |
+| 3 | 0.201 | 0.145 | 0.346 | 42% |
+| 10 | 1.436 | 0.255 | 1.691 | 15% |
+| 30 | 2.716 | 0.271 | 2.987 | 9% |
+| 100 | 2.987 | 0.273 | 3.260 | 8% |
+
+The total inside 10 pc differs from the superseded fit by −0.7%.
+
+### What the base fits establish
+
+- **No dark matter is needed** to fit the kinematics and counts. A free cored
+  halo goes to \(\rho_{20}=0\) (2026-09-23, old count likelihood).
+- **The total mass profile is constrained; its split is not.** Mocks drawn
+  from the base model recover the total mass to ±3% at 20 pc and ±5% over
+  2–40 pc, but stars trade against remnants plus halo through the count
+  amplitude, and the recovered \(\rho_{20}\) scatters by ±0.7 M☉ pc⁻³.
+- **The answer depends on the stellar mass per counted star.** Fixed at the
+  photometric 8–9 M☉ per F625W < 19 star, the data prefer \(\rho_{20}\) ≈ 2–4;
+  at the dynamical value (now 10.5) they prefer none. The photometric
+  estimate (8.3–9.8 in the zones that dominate the kinematics) is not precise
+  enough (~1 M☉ per star; ~0.3 is needed) to decide.
+- **The fit is not statistically acceptable.** χ²_kin per bin is 1.76 against
+  the gate of 1.3, and the HST count residuals are structured: data below the
+  model near 1 pc and in the outermost HST bin (~6 pc), above it at 3–4 pc.
+  Either the error bars are underestimated or the model lacks freedom
+  (mass segregation, rotation, a different remnant shape); this is not yet
+  separated.
+
+### Not yet rerun with the corrected count likelihood
+
+The free-halo fit, the \(\rho_{20}\) profile, the mass-per-star scan and the
+mocks (all 2026-09-23). See [Models](models/index.md) and the
+[DF observed-fit write-up (PDF)](../df_observed_fit.pdf);
 [data analysis (PDF)](../data_analysis.pdf).
 
 ## Dark-matter survival and tidal tails

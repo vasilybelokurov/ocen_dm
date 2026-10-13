@@ -3,7 +3,7 @@
 Every dataset the project uses: where it comes from, how it is processed, what consumes it and whether it enters the baseline fit.
 
 !!! note "Provenance of this page"
-    Compiled on 2026-10-13 from the code, `provenance/`, `configs/data.yaml` and `JOURNAL.md`, with file sizes checked on disk. Paths to `data/` and `results/` are local (not committed). Anything without a recorded source is marked **UNVERIFIED**.
+    Compiled on 2026-10-13 from the code, `provenance/`, `configs/data.yaml` and the project journal, with file sizes checked on disk. Paths to `data/` and `results/` are local (not committed). Anything without a recorded source is marked **UNVERIFIED**.
 
 ## Where things live
 
@@ -16,7 +16,7 @@ Every dataset the project uses: where it comes from, how it is processed, what c
 | `raw/` | `data/raw` |
 | `proc/` | `data/processed` |
 
-All sizes are from `ls` on 2026-10-13. Sources are quoted only as they appear in `provenance/datasets.yaml`, `configs/data.yaml`, code docstrings, `PROVENANCE`/`README` files or `JOURNAL.md`. Anything with no recorded source is marked **UNVERIFIED**.
+All sizes are from `ls` on 2026-10-13. Sources are quoted only as they appear in `provenance/datasets.yaml`, `configs/data.yaml`, code docstrings, `PROVENANCE`/`README` files or the project journal. Anything with no recorded source is marked **UNVERIFIED**.
 
 ## Key facts
 
@@ -39,7 +39,7 @@ All sizes are from `ls` on 2026-10-13. Sources are quoted only as they appear in
   | oMEGACat star catalogue | Parent sample for the HST PMs and the HST counts |
 
 - **Main gaps.** Detailed in Section 3:
-  - The registry (`provenance/datasets.yaml`) covers only the September kinematics/tails datasets. All stream-project inputs are registered only in `configs/data.yaml` or JOURNAL, or not at all: STREAMFINDER 2021/2024, HST LP, the Tango Zenodo archive, Hunter+2024 potentials, `gc_catalog_full.fits` and Gaia XP pulls.
+  - The registry (`provenance/datasets.yaml`) covers only the September kinematics/tails datasets. All stream-project inputs are registered only in `configs/data.yaml` or the project journal, or not at all: STREAMFINDER 2021/2024, HST LP, the Tango Zenodo archive, Hunter+2024 potentials, `gc_catalog_full.fits` and Gaia XP pulls.
   - Several WSDB caches that every stream fit depends on have no builder script.
   - `manifest.json` and `checksums.txt` contain stale entries.
 

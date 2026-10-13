@@ -121,6 +121,5 @@ nav:
           - Stream-fitting methods review: STREAM_FIT_METHODS_REVIEW.md
           - Stream distances literature: literature/omega_cen_stream_distances_2026-10-10.md
   - Literature: kb/literature.md
-  - Journal: journal/index.md
   - Reviews: reviews/index.md
   - Specification: spec.md
