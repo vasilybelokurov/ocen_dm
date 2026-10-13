@@ -9,8 +9,9 @@
    cuts), which would imprint a 12-15% radial incompleteness on the profile.
    Without the flag the ratio N(F625W<20)/N(F625W<19) is 2.0-2.1 in every
    annulus (2026-09-23), so the bright sample is complete. Footprint coverage
-   per annulus comes from the occupancy of 3-arcsec cells by any catalogue star
-   (>= 0.99 inside 250 arcsec; set to 1 inside 30 arcsec). Bins stop at 250
+   comes from the occupancy of 3-arcsec cells by any catalogue star, subsampled
+   10 x 10 per cell into the sub-rings below (>= 0.99 inside 250 arcsec; set to
+   1 inside 30 arcsec). Bins stop at 250
    arcsec: beyond it the mosaic edge lowers coverage and F814W availability.
    Field contamination is < 0.5% at 250 arcsec, so no field term is fitted.
 2. Gaia EDR3 (Vasiliev & Baumgardt 2021 catalogue of the field): all stars with
@@ -20,8 +21,12 @@
    The uniform field density is fitted (`fit_field=True`); membership
    probabilities are not used.
 
-Radial nodes are 8 equal-count quantiles of the counted stars' radii per bin,
-so the model is averaged over the stars actually counted. Products go to
+Each bin is split into 8 sub-rings (equal in ln R) with a node at each
+sub-ring's area midpoint and a weight equal to its covered-area fraction, so
+the model is area-averaged over the counted footprint (schema 2, 2026-10-13).
+The earlier products (schema 1, 2026-09-23) used 8 equal-count quantiles of the
+stars' radii with an equal-weight mean, which is star-weighted and biased; they
+are kept as *_schema1_20260923 for replay. Products go to
 data/processed/kinematics/ as ECSV (table) and JSON (fit input).
 
 Usage: python bin/build_count_profiles.py

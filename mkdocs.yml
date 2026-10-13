@@ -1,0 +1,126 @@
+site_name: "oCen_dm: dark matter in Omega Centauri"
+site_description: Knowledge base of the oCen_dm project (data products, models, results, literature)
+site_url: https://vasilybelokurov.github.io/ocen_dm/
+repo_url: https://github.com/vasilybelokurov/ocen_dm
+repo_name: vasilybelokurov/ocen_dm
+edit_uri: edit/main/docs/
+docs_dir: docs
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - search.highlight
+    - content.code.copy
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle: {icon: material/brightness-7, name: Dark mode}
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle: {icon: material/brightness-4, name: Light mode}
+
+hooks:
+  - docs/hooks/kb.py
+
+exclude_docs: |
+  hooks/
+  *.aux
+  *.log
+  *.fls
+  *.fdb_latexmk
+  *.out
+  *.toc
+  *.bbl
+  *.blg
+  *.synctex.gz
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - footnotes
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight
+
+extra_javascript:
+  - kb/javascripts/mathjax.js
+  - https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js
+
+validation:
+  omitted_files: info
+  absolute_links: info
+  unrecognized_links: warn
+  anchors: info
+
+nav:
+  - Home: index.md
+  - Getting started: kb/getting_started.md
+  - Data:
+      - kb/data/index.md
+      - Cluster kinematics, counts and light: kb/data/cluster.md
+      - Periphery, tails and streams: kb/data/tails_streams.md
+      - Potentials and auxiliary inputs: kb/data/potentials.md
+      - Registered sources: kb/data/sources.md
+      - Known gaps: kb/data/gaps.md
+      - Data preparation (PDF): data_analysis.pdf
+      - Manual downloads: MANUAL_DOWNLOADS.md
+      - Data-gaps plan (historical): DATA_GAPS_PLAN.md
+  - Models:
+      - kb/models/index.md
+      - Base no-DM model: kb/models/base_no_dm.md
+      - DF family:
+          - Regularized DF implementation: REGULARIZED_DF_IMPLEMENTATION.md
+          - Anisotropy diagnostics: DF_ANISOTROPY_DIAGNOSTICS.md
+          - Observed-data flexibility: OBSERVED_DF_FLEXIBILITY.md
+          - Compact DF recovery: COMPACT_DF_RECOVERY.md
+          - Frequency-mapper diagnostic: COMPACT_DF_FREQUENCY_DIAGNOSTIC.md
+          - DF model literature review: DF_MODEL_LITERATURE_REVIEW.md
+          - Earlier mixture DF: AGAMA_DF_MODELS.md
+          - DF capacity challenge: DF_CAPACITY_CHALLENGE.md
+          - DF mass recovery: DF_MASS_RECOVERY.md
+          - DF mass recovery status: DF_MASS_RECOVERY_STATUS.md
+      - Jeans ladder (historical):
+          - Modelling plan: MODELLING_PLAN.md
+          - Rung 0: RUNG0_ANALYSIS.md
+          - Rung 1: RUNG1_COMPARISON.md
+          - All rungs: RUNG_MODEL_COMPARISON.md
+          - DM density posterior: DM_DENSITY_POSTERIOR.md
+          - DM density data constraints: DM_DENSITY_DATA_CONSTRAINTS.md
+          - DM density profile limit: DM_DENSITY_PROFILE_LIMIT.md
+          - DM density posterior checks: DM_DENSITY_POSTERIOR_CHECKS.md
+          - DF consistency audit: DF_CONSISTENCY_AUDIT.md
+          - Literature baselines: LITERATURE_BASELINES.md
+          - Code and analysis audit: CODE_ANALYSIS_AUDIT.md
+  - Results:
+      - kb/results.md
+      - N-body and DM survival:
+          - Dynamical experiments: DYNAMICAL_EXPERIMENTS.md
+          - Batch analysis: DYNAMICAL_BATCH_ANALYSIS.md
+          - Progenitor orbits: PROGENITOR_ORBITS.md
+          - Section-11 tests: SECTION11_TESTS.md
+          - Lifetime evolution: LIFETIME_EVOLUTION.md
+          - Lifetime batch report: LIFETIME_BATCH_REPORT.md
+          - N-body code assessment: NBODY_CODE_ASSESSMENT.md
+          - N-body ICs: NBODY_IC_PROPOSAL.md
+      - Stream 54:
+          - PM refinement (current): STREAM_PM_REFINEMENT_2026-10-13.md
+          - Knee investigation: STREAM_KNEE_INVESTIGATION.md
+          - Diagnostic plan: STREAM_DIAGNOSTIC_PLAN.md
+          - Fit campaign plan: STREAM_FIT_CAMPAIGN_PLAN.md
+          - Experiments plan: STREAM_EXPERIMENTS_PLAN.md
+          - Stream-fitting methods review: STREAM_FIT_METHODS_REVIEW.md
+          - Stream distances literature: literature/omega_cen_stream_distances_2026-10-10.md
+  - Literature: kb/literature.md
+  - Journal: journal/index.md
+  - Reviews: reviews/index.md
+  - Specification: spec.md

@@ -3,226 +3,63 @@
 Can Omega Centauri's tidal debris distinguish an extended dark-matter halo from
 the stars, remnants and central mass that fit its internal kinematics?
 
-The project has two connected approaches: infer the present mass distribution
-from stellar kinematics, and estimate how much dark matter could survive the
-progenitor dwarf's disruption. The eventual joint kinematic-and-tail inference
-is still to be built.
+**Knowledge base: <https://vasilybelokurov.github.io/ocen_dm/>.** It describes
+every data product (source, processing, use), the base model and its variants,
+the current results, the literature and the journal. Its sources are in
+`docs/`; preview locally with `mkdocs serve`.
 
-## Latest — 13 October 2026 (stream 54: the proper-motion knee)
+**Literature:** public SciX library
+[omega Cen dark matter (oCen_dm)](https://scixplorer.org/public-libraries/RSXq3-NtTTCApvfPUbdwrg).
 
-- **Problem.** The distal part of stream 54 (Ibata+2024; phi1 >~ 17 deg) bends in Gaia DR3
-  proper motion (the "knee"). No published model reproduces it, and neither do our static
-  McMillan17/DB98 sprays.
-- **Rotating bar (Hunter+2024).** Particle-spray fits in a barred host partly bend the arm
-  and steepen the pmdec gradient. The bar angle 16 deg beats 28 deg by ~285 in ln L on
-  held-out seeds (paired seed sd 101). The PM residual in the distal stream remains.
-- **LMC.** The MW-LMC interaction (rigid potentials, reflex frame) is benchmarked against the
-  Vasiliev+2021 Tango runs. It shifts the distal pmra by 0.2-0.6 mas/yr. At a fixed bar, a
-  0.03-0.05 mas/yr change in omega Cen's PMs absorbs it; the fit does not improve.
-- **Other checks.** Hunter's spiral forcing (pmdec shifts 0.1-0.25 mas/yr), the density
-  dependence of the conditional likelihood, Chen+2024 escape and both launch arms do not
-  remove the mismatch.
-- **Barred backtrack.** The 13 knee RV stars connect to the cluster much worse than model
-  controls (encounter diagnostic 1.9-2.0 vs ~1.1). This is a physical mismatch in the recent
-  (<= 700 Myr) fixed-potential models tested at two fitted states. It is not yet an exclusion.
-- **Next.** Extend the backward connection to 2 Gyr; optionally test a slowing bar and the
-  catalogue cluster state. If the knee stars stay unreachable, the result is negative: a recent
-  test-particle debris model in a barred Milky Way bends the stream partly but cannot match
-  the PM track.
-- **Details.** [PM refinement](docs/STREAM_PM_REFINEMENT_2026-10-13.md),
-  [knee investigation](docs/STREAM_KNEE_INVESTIGATION.md),
-  [diagnostic plan](docs/STREAM_DIAGNOSTIC_PLAN.md) and `JOURNAL.md` (from 2026-10-08).
-  Stream code: `src/ocen_dm/streams/`, scripts in `bin/streams/`.
+## Status (2026-10-13)
 
-## 29 September 2026 (DF models and N-body tails)
+- **Cluster mass model.** A two-transition action DF with Poisson star counts
+  fits the 89 kinematic bins without dark matter (χ²_kin = 158) but fails its
+  own data-fit gate. The data fix the total mass profile, not the split
+  between stars and dark mass. A count-likelihood bias was fixed on 2026-10-13;
+  the refit is running. [Base model](docs/kb/models/base_no_dm.md).
+- **DM survival and tails.** N-body tails of no-DM and DM models agree to 10%;
+  the differences are not testable with published tail data.
+- **Stream 54.** A rotating bar and the LMC bend the stream part-way; the
+  proper-motion knee is not reproduced. [Current note](docs/STREAM_PM_REFINEMENT_2026-10-13.md).
 
-- **DF fits.** A two-transition action-based DF with Poisson star counts and a distance
-  prior fits all kinematic data (chi2_kin = 158 for 89 bins) without dark matter.
-- **DM constraint.** The dark-matter density at 20 pc (rho20) is not identified: on mocks
-  it scatters by +-0.7, because the stellar mass trades against remnants plus halo.
-- **Stellar-mass pin.** Fixing the stellar mass per counted star from the oMEGACat mass
-  function (MIST) sets the answer: rho20 ~ 2-4 at the photometric 8-9 Msun per
-  F625W<19 star, 0 at the dynamically preferred 10.7. The photometric uncertainty
-  (>~ 1 Msun per star) is too large to decide between them.
-- **N-body tails.** Simulations of a no-DM and a DM model on omega Cen's orbit (static
-  McMillan17, 1.96 Gyr) give tails whose kinematics agree to 10%. The DM model
-  loses 1.3-1.6x fewer stars. Neither difference is testable with the published tail
-  data (Kuzma+2021, Kuzma+2026, Ibata+2019).
-- **Details.** [DF fit write-up](docs/df_observed_fit.pdf) ([LaTeX](docs/df_observed_fit.tex))
-  and `JOURNAL.md`.
+Details: [results](docs/kb/results.md) and the chronological [journal](JOURNAL.md).
 
-## Earlier state — 21 September 2026
-
-Data ingestion, mass components, a spherical Jeans likelihood and nested sampling
-are implemented. The current comparison uses **89 binned measurements**: HST
-radial and tangential proper motions (21 each), MUSE line-of-sight dispersions
-(29), and our Gaia EDR3 radial and tangential profiles (9 each). Pristine,
-periphery spectroscopy and Fimbulthul support the outer-cluster work; they do
-not enter this likelihood.
-
-Three isotropic, no-instrument-scale fits (rung 0) are complete:
-
-| Family | Halo added to stars, remnants and a point mass | ln Z | χ² / number of points |
-|---|---|---:|---:|
-| K1 | none | −190.02 ± 0.48 | 772 / 89 |
-| K2-cored | truncated gNFW, γ = 0 | −188.94 ± 0.36 | 761 / 89 |
-| K2-NFW | truncated gNFW, γ = 1 | −190.09 ± 0.35 | 763 / 89 |
-
-Rung 0 establishes the intended reference for the modelling sequence. There is
-no persuasive halo preference within this baseline, and the structured residuals
-outside the central 50 arcsec identify where additional freedom should be tested.
-The component ratios motivate radial anisotropy at intermediate radii and tangential
-anisotropy farther out, with rotation as a competing explanation. The baseline
-posteriors and these diagnostics guide the next controlled modelling step.
-
-Orbital histories, bar migration, friction experiments and approximate stripping
-calculations are available. The Kepler energy-truncation formula has passed an
-independent check. The [dynamical experiment pipeline](docs/DYNAMICAL_EXPERIMENTS.md)
-now prepares joint spherical equilibria and runs live or frozen-potential remnant
-and progenitor experiments on prescribed orbits. The first remnant single-passage
-pilots, numerical controls and progenitor isolation runs have completed. The
-[batch analysis](docs/DYNAMICAL_BATCH_ANALYSIS.md) finds mild inner remnant depletion
-after one passage and stable progenitor profiles on well-sampled scales; the
-progenitor core needs better central particle sampling. Longer tidal experiments, converged
-survival predictions, particle-spray predictions and a tail likelihood remain
-outstanding. The [lifetime batch](docs/LIFETIME_BATCH_REPORT.md) is running full-passage
-controls, with responsive stellar-nucleus experiments and multi-Gyr frozen-potential
-comparisons queued behind numerical checks. All three [rung-1 fits](docs/RUNG1_COMPARISON.md)
-have completed: χ² = 342.51 (K1), 316.01 (NFW), 315.29 (core), for 89 measurements.
-The constant-anisotropy extension improves substantially on rung 0; the core–NFW
-evidence difference remains small.
-
-## Reading guide
-
-| Document | Purpose |
-|---|---|
-| [Code and analysis audit](docs/CODE_ANALYSIS_AUDIT.md) | Verified implementation, numerical checks, and unresolved issues |
-| [Rung-0 analysis](docs/RUNG0_ANALYSIS.md) | Latest fit results and their interpretation |
-| [Rung-1 comparison](docs/RUNG1_COMPARISON.md) | All three completed constant-anisotropy fits, rung-0 comparison and plots |
-| [Data and models across all rungs](docs/RUNG_MODEL_COMPARISON.md) | Best-fit no-DM and DM profiles, including both rung-2 variants, with residuals |
-| [DM density probability at 20 pc](docs/DM_DENSITY_POSTERIOR.md) | Evidence-weighted rung-2 density distributions, explicit model priors and a probability at zero for no DM |
-| [Which data constrain DM density?](docs/DM_DENSITY_DATA_CONSTRAINTS.md) | Dataset and radial-bin sensitivity, Gaia residuals and the tradeoff with stellar/remnant mass |
-| [Testing densities above the DM limit](docs/DM_DENSITY_PROFILE_LIMIT.md) | Fixed-density refits distinguish the Bayesian upper limit from fit deterioration and stellar-mass bounds |
-| [High-density posterior checks](docs/DM_DENSITY_POSTERIOR_CHECKS.md) | Independent 800-live-point core repeat and rho20 = 2 conditional run; prior derivation, launch records and validation |
-| [Density and DF consistency audit](docs/DF_CONSISTENCY_AUDIT.md) | All runs and reruns: positive spatial densities, central DF condition, and finite-radius tests with explicit separability assumptions |
-| [Positive AGAMA DF models](docs/AGAMA_DF_MODELS.md) / [PDF](docs/agama_df_models.pdf) / [LaTeX](docs/agama_df_models.tex) | Self-consistent stellar action DFs, joint photometric/kinematic pilot fitting, numerical controls and scope |
-| [Independent DF flexibility challenge](docs/DF_CAPACITY_CHALLENGE.md) | Three physical mocks, one/two/three positive DFs in known gravity, multiple starts, wider-bound controls and PNG comparisons |
-| [Free-potential DF mass recovery](docs/DF_MASS_RECOVERY.md) / [live status](docs/DF_MASS_RECOVERY_STATUS.md) | Independent stellar mass/light weights, self-consistent gravity, noiseless recovery and gated noisy mock experiments |
-| [Compact DF recovery](docs/COMPACT_DF_RECOVERY.md) | Matched regularized-DF mocks with and without DM, multiple starts, checkpointed fits, and separate observable and mass-recovery checks |
-| [Observed-data DF flexibility](docs/OBSERVED_DF_FLEXIBILITY.md) | Can the compact regularized DF fit the full Omega Cen data? Test design, multi-start results, residual pattern, and required model extensions |
-| [DF fit to the observed data: write-up](docs/df_observed_fit.pdf) / [LaTeX](docs/df_observed_fit.tex) | Data, DF family, fitting, rho20 profile and mocks, mass-function stellar-mass constraint, remnant/halo degeneracy, N-body tidal tails vs observations |
-| [DF anisotropy diagnostics](docs/DF_ANISOTROPY_DIAGNOSTICS.md) | Subset, Gaia error-floor and free-distance fits; DF vs Jeans beta(r); proposed two-transition anisotropy model |
-| [Lifetime batch](docs/LIFETIME_BATCH_REPORT.md) | Active queue, live stellar response, numerical gates, long orbital forcing and physical heating estimate |
-| [Modelling plan](docs/MODELLING_PLAN.md) | Adopted fit sequence and exact CLI choices |
-| [Data preparation](docs/data_analysis.pdf) / [source](docs/data_analysis.tex) | Selections, estimators and remaining systematics |
-| [Mass modelling](docs/mass_modelling.pdf) / [source](docs/mass_modelling.tex) | Model, priors, likelihood and limitations |
-| [Progenitor orbits](docs/PROGENITOR_ORBITS.md) | Orbital-history classes and assumptions |
-| [DM survival and WD note](docs/dm_capture_constraints.pdf) | Conditional density estimates and white-dwarf applications |
-| [Section-11 tests](docs/SECTION11_TESTS.md) | Numerical work needed to validate survival predictions |
-| [Dynamical experiments](docs/DYNAMICAL_EXPERIMENTS.md) | Initial conditions, live/frozen drivers, controls and diagnostics |
-| [Dynamical batch analysis](docs/DYNAMICAL_BATCH_ANALYSIS.md) / [PDF](docs/dynamical_batch.pdf) / [LaTeX](docs/dynamical_batch.tex) | First-passage response, isolation controls, resolution and next experiments |
-| [Stream PM refinement](docs/STREAM_PM_REFINEMENT_2026-10-13.md) | Bar/LMC/spiral/escape-law tests of the stream-54 PM knee and the barred backtrack |
-| [Stream knee investigation](docs/STREAM_KNEE_INVESTIGATION.md) | Tails with different DM, rotation, host potentials and the knee (2026-10-08) |
-| [Stream fitting plans](docs/STREAM_FIT_CAMPAIGN_PLAN.md) / [methods review](docs/STREAM_FIT_METHODS_REVIEW.md) / [diagnostic plan](docs/STREAM_DIAGNOSTIC_PLAN.md) | Fitting campaign, likelihood choices and the diagnostic sequence |
-| [Original specification](OCEN_DM_TAILS_PROJECT.md) | Long-term scope; proposed interfaces are not implemented commands |
-| [Journal](JOURNAL.md) | Chronological record; later entries can supersede earlier results |
-
-Keep compiled PDFs in the same directory as their LaTeX sources.
-Save all analysis plots as PNGs in `plots/`; do not export plots as PDFs or place
-them in `docs/` or `results/`.
-Keep `plots/` image-only. Plotted tables and JSON provenance belong in
-`results/plot_data/`; migration and housekeeping records belong in
-`results/maintenance/`.
-
-## Use the existing checkout
-
-The working environment is `<venv>`. From the repository root:
+## Quick start
 
 ```bash
 source <venv>/bin/activate
 export PYTHONPATH=src
-python -m ocen_dm.cli --help
-python -m ocen_dm.cli inventory
-python -m ocen_dm.cli fit --help
+python -m ocen_dm.cli --help        # installed entry point: `ocen`
+python -m pytest tests -q           # full suite takes tens of minutes
+mkdocs serve                        # knowledge base at http://127.0.0.1:8000
 ```
 
-The installed console entry point is **`ocen`**, declared in `pyproject.toml`.
-`python -m ocen_dm.cli` works without installing the package. `ocen-dm` is not a
-declared command.
+Fits are launched only on request, each with a fresh output label; every batch
+freezes its source, configuration and inputs. See
+[getting started](docs/kb/getting_started.md).
 
-Data-building commands write products:
-
-```bash
-python -m ocen_dm.cli fetch-data
-python -m ocen_dm.cli preprocess
-python -m ocen_dm.cli plot-data
-```
-
-Journal supplements need [manual retrieval](docs/MANUAL_DOWNLOADS.md).
-`preprocess` standardises catalogues and published profiles; our measured HST
-and Gaia products have separate builders in `kinematics/hst_profile.py` and
-`kinematics/outer_gaia.py`. Their loaders build missing products automatically,
-so fitting or plotting can write data on an incomplete checkout.
-
-**Fits are launched only when requested, one rung at a time.** A bare `fit`
-command still selects the older varying-anisotropy model with instrument scales.
-Use explicit switches and unique output labels as shown in the
-[modelling plan](docs/MODELLING_PLAN.md). Fitting refuses an existing run directory,
-including an interrupted run; choose a fresh label.
-
-## Code and products
+## Layout
 
 ```text
-configs/                 dataset locations and column mappings
+configs/                 dataset locations, column mappings, potentials
 provenance/              source registry, download manifest and checksums
-data/raw/                source downloads (not committed)
-data/processed/          standardised and measured products (not committed)
+data/raw/, data/processed/  downloads and products (not committed)
 src/ocen_dm/data/        retrieval, schema validation and catalogue loaders
 src/ocen_dm/selection/   covariance joins, field templates and crossmatches
-src/ocen_dm/kinematics/  estimators, dynamical engines, fits and reports
+src/ocen_dm/kinematics/  estimators, Jeans and DF engines, likelihoods, fits
 src/ocen_dm/mass_models/ stellar, remnant, point-mass and halo components
-src/ocen_dm/tails/       orbital histories and exploratory survival models
-src/ocen_dm/dynamics/    controlled remnant/progenitor initial conditions and evolution
+src/ocen_dm/tails/       orbital histories and survival models
+src/ocen_dm/dynamics/    remnant/progenitor initial conditions and evolution
 src/ocen_dm/streams/     restricted N-body, particle spray, barred/LMC hosts, stream likelihoods
-bin/streams/             stream experiments, fits and diagnostics
-results/                local fits, orbit tables and diagnostics (not committed)
-results/plot_data/      plotted tables and figure provenance
-results/maintenance/    migration and housekeeping records
-plots/                  PNG figures only
-docs/                   current notes, plans and dated reviews
-tests/                  synthetic tests plus tests requiring local inputs
+bin/, bin/streams/       drivers, experiments and plotting scripts
+results/                 fits and diagnostics (not committed)
+plots/                   PNG figures
+docs/                    knowledge base, reports, LaTeX write-ups, reviews
+tests/                   synthetic tests plus tests that need local inputs
 ```
 
-`workflows/` and `notebooks/` are placeholders. There is no complete Snakemake
-workflow, environment lockfile, axisymmetric inference, or joint tail fit.
-
-Internal dynamics use pc, M☉ and km/s; Galactic-orbit modules use their own
-explicit conversions. The main engine is the local spherical Jeans solver.
-JamPy supplies a numerical cross-check. The legacy AGAMA inversion backend is
-a restricted diagnostic; the separate [positive stellar DF branch](docs/AGAMA_DF_MODELS.md)
-derives density and anisotropy from action DFs and fits photometry jointly.
-JamPy is an external non-commercial dependency and is not
-redistributed here. UltraNest drives production sampling; a dynesty driver
-is not implemented.
-
-## Validation and provenance
-
-Column roles resolve against documented candidates and fail on ambiguity.
-Downloads record source information and hashes; processed tables carry their
-likelihood-use restrictions. Fit outputs record posterior samples, priors,
-settings and summary statistics. New runs save the actual likelihood arrays and
-resolved model, including the tracer MGE, before sampling. Reports verify the
-snapshot and reproduce the saved best-sample likelihood before plotting. Older
-runs use recorded options and current products, with an explicit warning.
-The [audit](docs/CODE_ANALYSIS_AUDIT.md) distinguishes its original findings from
-the completed reporting, mock-handling and run-preservation repairs.
-
-```bash
-python -m pytest tests -q
-```
-
-The full suite includes local-data and optional-engine tests and can take tens
-of minutes. Some tests skip without those inputs. See the dated audit for the
-checks actually run; an old test count or saved log is not a current pass claim.
+Internal dynamics use pc, M☉ and km/s. JamPy is an external non-commercial
+dependency and is not redistributed here.
 
 Repository: <https://github.com/vasilybelokurov/ocen_dm>
