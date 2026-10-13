@@ -1810,6 +1810,39 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#mass-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mass components
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#internal-kinematics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Internal kinematics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#distribution-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Distribution function
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#what-the-base-fits-establish" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2585,6 +2618,39 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#mass-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mass components
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#internal-kinematics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Internal kinematics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#distribution-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Distribution function
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#what-the-base-fits-establish" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2720,7 +2786,13 @@ correction. All four valid starts reach the same minimum (objectives within
 against the current (blue) and superseded (orange) fits; dashed: the earlier
 Jeans model. Bottom row: residuals (signed Poisson deviance residuals for the
 counts). Both fits are evaluated with the corrected count likelihood.</em></p>
-<p><strong>Enclosed mass of the current fit</strong></p>
+<h3 id="mass-components">Mass components<a class="headerlink" href="#mass-components" title="Permanent link">&para;</a></h3>
+<p><img alt="Mass components of the base model" src="../../plots/base_model_20261013_components.png" /></p>
+<p><em>Current fit, by component. (a) Density; (b) enclosed mass with the
+half-mass radii dotted; (c) circular velocity; (d) remnant share, local
+(<span class="arithmatex">\(\rho_{\rm rem}/\rho_{\rm tot}\)</span>) and cumulative (<span class="arithmatex">\(M_{\rm rem}/M_{\rm tot}\)</span>);
+(e) dynamical-to-stellar mass ratio. Grey: outside the radial range of the
+kinematic data (0.1–63 pc).</em></p>
 <table>
 <thead>
 <tr>
@@ -2728,7 +2800,7 @@ counts). Both fits are evaluated with the corrected count likelihood.</em></p>
 <th>Stars (10⁶ M☉)</th>
 <th>Remnants (10⁶ M☉)</th>
 <th>Total (10⁶ M☉)</th>
-<th>Remnant fraction</th>
+<th>Remnant share of M(&lt;r)</th>
 </tr>
 </thead>
 <tbody>
@@ -2769,7 +2841,55 @@ counts). Both fits are evaluated with the corrected count likelihood.</em></p>
 </tr>
 </tbody>
 </table>
-<p>The total inside 10 pc differs from the superseded fit by −0.7%.</p>
+<ul>
+<li><strong>Two components with different scales.</strong> The stars have a 3D half-mass
+  radius of 10.4 pc (projected 7.7 pc; the Baumgardt database lists
+  r_h = 7.56 pc at 5.43 kpc, i.e. 7.46 pc at the fitted distance); the remnant
+  Plummer has 2.8 pc.</li>
+<li><strong>The remnants dominate the core.</strong> They are 66% of the central density
+  (6.0×10³ against 3.2×10³ M☉ pc⁻³ for the stars at 0.3 pc). The stars take
+  over the local density near 1.5 pc (remnants 59% at 1 pc, 26% at 3 pc) and
+  the enclosed mass near 2 pc.</li>
+<li><strong>Mass-to-light-following mass.</strong> <span class="arithmatex">\(M_{\rm tot}(&lt;r)/M_\star(&lt;r)\)</span> falls from
+  2.9 in the centre to 1.09 overall. This is the quantity a mass-segregated
+  stellar population could also produce.</li>
+<li><strong>Circular velocity</strong> peaks at 27.0 km/s at 9.0 pc; the stars alone peak
+  at ~25 km/s near 10 pc, the remnants at ~14 km/s near 3 pc. The central
+  escape speed is 68 km/s.</li>
+<li>The total inside 10 pc differs from the superseded fit by −0.7%.</li>
+</ul>
+<h3 id="internal-kinematics">Internal kinematics<a class="headerlink" href="#internal-kinematics" title="Permanent link">&para;</a></h3>
+<p><img alt="Internal kinematics of the base model" src="../../plots/base_model_20261013_kinematics.png" /></p>
+<p><em>(a) Intrinsic radial and tangential (one component) dispersions, with the
+local escape speed/√12 for scale; (b) anisotropy β(r); (c) stellar surface
+density with the projected and 3D half-mass radii; (d) projected
+line-of-sight and proper-motion dispersions from the DF, before the
+published rotation is subtracted in the likelihood.</em></p>
+<ul>
+<li><strong>Isotropic core, radial bias at intermediate radii, tangential outskirts.</strong>
+  β = 0.00 at 0.3 pc, 0.09 at 3 pc, peaks at +0.15 near 8 pc, crosses zero
+  near 22 pc, and reaches −0.08 at 30 pc and −0.53 at 100 pc.</li>
+<li><strong>Central dispersion</strong> σ_r ≈ σ_t ≈ 21.4 km/s; σ_r = 14.7 and σ_t = 13.5 km/s
+  at 10 pc.</li>
+<li><strong>Projected dispersions</strong> in the core: 19.8 km/s along the line of sight
+  and 19.3 km/s in each proper-motion component. The radial and tangential
+  proper-motion profiles differ by ≲ 0.5 km/s inside 30 pc and separate in the
+  tangentially biased outskirts.</li>
+</ul>
+<h3 id="distribution-function">Distribution function<a class="headerlink" href="#distribution-function" title="Permanent link">&para;</a></h3>
+<p><img alt="Structure of the base-model DF" src="../../plots/df_structure_dftwo_counts_area_20261013_observed_no_halo_start3.png" /></p>
+<p><em>(a) Intrinsic moments and β(r); (b) the anisotropy bias <span class="arithmatex">\(b(q)\)</span>,
+<span class="arithmatex">\(q=J_r+L\)</span>, over the action distributions of the stars in the HST/MUSE
+(R ≤ 9.5 pc) and Gaia (9.4–63 pc) ranges, with the two transitions
+<span class="arithmatex">\(J_a\)</span> and <span class="arithmatex">\(J_{\rm outer}\)</span> dotted; (c) <span class="arithmatex">\(f(J_r, L)\)</span>.</em></p>
+<ul>
+<li>The radial bias (b ≈ +0.45 at its peak) sits on the actions of the
+  HST/MUSE stars; the tangential tail (b → −0.33) sits on the Gaia stars.
+  The data constrain the DF over <span class="arithmatex">\(q\)</span> ≈ 10–1000 pc km/s; outside that range
+  its shape is extrapolated.</li>
+<li><span class="arithmatex">\(f\)</span> is smooth and monotonic in both actions, with no features at the
+  transitions.</li>
+</ul>
 <h3 id="what-the-base-fits-establish">What the base fits establish<a class="headerlink" href="#what-the-base-fits-establish" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>No dark matter is needed</strong> to fit the kinematics and counts. A free cored
