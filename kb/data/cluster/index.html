@@ -634,6 +634,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#figures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Figures
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#0-how-the-baseline-df-likelihood-consumes-its-data" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2648,6 +2659,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#figures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Figures
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#0-how-the-baseline-df-likelihood-consumes-its-data" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2845,6 +2867,24 @@
 
 <h1 id="cluster-kinematics-counts-and-light">Cluster kinematics, counts and light<a class="headerlink" href="#cluster-kinematics-counts-and-light" title="Permanent link">&para;</a></h1>
 <p>Shorthands (<code>CAT</code>, <code>raw/</code>, <code>proc/</code>) are defined on the <a href="../">Data products</a> page.</p>
+<h2 id="figures">Figures<a class="headerlink" href="#figures" title="Permanent link">&para;</a></h2>
+<p>All drawn from the current processed products (<code>bin/plot_data_products.py</code>, <code>ocen plot-data</code>, <code>bin/build_mass_function.py</code>).</p>
+<p><img alt="Kinematic profiles" src="../../../plots/data_kinematics.png" /></p>
+<p><em>The 89 kinematic bins of the baseline fit (colour) and published profiles that are not fitted. Top: HST proper-motion dispersions, radial and tangential (ours, black; oMEGACat VI published, grey) continued outward by our Gaia EDR3 profiles (blue); dashed: the rotation term each fitted profile carries. Bottom left: MUSE line-of-sight dispersion with its rotation term (v_rot/√2). Bottom right: published one-dimensional Gaia proper-motion profiles (Vasiliev &amp; Baumgardt 2021, Baumgardt+2019) against ours; the Vasiliev &amp; Baumgardt profile lies below the HST values inside ~200″. Proper motions in mas/yr (right axis: km/s at 5.43 kpc).</em></p>
+<p><img alt="Rotation inputs" src="../../../plots/data_rotation.png" /></p>
+<p><em>Rotation used in the streaming correction. Left: Vasiliev &amp; Baumgardt 2021 proper-motion rotation curve (median, 16–84% and 2–98%), peaking at 0.25 mas/yr (≈6.4 km/s) near 450″. Right: MUSE line-of-sight rotation amplitude (oMEGACat VI), rising from ~3 to ~7 km/s between 30″ and 300″.</em></p>
+<p><img alt="Star-count products" src="../../../plots/data_counts.png" /></p>
+<p><em>The Poisson star-count products. Left: surface number density, HST F625W &lt; 19 (2–250″, 117,751 stars) and Gaia G &lt; 17 (300–2400″, 18,289 stars including field). Middle: stars per bin. Right: covered fraction of each annulus (≥ 0.995).</em></p>
+<p><img alt="oMEGACat VI published profiles" src="../../../plots/omegacat_vi_profiles.png" /></p>
+<p><em>The published oMEGACat VI profiles: proper-motion dispersions (combined, radial, tangential), the σ_R/σ_T anisotropy diagnostic (isotropic inside ~100″, radially biased outside), MUSE line-of-sight dispersion and rotation.</em></p>
+<p><img alt="3D kinematics of the core" src="../../../plots/omegacat_vi_3d_velocities.png" /></p>
+<p><em>Three-dimensional kinematics of the core from the same stars: line-of-sight velocity field with the fitted rotation axis; plane-of-sky versus line-of-sight rotation; the three velocity components; and proper-motion against line-of-sight dispersions, which agree at the adopted distance.</em></p>
+<p><img alt="Light profile check" src="../../../plots/light_profile_star_counts.png" /></p>
+<p><em>Shape of the light profile: the MGE of the Trager+1995 profile (used as the tracer of the earlier Jeans fits) against star counts from HST oMEGACat, Gaia EDR3 members and Gaia+Pristine members, each anchored where complete. Beyond the Trager data the MGE is an extrapolation.</em></p>
+<p><img alt="oMEGACat CMD" src="../../../plots/omegacat_cmd_20260923.png" /></p>
+<p><em>oMEGACat colour–magnitude diagram, 30–250″, all stars (left) and with both quality flags (right). Dotted: F625W = 18 (turnoff), 19 (count-product limit) and 23 (luminosity-function turnover).</em></p>
+<p><img alt="Present-day mass function" src="../../../plots/mass_function_20260923.png" /></p>
+<p><em>Present-day mass function from the unflagged oMEGACat sample with a MIST 12.5 Gyr isochrone: CMD and ridge line; luminosity functions in five radial zones; mass functions over 0.52–0.78 M☉ with slopes steepening outward (−1.37 to −1.77); the light-following mass per F625W &lt; 19 star for each variant; and the budget in the 60–100″ zone (observed main sequence, extrapolation below 0.52 M☉, evolved stars, white dwarfs).</em></p>
 <h2 id="0-how-the-baseline-df-likelihood-consumes-its-data">0. How the baseline DF likelihood consumes its data<a class="headerlink" href="#0-how-the-baseline-df-likelihood-consumes-its-data" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Driver.</strong> <code>bin/run_compact_df_recovery.py</code>.</li>
