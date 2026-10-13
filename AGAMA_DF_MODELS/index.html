@@ -1,0 +1,2946 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Knowledge base of the oCen_dm project (data products, models, results, literature)">
+      
+      
+      
+        <link rel="canonical" href="https://vasilybelokurov.github.io/ocen_dm/AGAMA_DF_MODELS/">
+      
+      
+        <link rel="prev" href="../DF_MODEL_LITERATURE_REVIEW/">
+      
+      
+        <link rel="next" href="../DF_CAPACITY_CHALLENGE/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Earlier mixture DF - oCen_dm: dark matter in Omega Centauri</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#positive-stellar-df-models-with-agama" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="oCen_dm: dark matter in Omega Centauri" class="md-header__button md-logo" aria-label="oCen_dm: dark matter in Omega Centauri" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            oCen_dm: dark matter in Omega Centauri
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Earlier mixture DF
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/vasilybelokurov/ocen_dm" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    vasilybelokurov/ocen_dm
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../kb/getting_started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../kb/data/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Data
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../kb/models/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Models
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../kb/results/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Results
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../kb/literature/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Literature
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../reviews/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Reviews
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../spec/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Specification
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="oCen_dm: dark matter in Omega Centauri" class="md-nav__button md-logo" aria-label="oCen_dm: dark matter in Omega Centauri" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    oCen_dm: dark matter in Omega Centauri
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/vasilybelokurov/ocen_dm" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    vasilybelokurov/ocen_dm
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/getting_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../kb/data/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Data
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/data/cluster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cluster kinematics, counts and light
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/data/tails_streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Periphery, tails and streams
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/data/potentials/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Potentials and auxiliary inputs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/data/sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Registered sources
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/data/gaps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known gaps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data_analysis.pdf" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data preparation (PDF)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MANUAL_DOWNLOADS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Manual downloads
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DATA_GAPS_PLAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data-gaps plan (historical)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../kb/models/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Models
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/models/base_no_dm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Base no-DM model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF family
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    DF family
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../REGULARIZED_DF_IMPLEMENTATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regularized DF implementation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DF_ANISOTROPY_DIAGNOSTICS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Anisotropy diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../OBSERVED_DF_FLEXIBILITY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Observed-data flexibility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../COMPACT_DF_RECOVERY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compact DF recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../COMPACT_DF_FREQUENCY_DIAGNOSTIC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frequency-mapper diagnostic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DF_MODEL_LITERATURE_REVIEW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF model literature review
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Earlier mixture DF
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Earlier mixture DF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-distribution-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The distribution function
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gravity-integration-and-numerical-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gravity, integration and numerical checks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#joint-data-objective-and-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Joint data objective and limitations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-and-reproducing-a-pilot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running and reproducing a pilot
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#first-validation-and-fitting-exercise-22-september-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        First validation and fitting exercise: 22 September 2026
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DF_CAPACITY_CHALLENGE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF capacity challenge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DF_MASS_RECOVERY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF mass recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DF_MASS_RECOVERY_STATUS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF mass recovery status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Jeans ladder (historical)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Jeans ladder (historical)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MODELLING_PLAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelling plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RUNG0_ANALYSIS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rung 0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RUNG1_COMPARISON/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rung 1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RUNG_MODEL_COMPARISON/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All rungs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DM_DENSITY_POSTERIOR/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DM density posterior
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DM_DENSITY_DATA_CONSTRAINTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DM density data constraints
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DM_DENSITY_PROFILE_LIMIT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DM density profile limit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DM_DENSITY_POSTERIOR_CHECKS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DM density posterior checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DF_CONSISTENCY_AUDIT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF consistency audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LITERATURE_BASELINES/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Literature baselines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CODE_ANALYSIS_AUDIT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code and analysis audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Results
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Results
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Results
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    N-body and DM survival
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    N-body and DM survival
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DYNAMICAL_EXPERIMENTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamical experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DYNAMICAL_BATCH_ANALYSIS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Batch analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../PROGENITOR_ORBITS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Progenitor orbits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SECTION11_TESTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Section-11 tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LIFETIME_EVOLUTION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifetime evolution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LIFETIME_BATCH_REPORT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifetime batch report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NBODY_CODE_ASSESSMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    N-body code assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NBODY_IC_PROPOSAL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    N-body ICs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stream 54
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Stream 54
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STREAM_PM_REFINEMENT_2026-10-13/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PM refinement (current)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STREAM_KNEE_INVESTIGATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knee investigation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STREAM_DIAGNOSTIC_PLAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Diagnostic plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STREAM_FIT_CAMPAIGN_PLAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fit campaign plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STREAM_EXPERIMENTS_PLAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiments plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STREAM_FIT_METHODS_REVIEW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stream-fitting methods review
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../literature/omega_cen_stream_distances_2026-10-10/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stream distances literature
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/literature/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Literature
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reviews/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reviews
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-distribution-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The distribution function
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gravity-integration-and-numerical-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gravity, integration and numerical checks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#joint-data-objective-and-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Joint data objective and limitations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-and-reproducing-a-pilot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running and reproducing a pilot
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#first-validation-and-fitting-exercise-22-september-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        First validation and fitting exercise: 22 September 2026
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="positive-stellar-df-models-with-agama">Positive stellar DF models with AGAMA<a class="headerlink" href="#positive-stellar-df-models-with-agama" title="Permanent link">&para;</a></h1>
+<p>The <a href="../agama_df_models.tex">LaTeX methods note</a> and its <a href="../agama_df_models.pdf">compiled PDF</a>
+give the full construction, likelihood, numerical checks and pilot results,
+with four numbered figures. The PDF lives beside its source; all figure
+exports are PNGs in <code>plots/</code>.</p>
+<p>The <a href="../DF_MODEL_LITERATURE_REVIEW/">literature review on model choice</a>
+reassesses the stellar DF family for a self-gravitating cluster embedded in
+possible DM, and distinguishes the current flexible tests from the next
+inference model. It includes an ADS-verified bibliography.</p>
+<p>The proposed compact stars + DM model has a separate <a href="../compact_df_model.tex">LaTeX note</a>
+and <a href="../compact_df_model.pdf">compiled PDF</a>. Following review, the primary
+candidate is a regularized exponential action DF with an anisotropy transition,
+with an embedded lowered-isothermal model as a required independent control.
+The halo is sampled in its density at 20 pc and scale radius. Both new stellar
+families now have a separate <a href="../REGULARIZED_DF_IMPLEMENTATION/">implementation and numerical test report</a>.
+The note describes two
+treatments of the unseen mass: prescribed DM/remnant
+density profiles for the initial stellar fits, or explicit dark DFs for a
+stronger equilibrium construction. Both retain stellar self-gravity in the
+common potential. The note separates their validation requirements.</p>
+<p>The new branch constructs non-negative stellar distribution functions and
+iterates their density and gravity to a common equilibrium. It predicts the
+photometric profile, line-of-sight dispersion and both proper-motion components
+from that same DF. This is the next modelling stage after the Jeans baselines;
+the existing results remain useful benchmarks.</p>
+<p>Implementation:
+<a href="https://github.com/vasilybelokurov/ocen_dm/blob/main/src/ocen_dm/kinematics/positive_df.py">positive_df.py</a>,
+<a href="https://github.com/vasilybelokurov/ocen_dm/blob/main/src/ocen_dm/kinematics/df_fit.py">df_fit.py</a>,
+<a href="https://github.com/vasilybelokurov/ocen_dm/blob/main/bin/run_df_pilot.py">pilot driver</a>,
+<a href="https://github.com/vasilybelokurov/ocen_dm/blob/main/tests/test_positive_df.py">tests</a>, and <a href="https://github.com/vasilybelokurov/ocen_dm/tree/main/configs/df">example configurations</a>.
+The legacy <code>AgamaDFBackend</code> remains a separate inversion diagnostic. It is not
+used by this branch.</p>
+<h2 id="the-distribution-function">The distribution function<a class="headerlink" href="#the-distribution-function" title="Permanent link">&para;</a></h2>
+<p>Each stellar component uses AGAMA's analytic <code>DoublePowerLaw</code> action DF,
+without rotation, a core modifier, or an exponential action cutoff:</p>
+<p>[
+f_i(J_r,L)=C_i
+ \left[1+\left(\frac{J_{0,i}}{h_i}\right)^{\eta_i}\right]^{\Gamma_i/\eta_i}
+ \left[1+\left(\frac{g_i}{J_{0,i}}\right)^{\eta_i}\right]^{-B_i/\eta_i},
+]
+[
+h_i=h_{r,i}J_r+\frac{3-h_{r,i}}{2}L,\qquad
+g_i=g_{r,i}J_r+\frac{3-g_{r,i}}{2}L,
+\qquad L=J_z+|J_\phi|.
+]</p>
+<p>The allowed domain is <code>J0 &gt; 0</code>, <code>steepness &gt; 0</code>, <code>slope_in &lt; 3</code>,
+<code>slope_out &gt; 3</code>, and <code>0 &lt; h_r, g_r &lt; 3</code>. The DF is non-negative throughout
+bound action space and has finite mass. Negative inner slopes are allowed.
+The isolated zero-action limit can vanish or diverge while remaining integrable.
+Unbound phase space has zero DF. AGAMA's <code>mass=</code> argument determines the positive
+normalization so that each component has the requested total mass; <code>norm=</code>
+would not do this.</p>
+<p>A model may contain several such components with positive fractions summing
+to one: <code>f_star = sum_i f_i</code>. All share a common potential and a constant
+stellar mass-to-light ratio. They are basis components of the same observed
+stellar population, not separate catalogue selections. A mixture can have
+more complicated radial anisotropy than one component, although its ability
+to fit the observed turnover must be established by fitting.</p>
+<p><strong>There is no independently prescribed beta profile.</strong> We derive</p>
+<div class="arithmatex">\[
+\rho_\star(r)=\int f_\star\,d^3v,\qquad
+\beta(r)=1-\frac{p_t(r)}{p_r(r)},
+\]</div>
+<p>where <code>p_t</code> is the pressure in one tangential direction. The action coefficients
+are not beta values. Density, anisotropy and the velocity distributions must
+remain mutually consistent as their parameters change. In particular, we do
+not hold the old central MGE core fixed in the presence of a point-mass BH.</p>
+<p>The construction and parameter conventions follow the
+<a href="https://github.com/GalacticDynamics-Oxford/Agama/blob/master/doc/reference.tex">AGAMA manual, spheroidal DFs</a>
+and <a href="https://arxiv.org/abs/1802.08239">Vasiliev's AGAMA paper</a>.</p>
+<h2 id="gravity-integration-and-numerical-checks">Gravity, integration and numerical checks<a class="headerlink" href="#gravity-integration-and-numerical-checks" title="Permanent link">&para;</a></h2>
+<p>The potential contains the live stellar DF, an optional Plummer remnant
+component, an exact unsoftened point-mass BH, and an optional truncated gNFW
+halo. The halo has the same density law as the Jeans branch, normalized by
+<code>M_dm_100</code>; <code>gamma=0</code> and <code>gamma=1</code> give the supplied core and cusp examples.
+The static halo/remnant densities are positive, but this implementation does
+not assign them DFs. Stellar DF positivity is therefore the guarantee here.</p>
+<p>The iterative solver uses AGAMA for action evaluation, analytic DFs and the
+spherical multipole potential. A positive Gauss–Legendre velocity quadrature
+computes stellar density and pressures:</p>
+<div class="arithmatex">\[
+\rho=4\pi\int_0^{v_{\rm esc}}v^2\,dv\int_0^1 f\,d\mu,
+\quad \mu=|v_r|/v,
+\]</div>
+<p>with factors <code>v^2 mu^2</code> and <code>v^2(1-mu^2)/2</code> for radial and tangential
+pressures. Updating the potential from this density and repeating gives the
+self-consistent stellar model. Both density and total force must converge;
+a dominant static component cannot conceal an unconverged stellar density.</p>
+<p>An initial test of AGAMA's <code>SelfConsistentModel</code> helper produced a discrepancy
+of about 11% near 0.008 pc between its interpolated stellar density and a fresh
+DF integral, confirmed with independent velocity quadrature. The explicit
+iteration above avoids this discrepancy in the tested models. It also makes
+the radial and velocity resolutions independently controllable; this is not
+a change to the installed AGAMA library.</p>
+<p>Defaults: 160 potential nodes over <code>1e-4–1e5 pc</code>, 64 nodes in each velocity
+coordinate, 240 intrinsic-moment nodes and 128 projection nodes. Iteration
+stops below a maximum fractional density/force change of <code>5e-4</code>, within at
+most 50 iterations. Acceptance also requires:</p>
+<ul>
+<li>density closure below 0.5%, evaluated between grid nodes in the final
+  potential with twice the velocity quadrature order;</li>
+<li>stellar mass closure below 0.5%;</li>
+<li>finite, positive densities and pressures, with no clipping of invalid values.</li>
+</ul>
+<p>Projection integrates the DF-derived pressures using <code>r = R cosh(u)</code>. It does
+not solve Jeans again. The driver independently compares the result with native
+<code>GalaxyModel.moments</code> projected integrals, then rebuilds the entire model with
+twice the grid/quadrature sizes and a tighter iteration tolerance. Its validation
+flag requires projected surface-density/pressure agreement within 0.5% and
+changes in every predicted dispersion below 0.1 times its observational error.
+These are numerical checks, not goodness-of-fit criteria. Very extreme DF
+parameters may need larger grids or quadrature orders and can be rejected.</p>
+<p>Units are pc, solar masses, km/s and pc km/s. The unit guard refuses to change
+an existing incompatible global AGAMA unit system. Use a fresh Python process
+when switching from unrelated AGAMA calculations.</p>
+<h2 id="joint-data-objective-and-limitations">Joint data objective and limitations<a class="headerlink" href="#joint-data-objective-and-limitations" title="Permanent link">&para;</a></h2>
+<p>The driver replays the saved 89-bin dataset: 21 HST radial, 21 HST tangential,
+29 MUSE LOS, nine Gaia radial and nine Gaia tangential bins. It preserves the
+actual stellar radial quantiles, annular weighting, proper-motion conversion,
+asymmetric errors and split-normal likelihood. No instrument scales are fitted
+in these examples.</p>
+<p>The composite photometric profile is fitted jointly with the kinematics.
+One common magnitude zero-point is profiled out, so its absolute normalization
+does not impose a stellar mass. The existing composite profile supplies relative
+weights rather than calibrated errors. The diagnostic examples explicitly adopt
+<code>sigma_mu = 0.1 mag / sqrt(weight)</code> and discard zero-weight entries. This choice
+sets the relative influence of photometry. It does not model splice covariance
+or claim that these are measured photometric errors. A snapshot can instead
+supply explicit per-point errors.</p>
+<p>The pilot minimizes <code>chi2_kinematics + chi2_photometry</code>. Both terms and all
+per-dataset contributions are saved separately. The optimizer bounds are search
+bounds, not a fully specified inference prior. The profiled photometric
+zero-point, error calibration, distance prior and mixture priors must be settled
+before computing posterior probabilities or evidences for these families.
+Existing Jeans evidences do not apply to this changed model.</p>
+<p>For continuity with the baseline data treatment, the current branch subtracts
+the saved published streaming variance from its projected even second moments.
+An impossible subtraction is rejected rather than floored. This is a
+moment-level rotation approximation: a rotating odd DF has not been fitted,
+and positivity of the even DF alone does not establish that it can reproduce
+every observed mean streaming velocity. The first version is spherical,
+single-M/L and in equilibrium. Rotation, flattening, mass segregation, live
+remnant/DM DFs, dynamical stability and tidal survival remain distinct extensions.</p>
+<h2 id="running-and-reproducing-a-pilot">Running and reproducing a pilot<a class="headerlink" href="#running-and-reproducing-a-pilot" title="Permanent link">&para;</a></h2>
+<p>Activate the project environment, with AGAMA installed, then run:</p>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>bin/run_df_pilot.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--config<span class="w"> </span>configs/df/no_dm.json<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--out<span class="w"> </span>results/df/my_no_dm_pilot<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--sigma-mag<span class="w"> </span><span class="m">0</span>.1<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-evaluations<span class="w"> </span><span class="m">96</span>
+</code></pre></div>
+<p>Omit <code>--max-evaluations</code> for a fixed-parameter evaluation and numerical checks.
+The supplied no-DM/core/cusp configurations expose six search coordinates;
+the remnant parameters and distance are fixed in this initial pilot. Other
+physical parameters can be exposed through <code>fit_coordinates</code> using config
+paths such as <code>M_dm_100</code>, <code>M_rem</code> or <code>components.1.J0</code>. The two-component
+configuration also fits its mixture weight, second action scale and second
+outer orbital-weight coefficient. A coordinate <code>mixture_log_ratio.i</code> means
+<code>ln(fraction_i / fraction_0)</code> for <code>i &gt;= 1</code>; a softmax maps these coordinates
+to strictly positive fractions summing to one. Raw fractions cannot be varied
+independently in the optimizer.</p>
+<p>For replay, supply <code>--photometry-snapshot PREVIOUS_RUN/photometry.json</code> and
+<code>--data-run PREVIOUS_RUN</code> rather than reloading the photometric catalogue.
+To evaluate a saved best model, put its <code>best_model.json</code> content under the
+<code>model</code> key of a driver configuration and use no optimizer calls.</p>
+<p>Every run requires a fresh output directory and saves the actual kinematic and
+photometric arrays, configuration, source hashes/copies, per-evaluation record,
+best parameters, convergence diagnostics and a status record. The driver also
+records the AGAMA version and extension-binary hash. A bounded optimizer reaching
+its evaluation limit is explicitly reported as unconverged. No posterior
+sampling or replacement of existing Jeans runs occurs in this driver.</p>
+<p>Figures are PNGs in <code>plots/</code>; plotted arrays and provenance are JSON in
+<code>results/plot_data/</code>; working products live in <code>results/df/</code>.</p>
+<h2 id="first-validation-and-fitting-exercise-22-september-2026">First validation and fitting exercise: 22 September 2026<a class="headerlink" href="#first-validation-and-fitting-exercise-22-september-2026" title="Permanent link">&para;</a></h2>
+<p>All <strong>94 focused tests passed</strong>: 23 new DF tests and 71 existing consistency,
+anisotropy and run-replay tests. Controls include an analytic isotropic Kepler
+DF, an independent Jeans-equation check, radial integration of the stellar
+mass, halo force/normalization checks, exact BH gravity, mixture positivity,
+unit protection, bound/unbound phase space, photometric normalization and
+the existing data-bin/streaming conventions.</p>
+<p>Four end-to-end fixed-parameter examples passed both independent projection
+and full resolution-doubling checks. These starting parameters were chosen to
+exercise the code and are not fitted alternatives:</p>
+<table>
+<thead>
+<tr>
+<th>Example</th>
+<th style="text-align: right;">Maximum density closure error</th>
+<th style="text-align: right;">Stellar mass closure error</th>
+<th style="text-align: right;">Largest refined dispersion shift / data error</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Single stellar DF, no DM</td>
+<td style="text-align: right;">0.0288%</td>
+<td style="text-align: right;">0.000439%</td>
+<td style="text-align: right;">0.00060</td>
+</tr>
+<tr>
+<td>Single stellar DF, cored DM</td>
+<td style="text-align: right;">0.0580%</td>
+<td style="text-align: right;">0.000386%</td>
+<td style="text-align: right;">0.00853</td>
+</tr>
+<tr>
+<td>Single stellar DF, cusped DM</td>
+<td style="text-align: right;">0.0463%</td>
+<td style="text-align: right;">0.000434%</td>
+<td style="text-align: right;">0.00066</td>
+</tr>
+<tr>
+<td>Two stellar DFs, no DM</td>
+<td style="text-align: right;">0.0449%</td>
+<td style="text-align: right;">0.000204%</td>
+<td style="text-align: right;">0.01087</td>
+</tr>
+</tbody>
+</table>
+<p>The two-component example produces beta of approximately +0.14 at 5 pc,
++0.04 at 20 pc and −1.0 at 50 pc. Thus a positive mixture can produce radial
+anisotropy followed by a tangential outer region. This demonstrates the
+family's flexibility, without establishing which profile the data favour.</p>
+<p><img alt="DF example densities and anisotropies" src="../plots/df_validation_profiles.png" /></p>
+<p>A bounded no-DM pilot then exercised joint fitting on all 89 kinematic bins
+and the composite photometric profile. After 96 objective calls (about five
+minutes), kinematic chi-squared fell from 15,881.77 to <strong>761.52</strong>, and the
+photometric contribution from 2,090.90 to <strong>662.30</strong>. The optimizer reached
+its evaluation budget, <strong>not convergence</strong>. Its best joint objective is
+1,423.82; it does not necessarily minimize the kinematic contribution alone.
+The stellar/remnant mass split and DF shape still need a proper search.
+The remaining inner HST and photometric residuals are evident in the plot.
+This pilot is neither a replacement best fit nor a measurement of the cost
+of imposing DF positivity.</p>
+<p>The pilot itself passed the numerical checks: maximum density closure error
+0.0358%, native projected-integral discrepancy 0.0647%, and largest refined
+dispersion shift 0.00851 data errors. Its large residuals are therefore model
+and fitting issues, not resolved by simply increasing quadrature resolution.
+A fresh-process replay from its saved model and data reproduces the joint
+objective, every kinematic prediction and the photometric prediction exactly.</p>
+<p><img alt="Bounded no-DM pilot against the data" src="../plots/df_pilot_no_dm_20260922.png" /></p>
+<p>Machine-readable results are in
+<code>results/df/pilot_no_dm_20260922/summary.json</code>,
+the four <code>results/df/validation_*_20260922/</code> directories, and
+<code>results/plot_data/df_validation_profiles.json</code>.
+The figures were inspected. The subsequent
+<a href="../DF_CAPACITY_CHALLENGE/">independent flexibility challenge</a> tests one, two
+and three positive light DFs in the known potential of separately constructed
+equilibrium mocks. Three components reproduce all three mock cases below the
+predefined 0.1-RMS/0.3-maximum error target; one and two components miss that
+strict target even with wider search bounds. This tests light-DF capacity at
+fixed gravity, not component mass recovery. The
+<a href="../DF_MASS_RECOVERY/">free-potential mass-recovery stage</a> now implements distinct
+stellar mass/light weights and runs noiseless controls before gated noisy mock
+experiments. Its <a href="../DF_MASS_RECOVERY_STATUS/">status page</a> tracks the active batch.
+These controls precede new posterior fits of the real observations.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../kb/javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

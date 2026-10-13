@@ -1,0 +1,3340 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Knowledge base of the oCen_dm project (data products, models, results, literature)">
+      
+      
+      
+        <link rel="canonical" href="https://vasilybelokurov.github.io/ocen_dm/spec/">
+      
+      
+        <link rel="prev" href="../reviews/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Specification - oCen_dm: dark matter in Omega Centauri</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#omega-centauri-dark-mattertidal-tail-inference-project" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="oCen_dm: dark matter in Omega Centauri" class="md-header__button md-logo" aria-label="oCen_dm: dark matter in Omega Centauri" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            oCen_dm: dark matter in Omega Centauri
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Specification
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/vasilybelokurov/ocen_dm" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    vasilybelokurov/ocen_dm
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../kb/getting_started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../kb/data/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Data
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../kb/models/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Models
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../kb/results/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Results
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../kb/literature/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Literature
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../reviews/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Reviews
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Specification
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="oCen_dm: dark matter in Omega Centauri" class="md-nav__button md-logo" aria-label="oCen_dm: dark matter in Omega Centauri" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    oCen_dm: dark matter in Omega Centauri
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/vasilybelokurov/ocen_dm" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    vasilybelokurov/ocen_dm
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/getting_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../kb/data/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Data
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/data/cluster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cluster kinematics, counts and light
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/data/tails_streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Periphery, tails and streams
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/data/potentials/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Potentials and auxiliary inputs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/data/sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Registered sources
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/data/gaps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known gaps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data_analysis.pdf" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data preparation (PDF)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MANUAL_DOWNLOADS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Manual downloads
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DATA_GAPS_PLAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data-gaps plan (historical)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../kb/models/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Models
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/models/base_no_dm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Base no-DM model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF family
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    DF family
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../REGULARIZED_DF_IMPLEMENTATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regularized DF implementation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DF_ANISOTROPY_DIAGNOSTICS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Anisotropy diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../OBSERVED_DF_FLEXIBILITY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Observed-data flexibility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../COMPACT_DF_RECOVERY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compact DF recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../COMPACT_DF_FREQUENCY_DIAGNOSTIC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frequency-mapper diagnostic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DF_MODEL_LITERATURE_REVIEW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF model literature review
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../AGAMA_DF_MODELS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Earlier mixture DF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DF_CAPACITY_CHALLENGE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF capacity challenge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DF_MASS_RECOVERY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF mass recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DF_MASS_RECOVERY_STATUS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF mass recovery status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Jeans ladder (historical)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Jeans ladder (historical)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MODELLING_PLAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelling plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RUNG0_ANALYSIS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rung 0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RUNG1_COMPARISON/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rung 1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RUNG_MODEL_COMPARISON/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All rungs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DM_DENSITY_POSTERIOR/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DM density posterior
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DM_DENSITY_DATA_CONSTRAINTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DM density data constraints
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DM_DENSITY_PROFILE_LIMIT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DM density profile limit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DM_DENSITY_POSTERIOR_CHECKS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DM density posterior checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DF_CONSISTENCY_AUDIT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF consistency audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LITERATURE_BASELINES/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Literature baselines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CODE_ANALYSIS_AUDIT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code and analysis audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Results
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Results
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Results
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    N-body and DM survival
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    N-body and DM survival
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DYNAMICAL_EXPERIMENTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamical experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DYNAMICAL_BATCH_ANALYSIS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Batch analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../PROGENITOR_ORBITS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Progenitor orbits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SECTION11_TESTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Section-11 tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LIFETIME_EVOLUTION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifetime evolution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LIFETIME_BATCH_REPORT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifetime batch report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NBODY_CODE_ASSESSMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    N-body code assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NBODY_IC_PROPOSAL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    N-body ICs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stream 54
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Stream 54
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STREAM_PM_REFINEMENT_2026-10-13/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PM refinement (current)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STREAM_KNEE_INVESTIGATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knee investigation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STREAM_DIAGNOSTIC_PLAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Diagnostic plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STREAM_FIT_CAMPAIGN_PLAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fit campaign plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STREAM_EXPERIMENTS_PLAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiments plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STREAM_FIT_METHODS_REVIEW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stream-fitting methods review
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../literature/omega_cen_stream_distances_2026-10-10/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stream distances literature
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/literature/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Literature
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reviews/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reviews
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specification
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Goal
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Goal
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="omega-centauri-dark-mattertidal-tail-inference-project">Omega Centauri Dark-Matter/Tidal-Tail Inference Project<a class="headerlink" href="#omega-centauri-dark-mattertidal-tail-inference-project" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Status note, 2026-09-21:</strong> This is the original roadmap. Its proposed layout, CLI and
+immediate Milestone-1 task are historical targets. See <a href="https://github.com/vasilybelokurov/ocen_dm/blob/main/README.md">README.md</a>,
+<a href="../MODELLING_PLAN/">the current modelling plan</a> and
+<a href="../CODE_ANALYSIS_AUDIT/">the code/analysis audit</a> for implemented behaviour and next work.</p>
+<p><strong>For Codex CLI / Claude Code:</strong> Treat this file as the project specification and implementation roadmap. Work incrementally, keep all scientific calculations in importable/testable modules, and do not replace missing data or metadata with invented values. Every external dataset must have a provenance record, URL/DOI, checksum when available, and a script that reproduces the local processed product from the raw download.</p>
+</blockquote>
+<h2 id="goal">Goal<a class="headerlink" href="#goal" title="Permanent link">&para;</a></h2>
+<p>Build a reproducible inference pipeline that asks:</p>
+<blockquote>
+<p><strong>Can the observed tidal tails of Omega Centauri break the mass-decomposition degeneracy left by its internal stellar kinematics, and thereby constrain a possible surviving dark-matter halo?</strong></p>
+</blockquote>
+<p>The central experiment is intentionally hierarchical:</p>
+<ol>
+<li>Fit the <strong>bound stellar kinematics</strong> of Omega Cen with a family of mass models containing luminous stars, centrally concentrated dark remnants, an optional IMBH, and a possible extended DM component.</li>
+<li>Use the kinematic posterior to identify <strong>iso-kinematic solutions</strong>: models that fit the internal data comparably well but contain different amounts and radial distributions of DM.</li>
+<li>Evolve those models on the same Galactic orbit and predict their tidal-tail morphology and phase-space structure.</li>
+<li>Compare the predictions with the observed Omega Cen tails, Fimbulthul, and tail spectroscopy.</li>
+<li>Reweight or jointly refit the kinematic posterior using the tail likelihood.</li>
+<li>Only after establishing a robust posterior on the extended DM distribution, derive quantities such as <code>rho_DM(r)</code>, <code>M_DM(&lt;r)</code>, escape-speed profiles, decay <code>D</code> factors, and—more cautiously—annihilation <code>J</code> factors.</li>
+</ol>
+<p>The scientific focus is <strong>not</strong> to force a best-fit NFW halo. The primary target is the radial distribution of extra mass, especially on scales where tidal stripping is sensitive to the gravitational potential.</p>
+<hr />
+<h1 id="1-scientific-hypothesis">1. Scientific hypothesis<a class="headerlink" href="#1-scientific-hypothesis" title="Permanent link">&para;</a></h1>
+<p>Internal stellar kinematics mainly constrain the total potential in the central/bound cluster. Several physically distinct decompositions may produce nearly identical observables:</p>
+<div class="arithmatex">\[
+\Phi_{\rm tot}
+= \Phi_\star
++ \Phi_{\rm rem}
++ \Phi_{\rm IMBH}
++ \Phi_{\rm DM}.
+\]</div>
+<p>A centrally concentrated remnant population or an IMBH can mimic extra central mass, while an extended surviving DM halo can contribute additional mass at tens to hundreds of parsecs.</p>
+<p>The tails respond to the <strong>total potential near the escape/Jacobi region</strong>, not to the microscopic identity of the mass. Therefore the experiment has leverage when two kinematically acceptable solutions satisfy approximately</p>
+<div class="arithmatex">\[
+M_A(&lt;5\,{\rm pc}) \simeq M_B(&lt;5\,{\rm pc})
+\]</div>
+<p>but differ at larger radii,</p>
+<div class="arithmatex">\[
+M_A(&lt;50{-}200\,{\rm pc}) \neq M_B(&lt;50{-}200\,{\rm pc}).
+\]</div>
+<p>The tails are not expected to measure an unresolved central cusp slope directly. They should be treated primarily as a constraint on the <strong>radial extent and enclosed mass of any extra component</strong>.</p>
+<h2 id="primary-derived-parameters">Primary derived parameters<a class="headerlink" href="#primary-derived-parameters" title="Permanent link">&para;</a></h2>
+<p>Report posterior constraints on quantities that are close to observables:</p>
+<ul>
+<li><code>M_DM(&lt;5 pc)</code></li>
+<li><code>M_DM(&lt;20 pc)</code></li>
+<li><code>M_DM(&lt;60 pc)</code></li>
+<li><code>M_DM(&lt;100 pc)</code></li>
+<li><code>M_DM(&lt;r_J)</code> where <code>r_J</code> is the present-day Jacobi scale for each model</li>
+<li><code>rho_DM(20 pc)</code> as a useful derived quantity for comparison with the deep WD field</li>
+<li><code>v_esc(r)</code></li>
+<li>total bound mass as a function of radius</li>
+</ul>
+<p>Avoid presenting <code>rho_s</code>, <code>r_s</code>, or a formal inner slope <code>gamma</code> as the main result unless injection/recovery tests show they are identifiable.</p>
+<hr />
+<h1 id="2-key-observational-datasets">2. Key observational datasets<a class="headerlink" href="#2-key-observational-datasets" title="Permanent link">&para;</a></h1>
+<h2 id="21-tidal-tail-outer-cluster-data">2.1 Tidal-tail / outer-cluster data<a class="headerlink" href="#21-tidal-tail-outer-cluster-data" title="Permanent link">&para;</a></h2>
+<h3 id="a-kuzma-ishigaki-2025-pristine-gaia-omega-cen-periphery">A. Kuzma &amp; Ishigaki (2025): Pristine + Gaia Omega Cen periphery<a class="headerlink" href="#a-kuzma-ishigaki-2025-pristine-gaia-omega-cen-periphery" title="Permanent link">&para;</a></h3>
+<p><strong>Paper:</strong> <em>A Pristine View of Galactic Globular Clusters and their Peripheries: Omega Centauri</em><br />
+ArXiv: https://arxiv.org/abs/2502.01135<br />
+MNRAS: https://academic.oup.com/mnras/article/537/3/2752/8002861<br />
+Dataset DOI: https://doi.org/10.5281/zenodo.14791430</p>
+<p>Zenodo contains:</p>
+<ul>
+<li><code>wCen_table.fits</code></li>
+<li>size: 26.5 MB</li>
+<li>published MD5: <code>3dcd58e69767901fbbdf69385a14c768</code></li>
+</ul>
+<p>Use this as the primary wide-field tail catalogue. It combines Gaia astrometry with photometric/chemical information and probabilistic membership information out to several degrees.</p>
+<p><strong>Important likelihood rule:</strong> do not simply use the published membership probability as a likelihood weight and then reuse the same proper-motion/photometric information in the scientific likelihood. That risks double-counting. Use published membership probabilities for diagnostics and initial sample exploration; the final likelihood should either reconstruct the relevant mixture model or clearly condition on a defined selection.</p>
+<h3 id="b-kuzma-et-al-2026-spectroscopy-of-the-periphery-and-tails">B. Kuzma et al. (2026): spectroscopy of the periphery and tails<a class="headerlink" href="#b-kuzma-et-al-2026-spectroscopy-of-the-periphery-and-tails" title="Permanent link">&para;</a></h3>
+<p><strong>Paper:</strong> <em>Disruption of a Giant: Spectroscopic Identification of Members in the Periphery and Tidal Tails of Omega Centauri</em><br />
+ArXiv: https://arxiv.org/abs/2605.23474<br />
+MNRAS DOI: https://doi.org/10.1093/mnras/stag1147<br />
+Publisher page: https://academic.oup.com/mnras/article/550/2/stag1147/8709286</p>
+<p>The paper provides the full star list and measurements as online supplementary material. The underlying ESO observations are available under:</p>
+<ul>
+<li>programme ID: <code>108.22MM.001</code></li>
+<li>PI: Kuzma</li>
+</ul>
+<p>Use the published table first. Raw reduction of FLAMES spectra is not required for the first project version.</p>
+<p><strong>Important likelihood rule:</strong> the spectroscopy is targeted. Use velocities and metallicities <strong>conditional on the observed target positions</strong>. Do not use the number of spectroscopic detections as an unbiased measurement of the tail surface density unless the target-selection function is explicitly reconstructed.</p>
+<h3 id="c-fimbulthul-stream">C. Fimbulthul stream<a class="headerlink" href="#c-fimbulthul-stream" title="Permanent link">&para;</a></h3>
+<p><strong>Paper:</strong> Ibata et al. (2019), <em>Identification of the long stellar stream of the prototypical massive globular cluster Omega Centauri</em><br />
+DOI: https://doi.org/10.1038/s41550-019-0751-x<br />
+Publisher: https://www.nature.com/articles/s41550-019-0751-x</p>
+<p>The Fimbulthul candidate stars are supplied in Supplementary Table 1.</p>
+<p>Use Fimbulthul mainly as a <strong>long-baseline stream-track constraint</strong>. Because the original sample comes from STREAMFINDER and has a complex selection function, do not initially interpret its absolute number density as an unbiased tail density.</p>
+<h3 id="d-kuzma-et-al-2021-gaia-edr3-tail-morphology">D. Kuzma et al. (2021): Gaia EDR3 tail morphology<a class="headerlink" href="#d-kuzma-et-al-2021-gaia-edr3-tail-morphology" title="Permanent link">&para;</a></h3>
+<p><strong>Paper:</strong> <em>Detecting globular cluster tidal extensions with Bayesian inference - I. Analysis of Omega Centauri with Gaia EDR3</em><br />
+MNRAS: https://academic.oup.com/mnras/article/507/1/1127/6347368</p>
+<p>Useful for reproducing earlier tail morphology, radial star-count profiles, ellipticity, and membership methodology.</p>
+<h3 id="e-youakim-lind-kushniruk-2023-long-baseline-debris-and-stream-simulations">E. Youakim, Lind &amp; Kushniruk (2023): long-baseline debris and stream simulations<a class="headerlink" href="#e-youakim-lind-kushniruk-2023-long-baseline-debris-and-stream-simulations" title="Permanent link">&para;</a></h3>
+<p><strong>Paper:</strong> <em>Tidal debris from Omega Centauri discovered with unsupervised machine learning</em><br />
+ArXiv: https://arxiv.org/abs/2307.03035<br />
+DOI: https://doi.org/10.1093/mnras/stad1952</p>
+<p>This is an important validation target because it already used particle-spray stream models for Omega Cen-like orbits. Reproduce at least one of their no-DM stellar-progenitor calculations as an integration test before introducing an extended DM component.</p>
+<hr />
+<h2 id="22-boundinternal-kinematics">2.2 Bound/internal kinematics<a class="headerlink" href="#22-boundinternal-kinematics" title="Permanent link">&para;</a></h2>
+<h3 id="a-omegacat-vi-kinematic-profiles-and-maps">A. oMEGACat VI: kinematic profiles and maps<a class="headerlink" href="#a-omegacat-vi-kinematic-profiles-and-maps" title="Permanent link">&para;</a></h3>
+<p><strong>Paper:</strong> <em>oMEGACat. VI. Analysis of the overall kinematics of Omega Centauri in 3D: velocity dispersion, kinematic distance, anisotropy, and energy equipartition</em><br />
+ArXiv: https://arxiv.org/abs/2503.04903<br />
+DOI: https://doi.org/10.3847/1538-4357/adbe67<br />
+Data: https://zenodo.org/records/14978551</p>
+<p>The public data products include:</p>
+<ul>
+<li>proper-motion dispersion profiles</li>
+<li>radial and tangential PM components</li>
+<li>LOS rotation/dispersion profiles</li>
+<li>kinematic maps</li>
+<li>mass-binned PM profiles</li>
+<li>quality-selection definitions</li>
+</ul>
+<p><strong>Use these binned products for v1 of the kinematic inference.</strong> They make the initial model and likelihood tractable and avoid immediately fitting millions of individual stars.</p>
+<h3 id="b-omegacat-ii-individual-hst-astrometry">B. oMEGACat II: individual HST astrometry<a class="headerlink" href="#b-omegacat-ii-individual-hst-astrometry" title="Permanent link">&para;</a></h3>
+<p><strong>Paper:</strong> https://arxiv.org/abs/2404.03722<br />
+Data DOI: https://doi.org/10.5281/zenodo.11104046</p>
+<p>The astrometric catalogue contains approximately 1.4 million proper-motion measurements. Use only after the binned-profile pipeline is validated.</p>
+<h3 id="c-omegacat-i-muse-spectroscopy">C. oMEGACat I / MUSE spectroscopy<a class="headerlink" href="#c-omegacat-i-muse-spectroscopy" title="Permanent link">&para;</a></h3>
+<p>Survey homepage and data access: https://omegacatalog.github.io/</p>
+<p>Use individual LOS velocities only in a later likelihood version after the profile-based model is established.</p>
+<hr />
+<h1 id="3-modelling-philosophy">3. Modelling philosophy<a class="headerlink" href="#3-modelling-philosophy" title="Permanent link">&para;</a></h1>
+<h2 id="31-stage-1-fit-the-equilibriumbound-cluster">3.1 Stage 1: fit the equilibrium/bound cluster<a class="headerlink" href="#31-stage-1-fit-the-equilibriumbound-cluster" title="Permanent link">&para;</a></h2>
+<p>Start from an axisymmetric or spherical-equivalent model of the bound cluster. The mass decomposition is</p>
+<div class="arithmatex">\[
+\Phi_{\rm tot}
+= \Phi_\star
++ \Phi_{\rm rem}
++ \Phi_{\rm IMBH}
++ \Phi_{\rm DM}.
+\]</div>
+<h3 id="luminous-stars">Luminous stars<a class="headerlink" href="#luminous-stars" title="Permanent link">&para;</a></h3>
+<p>Represent the projected light/star-count distribution using an MGE or another smooth basis that can be deprojected consistently. Prefer deriving the luminous model from public Omega Cen photometric/star-count data or a reproducible literature profile rather than hard-coding a single analytic Plummer model.</p>
+<p>Free nuisance parameters should include a stellar mass normalization or effective <code>M/L</code> and, if required, a modest radial variation.</p>
+<h3 id="dark-remnants">Dark remnants<a class="headerlink" href="#dark-remnants" title="Permanent link">&para;</a></h3>
+<p>Use a compact extended component rather than forcing remnants into the luminous profile. Initial simple option:</p>
+<ul>
+<li>Plummer or multi-Gaussian remnant density</li>
+<li>free total remnant mass <code>M_rem</code></li>
+<li>free scale radius <code>a_rem</code></li>
+</ul>
+<p>This component is phenomenological in v1. Later it may be replaced by a multi-mass collisional cluster prediction.</p>
+<h3 id="imbh">IMBH<a class="headerlink" href="#imbh" title="Permanent link">&para;</a></h3>
+<p>Point mass with parameter <code>M_bh &gt;= 0</code>.</p>
+<h3 id="dm">DM<a class="headerlink" href="#dm" title="Permanent link">&para;</a></h3>
+<p>Use at least two families in separate inference runs:</p>
+<ol>
+<li>truncated generalized NFW / NFW-like cusp</li>
+<li>cored profile such as Burkert or cored-gNFW</li>
+</ol>
+<p>A suitable generic form is</p>
+<div class="arithmatex">\[
+\rho_{\rm DM}(r)
+= \rho_s
+\left(\frac{r}{r_s}\right)^{-\gamma}
+\left(1+\frac{r}{r_s}\right)^{\gamma-3}
+T(r;r_t),
+\]</div>
+<p>where <code>T</code> is a smooth outer truncation.</p>
+<p>Do not let the first inference have more halo-shape freedom than the data can support. Start with fixed <code>gamma=0</code> and <code>gamma=1</code> families. Promote <code>gamma</code> to a free parameter only after injection tests show it is recoverable.</p>
+<h3 id="anisotropy">Anisotropy<a class="headerlink" href="#anisotropy" title="Permanent link">&para;</a></h3>
+<p>Use a smooth low-dimensional radial anisotropy parameterization, for example</p>
+<div class="arithmatex">\[
+\beta(r)
+= \beta_0
++ (\beta_\infty-\beta_0)
+\frac{r^2}{r^2+r_\beta^2}.
+\]</div>
+<p>Do not use many independent anisotropy bins in the first fit; that can absorb the mass-profile signal.</p>
+<h3 id="rotation">Rotation<a class="headerlink" href="#rotation" title="Permanent link">&para;</a></h3>
+<p>Include rotation consistently with the chosen Jeans formalism and the oMEGACat rotation constraints. Keep the initial rotation model low dimensional.</p>
+<hr />
+<h1 id="4-recommended-software-stack">4. Recommended software stack<a class="headerlink" href="#4-recommended-software-stack" title="Permanent link">&para;</a></h1>
+<h2 id="core-python">Core Python<a class="headerlink" href="#core-python" title="Permanent link">&para;</a></h2>
+<p>Recommended baseline: Python 3.12 in a dedicated environment.</p>
+<p>Required:</p>
+<ul>
+<li><code>numpy</code></li>
+<li><code>scipy</code></li>
+<li><code>astropy</code></li>
+<li><code>pandas</code> or <code>polars</code></li>
+<li><code>pyarrow</code></li>
+<li><code>h5py</code> and/or <code>zarr</code></li>
+<li><code>matplotlib</code></li>
+<li><code>corner</code></li>
+<li><code>pooch</code></li>
+<li><code>pyyaml</code></li>
+<li><code>pytest</code></li>
+<li><code>ruff</code></li>
+</ul>
+<h2 id="kinematic-modelling">Kinematic modelling<a class="headerlink" href="#kinematic-modelling" title="Permanent link">&para;</a></h2>
+<h3 id="primary-jampy">Primary: JamPy<a class="headerlink" href="#primary-jampy" title="Permanent link">&para;</a></h3>
+<p>PyPI: https://pypi.org/project/jampy/</p>
+<p>JamPy 9.x includes the 2026 spectral axisymmetric Jeans solver and supports projected proper-motion and LOS moments with general anisotropy.</p>
+<p><strong>Licensing note:</strong> JamPy is not an ordinary permissively licensed dependency; verify its current research/non-commercial terms before packaging or redistribution. Do not vendor it into this repository.</p>
+<h3 id="cross-check-alternative">Cross-check / alternative<a class="headerlink" href="#cross-check-alternative" title="Permanent link">&para;</a></h3>
+<p>AGAMA: https://github.com/GalacticDynamics-Oxford/AGAMA</p>
+<p>AGAMA supports potentials, orbit integration, DFs, moments, self-consistent multi-component models, and construction of equilibrium realizations. It will also be used later for equilibrium N-body initial conditions.</p>
+<h2 id="stream-modelling">Stream modelling<a class="headerlink" href="#stream-modelling" title="Permanent link">&para;</a></h2>
+<h3 id="primary-fast-engine-galpy-particle-spray">Primary fast engine: galpy particle spray<a class="headerlink" href="#primary-fast-engine-galpy-particle-spray" title="Permanent link">&para;</a></h3>
+<p>Documentation: https://docs.galpy.org/en/latest/tutorials/streams/streamspraydf.html</p>
+<p>Use the current Chen/Fardal spray implementations. Current galpy supports:</p>
+<ul>
+<li><code>chen24spraydf</code></li>
+<li><code>fardal15spraydf</code></li>
+<li>a progenitor potential via <code>progpot</code></li>
+<li>time-dependent/callable progenitor mass</li>
+<li>leading/trailing or both tails</li>
+<li>smooth stream-track fitting with phase-space covariance</li>
+</ul>
+<p>This makes it suitable for quickly propagating many posterior mass models.</p>
+<h3 id="independent-cross-check-gala">Independent cross-check: Gala<a class="headerlink" href="#independent-cross-check-gala" title="Permanent link">&para;</a></h3>
+<p><code>MockStreamGenerator</code> documentation: https://gala-astro.readthedocs.io/en/latest/api/gala.dynamics.mockstream.MockStreamGenerator.html</p>
+<p>Gala supports an explicit progenitor potential and is useful for reproducing earlier Omega Cen stream calculations.</p>
+<h2 id="inference">Inference<a class="headerlink" href="#inference" title="Permanent link">&para;</a></h2>
+<p>Primary:</p>
+<ul>
+<li><code>ultranest</code>: https://johannesbuchner.github.io/UltraNest/</li>
+</ul>
+<p>Cross-check:</p>
+<ul>
+<li><code>dynesty</code></li>
+</ul>
+<p>Nested sampling is useful because the kinematic mass decomposition may be multimodal and because model-family evidences can be informative, although evidence ratios are not the main scientific product.</p>
+<h2 id="workflow">Workflow<a class="headerlink" href="#workflow" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>snakemake</code> for reproducible data -&gt; inference -&gt; simulations -&gt; figures</li>
+<li><code>pre-commit</code> optional</li>
+<li><code>uv</code> or <code>conda-lock</code> for environment reproducibility</li>
+</ul>
+<hr />
+<h1 id="5-repository-layout">5. Repository layout<a class="headerlink" href="#5-repository-layout" title="Permanent link">&para;</a></h1>
+<div class="highlight"><pre><span></span><code>ocen-dm-tails/
+├── README.md
+├── PROJECT.md
+├── pyproject.toml
+├── environment.yml
+├── configs/
+│   ├── data.yaml
+│   ├── kinematics_baseline.yaml
+│   ├── dm_nfw.yaml
+│   ├── dm_cored.yaml
+│   ├── mw_axisym.yaml
+│   ├── mw_barred.yaml
+│   └── experiments/
+├── data/
+│   ├── raw/          # never edited manually; gitignored
+│   ├── interim/      # reproducible intermediate products
+│   └── processed/    # analysis-ready products
+├── provenance/
+│   ├── datasets.yaml
+│   └── checksums.txt
+├── src/ocen_dm/
+│   ├── data/
+│   │   ├── download.py
+│   │   ├── kuzma2025.py
+│   │   ├── kuzma2026.py
+│   │   ├── fimbulthul.py
+│   │   └── omegacat.py
+│   ├── coordinates.py
+│   ├── light_model.py
+│   ├── mass_models/
+│   │   ├── stellar.py
+│   │   ├── remnants.py
+│   │   ├── imbh.py
+│   │   ├── dark_matter.py
+│   │   └── composite.py
+│   ├── kinematics/
+│   │   ├── jam_model.py
+│   │   ├── likelihood.py
+│   │   └── derived.py
+│   ├── inference/
+│   │   ├── priors.py
+│   │   ├── ultranest_runner.py
+│   │   └── posterior.py
+│   ├── stream/
+│   │   ├── orbit.py
+│   │   ├── galpy_spray.py
+│   │   ├── gala_spray.py
+│   │   ├── observables.py
+│   │   └── likelihood.py
+│   ├── selection/
+│   │   ├── kuzma2025.py
+│   │   ├── spectroscopy.py
+│   │   └── fimbulthul.py
+│   ├── experiments/
+│   │   ├── select_isokinematic.py
+│   │   ├── injections.py
+│   │   ├── reweight.py
+│   │   └── posterior_predictive.py
+│   ├── nbody/
+│   │   ├── agama_ic.py
+│   │   └── export.py
+│   ├── plotting/
+│   └── cli.py
+├── tests/
+├── notebooks/        # inspection only; no unique science logic
+├── workflows/
+│   └── Snakefile
+└── results/
+</code></pre></div>
+<h2 id="cli-target">CLI target<a class="headerlink" href="#cli-target" title="Permanent link">&para;</a></h2>
+<p>Expose a small command surface, for example:</p>
+<div class="highlight"><pre><span></span><code>ocen<span class="w"> </span>fetch-data
+ocen<span class="w"> </span>preprocess
+ocen<span class="w"> </span>fit-kinematics<span class="w"> </span>--config<span class="w"> </span>configs/kinematics_baseline.yaml
+ocen<span class="w"> </span><span class="k">select</span>-isokinematic<span class="w"> </span>--posterior<span class="w"> </span>results/kinematics/posterior.h5
+ocen<span class="w"> </span>simulate-tails<span class="w"> </span>--ensemble<span class="w"> </span>results/isokinematic/models.parquet
+ocen<span class="w"> </span>fit-tails
+ocen<span class="w"> </span>reweight-posterior
+ocen<span class="w"> </span>run-injections
+ocen<span class="w"> </span>compare-mw-potentials
+ocen<span class="w"> </span>posterior-predictive
+ocen<span class="w"> </span>export-nbody
+</code></pre></div>
+<hr />
+<h1 id="6-experiment-sequence">6. Experiment sequence<a class="headerlink" href="#6-experiment-sequence" title="Permanent link">&para;</a></h1>
+<h2 id="experiment-k0-reproduce-published-kinematic-observables">Experiment K0: reproduce published kinematic observables<a class="headerlink" href="#experiment-k0-reproduce-published-kinematic-observables" title="Permanent link">&para;</a></h2>
+<p>Before inference, load the oMEGACat VI products and reproduce the published profile figures numerically:</p>
+<ul>
+<li>PM radial dispersion</li>
+<li>PM tangential dispersion</li>
+<li>LOS dispersion</li>
+<li>rotation</li>
+<li>anisotropy diagnostic</li>
+</ul>
+<p>Deliverable:</p>
+<p><code>results/validation/omegacat_vi_profiles.*</code></p>
+<p>Failure here blocks subsequent inference.</p>
+<h2 id="experiment-k1-no-dm-baseline-fit">Experiment K1: no-DM baseline fit<a class="headerlink" href="#experiment-k1-no-dm-baseline-fit" title="Permanent link">&para;</a></h2>
+<p>Fit a model containing:</p>
+<ul>
+<li>luminous stars</li>
+<li>compact remnant component</li>
+<li>optional IMBH</li>
+<li>anisotropy</li>
+<li>rotation</li>
+<li>no particle DM</li>
+</ul>
+<p>This establishes whether the implementation can reproduce the equilibrium kinematics without using DM as a catch-all component.</p>
+<p>Outputs:</p>
+<ul>
+<li>posterior samples</li>
+<li>posterior predictive kinematic profiles</li>
+<li>residual maps/profiles</li>
+<li>derived enclosed-mass posterior</li>
+</ul>
+<h2 id="experiment-k2-dm-enabled-kinematic-fits">Experiment K2: DM-enabled kinematic fits<a class="headerlink" href="#experiment-k2-dm-enabled-kinematic-fits" title="Permanent link">&para;</a></h2>
+<p>Run at least two model families:</p>
+<ol>
+<li>cored DM</li>
+<li>cuspy DM</li>
+</ol>
+<p>Keep the remainder of the model identical.</p>
+<p>Store derived quantities for every posterior sample:</p>
+<div class="highlight"><pre><span></span><code>M_star(&lt;r)
+M_rem(&lt;r)
+M_DM(&lt;r)
+M_total(&lt;r)
+f_DM(&lt;r)
+r_J
+v_esc(r)
+</code></pre></div>
+<p>at a fixed common radial grid.</p>
+<p>The key product is not a best fit. It is the posterior degeneracy between the compact and extended components.</p>
+<h2 id="experiment-k3-construct-the-iso-kinematic-ensemble">Experiment K3: construct the iso-kinematic ensemble<a class="headerlink" href="#experiment-k3-construct-the-iso-kinematic-ensemble" title="Permanent link">&para;</a></h2>
+<p>Do <strong>not</strong> invent arbitrary halo models at this stage.</p>
+<p>Sample directly from <code>p(theta | D_kin)</code> and stratify the accepted models by a physically relevant extended-DM variable such as</p>
+<div class="highlight"><pre><span></span><code>M_DM(&lt;100 pc)
+M_DM(&lt;r_J)
+</code></pre></div>
+<p>Suggested v1 selection:</p>
+<ul>
+<li>divide the posterior into quantile bins in <code>M_DM(&lt;r_J)</code></li>
+<li>draw several posterior samples from each bin</li>
+<li>preserve posterior weights</li>
+<li>optionally require posterior-predictive residual metrics to pass a common quality threshold</li>
+</ul>
+<p>The result should contain models spanning low-DM through high-DM solutions while all remaining valid fits to the same kinematic data.</p>
+<p>Deliverable:</p>
+<p><code>results/isokinematic/models.parquet</code></p>
+<p>Each row must contain all mass-model, anisotropy, orbit, and nuisance parameters needed to regenerate the model exactly.</p>
+<hr />
+<h1 id="7-tail-forward-modelling">7. Tail forward modelling<a class="headerlink" href="#7-tail-forward-modelling" title="Permanent link">&para;</a></h1>
+<h2 id="experiment-t0-no-dm-literature-validation">Experiment T0: no-DM literature validation<a class="headerlink" href="#experiment-t0-no-dm-literature-validation" title="Permanent link">&para;</a></h2>
+<p>Before using the isokinematic ensemble:</p>
+<ol>
+<li>integrate the present-day Omega Cen orbit in the baseline Milky Way potential;</li>
+<li>generate a no-DM particle-spray stream;</li>
+<li>reproduce the approximate observed orientation/track of the local tails;</li>
+<li>reproduce at least one configuration comparable to Youakim et al. (2023) or Ibata et al. (2019).</li>
+</ol>
+<p>This validates coordinates, orbit conventions, time direction, units, and stream-release machinery.</p>
+<h2 id="experiment-t1-controlled-compact-vs-extended-mass-test">Experiment T1: controlled compact-vs-extended mass test<a class="headerlink" href="#experiment-t1-controlled-compact-vs-extended-mass-test" title="Permanent link">&para;</a></h2>
+<p>Construct pairs of models with similar central enclosed mass but different outer mass profiles.</p>
+<p>Hold fixed:</p>
+<ul>
+<li>present-day cluster phase space</li>
+<li>Milky Way potential</li>
+<li>stellar mass model where possible</li>
+<li>random numbers used in particle release</li>
+<li>integration settings</li>
+</ul>
+<p>Vary only the mass decomposition.</p>
+<p>Compare:</p>
+<ul>
+<li>surface-density morphology</li>
+<li>tail width</li>
+<li>leading/trailing asymmetry</li>
+<li>PM track</li>
+<li>LOS velocity track</li>
+<li>stripping-time distribution</li>
+<li>bound mass evolution</li>
+<li>stellar escape rate</li>
+</ul>
+<p>Use common random numbers across nearby models to suppress Monte Carlo noise in model comparisons.</p>
+<h2 id="experiment-t2-propagate-the-kinematic-posterior">Experiment T2: propagate the kinematic posterior<a class="headerlink" href="#experiment-t2-propagate-the-kinematic-posterior" title="Permanent link">&para;</a></h2>
+<p>For every selected isokinematic model:</p>
+<ol>
+<li>construct the corresponding progenitor potential;</li>
+<li>generate both leading and trailing tails;</li>
+<li>transform to heliocentric observables;</li>
+<li>apply the relevant observational footprint/selection;</li>
+<li>store a compact summary plus the mock particles needed for likelihood evaluation.</li>
+</ol>
+<p>This experiment maps</p>
+<div class="arithmatex">\[
+\theta_i \sim p(\theta|D_{\rm kin})
+\quad\longrightarrow\quad
+D_{\rm tail}^{\rm mock}(\theta_i).
+\]</div>
+<hr />
+<h1 id="8-tail-likelihood">8. Tail likelihood<a class="headerlink" href="#8-tail-likelihood" title="Permanent link">&para;</a></h1>
+<p>The first scientifically useful tail likelihood should be modular:</p>
+<div class="arithmatex">\[
+\ln {\cal L}_{\rm tail}
+=
+\ln {\cal L}_{\rm sky}
++
+\ln {\cal L}_{\rm PM}
++
+\ln {\cal L}_{v_{\rm los}}
++
+\ln {\cal L}_{\rm Fimbulthul}.
+\]</div>
+<h2 id="81-sky-morphology">8.1 Sky morphology<a class="headerlink" href="#81-sky-morphology" title="Permanent link">&para;</a></h2>
+<p>Preferred long-term solution: a Poisson point-process likelihood containing cluster/tail and field components plus the angular selection function.</p>
+<p>For a fast v1, compare smoothed tail-density fields only in regions where the published sample selection is understood. Clearly label this as an approximation.</p>
+<h2 id="82-proper-motions">8.2 Proper motions<a class="headerlink" href="#82-proper-motions" title="Permanent link">&para;</a></h2>
+<p>Compare the Gaia PM data to the local mock-stream phase-space distribution convolved with the full Gaia astrometric covariance where available.</p>
+<p>Do not assume independent <code>pmra</code> and <code>pmdec</code> errors if covariance information exists.</p>
+<h2 id="83-kuzma-et-al-2026-radial-velocities">8.3 Kuzma et al. 2026 radial velocities<a class="headerlink" href="#83-kuzma-et-al-2026-radial-velocities" title="Permanent link">&para;</a></h2>
+<p>Condition on target positions and compare observed <code>v_los</code> with the model distribution at those positions. Include measurement errors and an outlier/field component if required.</p>
+<h2 id="84-fimbulthul">8.4 Fimbulthul<a class="headerlink" href="#84-fimbulthul" title="Permanent link">&para;</a></h2>
+<p>Initially use the stream as a track constraint in sky position / PM / LOS velocity where available. Avoid an absolute surface-density likelihood until STREAMFINDER selection is modeled.</p>
+<hr />
+<h1 id="9-posterior-updating">9. Posterior updating<a class="headerlink" href="#9-posterior-updating" title="Permanent link">&para;</a></h1>
+<p>The conceptual update is</p>
+<div class="arithmatex">\[
+p(\theta|D_{\rm kin},D_{\rm tail})
+\propto
+{\cal L}_{\rm tail}(\theta)
+\,p(\theta|D_{\rm kin}).
+\]</div>
+<p>The first implementation should perform <strong>importance reweighting</strong> of the kinematic posterior:</p>
+<div class="arithmatex">\[
+w_i \propto {\cal L}_{\rm tail}(\theta_i).
+\]</div>
+<p>Compute effective sample size. If the tail likelihood collapses the posterior so strongly that the effective sample size is poor, switch to a joint sampler or sequential Monte Carlo initialized from the kinematic posterior.</p>
+<p>Primary comparison plots:</p>
+<ul>
+<li><code>p[M_DM(&lt;r) | kinematics]</code></li>
+<li><code>p[M_DM(&lt;r) | kinematics + tails]</code></li>
+</ul>
+<p>and similarly for</p>
+<ul>
+<li><code>f_DM(&lt;r)</code></li>
+<li><code>v_esc(r)</code></li>
+<li><code>M_rem</code></li>
+<li><code>M_bh</code></li>
+</ul>
+<p>The central scientific diagnostic is whether the tails narrow the posterior on <strong>extended</strong> DM while leaving compact-remnant/IMBH degeneracies comparatively unchanged.</p>
+<hr />
+<h1 id="10-injectionrecovery-experiments">10. Injection/recovery experiments<a class="headerlink" href="#10-injectionrecovery-experiments" title="Permanent link">&para;</a></h1>
+<p>These are mandatory before interpreting the real-data posterior.</p>
+<p>Generate synthetic observations using the real angular footprint and error model for at least:</p>
+<ol>
+<li>no DM;</li>
+<li>low extended-DM mass;</li>
+<li>intermediate extended-DM mass;</li>
+<li>high extended-DM mass;</li>
+<li>compact extra mass with little extended DM;</li>
+<li>cored and cuspy halos with matched <code>M_DM(&lt;r_J)</code>.</li>
+</ol>
+<p>For each injection:</p>
+<ul>
+<li>generate internal kinematic observables;</li>
+<li>fit the kinematics without revealing the truth to the recovery stage;</li>
+<li>select the resulting iso-kinematic ensemble;</li>
+<li>generate tail predictions;</li>
+<li>reweight with the mock tail data;</li>
+<li>evaluate recovery of <code>M_DM(&lt;r)</code>.</li>
+</ul>
+<p>Questions the injection suite must answer:</p>
+<ul>
+<li>At what radius is <code>M_DM(&lt;r)</code> best constrained?</li>
+<li>Can tails distinguish compact from extended extra mass?</li>
+<li>Can they distinguish cored from cuspy halos at fixed outer enclosed mass?</li>
+<li>How much bias is introduced by particle spray?</li>
+<li>How strongly do results depend on the Milky Way potential?</li>
+<li>Does the inference spuriously detect DM when the truth is no DM?</li>
+</ul>
+<p>Do not quote a DM constraint from real data until the no-DM false-positive test passes.</p>
+<hr />
+<h1 id="11-milky-way-potential-systematics">11. Milky Way potential systematics<a class="headerlink" href="#11-milky-way-potential-systematics" title="Permanent link">&para;</a></h1>
+<p>Use a hierarchy:</p>
+<h2 id="mw-a-baseline-static-axisymmetric-potential">MW-A: baseline static axisymmetric potential<a class="headerlink" href="#mw-a-baseline-static-axisymmetric-potential" title="Permanent link">&para;</a></h2>
+<p>Use for development and the first posterior.</p>
+<h2 id="mw-b-alternative-static-potential">MW-B: alternative static potential<a class="headerlink" href="#mw-b-alternative-static-potential" title="Permanent link">&para;</a></h2>
+<p>Repeat the full inference to measure sensitivity to reasonable mass-model changes.</p>
+<h2 id="mw-c-barredtime-dependent-model">MW-C: barred/time-dependent model<a class="headerlink" href="#mw-c-barredtime-dependent-model" title="Permanent link">&para;</a></h2>
+<p>Use AGAMA or another validated integrator for a rotating/time-dependent bar. This is a later systematic, not part of the minimal viable experiment.</p>
+<p>The nearby/current tails should be emphasized before attempting to infer the entire ancient accretion history, because the latter introduces much larger uncertainties in Galactic evolution and dynamical friction.</p>
+<hr />
+<h1 id="12-from-particle-spray-to-live-n-body">12. From particle spray to live N-body<a class="headerlink" href="#12-from-particle-spray-to-live-n-body" title="Permanent link">&para;</a></h1>
+<p>Particle spray is the <strong>inference engine</strong>, not the final validation.</p>
+<p>After the tail-reweighted posterior is obtained, select representative models:</p>
+<ul>
+<li>no/very-low DM</li>
+<li>median allowed extended DM</li>
+<li>upper allowed extended DM</li>
+<li>cored and cuspy variants</li>
+<li>compact-remnant-dominated solution</li>
+</ul>
+<p>Use AGAMA to construct equilibrium multi-component DFs / particle realizations. Evolve each model in isolation first.</p>
+<p>Required equilibrium check:</p>
+<ul>
+<li>density profile remains stable</li>
+<li>velocity-dispersion profile remains stable</li>
+<li>no artificial rapid expansion/contraction</li>
+</ul>
+<p>Then evolve representative systems through the same Galactic orbit with a live N-body code or appropriate collisionless solver.</p>
+<p>Compare particle-spray and live results for:</p>
+<ul>
+<li>stripping rate</li>
+<li>tail width</li>
+<li>stream track</li>
+<li>PM/LOS gradients</li>
+<li>bound-mass evolution</li>
+</ul>
+<p>Use the comparison to calibrate or bracket particle-spray modelling error.</p>
+<p>Do not begin expensive N-body parameter inference before the spray-level injection tests establish useful sensitivity.</p>
+<hr />
+<h1 id="13-testing-requirements">13. Testing requirements<a class="headerlink" href="#13-testing-requirements" title="Permanent link">&para;</a></h1>
+<p>Every implementation task must add tests. At minimum:</p>
+<ol>
+<li><strong>Units:</strong> all internal mass/radius/velocity conversions are tested.</li>
+<li><strong>Coordinates:</strong> sky -&gt; Galactocentric -&gt; sky round trip agrees within numerical tolerance.</li>
+<li><strong>Mass profiles:</strong> analytic/numerical enclosed masses agree for Plummer, point mass, NFW/gNFW, and cored models.</li>
+<li><strong>Potential gradients:</strong> numerical finite-difference forces agree with analytic/package forces.</li>
+<li><strong>Kinematic limiting cases:</strong> no-DM/remnant-only models reproduce expected qualitative profiles.</li>
+<li><strong>Orbit cross-check:</strong> galpy and Gala/AGAMA agree for a simple static potential to a documented tolerance.</li>
+<li><strong>Stream reproducibility:</strong> fixed seed produces bitwise or numerically stable mock summaries where feasible.</li>
+<li><strong>No-DM injection:</strong> does not produce a false statistically significant extended-DM signal.</li>
+<li><strong>DM injection:</strong> recovers the injected outer enclosed mass within calibrated coverage.</li>
+<li><strong>Timestep convergence:</strong> stream observables are stable to timestep refinement.</li>
+<li><strong>Particle-number convergence:</strong> likelihood summaries are stable to increased spray-particle count.</li>
+<li><strong>Selection-function test:</strong> the same selection function applied to real and mock catalogues produces identical bookkeeping/columns.</li>
+<li><strong>Posterior reweighting:</strong> a constant tail likelihood leaves the kinematic posterior unchanged.</li>
+<li><strong>Importance weights:</strong> effective sample size and weight normalization are unit tested.</li>
+</ol>
+<hr />
+<h1 id="14-implementation-milestones-for-the-coding-agent">14. Implementation milestones for the coding agent<a class="headerlink" href="#14-implementation-milestones-for-the-coding-agent" title="Permanent link">&para;</a></h1>
+<h2 id="milestone-1-repository-provenance-data-ingestion">Milestone 1: repository + provenance + data ingestion<a class="headerlink" href="#milestone-1-repository-provenance-data-ingestion" title="Permanent link">&para;</a></h2>
+<p>Deliver a working repository where</p>
+<div class="highlight"><pre><span></span><code>ocen<span class="w"> </span>fetch-data
+ocen<span class="w"> </span>preprocess
+</code></pre></div>
+<p>produces analysis-ready tables for:</p>
+<ul>
+<li>Kuzma &amp; Ishigaki 2025</li>
+<li>Kuzma et al. 2026 supplementary spectroscopy</li>
+<li>oMEGACat VI</li>
+<li>Fimbulthul supplementary table</li>
+</ul>
+<p>No science fit yet.</p>
+<p>Acceptance criteria:</p>
+<ul>
+<li>raw files are not committed;</li>
+<li>checksums/provenance are saved;</li>
+<li>processed products have explicit schemas;</li>
+<li>loaders have tests.</li>
+</ul>
+<h2 id="milestone-2-mass-profile-library">Milestone 2: mass-profile library<a class="headerlink" href="#milestone-2-mass-profile-library" title="Permanent link">&para;</a></h2>
+<p>Implement and test:</p>
+<ul>
+<li>luminous MGE / baseline light model</li>
+<li>compact remnant component</li>
+<li>point-mass IMBH</li>
+<li>truncated cored DM</li>
+<li>truncated cuspy DM</li>
+<li>composite enclosed mass / potential / force / escape speed</li>
+</ul>
+<p>Acceptance criteria:</p>
+<ul>
+<li>all profiles produce finite, physically consistent values over the configured radial range;</li>
+<li>enclosed-mass curves are independently numerically verified.</li>
+</ul>
+<h2 id="milestone-3-kinematic-likelihood">Milestone 3: kinematic likelihood<a class="headerlink" href="#milestone-3-kinematic-likelihood" title="Permanent link">&para;</a></h2>
+<p>Implement the oMEGACat VI profile likelihood using JamPy or the agreed solver.</p>
+<p>Acceptance criteria:</p>
+<ul>
+<li>no-DM baseline fit completes;</li>
+<li>posterior-predictive profiles reproduce the observed data within the expected residual distribution;</li>
+<li>a synthetic injected model is recoverable.</li>
+</ul>
+<h2 id="milestone-4-dm-kinematic-posterior">Milestone 4: DM kinematic posterior<a class="headerlink" href="#milestone-4-dm-kinematic-posterior" title="Permanent link">&para;</a></h2>
+<p>Run cored and cuspy model families and save derived radial mass profiles for every sample.</p>
+<p>Acceptance criteria:</p>
+<ul>
+<li>posterior includes compact-remnant/IMBH/DM degeneracies;</li>
+<li>results are stored in a restartable machine-readable format;</li>
+<li>no result depends on notebook-only code.</li>
+</ul>
+<h2 id="milestone-5-iso-kinematic-model-selection">Milestone 5: iso-kinematic model selection<a class="headerlink" href="#milestone-5-iso-kinematic-model-selection" title="Permanent link">&para;</a></h2>
+<p>Create a stratified ensemble spanning the posterior in <code>M_DM(&lt;r_J)</code> and/or <code>M_DM(&lt;100 pc)</code>.</p>
+<p>Acceptance criteria:</p>
+<ul>
+<li>each selected model regenerates its kinematic prediction exactly;</li>
+<li>the ensemble covers low-to-high allowed extended DM without manually modifying parameters.</li>
+</ul>
+<h2 id="milestone-6-stream-baseline">Milestone 6: stream baseline<a class="headerlink" href="#milestone-6-stream-baseline" title="Permanent link">&para;</a></h2>
+<p>Implement Omega Cen orbit integration and no-DM particle spray.</p>
+<p>Acceptance criteria:</p>
+<ul>
+<li>leading/trailing tails appear in the correct broad orientation;</li>
+<li>a literature no-DM stream test is reproduced at the expected qualitative/quantitative level;</li>
+<li>galpy/Gala comparison is documented.</li>
+</ul>
+<h2 id="milestone-7-propagate-iso-kinematic-models-into-tails">Milestone 7: propagate iso-kinematic models into tails<a class="headerlink" href="#milestone-7-propagate-iso-kinematic-models-into-tails" title="Permanent link">&para;</a></h2>
+<p>Run the same stream pipeline for the full selected ensemble.</p>
+<p>Acceptance criteria:</p>
+<ul>
+<li>simulations use common random numbers where appropriate;</li>
+<li>outputs include sky, PM, LOS and stripping-time information;</li>
+<li>all simulations carry model IDs back to the kinematic posterior.</li>
+</ul>
+<h2 id="milestone-8-tail-likelihood-and-posterior-reweighting">Milestone 8: tail likelihood and posterior reweighting<a class="headerlink" href="#milestone-8-tail-likelihood-and-posterior-reweighting" title="Permanent link">&para;</a></h2>
+<p>Implement modular tail likelihoods and importance reweighting.</p>
+<p>Acceptance criteria:</p>
+<ul>
+<li>constant-likelihood test preserves the original posterior;</li>
+<li>effective sample size is reported;</li>
+<li>before/after radial DM credible bands are produced.</li>
+</ul>
+<h2 id="milestone-9-injectionrecovery-suite">Milestone 9: injection/recovery suite<a class="headerlink" href="#milestone-9-injectionrecovery-suite" title="Permanent link">&para;</a></h2>
+<p>Run the mandatory synthetic experiments.</p>
+<p>Acceptance criteria:</p>
+<ul>
+<li>false-positive rate and coverage are measured;</li>
+<li>the radius at which DM enclosed mass is actually identifiable is reported;</li>
+<li>particle-spray bias is quantified at least approximately.</li>
+</ul>
+<h2 id="milestone-10-milky-way-systematics">Milestone 10: Milky Way systematics<a class="headerlink" href="#milestone-10-milky-way-systematics" title="Permanent link">&para;</a></h2>
+<p>Repeat the key result under at least one alternative Galactic potential.</p>
+<p>Acceptance criteria:</p>
+<ul>
+<li>the DM constraint is presented with potential-model sensitivity explicitly separated from statistical uncertainty.</li>
+</ul>
+<h2 id="milestone-11-live-n-body-validation">Milestone 11: live N-body validation<a class="headerlink" href="#milestone-11-live-n-body-validation" title="Permanent link">&para;</a></h2>
+<p>Only after Milestones 1-10 are scientifically stable.</p>
+<p>Acceptance criteria:</p>
+<ul>
+<li>representative equilibrium models remain stable in isolation;</li>
+<li>live simulations quantify the error made by the spray approximation.</li>
+</ul>
+<hr />
+<h1 id="15-expected-science-outputs">15. Expected science outputs<a class="headerlink" href="#15-expected-science-outputs" title="Permanent link">&para;</a></h1>
+<p>The first paper-quality result should emphasize plots like:</p>
+<ol>
+<li><strong>Kinematic degeneracy:</strong> posterior samples showing equally good internal fits with different <code>M_DM(&lt;r)</code>.</li>
+<li><strong>Mass profiles:</strong> <code>M_star</code>, <code>M_rem</code>, <code>M_DM</code>, and <code>M_total</code> as functions of radius for representative iso-kinematic models.</li>
+<li><strong>Tail response:</strong> mock tail maps for low-, medium-, and high-extended-DM solutions.</li>
+<li><strong>Discriminator plot:</strong> <code>ln L_tail</code> versus <code>M_DM(&lt;r_J)</code> or <code>M_DM(&lt;100 pc)</code> for models already acceptable to the internal kinematics.</li>
+<li><strong>Posterior update:</strong> <code>p[M_DM(&lt;r) | kinematics]</code> versus <code>p[M_DM(&lt;r) | kinematics + tails]</code>.</li>
+<li><strong>Compact-vs-extended mass:</strong> joint posterior in <code>M_rem</code>, <code>M_bh</code>, and <code>M_DM(&lt;100 pc)</code>.</li>
+<li><strong>Model-systematics panel:</strong> baseline versus alternate Milky Way potential.</li>
+<li><strong>Posterior predictive tails:</strong> sky positions, PM trends, and LOS velocity trends with real data overlaid.</li>
+</ol>
+<p>A null result is scientifically valid: if tail likelihoods are insensitive across the entire kinematically allowed DM range, report an upper bound on the information content of present tail data rather than forcing a DM constraint.</p>
+<hr />
+<h1 id="16-non-goals-for-the-first-version">16. Non-goals for the first version<a class="headerlink" href="#16-non-goals-for-the-first-version" title="Permanent link">&para;</a></h1>
+<p>Do not initially:</p>
+<ul>
+<li>infer a DM annihilation cross section;</li>
+<li>interpret a central kinematic dark component as particle DM by definition;</li>
+<li>fit the entire ancient Omega Cen progenitor/debris history simultaneously;</li>
+<li>use the absolute Fimbulthul star count without a selection model;</li>
+<li>run a giant live-N-body grid before particle-spray identifiability is demonstrated;</li>
+<li>overfit anisotropy or DM inner slope with highly flexible functions;</li>
+<li>use published membership probabilities twice in the same likelihood;</li>
+<li>hide unit conversions or coordinate-frame conventions in notebooks.</li>
+</ul>
+<hr />
+<h1 id="17-agent-working-rules">17. Agent working rules<a class="headerlink" href="#17-agent-working-rules" title="Permanent link">&para;</a></h1>
+<ol>
+<li><strong>Reproducibility first.</strong> Every external file must be fetched by code or have a documented manual retrieval step plus checksum.</li>
+<li><strong>No invented metadata.</strong> If a catalogue column meaning, covariance convention, or selection rule is unclear, inspect the paper/data documentation and record the uncertainty.</li>
+<li><strong>Tests before expensive runs.</strong> Unit/injection tests must pass before launching posterior or stream grids.</li>
+<li><strong>Keep models regenerable.</strong> Every posterior/stream product must store the exact config and package/version metadata used to create it.</li>
+<li><strong>No scientific logic only in notebooks.</strong> Notebooks may call package functions for inspection and plotting only.</li>
+<li><strong>Separate observational likelihoods.</strong> Internal kinematic likelihood and tail likelihood must be callable independently.</li>
+<li><strong>Preserve the sequential Bayesian structure.</strong> The tail experiment is explicitly a test of models already allowed by internal kinematics.</li>
+<li><strong>Report derived radial mass quantities.</strong> Do not make raw NFW parameters the headline output.</li>
+<li><strong>Treat the Milky Way potential as a systematic.</strong> Do not silently fix it and present the result as purely statistical.</li>
+<li><strong>Escalate fidelity only when justified.</strong> Particle spray -&gt; live collisionless N-body -&gt; collisional modelling only if the previous level demonstrates sensitivity.</li>
+</ol>
+<hr />
+<h1 id="18-immediate-first-task-for-codex-cli-claude-code">18. Immediate first task for Codex CLI / Claude Code<a class="headerlink" href="#18-immediate-first-task-for-codex-cli-claude-code" title="Permanent link">&para;</a></h1>
+<p>Start with <strong>Milestone 1 only</strong>.</p>
+<p>The first implementation PR/commit series should:</p>
+<ol>
+<li>scaffold the Python package and CLI;</li>
+<li>create <code>provenance/datasets.yaml</code> with the four primary public datasets and their source URLs;</li>
+<li>implement deterministic download/parsing for the Zenodo datasets;</li>
+<li>document retrieval of publisher supplementary tables that cannot be fetched automatically;</li>
+<li>implement typed/validated loaders returning standardized tables;</li>
+<li>add tests for file checksums, required columns, units, and unique IDs;</li>
+<li>create one validation command that prints a concise dataset inventory and produces no scientific inference.</li>
+</ol>
+<p>Do <strong>not</strong> implement the Jeans model or stream model in the same first task. Get data provenance and schemas correct first.</p>
+<p>Once Milestone 1 passes, proceed to the mass-profile library, then the kinematic fit, then the iso-kinematic ensemble, and only then tidal-tail simulation.</p>
+<hr />
+<h1 id="19-compact-statement-of-the-experiment">19. Compact statement of the experiment<a class="headerlink" href="#19-compact-statement-of-the-experiment" title="Permanent link">&para;</a></h1>
+<p>The project tests the following chain:</p>
+<div class="arithmatex">\[
+D_{\rm kin}
+\rightarrow
+p(\theta|D_{\rm kin})
+\rightarrow
+\{\text{iso-kinematic models spanning extended DM}\}
+\rightarrow
+\text{tidal-tail forward models}
+\rightarrow
+{\cal L}_{\rm tail}(\theta)
+\rightarrow
+p(\theta|D_{\rm kin},D_{\rm tail}).
+\]</div>
+<p>The central scientific question is:</p>
+<blockquote>
+<p><strong>Do the observed Omega Cen tidal tails constrain the radial extent and mass of a possible surviving DM component beyond what can be learned from the bound stellar kinematics alone?</strong></p>
+</blockquote>
+<p>That question should remain the organizing principle for implementation choices, model complexity, validation tests, and final outputs.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../kb/javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

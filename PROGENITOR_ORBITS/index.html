@@ -1,0 +1,3410 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Knowledge base of the oCen_dm project (data products, models, results, literature)">
+      
+      
+      
+        <link rel="canonical" href="https://vasilybelokurov.github.io/ocen_dm/PROGENITOR_ORBITS/">
+      
+      
+        <link rel="prev" href="../DYNAMICAL_BATCH_ANALYSIS/">
+      
+      
+        <link rel="next" href="../SECTION11_TESTS/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Progenitor orbits - oCen_dm: dark matter in Omega Centauri</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#progenitor-orbits-for-the-host-disruption-simulations" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="oCen_dm: dark matter in Omega Centauri" class="md-header__button md-logo" aria-label="oCen_dm: dark matter in Omega Centauri" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            oCen_dm: dark matter in Omega Centauri
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Progenitor orbits
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/vasilybelokurov/ocen_dm" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    vasilybelokurov/ocen_dm
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../kb/getting_started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../kb/data/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Data
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../kb/models/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Models
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../kb/results/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Results
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../kb/literature/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Literature
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../reviews/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Reviews
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../spec/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Specification
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="oCen_dm: dark matter in Omega Centauri" class="md-nav__button md-logo" aria-label="oCen_dm: dark matter in Omega Centauri" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    oCen_dm: dark matter in Omega Centauri
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/vasilybelokurov/ocen_dm" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    vasilybelokurov/ocen_dm
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/getting_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../kb/data/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Data
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/data/cluster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cluster kinematics, counts and light
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/data/tails_streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Periphery, tails and streams
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/data/potentials/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Potentials and auxiliary inputs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/data/sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Registered sources
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/data/gaps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known gaps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data_analysis.pdf" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data preparation (PDF)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MANUAL_DOWNLOADS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Manual downloads
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DATA_GAPS_PLAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data-gaps plan (historical)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../kb/models/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Models
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/models/base_no_dm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Base no-DM model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF family
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    DF family
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../REGULARIZED_DF_IMPLEMENTATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regularized DF implementation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DF_ANISOTROPY_DIAGNOSTICS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Anisotropy diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../OBSERVED_DF_FLEXIBILITY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Observed-data flexibility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../COMPACT_DF_RECOVERY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compact DF recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../COMPACT_DF_FREQUENCY_DIAGNOSTIC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frequency-mapper diagnostic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DF_MODEL_LITERATURE_REVIEW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF model literature review
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../AGAMA_DF_MODELS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Earlier mixture DF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DF_CAPACITY_CHALLENGE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF capacity challenge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DF_MASS_RECOVERY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF mass recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DF_MASS_RECOVERY_STATUS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF mass recovery status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Jeans ladder (historical)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Jeans ladder (historical)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MODELLING_PLAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelling plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RUNG0_ANALYSIS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rung 0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RUNG1_COMPARISON/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rung 1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RUNG_MODEL_COMPARISON/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All rungs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DM_DENSITY_POSTERIOR/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DM density posterior
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DM_DENSITY_DATA_CONSTRAINTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DM density data constraints
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DM_DENSITY_PROFILE_LIMIT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DM density profile limit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DM_DENSITY_POSTERIOR_CHECKS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DM density posterior checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DF_CONSISTENCY_AUDIT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF consistency audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LITERATURE_BASELINES/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Literature baselines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CODE_ANALYSIS_AUDIT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code and analysis audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Results
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Results
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Results
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    N-body and DM survival
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    N-body and DM survival
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DYNAMICAL_EXPERIMENTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamical experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DYNAMICAL_BATCH_ANALYSIS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Batch analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Progenitor orbits
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Progenitor orbits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#present-day-phase-space-point-common-to-all-classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Present-day phase-space point (common to all classes)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#class-1-todays-orbit-in-a-static-axisymmetric-potential" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Class 1 — today's orbit in a static axisymmetric potential
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#class-2-todays-orbit-with-dynamical-friction-integrated-backwards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Class 2 — today's orbit with dynamical friction integrated backwards
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Class 2 — today&#39;s orbit with dynamical friction integrated backwards">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-has-to-be-assumed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What has to be assumed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scan-result-apocentre-in-the-last-gyr-before-t_inf-kpc-t_inf-10-gyr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scan result: apocentre in the last Gyr before t_inf (kpc), t_inf = 10 Gyr
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#picked-orbits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Picked orbits
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#class-3-deposited-by-gse-migrated-inward-by-the-bar-done-properly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Class 3 — deposited by GSE, migrated inward by the bar (done properly)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Class 3 — deposited by GSE, migrated inward by the bar (done properly)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#set-up-reproduced" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Set-up reproduced
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Results
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#picked-orbits-_b0-24-samples-at-the-165084th-percentiles-of-et-0-among-those-ending-inside-gse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Picked orbits (Ω_b,0 = 24; samples at the 16/50/84th percentiles of E(t = 0) among those ending inside GSE)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#does-a-massive-remnant-migrate-like-a-test-particle-friction-test-tailsfriction_testpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Does a massive remnant migrate like a test particle? (friction test, tails/friction_test.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-is-still-not-modelled" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is still not modelled
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-differs-between-the-classes-for-the-simulations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What differs between the classes (for the simulations)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caveats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caveats
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SECTION11_TESTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Section-11 tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LIFETIME_EVOLUTION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifetime evolution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LIFETIME_BATCH_REPORT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifetime batch report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NBODY_CODE_ASSESSMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    N-body code assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NBODY_IC_PROPOSAL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    N-body ICs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stream 54
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Stream 54
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STREAM_PM_REFINEMENT_2026-10-13/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PM refinement (current)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STREAM_KNEE_INVESTIGATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knee investigation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STREAM_DIAGNOSTIC_PLAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Diagnostic plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STREAM_FIT_CAMPAIGN_PLAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fit campaign plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STREAM_EXPERIMENTS_PLAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiments plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STREAM_FIT_METHODS_REVIEW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stream-fitting methods review
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../literature/omega_cen_stream_distances_2026-10-10/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stream distances literature
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/literature/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Literature
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reviews/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reviews
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#present-day-phase-space-point-common-to-all-classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Present-day phase-space point (common to all classes)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#class-1-todays-orbit-in-a-static-axisymmetric-potential" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Class 1 — today's orbit in a static axisymmetric potential
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#class-2-todays-orbit-with-dynamical-friction-integrated-backwards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Class 2 — today's orbit with dynamical friction integrated backwards
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Class 2 — today&#39;s orbit with dynamical friction integrated backwards">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-has-to-be-assumed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What has to be assumed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scan-result-apocentre-in-the-last-gyr-before-t_inf-kpc-t_inf-10-gyr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scan result: apocentre in the last Gyr before t_inf (kpc), t_inf = 10 Gyr
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#picked-orbits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Picked orbits
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#class-3-deposited-by-gse-migrated-inward-by-the-bar-done-properly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Class 3 — deposited by GSE, migrated inward by the bar (done properly)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Class 3 — deposited by GSE, migrated inward by the bar (done properly)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#set-up-reproduced" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Set-up reproduced
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Results
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#picked-orbits-_b0-24-samples-at-the-165084th-percentiles-of-et-0-among-those-ending-inside-gse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Picked orbits (Ω_b,0 = 24; samples at the 16/50/84th percentiles of E(t = 0) among those ending inside GSE)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#does-a-massive-remnant-migrate-like-a-test-particle-friction-test-tailsfriction_testpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Does a massive remnant migrate like a test particle? (friction test, tails/friction_test.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-is-still-not-modelled" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is still not modelled
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-differs-between-the-classes-for-the-simulations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What differs between the classes (for the simulations)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caveats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caveats
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="progenitor-orbits-for-the-host-disruption-simulations">Progenitor orbits for the host-disruption simulations<a class="headerlink" href="#progenitor-orbits-for-the-host-disruption-simulations" title="Permanent link">&para;</a></h1>
+<p><em>2026-09-20. Code: <code>src/ocen_dm/tails/progenitor_orbits.py</code>; products: <code>python -m ocen_dm.tails.products</code>
+→ <code>results/tails/progenitor_orbits_summary.ecsv</code>, <code>results/tails/progenitor_orbit_tracks.npz</code>,
+<code>plots/progenitor_orbits.png</code>; tests: <code>tests/test_progenitor_orbits.py</code>.</em></p>
+<p><strong>Audit status, 2026-09-21.</strong> These are conditional orbital histories and screening
+experiments, not self-consistent disruption simulations. Saved products were inspected;
+this documentation audit did not reintegrate the orbit grid. The friction fractions do
+not define a universal retained-mass limit, and the tidal-track extrapolations are outside
+the calibrated regime. See <a href="../CODE_ANALYSIS_AUDIT/">CODE_ANALYSIS_AUDIT.md</a> and
+<a href="../SECTION11_TESTS/">SECTION11_TESTS.md</a>.</p>
+<h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
+<p>Constrain ω Cen's dark-matter content from the other end: simulate the tidal disruption of the
+host dwarf and see what the surviving nucleus keeps. Before any simulation we need a small set
+of distinct orbital histories. Three classes were defined by the user; this note fixes the
+initial-condition assumptions and picks 2–3 orbits per class.</p>
+<h2 id="present-day-phase-space-point-common-to-all-classes">Present-day phase-space point (common to all classes)<a class="headerlink" href="#present-day-phase-space-point-common-to-all-classes" title="Permanent link">&para;</a></h2>
+<p>Observables: centre from <code>cluster.py</code>, D = 5.43 kpc, μ = (−3.257, −6.730) mas/yr,
+v_los = 232.7 km/s. Solar parameters: R₀ = 8.21 kpc, v₀ = 233.1 km/s, z☉ = 20.8 pc,
+(U,V,W)☉ = (11.1, 12.24, 7.25) km/s (McMillan 2017 / Schönrich 2010).</p>
+<table>
+<thead>
+<tr>
+<th>quantity</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>galactocentric (x, y, z)</td>
+<td>(−4.90, −4.07, 1.41) kpc, r = 6.52 kpc</td>
+</tr>
+<tr>
+<td>(v_x, v_y, v_z)</td>
+<td>(95.2, −28.9, −87.1) km/s (right-handed, disc L_z &lt; 0)</td>
+</tr>
+<tr>
+<td>L_z</td>
+<td>−529 kpc km/s (retrograde; prograde-positive convention)</td>
+</tr>
+<tr>
+<td>E (McMillan 2017)</td>
+<td>−1.85 × 10⁵ km² s⁻²</td>
+</tr>
+</tbody>
+</table>
+<p>Checked: galpy and astropy agree to 0.01 kpc / 0.1 km/s once galpy's <code>solarmotion</code> is given the
+peculiar motion only (galpy adds v₀ itself; including it double-counts 233 km/s and makes the
+orbit prograde — the first version of the code had this bug).</p>
+<h2 id="class-1-todays-orbit-in-a-static-axisymmetric-potential">Class 1 — today's orbit in a static axisymmetric potential<a class="headerlink" href="#class-1-todays-orbit-in-a-static-axisymmetric-potential" title="Permanent link">&para;</a></h2>
+<p>No assumptions beyond the potential. Three standard potentials bracket the uncertainty:</p>
+<table>
+<thead>
+<tr>
+<th>potential</th>
+<th>r_peri</th>
+<th>r_apo</th>
+<th>e</th>
+<th>z_max</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>McMillan 2017</td>
+<td>1.57</td>
+<td>7.04</td>
+<td>0.63</td>
+<td>2.88</td>
+</tr>
+<tr>
+<td>MWPotential2014 (Bovy 2015)</td>
+<td>1.97</td>
+<td>6.76</td>
+<td>0.55</td>
+<td>2.72</td>
+</tr>
+<tr>
+<td>Irrgang 2013 model I</td>
+<td>1.25</td>
+<td>7.20</td>
+<td>0.70</td>
+<td>3.06</td>
+</tr>
+</tbody>
+</table>
+<p>(kpc; backward integration 10 Gyr, galpy <code>dop853_c</code>.) McMillan 2017 reproduces the 2026-09-19
+AGAMA orbit (1.59 / 6.99) used for the Jacobi radius; the AGAMA and galpy implementations of
+McMillan 2017 differ by 4% in pericentre. <strong>Pick: all three</strong> — the class-1 spread is the
+potential spread, 1.25–1.97 kpc in pericentre.</p>
+<h2 id="class-2-todays-orbit-with-dynamical-friction-integrated-backwards">Class 2 — today's orbit with dynamical friction integrated backwards<a class="headerlink" href="#class-2-todays-orbit-with-dynamical-friction-integrated-backwards" title="Permanent link">&para;</a></h2>
+<h3 id="what-has-to-be-assumed">What has to be assumed<a class="headerlink" href="#what-has-to-be-assumed" title="Permanent link">&para;</a></h3>
+<p>Chandrasekhar friction scales with the satellite's bound mass, so the backward orbit depends on
+<strong>M(t)</strong>, not on a single mass. Integrating back with a constant mass is wrong in the
+direction that matters: a constant 10¹⁰ M☉ satellite is pumped to 40–140 kpc within 10 Gyr,
+i.e. it "arrives" from outside the virial radius although the real object was already stripped
+to a fraction of that mass for most of its orbit.</p>
+<p>Assumptions adopted:</p>
+<ol>
+<li><strong>Infall mass M_inf</strong> from the progenitor literature: the NSC–host relation gives
+   M★ ≈ 10⁹ M☉ (Pfeffer et al. 2021, MNRAS 500, 2514,
+   https://doi.org/10.1093/mnras/staa3407); oMEGACat X gives a "GE-like" dwarf mass
+   4.5 (−2.4, +5.7) × 10⁹ M☉ (Souza et al. 2026, arXiv:2603.23589) and favours Sequoia/Thamnos
+   over GSE as debris. Halo masses M₂₀₀ for M★ = 10⁸–10⁹ at z ~ 2 are 10¹⁰–10¹¹ M☉; GSE proper
+   is 2 × 10¹¹ M☉ (Naidu et al. 2021, arXiv:2103.03251). Scanned: 10¹⁰, 3 × 10¹⁰, 10¹¹, 2 × 10¹¹.</li>
+<li><strong>Infall time</strong> t_inf = 10 Gyr ago (z ≈ 2; GE merger 8–11 Gyr ago). Also scanned 8 Gyr.</li>
+<li><strong>Stripping</strong>: bound mass M(t) = M_inf exp[−(t_inf − t_lb)/τ], floored at the nucleus mass
+   3.55 × 10⁶ M☉; τ scanned 0.5–3 Gyr. Half-mass radius r_h = 1 kpc (M_inf/10¹⁰)^{1/3}, fixed.</li>
+<li><strong>Friction</strong>: galpy's Chandrasekhar formula (σ = v_c/√2, ln Λ = ln[r / max(r_h, GM/v²)]),
+   host = McMillan 2017 through AGAMA, leapfrog with 0.25 Myr steps (~1 s per orbit). The
+   frictionless run reproduces class 1 (1.63 / 7.04 kpc).</li>
+<li><strong>Consistency requirement</strong> that selects (M_inf, τ): the backward orbit must be at the
+   virial radius of the young Milky Way, <strong>50–150 kpc, at t_inf</strong>. Histories that do not reach
+   50 kpc cannot have sunk to today's orbit by friction alone; histories beyond 150 kpc need
+   more friction than the mass allows.</li>
+</ol>
+<h3 id="scan-result-apocentre-in-the-last-gyr-before-t_inf-kpc-t_inf-10-gyr">Scan result: apocentre in the last Gyr before t_inf (kpc), t_inf = 10 Gyr<a class="headerlink" href="#scan-result-apocentre-in-the-last-gyr-before-t_inf-kpc-t_inf-10-gyr" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>M_inf \ τ [Gyr]</th>
+<th>0.5</th>
+<th>0.75</th>
+<th>1.0</th>
+<th>1.25</th>
+<th>1.5</th>
+<th>2.0</th>
+<th>2.5</th>
+<th>3.0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10¹⁰</td>
+<td>24</td>
+<td>30</td>
+<td>44</td>
+<td>51</td>
+<td>59</td>
+<td>65</td>
+<td>84</td>
+<td>86</td>
+</tr>
+<tr>
+<td>3 × 10¹⁰</td>
+<td>47</td>
+<td>50</td>
+<td>76</td>
+<td>86</td>
+<td>100</td>
+<td>108</td>
+<td>144</td>
+<td>129</td>
+</tr>
+<tr>
+<td>10¹¹</td>
+<td>85</td>
+<td>77</td>
+<td>143</td>
+<td>179</td>
+<td>207</td>
+<td>157</td>
+<td>200</td>
+<td>294</td>
+</tr>
+<tr>
+<td>2 × 10¹¹</td>
+<td>67</td>
+<td>151</td>
+<td>126</td>
+<td>203</td>
+<td>282</td>
+<td>283</td>
+<td>443</td>
+<td>507</td>
+</tr>
+</tbody>
+</table>
+<p>(The table is noisy at the 20% level because the phase of the last apocentre matters.)
+Consequences: a <strong>Sequoia-scale 10¹⁰ M☉ halo reaches the virial radius only if stripping is slow
+(τ ≳ 1.5 Gyr)</strong>; a GSE-scale halo must be stripped fast (τ ≲ 1 Gyr) or it would have come from
+far outside the virial radius. In every viable history the satellite's bound mass is below
+10⁹ M☉ by 5 Gyr ago, and the orbit has essentially today's shape (apo 7–12 kpc) for the last
+3–5 Gyr: the selected histories approach the current orbit over their last several Gyr.
+These exponential histories are prescribed inputs, not simulated mass loss. The three
+picks end at about 6.74 × 10⁷, 1.01 × 10⁷ and 3.55 × 10⁶ M☉ respectively: the first two
+have not reached the present nucleus mass. Requiring the correct final bound mass is an
+additional constraint on any physical interpretation.</p>
+<h3 id="picked-orbits">Picked orbits<a class="headerlink" href="#picked-orbits" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>label</th>
+<th>M_inf</th>
+<th>τ</th>
+<th>r at t_inf</th>
+<th>5–6 Gyr ago (peri–apo)</th>
+<th>2–3 Gyr ago</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sequoia-like</td>
+<td>10¹⁰</td>
+<td>2.0</td>
+<td>65 kpc</td>
+<td>3.0–18.1</td>
+<td>1.9–9.2</td>
+</tr>
+<tr>
+<td>intermediate</td>
+<td>3 × 10¹⁰</td>
+<td>1.25</td>
+<td>86 kpc</td>
+<td>2.2–11.7</td>
+<td>1.6–7.3</td>
+</tr>
+<tr>
+<td>GSE-like</td>
+<td>10¹¹</td>
+<td>0.75</td>
+<td>77 kpc</td>
+<td>1.7–7.4</td>
+<td>1.6–7.0</td>
+</tr>
+</tbody>
+</table>
+<h2 id="class-3-deposited-by-gse-migrated-inward-by-the-bar-done-properly">Class 3 — deposited by GSE, migrated inward by the bar (done properly)<a class="headerlink" href="#class-3-deposited-by-gse-migrated-inward-by-the-bar-done-properly" title="Permanent link">&para;</a></h2>
+<p><em>Code: <code>src/ocen_dm/tails/bar_migration.py</code> (<code>python -m ocen_dm.tails.bar_migration</code>); figures
+<code>plots/bar_migration_elz.png</code>, <code>plots/bar_migration_class3_picks.png</code>; tables
+<code>results/tails/bar_migration_grid.ecsv</code>, <code>results/tails/bar_migration_class3_picks.ecsv</code>.</em></p>
+<h3 id="set-up-reproduced">Set-up reproduced<a class="headerlink" href="#set-up-reproduced" title="Permanent link">&para;</a></h3>
+<p>Dillamore, Zhang &amp; Belokurov 2026 (arXiv:2606.12516), following the authors' own pipeline in
+<code>github.com/adllmr/oCen_bar</code> (local clone <code>$OCEN_BAR_DIR</code>, referenced not copied):</p>
+<ul>
+<li><strong>Potential</strong>: Hunter et al. 2024 (A&amp;A 692, A216) Milky Way with the Sormani et al. 2022 bar
+  (M_bar = 1.83 × 10¹⁰ M☉), as AGAMA files. Split into the axisymmetric part plus the baryonic
+  bar part, scaled and rotated, minus the axisymmetrised baryonic part (so the m = 0 mass is
+  unchanged while the bar grows).</li>
+<li><strong>Bar history</strong>: amplitude switch-on (Dehnen 2000 eq. 4) from t = 0 to t₁ = 1 Gyr; pattern
+  speed constant at Ω₁ until t₁, smooth onset of deceleration to t₂ = 2 Gyr, then constant
+  η = −Ω̇/Ω² = 0.003 until t_f = 8 Gyr (bar age). Ω₁ follows from the present-day Ω_b,0:
+  Ω₁ = 45.1 for Ω_b,0 = 24 (the paper's "≈ 45"), 72 for 30, 110 for 35. Bar length scales as
+  S = Ω_b,0/Ω_b(t) (≈ corotation), amplitude fixed.</li>
+<li><strong>ω Cen</strong>: 10³ samples of (D = 5.43 ± 0.05 kpc, μ = (−3.257, −6.730) ± 0.025 mas/yr,
+  v_los = 232.7 ± 0.21 km/s), astropy default frame (R₀ = 8.122, v☉ = (12.9, 245.6, 7.78)),
+  bar angle 28°, integrated from t_f back to 0 with <code>agama.orbit</code>.</li>
+<li><strong>Test</strong>: (E, L_z) at t = 0 in the axisymmetric potential against the Belokurov et al. 2023
+  GSE contours (energy zero-point matched at R = 8.2 kpc). Success metric here: fraction of
+  samples inside the outermost contour.</li>
+</ul>
+<h3 id="results">Results<a class="headerlink" href="#results" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Ω_b,0 [km/s/kpc]</th>
+<th>20</th>
+<th>21</th>
+<th>22</th>
+<th>22.5</th>
+<th>23</th>
+<th>23.5</th>
+<th>24</th>
+<th>24.5</th>
+<th>25</th>
+<th>25.5</th>
+<th>26</th>
+<th>26.5</th>
+<th>≥ 27</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>fraction inside GSE at t = 0</td>
+<td>0.44</td>
+<td>0.38</td>
+<td>0.58</td>
+<td>0.85</td>
+<td>0.01</td>
+<td>0.34</td>
+<td><strong>0.89</strong></td>
+<td>0.81</td>
+<td>0.79</td>
+<td>0.54</td>
+<td>0.18</td>
+<td>0.02</td>
+<td>0.00</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Reproduces the paper: overlap only for Ω_b,0 ≲ 26; nothing for the mainstream 30–40.</li>
+<li>Cross-check against the authors' stored grid (<code>oCen_bar/artifacts/03_orbit_grid.npz</code>, which
+  used t₁ = 2, t₂ = 3): 0.87 (24), 0.69 (25), 0.08 (26), 0.09 (23), 0.80 (22.5) — same
+  pattern, same jagged Ω dependence. The dip at 23 is robust to the random seed (0.013 / 0.028)
+  and to the bar timings: it is resonant-phase sensitivity, not noise.</li>
+<li><strong>Migration happens late</strong>: E and L_z of the successful samples are constant at GSE-like
+  values from 8 to ~2.5 Gyr ago and move to today's (E, L_z) only in the last ~2.5 Gyr, as
+  Ω_b falls from ~30 to 24 and the retrograde 1:1 resonance sweeps over ω Cen.</li>
+<li><strong>The bar changes today's orbit too.</strong> In the barred Hunter24 potential at Ω_b,0 = 24
+  (corotation ≈ 9.5 kpc, so ω Cen at 6.5 kpc is inside corotation) the present orbit has
+  peri/apo = 0.81/9.3 kpc over the last Gyr, versus 1.56/7.02 in the axisymmetric version and
+  1.57/7.04 in McMillan 2017. Class 1's "today's orbit" therefore depends on whether a slow
+  bar is present — relevant to the disruption simulations of all classes.</li>
+</ul>
+<h3 id="picked-orbits-_b0-24-samples-at-the-165084th-percentiles-of-et-0-among-those-ending-inside-gse">Picked orbits (Ω_b,0 = 24; samples at the 16/50/84th percentiles of E(t = 0) among those ending inside GSE)<a class="headerlink" href="#picked-orbits-_b0-24-samples-at-the-165084th-percentiles-of-et-0-among-those-ending-inside-gse" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>sample</th>
+<th>E(t=0) [10⁵]</th>
+<th>L_z(t=0)</th>
+<th>pre-migration (7–8 Gyr ago) peri / apo / e / z_max</th>
+<th>last Gyr peri / apo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>986</td>
+<td>−1.301</td>
+<td>+69</td>
+<td>0.40 / 10.9 / 0.93 / 4.8</td>
+<td>0.84 / 9.1</td>
+</tr>
+<tr>
+<td>133</td>
+<td>−1.265</td>
+<td>+163</td>
+<td>0.42 / 11.6 / 0.93 / 4.9</td>
+<td>0.80 / 9.3</td>
+</tr>
+<tr>
+<td>240</td>
+<td>−1.233</td>
+<td>+229</td>
+<td>0.45 / 12.2 / 0.93 / 5.2</td>
+<td>0.84 / 9.1</td>
+</tr>
+</tbody>
+</table>
+<p>(L_z prograde-positive; elements from a 0.25-Myr re-integration of each picked sample — the
+20-Myr grid cadence overestimates pericentres by up to a factor 2.) The pre-migration orbit is a
+<strong>most-bound GSE-debris orbit</strong>: apocentre 11–12 kpc, pericentre 0.4–0.45 kpc, e = 0.93,
+slightly prograde to zero L_z — not retrograde. The earlier
+static guess (L_z = −300) was wrong in sign and is kept only as <code>class3_gse_debris_orbit</code>.</p>
+<h3 id="does-a-massive-remnant-migrate-like-a-test-particle-friction-test-tailsfriction_testpy">Does a massive remnant migrate like a test particle? (friction test, <code>tails/friction_test.py</code>)<a class="headerlink" href="#does-a-massive-remnant-migrate-like-a-test-particle-friction-test-tailsfriction_testpy" title="Permanent link">&para;</a></h3>
+<p>Class-3 back-integration with Chandrasekhar friction for a constant bound mass (100 samples,
+vectorised leapfrog in the time-dependent AGAMA potential; nucleus-mass drift 11 kpc km/s/Gyr
+matches the paper's 9.6). Fraction inside GSE 8 Gyr ago:</p>
+<table>
+<thead>
+<tr>
+<th>Ω_b,0</th>
+<th>20</th>
+<th>21</th>
+<th>22</th>
+<th>22.5</th>
+<th>23</th>
+<th>24</th>
+<th>25</th>
+<th>26</th>
+<th>27</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>test particle</td>
+<td>0.44</td>
+<td>0.38</td>
+<td>0.58</td>
+<td>0.85</td>
+<td>0.01</td>
+<td>0.89</td>
+<td>0.79</td>
+<td>0.18</td>
+<td>0.00</td>
+</tr>
+<tr>
+<td>M = 10⁷</td>
+<td>0.81</td>
+<td>0.55</td>
+<td>0.77</td>
+<td>0.02</td>
+<td>0.89</td>
+<td>0.93</td>
+<td>0.98</td>
+<td>0.64</td>
+<td>0.03</td>
+</tr>
+<tr>
+<td>M = 10⁸</td>
+<td>0.00</td>
+<td>0.07</td>
+<td>0.47</td>
+<td>0.15</td>
+<td>0.44</td>
+<td>0.34</td>
+<td>0.00</td>
+<td>0.00</td>
+<td>0.00</td>
+</tr>
+<tr>
+<td>M = 10⁹</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>0.00 (apo 79 kpc)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>The response changes substantially between the 10⁷ and 10⁸ M☉ trials, but also depends
+strongly on pattern speed: even the 10⁷-M☉ row has a dip to 0.02 at 22.5. At 24, the
+10⁸-M☉ fraction is 0.34, not zero. These results suggest substantial envelope loss before
+bar migration; they do not establish a universal ≲10⁸-M☉ bound. A constant-mass trial
+can overstate or understate the cumulative drag of a real history depending on which
+mass it represents. Endpoint membership in the GSE contour is a diagnostic, not itself
+a demonstration of capture. Numbers are from the unit-corrected reruns of 2026-09-20.
+Figure: <code>plots/friction_test_elz.png</code>; tables: <code>results/tails/friction_test.ecsv</code> and
+<code>friction_test_grid.ecsv</code>.</p>
+<h3 id="what-is-still-not-modelled">What is still not modelled<a class="headerlink" href="#what-is-still-not-modelled" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Anything before the bar formed (&gt; 8 Gyr ago): GSE's own infall and disruption (Naidu et al.
+  2021 fiducial: M★ = 5 × 10⁸, M_DM = 2 × 10¹¹, from R_vir at z ≈ 2, circularity 0.5,
+  retrograde) and where ω Cen's host sat in it. The two readings of "deposited by GSE" (ω Cen
+  = GSE's nucleus; or a smaller host in group infall) both start from the picked debris orbit.</li>
+<li>A self-consistent mass-loss/friction history. Class 2 prescribes mass loss; the class-3
+  friction tests use fixed masses. Neither evolves a live host and remnant together.</li>
+<li>The bar-history caveat recorded in the oCen_bar journal: with fixed η = 0.003 a present-day
+  Ω_b,0 = 35 implies an initial Ω₁ = 110 km/s/kpc, so the scan over Ω_b,0 is also a scan over
+  implausible early histories; the low-Ω_b,0 requirement is tied to this slowdown law.</li>
+</ul>
+<h2 id="what-differs-between-the-classes-for-the-simulations">What differs between the classes (for the simulations)<a class="headerlink" href="#what-differs-between-the-classes-for-the-simulations" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>early orbit (≥ 5 Gyr ago)</th>
+<th>late orbit</th>
+<th>pericentre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>class 1</td>
+<td>today's</td>
+<td>today's</td>
+<td>1.3–2.0 kpc</td>
+</tr>
+<tr>
+<td>class 2</td>
+<td>wider, apo 10–20 kpc at 5 Gyr, infall from R_vir</td>
+<td>today's</td>
+<td>1.6–2.9 kpc early</td>
+</tr>
+<tr>
+<td>class 3</td>
+<td>most-bound GSE debris, apo 11–12 kpc, L_z ≈ 0 to +230, until ~2.5 Gyr ago</td>
+<td>today's, reached by bar migration in the last ~2.5 Gyr</td>
+<td>0.4–0.45 kpc (0.8 in the barred potential today)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="caveats">Caveats<a class="headerlink" href="#caveats" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Chandrasekhar friction with σ = v_c/√2 and a fixed r_h is a 20–30% level approximation; the
+  mass-history dependence is far larger than that.</li>
+<li>Only McMillan 2017 for class 2 (AGAMA host); class 3 uses Hunter et al. 2024 (the only
+  potential with the fitted bar); class 1 carries the potential spread.</li>
+<li>The galpy <code>ChandrasekharDynamicalFrictionForce</code> (Python force, ~30 min per orbit) is kept as
+  <code>class2_friction_backwards</code> for cross-checks; the fast leapfrog is the working tool.</li>
+<li>galpy checkout at <code>&lt;src&gt;/galpy</code> is from 2024-03 and needs two import shims (astroquery
+  metadata, scipy <code>vectorize1</code>), both in <code>progenitor_orbits._import_galpy_safely</code>.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../kb/javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,3788 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Knowledge base of the oCen_dm project (data products, models, results, literature)">
+      
+      
+      
+        <link rel="canonical" href="https://vasilybelokurov.github.io/ocen_dm/DF_ANISOTROPY_DIAGNOSTICS/">
+      
+      
+        <link rel="prev" href="../REGULARIZED_DF_IMPLEMENTATION/">
+      
+      
+        <link rel="next" href="../OBSERVED_DF_FLEXIBILITY/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Anisotropy diagnostics - oCen_dm: dark matter in Omega Centauri</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#why-the-compact-df-fails-and-the-proposed-anisotropy-extension" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="oCen_dm: dark matter in Omega Centauri" class="md-header__button md-logo" aria-label="oCen_dm: dark matter in Omega Centauri" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            oCen_dm: dark matter in Omega Centauri
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Anisotropy diagnostics
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/vasilybelokurov/ocen_dm" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    vasilybelokurov/ocen_dm
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../kb/getting_started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../kb/data/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Data
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../kb/models/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Models
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../kb/results/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Results
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../kb/literature/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Literature
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../reviews/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Reviews
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../spec/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Specification
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="oCen_dm: dark matter in Omega Centauri" class="md-nav__button md-logo" aria-label="oCen_dm: dark matter in Omega Centauri" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    oCen_dm: dark matter in Omega Centauri
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/vasilybelokurov/ocen_dm" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    vasilybelokurov/ocen_dm
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/getting_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../kb/data/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Data
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/data/cluster/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cluster kinematics, counts and light
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/data/tails_streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Periphery, tails and streams
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/data/potentials/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Potentials and auxiliary inputs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/data/sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Registered sources
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/data/gaps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known gaps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data_analysis.pdf" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data preparation (PDF)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MANUAL_DOWNLOADS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Manual downloads
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DATA_GAPS_PLAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data-gaps plan (historical)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../kb/models/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Models
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/models/base_no_dm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Base no-DM model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF family
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    DF family
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../REGULARIZED_DF_IMPLEMENTATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regularized DF implementation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Anisotropy diagnostics
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Anisotropy diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-was-tested" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What was tested
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Results
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intrinsic-anisotropy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intrinsic anisotropy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Analysis
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#visual-versus-statistical-fit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visual versus statistical fit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conclusion
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#model-adjustment-second-anisotropy-transition-approved" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model adjustment: second anisotropy transition (approved)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Model adjustment: second anisotropy transition (approved)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-coverage-of-the-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action coverage of the data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adopted-setup-revised-after-external-review-23-september" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adopted setup (revised after external review, 23 September)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#acceptance-criteria-split-revised" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acceptance criteria, split (revised)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#decision-after-the-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision after the run
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#result-of-the-two-transition-no-halo-fit-23-september" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Result of the two-transition, no-halo fit (23 September)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Result of the two-transition, no-halo fit (23 September)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#decision-on-gaia-error-floors-23-september" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision on Gaia error floors (23 September)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-two-transitions-plus-free-cored-halo-23-september" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: two transitions plus free cored halo (23 September)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#central-point-mass-is-there-evidence-23-september" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Central point mass: is there evidence? (23 September)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-fit-model-performance-objective-1-fit-the-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best-fit model performance (objective 1: fit the data)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../OBSERVED_DF_FLEXIBILITY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Observed-data flexibility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../COMPACT_DF_RECOVERY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compact DF recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../COMPACT_DF_FREQUENCY_DIAGNOSTIC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frequency-mapper diagnostic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DF_MODEL_LITERATURE_REVIEW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF model literature review
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../AGAMA_DF_MODELS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Earlier mixture DF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DF_CAPACITY_CHALLENGE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF capacity challenge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DF_MASS_RECOVERY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF mass recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DF_MASS_RECOVERY_STATUS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF mass recovery status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Jeans ladder (historical)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Jeans ladder (historical)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MODELLING_PLAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelling plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RUNG0_ANALYSIS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rung 0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RUNG1_COMPARISON/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rung 1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RUNG_MODEL_COMPARISON/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All rungs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DM_DENSITY_POSTERIOR/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DM density posterior
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DM_DENSITY_DATA_CONSTRAINTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DM density data constraints
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DM_DENSITY_PROFILE_LIMIT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DM density profile limit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DM_DENSITY_POSTERIOR_CHECKS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DM density posterior checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DF_CONSISTENCY_AUDIT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF consistency audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LITERATURE_BASELINES/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Literature baselines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CODE_ANALYSIS_AUDIT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code and analysis audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Results
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Results
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Results
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    N-body and DM survival
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    N-body and DM survival
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DYNAMICAL_EXPERIMENTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamical experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DYNAMICAL_BATCH_ANALYSIS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Batch analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../PROGENITOR_ORBITS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Progenitor orbits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SECTION11_TESTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Section-11 tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LIFETIME_EVOLUTION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifetime evolution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../LIFETIME_BATCH_REPORT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifetime batch report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NBODY_CODE_ASSESSMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    N-body code assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../NBODY_IC_PROPOSAL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    N-body ICs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stream 54
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Stream 54
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STREAM_PM_REFINEMENT_2026-10-13/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PM refinement (current)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STREAM_KNEE_INVESTIGATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knee investigation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STREAM_DIAGNOSTIC_PLAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Diagnostic plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STREAM_FIT_CAMPAIGN_PLAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fit campaign plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STREAM_EXPERIMENTS_PLAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiments plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../STREAM_FIT_METHODS_REVIEW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stream-fitting methods review
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../literature/omega_cen_stream_distances_2026-10-10/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stream distances literature
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kb/literature/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Literature
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reviews/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reviews
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-was-tested" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What was tested
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Results
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intrinsic-anisotropy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intrinsic anisotropy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Analysis
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#visual-versus-statistical-fit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visual versus statistical fit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conclusion
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#model-adjustment-second-anisotropy-transition-approved" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model adjustment: second anisotropy transition (approved)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Model adjustment: second anisotropy transition (approved)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-coverage-of-the-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action coverage of the data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adopted-setup-revised-after-external-review-23-september" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adopted setup (revised after external review, 23 September)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#acceptance-criteria-split-revised" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acceptance criteria, split (revised)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#decision-after-the-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision after the run
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#result-of-the-two-transition-no-halo-fit-23-september" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Result of the two-transition, no-halo fit (23 September)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Result of the two-transition, no-halo fit (23 September)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#decision-on-gaia-error-floors-23-september" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision on Gaia error floors (23 September)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-two-transitions-plus-free-cored-halo-23-september" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: two transitions plus free cored halo (23 September)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#central-point-mass-is-there-evidence-23-september" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Central point mass: is there evidence? (23 September)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-fit-model-performance-objective-1-fit-the-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best-fit model performance (objective 1: fit the data)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="why-the-compact-df-fails-and-the-proposed-anisotropy-extension">Why the compact DF fails, and the proposed anisotropy extension<a class="headerlink" href="#why-the-compact-df-fails-and-the-proposed-anisotropy-extension" title="Permanent link">&para;</a></h1>
+<p>Status: 23 September 2026. The diagnostics below are complete. The model
+adjustment in the final section was approved after external review and launched. This follows
+<a href="../OBSERVED_DF_FLEXIBILITY/">OBSERVED_DF_FLEXIBILITY.md</a>. That test showed
+the current DF cannot fit the combined Omega Cen data: the best fit has
+chi2_kin/N = 4.80 with every valid start converged.</p>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>The current DF fits each part of the data on its own.</strong> HST+MUSE alone
+  reach chi2_kin/N = 1.43, and Gaia alone 0.88. Only the combination fails.</li>
+<li><strong>The two parts demand opposite anisotropy.</strong> The inner data (HST+MUSE)
+  want radial bias switching on at J ~ 30 pc km/s. The outer data (Gaia)
+  want strong tangential bias switching on at J ~ 1700 pc km/s. The current
+  DF has one transition, so it cannot supply both.</li>
+<li><strong>An independent Jeans fit on the same data needs the same shape.</strong> It
+  wants radial beta ~ +0.15 near 6 pc turning tangential beyond ~20 pc,
+  and reaches chi2 = 190 against the DF's 456.</li>
+<li><strong>The combined verdict is sensitive to the Gaia errors, but not only
+  through them.</strong> A 0.02 mas/yr floor lowers chi2_kin/N from 5.12 to 2.09.
+  Gaia tangential still misses (chi2/n = 8.2), and J_a stays at its bound.</li>
+<li><strong>Distance is not the cause.</strong> Freeing it gives D = 5.30 kpc and
+  chi2_kin/N = 4.78.</li>
+<li><strong>Proposed next model:</strong> the already implemented second anisotropy
+  transition, with the halo frozen at zero. Starts come from the subset
+  fits, and the ordering is reparametrized so that J_outer &gt; J_a always.</li>
+</ul>
+<h2 id="what-was-tested">What was tested<a class="headerlink" href="#what-was-tested" title="Permanent link">&para;</a></h2>
+<p>All fits use the current compact regularized DF with no halo (rho20 = 0). The
+data snapshot is the same as before (89 kinematic bins, 82 photometric
+points). Photometry is always included. Each batch uses two hand-picked
+starts and wide search bounds (J0 30-800, J_a 5-3000 pc km/s). Fits use
+parallel base-seeded Jacobians, iteration tolerance 5e-5, an absolute stop
+of 0.01, and a 600-evaluation cap. Runner: <code>bin/run_df_step1_diagnostics.sh</code>.
+Batches: <code>results/df/dfdiag_*_20260923/</code>, frozen at commit <code>1e246bd</code> (the runner commit on top of <code>8a7e377</code>).</p>
+<table>
+<thead>
+<tr>
+<th>Batch</th>
+<th>Kinematic data</th>
+<th>Change</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dfdiag_hst_muse</code></td>
+<td>HST PM R, HST PM T, MUSE LOS (71 bins)</td>
+<td>-</td>
+<td>Can the DF fit the inner data alone?</td>
+</tr>
+<tr>
+<td><code>dfdiag_gaia</code></td>
+<td>Gaia PM R, Gaia PM T (18 bins)</td>
+<td>-</td>
+<td>Can the DF fit the outer data alone?</td>
+</tr>
+<tr>
+<td><code>dfdiag_gaiafloor01</code></td>
+<td>all 89</td>
+<td>Gaia errors ⊕ 0.01 mas/yr</td>
+<td>Error-floor sensitivity</td>
+</tr>
+<tr>
+<td><code>dfdiag_gaiafloor02</code></td>
+<td>all 89</td>
+<td>Gaia errors ⊕ 0.02 mas/yr</td>
+<td>Error-floor sensitivity</td>
+</tr>
+<tr>
+<td><code>dfdiag_freedist</code></td>
+<td>all 89</td>
+<td>distance free, 4.8-6.0 kpc</td>
+<td>Distance check</td>
+</tr>
+</tbody>
+</table>
+<p>The floors are added in quadrature. They test sensitivity to spatially
+correlated Gaia EDR3 systematics
+(<a href="https://arxiv.org/abs/2012.03380">Lindegren et al. 2021</a>;
+<a href="https://arxiv.org/abs/2102.09568">Vasiliev &amp; Baumgardt 2021</a>); they are
+not calibrated error models. At 5.43 kpc, 0.01 mas/yr is 0.26 km/s.</p>
+<h2 id="results">Results<a class="headerlink" href="#results" title="Permanent link">&para;</a></h2>
+<p>Both starts of every batch converged to the same solution (equal chi2 to
+0.1), and all solutions passed numerical validation. The reference row is the
+earlier all-data, no-halo wide-bound fit.</p>
+<table>
+<thead>
+<tr>
+<th>Fit</th>
+<th style="text-align: right;">chi2_kin / N</th>
+<th style="text-align: right;">chi2_kin/N</th>
+<th style="text-align: right;">HST R</th>
+<th style="text-align: right;">HST T</th>
+<th style="text-align: right;">MUSE</th>
+<th style="text-align: right;">Gaia R</th>
+<th style="text-align: right;">Gaia T</th>
+<th style="text-align: right;">chi2_phot/N</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>All data (reference)</td>
+<td style="text-align: right;">456.1 / 89</td>
+<td style="text-align: right;">5.12</td>
+<td style="text-align: right;">2.1</td>
+<td style="text-align: right;">6.2</td>
+<td style="text-align: right;">2.7</td>
+<td style="text-align: right;">2.6</td>
+<td style="text-align: right;">20.2</td>
+<td style="text-align: right;">2.95</td>
+</tr>
+<tr>
+<td>HST+MUSE only</td>
+<td style="text-align: right;">101.6 / 71</td>
+<td style="text-align: right;"><strong>1.43</strong></td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">1.1</td>
+<td style="text-align: right;">2.0</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">2.78</td>
+</tr>
+<tr>
+<td>Gaia only</td>
+<td style="text-align: right;">15.9 / 18</td>
+<td style="text-align: right;"><strong>0.88</strong></td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">2.53</td>
+</tr>
+<tr>
+<td>All, Gaia floor 0.01</td>
+<td style="text-align: right;">288.1 / 89</td>
+<td style="text-align: right;">3.24</td>
+<td style="text-align: right;">1.3</td>
+<td style="text-align: right;">2.4</td>
+<td style="text-align: right;">2.3</td>
+<td style="text-align: right;">0.8</td>
+<td style="text-align: right;">15.3</td>
+<td style="text-align: right;">2.88</td>
+</tr>
+<tr>
+<td>All, Gaia floor 0.02</td>
+<td style="text-align: right;">185.8 / 89</td>
+<td style="text-align: right;">2.09</td>
+<td style="text-align: right;">1.1</td>
+<td style="text-align: right;">1.2</td>
+<td style="text-align: right;">2.1</td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">8.2</td>
+<td style="text-align: right;">2.82</td>
+</tr>
+<tr>
+<td>All, distance free</td>
+<td style="text-align: right;">425.1 / 89</td>
+<td style="text-align: right;">4.78</td>
+<td style="text-align: right;">1.8</td>
+<td style="text-align: right;">6.6</td>
+<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">2.6</td>
+<td style="text-align: right;">19.6</td>
+<td style="text-align: right;">2.94</td>
+</tr>
+<tr>
+<td><em>Jeans turnover, raw errors (for comparison)</em></td>
+<td style="text-align: right;"><em>190.0 / 89</em></td>
+<td style="text-align: right;"><em>2.13</em></td>
+<td style="text-align: right;"><em>2.9</em></td>
+<td style="text-align: right;"><em>1.7</em></td>
+<td style="text-align: right;"><em>1.8</em></td>
+<td style="text-align: right;"><em>1.9</em></td>
+<td style="text-align: right;"><em>2.6</em></td>
+<td style="text-align: right;"><em>(separate MGE)</em></td>
+</tr>
+</tbody>
+</table>
+<p>The dataset columns give chi2/n (n = 21, 21, 29, 9 and 9 bins).</p>
+<p>Fitted parameters. b_out &gt; 0 is radial bias; the DF factor is
+exp(-b sin(pi c/2)) in orbit circularity c.</p>
+<table>
+<thead>
+<tr>
+<th>Fit</th>
+<th style="text-align: right;">M_star [Msun]</th>
+<th style="text-align: right;">J0</th>
+<th style="text-align: right;">alpha</th>
+<th style="text-align: right;">b_out</th>
+<th style="text-align: right;">J_a [pc km/s]</th>
+<th style="text-align: right;">M_rem [Msun]</th>
+<th style="text-align: right;">a_rem [pc]</th>
+<th style="text-align: right;">D [kpc]</th>
+<th>At a bound</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>All data (reference)</td>
+<td style="text-align: right;">3.33e6</td>
+<td style="text-align: right;">109</td>
+<td style="text-align: right;">1.12</td>
+<td style="text-align: right;">+0.18</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1.3e5</td>
+<td style="text-align: right;">0.82</td>
+<td style="text-align: right;">5.43</td>
+<td>J_a</td>
+</tr>
+<tr>
+<td>HST+MUSE only</td>
+<td style="text-align: right;">3.12e6</td>
+<td style="text-align: right;">120</td>
+<td style="text-align: right;">1.24</td>
+<td style="text-align: right;"><strong>+0.39</strong></td>
+<td style="text-align: right;"><strong>32</strong></td>
+<td style="text-align: right;">1.7e5</td>
+<td style="text-align: right;">1.31</td>
+<td style="text-align: right;">5.43</td>
+<td>none</td>
+</tr>
+<tr>
+<td>Gaia only</td>
+<td style="text-align: right;">2.75e6</td>
+<td style="text-align: right;">129</td>
+<td style="text-align: right;">1.14</td>
+<td style="text-align: right;"><strong>-1.00</strong></td>
+<td style="text-align: right;"><strong>1665</strong></td>
+<td style="text-align: right;">6.6e5</td>
+<td style="text-align: right;">2.61</td>
+<td style="text-align: right;">5.43</td>
+<td>b_out (lower)</td>
+</tr>
+<tr>
+<td>All, Gaia floor 0.01</td>
+<td style="text-align: right;">3.25e6</td>
+<td style="text-align: right;">112</td>
+<td style="text-align: right;">1.16</td>
+<td style="text-align: right;">+0.27</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1.4e5</td>
+<td style="text-align: right;">0.98</td>
+<td style="text-align: right;">5.43</td>
+<td>J_a</td>
+</tr>
+<tr>
+<td>All, Gaia floor 0.02</td>
+<td style="text-align: right;">3.19e6</td>
+<td style="text-align: right;">116</td>
+<td style="text-align: right;">1.20</td>
+<td style="text-align: right;">+0.33</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1.5e5</td>
+<td style="text-align: right;">1.14</td>
+<td style="text-align: right;">5.43</td>
+<td>J_a</td>
+</tr>
+<tr>
+<td>All, distance free</td>
+<td style="text-align: right;">3.10e6</td>
+<td style="text-align: right;">105</td>
+<td style="text-align: right;">1.13</td>
+<td style="text-align: right;">+0.18</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1.2e5</td>
+<td style="text-align: right;">0.80</td>
+<td style="text-align: right;">5.30</td>
+<td>J_a</td>
+</tr>
+</tbody>
+</table>
+<h3 id="intrinsic-anisotropy">Intrinsic anisotropy<a class="headerlink" href="#intrinsic-anisotropy" title="Permanent link">&para;</a></h3>
+<p>Figure: <code>plots/df_subset_beta_20260923.png</code> (data in
+<code>results/plot_data/df_subset_beta_20260923.json</code>, script
+<code>bin/plot_beta_profiles.py</code>). It shows beta = 1 - sigma_t^2/sigma_r^2 of the
+refined models together with the maximum-likelihood rung-2 Jeans turnover
+fits on the same data snapshot.</p>
+<ul>
+<li><strong>HST+MUSE only:</strong> beta = 0 in the centre (the DF bias vanishes as J -&gt; 0),
+  rising to +0.24 at 10 pc and +0.5 at 80 pc.</li>
+<li><strong>Gaia only:</strong> beta ~ 0 inside 10 pc, turning tangential beyond (-0.08 at
+  20 pc, -0.16 at 30 pc, -0.70 at 80 pc).</li>
+<li><strong>All data:</strong> a compromise, rising monotonically to +0.3 at 80 pc. It
+  matches neither.</li>
+<li><strong>Jeans turnover:</strong> -0.5 at the centre (at its prior limit; the ML value is
+  -0.503, so the data prefer less tangential), a radial peak of +0.15 near
+  6 pc, zero near 20 pc, and -0.6 to -0.7 at 80 pc. It follows the HST+MUSE
+  DF inside ~5 pc and the Gaia DF outside ~25 pc.</li>
+</ul>
+<h2 id="analysis">Analysis<a class="headerlink" href="#analysis" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>The failure is a conflict between datasets within one model.</strong> Each
+   subset is fitted well by the same DF family with different anisotropy
+   parameters. The combined fit pins J_a at its lower bound: it applies one
+   anisotropy amplitude at all actions and satisfies neither subset.</li>
+<li><strong>The conflict is radial, not a handover artefact.</strong> The Gaia fit's
+   tangential turn and the Jeans zero crossing lie at ~20 pc, well inside
+   the Gaia range (9.4-63 pc). They are not at the 9.5 pc HST/Gaia
+   boundary. In the one overlapping bin (9.0-9.4 pc) the two surveys agree
+   within errors (sigma_T 0.465 +- 0.027 vs 0.474 +- 0.049 mas/yr).</li>
+<li><strong>The Gaia errors set how strongly the conflict is penalized.</strong> Raw Gaia
+   dispersion errors are 0.005-0.007 mas/yr at 17-35 pc (1-2%), so the
+   18 Gaia bins dominate the combined fit. A 0.02 mas/yr floor halves
+   chi2_kin/N and lets the inner fit relax (HST T 6.2 -&gt; 1.2). Even so,
+   Gaia tangential misses by ~3 of its inflated errors per bin, and J_a
+   remains at its bound. The structural conflict survives any floor tested.
+   Its size, and hence any final goodness-of-fit verdict, depends on an
+   unresolved Gaia systematic error model.</li>
+<li><strong>Distance cannot resolve it.</strong> D rescales both PM components equally
+   and cannot change sigma_T/sigma_R. Freeing it lowers chi2_kin by 31 with
+   D = 5.30 kpc. That is 2.6 sigma below the project's adopted prior of
+   5.43 +- 0.05 kpc, taken from
+   <a href="https://arxiv.org/abs/2105.09526">Baumgardt &amp; Vasiliev 2021</a> (per-cluster
+   value not re-checked here), while Gaia tangential stays at 19.6.</li>
+<li><strong>Mass is not yet the question, but there is a hint.</strong> The Gaia-only fit
+   puts 6.6e5 Msun in an extended remnant component (a_rem = 2.6 pc),
+   against 1.7e5 Msun for HST+MUSE. Once the anisotropy conflict is
+   removed, the outer data may still require more mass at large radii. That
+   question belongs to the later halo step, not to this one.</li>
+</ol>
+<h3 id="visual-versus-statistical-fit">Visual versus statistical fit<a class="headerlink" href="#visual-versus-statistical-fit" title="Permanent link">&para;</a></h3>
+<p>Data-model figures such as <code>plots/observed_df_smoke_20260923_fits.png</code> can
+look acceptable in the top panels while failing badly. PM errors of
+0.005-0.01 mas/yr are 1-2% of the dispersion, so a 5 sigma miss (~0.03
+mas/yr) is invisible at the plotted scale. Fits must be judged from the
+residual panels and chi2 per dataset. The smoke figure shows a 12-evaluation
+unconverged run (chi2_kin/N 8.5-11.6), not a converged fit.</p>
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>The current DF is too rigid in one specific, identified way. It has a single
+anisotropy transition, so its velocity ellipsoid can only go from isotropic
+to one asymptotic state. The Omega Cen data require isotropic or mildly
+radial bias at small actions, radial bias at intermediate actions
+(J ~ 30-1000 pc km/s, r ~ 2-15 pc), and tangential bias at large actions
+(J &gt;~ 1700 pc km/s, r &gt;~ 20 pc). Subset fits, an independent Jeans analysis
+and the error-floor tests all point to this. Distance, the optimizer, the
+search bounds and the HST/Gaia boundary do not explain it. The Gaia error
+model sets how large the misfit looks, not whether it exists.</p>
+<h2 id="model-adjustment-second-anisotropy-transition-approved">Model adjustment: second anisotropy transition (approved)<a class="headerlink" href="#model-adjustment-second-anisotropy-transition-approved" title="Permanent link">&para;</a></h2>
+<h3 id="model">Model<a class="headerlink" href="#model" title="Permanent link">&para;</a></h3>
+<p>Enable the second anisotropy transition already implemented in
+<code>ExponentialParameters</code> (<code>src/ocen_dm/kinematics/regularized_df.py:46</code>). It
+is covered by <code>test_two_transitions_have_correct_limits</code> and
+<code>test_two_transition_velocity_anisotropy</code>:</p>
+<div class="highlight"><pre><span></span><code>b(J) = b_out s(J; J_a) + (b_outer - b_out) s(J; J_outer),
+s(J; J_t) = J^2 / (J^2 + J_t^2),        J_outer &gt; J_a,
+</code></pre></div>
+<p>so that b -&gt; 0 for J &lt;&lt; J_a, b ~ b_out between the two scales, and
+b -&gt; b_outer for J &gt;&gt; J_outer. The target is b_out &gt; 0 (radial) and
+b_outer &lt; 0 (tangential). Nothing else changes: mass follows light, no
+rotation, fixed distance, and <strong>no halo</strong> (rho20 = 0). Freezing the halo
+keeps it from absorbing DF inadequacy.</p>
+<h3 id="action-coverage-of-the-data">Action coverage of the data<a class="headerlink" href="#action-coverage-of-the-data" title="Permanent link">&para;</a></h3>
+<p><code>plots/action_coverage_observed_df_wide_20260923.png</code> (script
+<code>bin/plot_action_coverage.py</code>) shows 200,000 tracers sampled from the
+all-data no-halo DF. The bias acts on q = J_r + L. The 5/50/95% quantiles of
+q per projected-radius range, in pc km/s:</p>
+<table>
+<thead>
+<tr>
+<th>Projected radius</th>
+<th style="text-align: right;">q 5%</th>
+<th style="text-align: right;">q 50%</th>
+<th style="text-align: right;">q 95%</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.1-1 pc</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">101</td>
+<td style="text-align: right;">320</td>
+</tr>
+<tr>
+<td>1-3 pc</td>
+<td style="text-align: right;">38</td>
+<td style="text-align: right;">119</td>
+<td style="text-align: right;">311</td>
+</tr>
+<tr>
+<td>3-9.5 pc</td>
+<td style="text-align: right;">81</td>
+<td style="text-align: right;">187</td>
+<td style="text-align: right;">390</td>
+</tr>
+<tr>
+<td>9.4-20 pc</td>
+<td style="text-align: right;">174</td>
+<td style="text-align: right;">303</td>
+<td style="text-align: right;">517</td>
+</tr>
+<tr>
+<td>20-63 pc</td>
+<td style="text-align: right;">313</td>
+<td style="text-align: right;">476</td>
+<td style="text-align: right;">734</td>
+</tr>
+</tbody>
+</table>
+<p>Two consequences for the parametrization:</p>
+<ul>
+<li>The Gaia-only J_a = 1665 lies above the 95% point of even the outermost
+  bin. That fit uses only the low-q tail b ~ b_out (q/J_a)^2, a smooth ramp
+  in which only b_out/J_a^2 is constrained. A second transition must lie
+  inside q ~ 20-800 to be identified.</li>
+<li>Neighbouring radial ranges overlap strongly in q, and one q does not map to
+  one radius. Any transition in q is soft in radius. Its interpretation must
+  come from p(q | R) and beta(r), not from a J-to-r conversion.</li>
+</ul>
+<h3 id="adopted-setup-revised-after-external-review-23-september">Adopted setup (revised after external review, 23 September)<a class="headerlink" href="#adopted-setup-revised-after-external-review-23-september" title="Permanent link">&para;</a></h3>
+<p>Code: coordinate <code>stellar.log_J_outer_ratio</code> = Delta = ln(J_outer/J_a),
+decoded after all other coordinates (<code>df_fit.config_at</code>), so that
+J_outer &gt; J_a for every trial (unit-tested). Driver option:
+<code>prepare-real --two-transition</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Coordinate</th>
+<th>Bounds</th>
+<th style="text-align: right;">Start 0</th>
+<th style="text-align: right;">Start 1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M_star [Msun]</td>
+<td>1e6-6e6 (log)</td>
+<td style="text-align: right;">3.1e6</td>
+<td style="text-align: right;">2.8e6</td>
+</tr>
+<tr>
+<td>J0 [pc km/s]</td>
+<td>30-800 (log)</td>
+<td style="text-align: right;">120</td>
+<td style="text-align: right;">130</td>
+</tr>
+<tr>
+<td>alpha</td>
+<td>0.6-3</td>
+<td style="text-align: right;">1.24</td>
+<td style="text-align: right;">1.14</td>
+</tr>
+<tr>
+<td>b_out</td>
+<td>-2 to +2</td>
+<td style="text-align: right;">+0.39</td>
+<td style="text-align: right;">+0.30</td>
+</tr>
+<tr>
+<td>J_a [pc km/s]</td>
+<td>5-500 (log)</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr>
+<td>b_outer</td>
+<td>-4 to +2</td>
+<td style="text-align: right;">-1.0</td>
+<td style="text-align: right;">-1.5</td>
+</tr>
+<tr>
+<td>Delta = ln(J_outer/J_a)</td>
+<td>ln 2 - ln 100</td>
+<td style="text-align: right;">ln 15 (J_outer 480)</td>
+<td style="text-align: right;">ln 8 (J_outer 400)</td>
+</tr>
+<tr>
+<td>M_rem [Msun]</td>
+<td>1e2-1e6 (log)</td>
+<td style="text-align: right;">1.7e5</td>
+<td style="text-align: right;">4e5</td>
+</tr>
+<tr>
+<td>a_rem [pc]</td>
+<td>0.3-20 (log)</td>
+<td style="text-align: right;">1.3</td>
+<td style="text-align: right;">2.0</td>
+</tr>
+</tbody>
+</table>
+<p>The J_a upper bound drops from 3000 to 500 because larger values lie outside
+the sampled q. Four Latin-hypercube starts (seed 20260923) are added. There
+is no halo, raw errors are used first, and the 0.02 mas/yr Gaia floor is
+repeated only if the raw fit is structurally successful. A 12-evaluation
+smoke run from start 0 validated (cold shift 9e-5, refinement 7e-4 errors,
+projection &lt;= 0.18%) with no rejected evaluations.</p>
+<h3 id="acceptance-criteria-split-revised">Acceptance criteria, split (revised)<a class="headerlink" href="#acceptance-criteria-split-revised" title="Permanent link">&para;</a></h3>
+<p>The formal Gaia errors (1-2%) are known to be incomplete, so structure and
+statistics are judged separately:</p>
+<ul>
+<li><strong>Structural pass:</strong> independent starts converge (Delta chi2 &lt; 1 for at
+  least half of the valid starts); no coordinate at a bound; no coherent
+  residual pattern; the implied beta(r) is radial at 2-15 pc and tangential
+  beyond ~20 pc; no dataset with chi2/n &gt; 3; M_rem and a_rem checked for
+  collapse toward the HST+MUSE values (1.7e5 Msun, 1.3 pc).</li>
+<li><strong>Statistical pass:</strong> chi2_kin/N &lt; 1.3, every dataset chi2/n &lt; 2, and
+  chi2_phot/N &lt; 2. This is required only under a justified Gaia systematics
+  model. With raw errors it is reported, not required.</li>
+</ul>
+<p>After the run, for every selected fit: beta(r), sigma_r(r) and sigma_t(r);
+b(q) with p(q | R) and both transitions marked; and the DF in the (J_r, L)
+plane, checked for artificial ridges. The Jeans comparison is a shape
+target only. A positive equilibrium DF need not reproduce an arbitrary
+Jeans beta(r).</p>
+<h3 id="decision-after-the-run">Decision after the run<a class="headerlink" href="#decision-after-the-run" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Passes:</strong> add the cored halo (step 3) and ask whether rho20 &gt; 0 is still
+  preferred. The passing no-halo and halo fits then define realistic mock
+  truths (v3) for the fixed-rho20 profile scan and the star/DM
+  identifiability test.</li>
+<li><strong>Fails only with raw Gaia errors:</strong> the result depends on the Gaia
+  systematic error model. Build a calibrated floor from the Gaia
+  astrometric systematics before going further.</li>
+<li><strong>Fails in both runs:</strong> a rotating DF with mean velocities fitted jointly
+  (step 4), then separate tracer and mass DFs (step 5). An axisymmetric DF
+  is the last resort (step 6).</li>
+</ul>
+<h2 id="result-of-the-two-transition-no-halo-fit-23-september">Result of the two-transition, no-halo fit (23 September)<a class="headerlink" href="#result-of-the-two-transition-no-halo-fit-23-september" title="Permanent link">&para;</a></h2>
+<p>Batch <code>results/df/dftwo_20260923/</code> (commit <code>f6ce414</code>), 6 starts, raw errors.
+Two Latin starts were infeasible at their initial point and recorded as such.
+The other four reached the same minimum (refined objective 378.3-378.4,
+Delta chi2_kin &lt;= 0.6). Starts 0 and 1 terminated by the absolute rule after
+502 and 492 evaluations; starts 3 and 5 reached the cap at the same point.
+No evaluation was rejected, and no coordinate is at a bound. Validation
+passed (start 0: cold shift 0.0010, refinement 0.0003 errors, projection
+0.03%).</p>
+<table>
+<thead>
+<tr>
+<th>Quantity</th>
+<th style="text-align: right;">One transition</th>
+<th style="text-align: right;"><strong>Two transitions</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>chi2_kin (N = 89)</td>
+<td style="text-align: right;">456.1</td>
+<td style="text-align: right;"><strong>159.2</strong></td>
+</tr>
+<tr>
+<td>chi2_kin/N</td>
+<td style="text-align: right;">5.12</td>
+<td style="text-align: right;"><strong>1.79</strong></td>
+</tr>
+<tr>
+<td>HST R / HST T / MUSE, chi2/n</td>
+<td style="text-align: right;">2.1 / 6.2 / 2.7</td>
+<td style="text-align: right;"><strong>1.0 / 1.8 / 2.0</strong></td>
+</tr>
+<tr>
+<td>Gaia R / Gaia T, chi2/n</td>
+<td style="text-align: right;">2.6 / 20.2</td>
+<td style="text-align: right;"><strong>0.9 / 3.7</strong></td>
+</tr>
+<tr>
+<td>chi2_phot/N</td>
+<td style="text-align: right;">2.95</td>
+<td style="text-align: right;">2.67</td>
+</tr>
+</tbody>
+</table>
+<p>Best-fit parameters: M_star = 3.25e6 Msun, J0 = 65 pc km/s, alpha = 0.85,
+b_out = +0.46, J_a = 27 pc km/s, b_outer = -1.26, J_outer = 812 pc km/s,
+M_rem = 1.72e5 Msun, a_rem = 1.27 pc.</p>
+<p>Figures: <code>plots/dftwo_20260923_best_fits.png</code> (data and residuals),
+<code>plots/dftwo_beta_20260923.png</code> (beta vs the one-transition DF and Jeans),
+and <code>plots/df_structure_dftwo_20260923_observed_no_halo_start0.png</code>
+(intrinsic moments, b(q) over sampled actions, f(J_r, L); script
+<code>bin/plot_df_structure.py</code>).</p>
+<ul>
+<li><strong>Anisotropy:</strong> beta(r) = 0.02, 0.14, 0.16, 0.06, -0.13, -0.55 and -1.27
+  at 1, 6, 10, 20, 30, 45 and 63 pc. Inside ~30 pc this reproduces the Jeans
+  turnover shape (radial peak near 6-10 pc, zero near 20 pc). Beyond ~40 pc
+  it falls faster (-2.1 at 80 pc, outside the data). There sigma_t exceeds
+  sigma_r.</li>
+<li><strong>Bias vs coverage:</strong> b(q) peaks at +0.41 at q = 103 pc km/s, where the
+  HST/MUSE tracers sit (q 5/50/95% = 56/170/379). It crosses zero at
+  q = 488, inside the Gaia tracers (183/347/650). Both transitions act on
+  sampled actions. The negative asymptote b_outer is reached only beyond the
+  Gaia q range, so the steep outer beta is extrapolation.</li>
+<li><strong>DF shape:</strong> f(J_r, L) is smooth and monotonic, with no ridge at either
+  transition scale.</li>
+<li><strong>Remnants:</strong> M_rem and a_rem return to the HST+MUSE-only values
+  (1.7e5 Msun, 1.3 pc). The 6.6e5 Msun extended remnant of the Gaia-only fit
+  was compensating for the missing tangential outskirts.</li>
+<li><strong>Remaining residuals:</strong> tangential PM -2.5 errors at 4-7 pc and +3.5 at
+  15-20 pc (first Gaia bins). LOS is 2-3.6 errors high at 5-8 pc (MUSE outer
+  edge, where the rotation subtraction is largest). The three innermost HST
+  PM bins (0.1-0.2 pc) lie above the model; there is no central point mass.</li>
+</ul>
+<p><strong>Against the criteria:</strong> the structural criteria pass except one. Starts
+converge, nothing is at a bound, the beta shape is correct, the DF is smooth,
+and the remnants collapse. The exception is Gaia tangential at chi2/n = 3.7,
+against a limit of 3, with a mildly coherent residual at 4-20 pc. The
+statistical criterion is not met (chi2_kin/N 1.79 &gt; 1.3); with raw Gaia
+errors it is reported, not required.</p>
+<h3 id="decision-on-gaia-error-floors-23-september">Decision on Gaia error floors (23 September)<a class="headerlink" href="#decision-on-gaia-error-floors-23-september" title="Permanent link">&para;</a></h3>
+<p>The 0.01/0.02 mas/yr floors above were ad hoc, not a calibrated error model.
+They are withdrawn as a tool for judging models and will not be used again.
+All fits use the published (raw) errors. The incompleteness of the Gaia
+error model stays an open caveat. The proper remedy is a separate data task:
+re-derive the Gaia dispersion profiles with a literature-based per-star error
+calibration, or calibrate against HST in the overlap. Its method needs
+approval before implementation. Step 3 (two transitions plus free halo)
+therefore runs with raw errors.</p>
+<h2 id="step-3-two-transitions-plus-free-cored-halo-23-september">Step 3: two transitions plus free cored halo (23 September)<a class="headerlink" href="#step-3-two-transitions-plus-free-cored-halo-23-september" title="Permanent link">&para;</a></h2>
+<p>Batch <code>results/df/dftwo_halo_20260923/</code>, raw errors. Three of six starts
+were infeasible at their initial point. Two failed numerically (action
+normalization error 5.1e-5 above the 2e-5 tolerance; a density-closure
+failure) and one physically (streaming exceeded the DF second moment). All
+three valid starts reached one minimum: refined objective 346.9 (no halo:
+378.3), chi2_kin 143.3 (159.2). By dataset (chi2/n): HST R 1.02, HST T
+1.39, MUSE 1.83, Gaia R 2.04 (was 0.93), Gaia T 2.34 (was 3.7); chi2_phot/N
+is 2.48.</p>
+<p>Not a clean DM result:
+- <strong>Two coordinates are at bounds.</strong> r_s = 500 pc (upper), so the halo is
+  effectively uniform (rho20 = 0.92 Msun/pc^3) inside the data.
+  J_outer/J_a = 2 (lower), so the transitions are pushed together.
+- <strong>The anisotropy re-arranges</strong> (b_out 0.46 -&gt; 1.76, J_a 27 -&gt; 101,
+  b_outer -1.26 -&gt; -0.25): a mass-anisotropy trade.
+- <strong>The halo is &lt; 1% of the enclosed mass at 20 pc</strong>, 8% at 42 pc and 32% at
+  80 pc. It again trades misfit between the Gaia R and T components.</p>
+<p>The gain (Delta objective 31, Delta chi2_kin 16, for two extra parameters)
+cannot be read as a DM preference. A DM constraint needs a rho20 profile
+likelihood with all other parameters refitted, then mock validation.</p>
+<h2 id="central-point-mass-is-there-evidence-23-september">Central point mass: is there evidence? (23 September)<a class="headerlink" href="#central-point-mass-is-there-evidence-23-september" title="Permanent link">&para;</a></h2>
+<p><code>plots/central_bh_evidence_20260923.png</code> (script
+<code>bin/plot_central_bh_evidence.py</code>, data in <code>results/plot_data/</code>) compares
+the 43 kinematic bins inside 2 pc: HST PM R and T, and MUSE LOS.</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th style="text-align: right;">central chi2 / 43</th>
+<th style="text-align: right;">HST R</th>
+<th style="text-align: right;">HST T</th>
+<th style="text-align: right;">MUSE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DF two transitions, no BH, no halo</td>
+<td style="text-align: right;"><strong>48.8</strong></td>
+<td style="text-align: right;">11.7</td>
+<td style="text-align: right;">12.5</td>
+<td style="text-align: right;">24.6</td>
+</tr>
+<tr>
+<td>Jeans turnover + BH (M_bh 4.4e4), no DM</td>
+<td style="text-align: right;">59.0</td>
+<td style="text-align: right;">21.5</td>
+<td style="text-align: right;">16.7</td>
+<td style="text-align: right;">20.8</td>
+</tr>
+<tr>
+<td>Jeans turnover + BH (M_bh 4.4e4), cored DM</td>
+<td style="text-align: right;">59.3</td>
+<td style="text-align: right;">23.7</td>
+<td style="text-align: right;">14.1</td>
+<td style="text-align: right;">21.4</td>
+</tr>
+</tbody>
+</table>
+<p>The binned data give no evidence that the DF needs a point mass. Only the
+HST bins at 0.12-0.16 pc lie 1-2 errors above the no-BH DF, and the
+innermost bin (0.10 pc) lies below it. The comparison is not controlled,
+since the Jeans fits also differ in anisotropy (beta_0 = -0.5 imposed) and
+mass model. A matched DF with and without a BH would be the clean test. The
+binned profiles start at 0.1 pc, inside r_infl ~ 0.4 pc for 4e4 Msun, and
+contain none of the individual fast central stars behind the IMBH claim of
+Haeberle et al. 2024 (<a href="https://arxiv.org/abs/2405.06015">arXiv:2405.06015</a>).
+The BH is therefore dropped from the objective-1 list.</p>
+<h2 id="best-fit-model-performance-objective-1-fit-the-data">Best-fit model performance (objective 1: fit the data)<a class="headerlink" href="#best-fit-model-performance-objective-1-fit-the-data" title="Permanent link">&para;</a></h2>
+<p>Figures: <code>plots/best_fit_performance_20260923_data.png</code> (all data, both
+two-transition fits and the rung-2 Jeans turnover fit, residuals
+(data-model)/err) and <code>plots/best_fit_performance_20260923_diagnostics.png</code>
+(residual histogram, chi2/n, runs test, beta, enclosed mass). Script:
+<code>bin/plot_best_fit_performance.py</code>; numbers in
+<code>results/plot_data/best_fit_performance_20260923.json</code>. Published errors are
+used and bins are treated as independent, so the p-values are indicative
+only.</p>
+<table>
+<thead>
+<tr>
+<th>Dataset (n)</th>
+<th>No halo chi2/n (p)</th>
+<th>+ halo chi2/n (p)</th>
+<th>Runs z, no halo / halo</th>
+<th>max abs residual</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HST PM R (21)</td>
+<td>1.01 (0.45)</td>
+<td>1.02 (0.43)</td>
+<td>-0.9 / 0.0</td>
+<td>2.0 / 2.0</td>
+</tr>
+<tr>
+<td>HST PM T (21)</td>
+<td>1.81 (0.013)</td>
+<td>1.39 (0.11)</td>
+<td>-1.1 / -1.1</td>
+<td>2.6 / 2.1</td>
+</tr>
+<tr>
+<td>MUSE LOS (29)</td>
+<td>2.01 (0.001)</td>
+<td>1.84 (0.004)</td>
+<td>+0.5 / +0.5</td>
+<td>3.6 / 3.2</td>
+</tr>
+<tr>
+<td>Gaia PM R (9)</td>
+<td>0.93 (0.50)</td>
+<td>2.04 (0.03)</td>
+<td>-2.3 / -1.2</td>
+<td>1.9 / 2.2</td>
+</tr>
+<tr>
+<td>Gaia PM T (9)</td>
+<td>3.70 (1e-4)</td>
+<td>2.34 (0.01)</td>
+<td>-0.8 / -1.0</td>
+<td>3.6 / 2.7</td>
+</tr>
+<tr>
+<td>Photometry (82)</td>
+<td>2.67 (2e-14)</td>
+<td>2.48 (3e-12)</td>
+<td>-1.2 / -2.1</td>
+<td>5.7 / 5.8</td>
+</tr>
+</tbody>
+</table>
+<p>The runs test counts sign runs along radius; z &lt; -2 means too few runs,
+i.e. coherent residuals.</p>
+<ul>
+<li><strong>The kinematic fits are now better than the best Jeans fit.</strong> chi2_kin is
+  159.2 (no halo) and 143.3 (halo), against 190.0 for the rung-2 Jeans
+  turnover (with BH, no DM) on the same bins. All profiles are tracked
+  across 0.1-63 pc. The kinematic residual distribution is somewhat wider
+  than N(0,1), with tails to about 3.6.</li>
+<li><strong>Remaining structured misfits:</strong> MUSE LOS at its outer edge, 5-8 pc
+  (model 2-3.6 errors high; largest streaming correction); PM tangential at
+  4-7 pc (model 2-2.6 high) and 15-20 pc, the first Gaia bins (model up to
+  3.5 low). With a halo, the outer Gaia PM R becomes about 2 errors too
+  high. Only Gaia R (no halo) and the photometry (halo) pass z = -2 in the
+  runs test.</li>
+<li><strong>Photometry:</strong> chi2/N 2.5-2.7, dominated by 10-40 pc points with
+  residuals of opposite sign at the same radii (-3 to -6 and +2 to +4). This
+  matches the mutually inconsistent Trager-compilation points: duplicate
+  full-weight pairs differ by 0.13 mag, against 0.1 mag adopted errors. This
+  points to heterogeneity in the photometric data rather than the model. It
+  is a hypothesis; it has not been tested.</li>
+<li><strong>The two models agree inside the data:</strong> beta(r) and the total M(&lt;r)
+  coincide to ~25 pc. The halo adds mass only beyond ~30 pc (8% at 42 pc).
+  Inside the data, the data do not distinguish the two.</li>
+</ul>
+<p>Verdict on objective 1: a structural near-pass; not statistically acceptable
+under the published errors. The remaining misfit is localised (MUSE outer
+edge and the 4-20 pc tangential PMs), not a global failure.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy", "toc.follow"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../kb/javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

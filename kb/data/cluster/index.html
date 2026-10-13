@@ -1,0 +1,3276 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Knowledge base of the oCen_dm project (data products, models, results, literature)">
+      
+      
+      
+        <link rel="canonical" href="https://vasilybelokurov.github.io/ocen_dm/kb/data/cluster/">
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../tails_streams/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Cluster kinematics, counts and light - oCen_dm: dark matter in Omega Centauri</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cluster-kinematics-counts-and-light" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="oCen_dm: dark matter in Omega Centauri" class="md-header__button md-logo" aria-label="oCen_dm: dark matter in Omega Centauri" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            oCen_dm: dark matter in Omega Centauri
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Cluster kinematics, counts and light
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/vasilybelokurov/ocen_dm" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    vasilybelokurov/ocen_dm
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../getting_started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Data
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../models/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Models
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../results/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Results
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../literature/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Literature
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../reviews/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Reviews
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../spec/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Specification
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="oCen_dm: dark matter in Omega Centauri" class="md-nav__button md-logo" aria-label="oCen_dm: dark matter in Omega Centauri" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    oCen_dm: dark matter in Omega Centauri
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/vasilybelokurov/ocen_dm" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    vasilybelokurov/ocen_dm
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Data
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cluster kinematics, counts and light
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cluster kinematics, counts and light
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0-how-the-baseline-df-likelihood-consumes-its-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0. How the baseline DF likelihood consumes its data
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#k1-hst-pm-dispersion-our-measurement-hst_pm_radial_ours-hst_pm_tangential_ours" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        K1. HST PM dispersion, our measurement (hst_pm_radial_ours, hst_pm_tangential_ours)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#k2k3-muse-los-dispersion-and-los-rotation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        K2/K3. MUSE LOS dispersion and LOS rotation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#k4-gaia-edr3-pm-dispersion-our-measurement-gaia_edr3_ours_radial-gaia_edr3_ours_tangential" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        K4. Gaia EDR3 PM dispersion, our measurement (gaia_edr3_ours_radial, gaia_edr3_ours_tangential)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#k5-vasiliev-baumgardt-2021-pm-dispersion-and-rotation-profiles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        K5. Vasiliev &amp; Baumgardt 2021 PM dispersion and rotation profiles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#k6-vasiliev-baumgardt-2021-member-catalogue-cen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        K6. Vasiliev &amp; Baumgardt 2021 member catalogue (ω Cen)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#k7-omegacat-vi-published-pm-profiles-hst_pm_radial-hst_pm_tangential-hst_pm_combined" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        K7. oMEGACat VI published PM profiles (hst_pm_radial, hst_pm_tangential, hst_pm_combined)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#k8-gaia-dr3-field-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        K8. Gaia DR3 field template
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#k9-gaia-dr2-pm-dispersion-baumgardt-et-al-2019" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        K9. Gaia DR2 PM dispersion (Baumgardt et al. 2019)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#k10-hstgaia-pm-cross-match" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        K10. HST–Gaia PM cross-match
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c1c2-poisson-count-profiles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C1/C2. Poisson count profiles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#l1-trager-king-djorgovski-1995-surface-brightness-profile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L1. Trager, King &amp; Djorgovski 1995 surface-brightness profile
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#l2-composite-tracer-profile-not-a-stored-product" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L2. Composite tracer profile (not a stored product)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#l3-baumgardt-gc-database-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L3. Baumgardt GC database parameters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#m1-present-day-mass-function-and-mass-per-counted-star-mn19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        M1. Present-day mass function and mass per counted star (M/N19)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o1-unused-omegacat-vi-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O1. Unused oMEGACat VI files
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tails_streams/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Periphery, tails and streams
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../potentials/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Potentials and auxiliary inputs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Registered sources
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gaps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Known gaps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../data_analysis.pdf" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data preparation (PDF)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../MANUAL_DOWNLOADS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Manual downloads
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../DATA_GAPS_PLAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data-gaps plan (historical)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../models/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Models
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../models/base_no_dm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Base no-DM model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF family
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    DF family
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../REGULARIZED_DF_IMPLEMENTATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regularized DF implementation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../DF_ANISOTROPY_DIAGNOSTICS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Anisotropy diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../OBSERVED_DF_FLEXIBILITY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Observed-data flexibility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../COMPACT_DF_RECOVERY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compact DF recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../COMPACT_DF_FREQUENCY_DIAGNOSTIC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frequency-mapper diagnostic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../DF_MODEL_LITERATURE_REVIEW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF model literature review
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../AGAMA_DF_MODELS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Earlier mixture DF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../DF_CAPACITY_CHALLENGE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF capacity challenge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../DF_MASS_RECOVERY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF mass recovery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../DF_MASS_RECOVERY_STATUS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF mass recovery status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Jeans ladder (historical)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Jeans ladder (historical)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../MODELLING_PLAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelling plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../RUNG0_ANALYSIS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rung 0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../RUNG1_COMPARISON/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rung 1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../RUNG_MODEL_COMPARISON/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All rungs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../DM_DENSITY_POSTERIOR/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DM density posterior
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../DM_DENSITY_DATA_CONSTRAINTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DM density data constraints
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../DM_DENSITY_PROFILE_LIMIT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DM density profile limit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../DM_DENSITY_POSTERIOR_CHECKS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DM density posterior checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../DF_CONSISTENCY_AUDIT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DF consistency audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LITERATURE_BASELINES/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Literature baselines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CODE_ANALYSIS_AUDIT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code and analysis audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Results
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Results
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../results/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Results
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    N-body and DM survival
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    N-body and DM survival
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../DYNAMICAL_EXPERIMENTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamical experiments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../DYNAMICAL_BATCH_ANALYSIS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Batch analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../PROGENITOR_ORBITS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Progenitor orbits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../SECTION11_TESTS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Section-11 tests
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LIFETIME_EVOLUTION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifetime evolution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../LIFETIME_BATCH_REPORT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lifetime batch report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NBODY_CODE_ASSESSMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    N-body code assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NBODY_IC_PROPOSAL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    N-body ICs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stream 54
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Stream 54
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../STREAM_PM_REFINEMENT_2026-10-13/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PM refinement (current)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../STREAM_KNEE_INVESTIGATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Knee investigation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../STREAM_DIAGNOSTIC_PLAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Diagnostic plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../STREAM_FIT_CAMPAIGN_PLAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fit campaign plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../STREAM_EXPERIMENTS_PLAN/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Experiments plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../STREAM_FIT_METHODS_REVIEW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stream-fitting methods review
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../literature/omega_cen_stream_distances_2026-10-10/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stream distances literature
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../literature/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Literature
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reviews/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reviews
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../spec/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0-how-the-baseline-df-likelihood-consumes-its-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0. How the baseline DF likelihood consumes its data
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#k1-hst-pm-dispersion-our-measurement-hst_pm_radial_ours-hst_pm_tangential_ours" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        K1. HST PM dispersion, our measurement (hst_pm_radial_ours, hst_pm_tangential_ours)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#k2k3-muse-los-dispersion-and-los-rotation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        K2/K3. MUSE LOS dispersion and LOS rotation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#k4-gaia-edr3-pm-dispersion-our-measurement-gaia_edr3_ours_radial-gaia_edr3_ours_tangential" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        K4. Gaia EDR3 PM dispersion, our measurement (gaia_edr3_ours_radial, gaia_edr3_ours_tangential)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#k5-vasiliev-baumgardt-2021-pm-dispersion-and-rotation-profiles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        K5. Vasiliev &amp; Baumgardt 2021 PM dispersion and rotation profiles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#k6-vasiliev-baumgardt-2021-member-catalogue-cen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        K6. Vasiliev &amp; Baumgardt 2021 member catalogue (ω Cen)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#k7-omegacat-vi-published-pm-profiles-hst_pm_radial-hst_pm_tangential-hst_pm_combined" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        K7. oMEGACat VI published PM profiles (hst_pm_radial, hst_pm_tangential, hst_pm_combined)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#k8-gaia-dr3-field-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        K8. Gaia DR3 field template
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#k9-gaia-dr2-pm-dispersion-baumgardt-et-al-2019" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        K9. Gaia DR2 PM dispersion (Baumgardt et al. 2019)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#k10-hstgaia-pm-cross-match" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        K10. HST–Gaia PM cross-match
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c1c2-poisson-count-profiles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C1/C2. Poisson count profiles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#l1-trager-king-djorgovski-1995-surface-brightness-profile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L1. Trager, King &amp; Djorgovski 1995 surface-brightness profile
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#l2-composite-tracer-profile-not-a-stored-product" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L2. Composite tracer profile (not a stored product)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#l3-baumgardt-gc-database-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L3. Baumgardt GC database parameters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#m1-present-day-mass-function-and-mass-per-counted-star-mn19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        M1. Present-day mass function and mass per counted star (M/N19)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#o1-unused-omegacat-vi-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O1. Unused oMEGACat VI files
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="cluster-kinematics-counts-and-light">Cluster kinematics, counts and light<a class="headerlink" href="#cluster-kinematics-counts-and-light" title="Permanent link">&para;</a></h1>
+<p>Shorthands (<code>CAT</code>, <code>raw/</code>, <code>proc/</code>) are defined on the <a href="../">Data products</a> page.</p>
+<h2 id="0-how-the-baseline-df-likelihood-consumes-its-data">0. How the baseline DF likelihood consumes its data<a class="headerlink" href="#0-how-the-baseline-df-likelihood-consumes-its-data" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Driver.</strong> <code>bin/run_compact_df_recovery.py</code>.</li>
+<li><code>prepare-real</code> (lines 229–263) copies <code>proc/kinematics/&lt;count&gt;.json</code> into the run directory and records each sha256 (lines 249–252).</li>
+<li>It copies the kinematic <code>data_snapshot.json</code> from the <code>--start-from</code> source run.</li>
+<li>It writes <code>problem.json</code>. The baseline record is <code>photometry: false, counts: [hst, gaia]</code>.</li>
+<li>At run time, lines 63–72 verify the count sha256 and rebuild the <code>DFJointProblem</code>.</li>
+<li><strong>Frozen inputs.</strong> <code>results/df/dftwo_counts_20260923/observed/</code>:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Size (B)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>data_snapshot.json</code></td>
+<td>19,656</td>
+</tr>
+<tr>
+<td><code>ocen_counts_gaia_g17.json</code></td>
+<td>3,226</td>
+</tr>
+<tr>
+<td><code>ocen_counts_hst_f625w19.json</code></td>
+<td>5,411</td>
+</tr>
+<tr>
+<td><code>problem.json</code></td>
+<td>717</td>
+</tr>
+</tbody>
+</table>
+<p><code>batch.json</code> records <code>source_commit 36bca6f</code>, <code>gaia_error_floor_masyr 0.0</code> and <code>distance 5.43</code> (fixed in the starting config; free between 4.8 and 6.0 in coordinates).
+- <strong>Snapshot chain.</strong> The <code>data_snapshot</code> comes from <code>results/df/pilot_no_dm_20260922</code>, whose <code>run.json</code> has <code>data_source = results/fits/rung2_K1_turnover</code>. The sha256 <code>570399f38ab2…</code> is identical in <code>rung1_K1_slice/summary.json</code> and <code>rung2_K1_turnover/summary.json</code>.
+- <strong>Gate output.</strong> <code>report.json</code> lists χ² per point by dataset and the count deviance:</p>
+<table>
+<thead>
+<tr>
+<th>Dataset</th>
+<th>χ²/pt</th>
+<th>Count deviance / bin</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>hst_pm_radial_ours</td>
+<td>2.07</td>
+<td></td>
+</tr>
+<tr>
+<td>hst_pm_tangential_ours</td>
+<td>1.95</td>
+<td></td>
+</tr>
+<tr>
+<td>muse_los_dispersion</td>
+<td>1.31</td>
+<td></td>
+</tr>
+<tr>
+<td>gaia_edr3_ours_radial</td>
+<td>1.55</td>
+<td></td>
+</tr>
+<tr>
+<td>gaia_edr3_ours_tangential</td>
+<td>2.42</td>
+<td></td>
+</tr>
+<tr>
+<td>ocen_counts_hst_f625w19</td>
+<td></td>
+<td>4.94</td>
+</tr>
+<tr>
+<td>ocen_counts_gaia_g17</td>
+<td></td>
+<td>2.19</td>
+</tr>
+</tbody>
+</table>
+<p>These are start 0.
+- <strong>Default dataset list.</strong> <code>src/ocen_dm/cli.py:364 DEFAULT_DATASETS</code> holds the same five kinematic keys.
+  - The note at <code>cli.py:359–363</code> records why <code>gaia_edr3_pm</code> (published VB21 spline) was replaced on 2026-09-19.
+  - It also records why <code>gaia_dr2_pm</code> was dropped on 2026-09-20.
+- <strong>Duplicate guard.</strong> <code>likelihood.py:373 _FORBIDDEN_TOGETHER</code> refuses combinations that share stars, for example published plus "ours" HST, or VB21 plus our Gaia.</p>
+<h2 id="k1-hst-pm-dispersion-our-measurement-hst_pm_radial_ours-hst_pm_tangential_ours">K1. HST PM dispersion, our measurement (<code>hst_pm_radial_ours</code>, <code>hst_pm_tangential_ours</code>)<a class="headerlink" href="#k1-hst-pm-dispersion-our-measurement-hst_pm_radial_ours-hst_pm_tangential_ours" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Source.</strong> oMEGACat VI (Häberle et al. 2025, ApJ).</li>
+<li>arXiv: https://arxiv.org/abs/2503.04903</li>
+<li>DOI: https://doi.org/10.3847/1538-4357/adbe67</li>
+<li>Data: https://doi.org/10.5281/zenodo.14978551</li>
+<li><strong>Raw file.</strong> <code>raw/omegacat_vi_kinematics/catalog_and_selections.fits</code> (260,994,240 B). The published md5 <code>9de5a701…</code> was verified in <code>provenance/manifest.json</code>.</li>
+<li><strong>Builder.</strong> <code>src/ocen_dm/kinematics/hst_profile.py</code>:</li>
+<li><code>load_hst_sample</code> (:112)</li>
+<li><code>hst_profile</code> (:170)</li>
+<li><code>build_hst_profile</code> (:221, writes :243)</li>
+<li><code>load_hst_product</code> (:248)</li>
+<li><strong>Selection.</strong></li>
+<li>oMEGACat <code>selection_hq_astrometry &gt; 0</code> (flagged stars only; <code>require_flag=True</code>, <code>correct_unflagged=False</code>).</li>
+<li>Edges <code>DEFAULT_EDGES = geomspace(2, 250, 21) ∪ [300, 340, 360]</code> arcsec (:101), giving 21 bins (r_median 3.65–341.5″).</li>
+<li>Each bin is fitted as a cluster 2-D Gaussian plus a field mixture, using the <strong>K8</strong> field template in absolute PM.</li>
+<li><strong>Product.</strong> <code>proc/kinematics/ocen_pm_dispersion_hst_ours.ecsv</code> (10,949 B; built 2026-09-20T08:46Z).</li>
+<li>Columns: <code>r_lower/r_median/r_upper</code> [arcsec], <code>n_stars</code>, <code>n_flagged</code>, <code>f_unflagged</code>, <code>f_field</code>, <code>sigma_pmr(_err)</code>, <code>sigma_pmt(_err)</code>, <code>sigma_pm(_err)</code> [mas/yr], <code>sigma_raw</code>, <code>sigma_sys</code>, <code>sigma_kms(_err)</code>, <code>r_pc</code>, <code>r_node0..7</code>.</li>
+<li>Metadata: <code>unflagged_bias (1.077, 0.011)</code> is recorded but not applied.</li>
+<li><strong>Likelihood use.</strong> <code>likelihood.py:275 _hst_ours</code>.</li>
+<li>Errors are symmetric.</li>
+<li>The tangential component adds ⟨μ_T⟩² from the K5 rotation curve as <code>streaming2</code>. The rotation-curve error is propagated in quadrature (<code>streaming_error_on_sigma</code>, :153).</li>
+<li><code>r_nodes</code> gives star-weighted radial averaging.</li>
+<li><strong>Restrictions.</strong></li>
+<li>Metadata note: HST PMs are locally corrected, so the dispersion is about a rotation-free mean.</li>
+<li>Shares stars with K7, so the two cannot be combined (<code>_FORBIDDEN_TOGETHER</code>).</li>
+<li><strong>Status.</strong> a, b (Jeans rung0/1/2). The loader auto-builds the product if it is missing, per the README.</li>
+</ul>
+<h2 id="k2k3-muse-los-dispersion-and-los-rotation">K2/K3. MUSE LOS dispersion and LOS rotation<a class="headerlink" href="#k2k3-muse-los-dispersion-and-los-rotation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Source.</strong> oMEGACat VI, as for K1.</li>
+<li><strong>Raw file.</strong> <code>raw/omegacat_vi_kinematics/los_profile.fits</code> (17,280 B; md5 verified). The <code>.dat</code> twin (4,237 B) is unused.</li>
+<li><strong>Builder.</strong> <code>src/ocen_dm/data/omegacat.py:257 preprocess</code> (CLI <code>ocen preprocess --dataset omegacat</code>, <code>cli.py:82</code>). The configuration is in <code>configs/data.yaml</code> <code>omegacat_vi.products</code>.</li>
+<li><strong>Products.</strong></li>
+<li><code>proc/kinematics/omegacat_vi_los_dispersion.ecsv</code> (29 rows). r_median 5.66–290.3″ (edges 0–332.3″). Columns <code>sigma_los</code>, <code>sigma_los_err_lo/hi</code> [km/s], plus <code>src_*</code> copies.</li>
+<li><code>proc/kinematics/omegacat_vi_los_rotation.ecsv</code> (29 rows). Columns <code>v_rot</code>, <code>v_rot_err_lo/hi</code> [km/s], <code>theta_0</code> [deg].</li>
+<li><strong>Likelihood use.</strong> <code>likelihood.py:172–203</code>.</li>
+<li>The two-piece Gaussian handles the asymmetric errors.</li>
+<li><code>streaming2 = v_rot²/2</code> (:182–186), with a check that the bins are identical.</li>
+<li>No rotation error is propagated for MUSE (module docstring).</li>
+<li><strong>Metadata rule</strong> (<code>ocen_likelihood_rule</code>): "binned profile: compare a model integrated over the same radial bin and tracer selection; bins share stars with other binnings of the same data, so alternative binnings are not independent likelihood factors".</li>
+<li><strong>Status.</strong> a, b.</li>
+</ul>
+<h2 id="k4-gaia-edr3-pm-dispersion-our-measurement-gaia_edr3_ours_radial-gaia_edr3_ours_tangential">K4. Gaia EDR3 PM dispersion, our measurement (<code>gaia_edr3_ours_radial</code>, <code>gaia_edr3_ours_tangential</code>)<a class="headerlink" href="#k4-gaia-edr3-pm-dispersion-our-measurement-gaia_edr3_ours_radial-gaia_edr3_ours_tangential" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Source.</strong> Vasiliev &amp; Baumgardt (2021), MNRAS 505, 5978.</li>
+<li>arXiv: https://arxiv.org/abs/2102.09568</li>
+<li>DOI: https://doi.org/10.1093/mnras/stab1475</li>
+<li>Data: https://doi.org/10.5281/zenodo.4891252</li>
+<li><strong>Input.</strong> K6 member catalogue.</li>
+<li><strong>Builder.</strong> <code>src/ocen_dm/kinematics/outer_gaia.py:61 build_edr3_profile</code>; <code>load_edr3_profile</code> (:141) auto-builds if missing.</li>
+<li><strong>Selection.</strong></li>
+<li>Quality bit 2 (<code>QUALITY_BIT</code>).</li>
+<li>Mean PM error &lt; 0.4 × the published σ(R). That σ(R) comes from K5 through <code>vb2021_replication.published_profile</code>.</li>
+<li>Edges <code>[300, 380] ∪ geomspace(460, 2400, 8)</code> arcsec give 9 bins (r_median 357–2149″). Bins with fewer than 25 stars are skipped.</li>
+<li>Per bin: the K8 field template matched to the bin's error ceiling and G range; exact perspective correction; depth dispersion from the composite tracer L2 (<code>_composite_tracer</code>, :56).</li>
+<li>Membership probability is <strong>not</strong> used as a weight.</li>
+<li><strong>Product.</strong> <code>proc/kinematics/ocen_pm_dispersion_edr3_ours.ecsv</code> (7,735 B; built 2026-10-11T07:11Z, with values identical to the 2026-09-23 snapshot).</li>
+<li>Raw-error columns: <code>sigma_pmr(_err)</code>, <code>sigma_pmt(_err)</code>.</li>
+<li>Eta-inflated alternatives: <code>sigma_*_eta(_err)</code>.</li>
+<li>Also <code>mean_pmr</code>, <code>mean_pmt</code>, <code>streaming2</code>, <code>f_field</code>, <code>median_eta</code>, <code>median_g</code>, <code>r_node0..7</code>.</li>
+<li>Metadata note: <code>sigma_sys</code> (half the raw/eta gap) is <strong>not</strong> added to the errors.</li>
+<li><strong>Likelihood use.</strong> <code>likelihood.py:308</code>. Defaults: <code>error_model="raw"</code> and <code>rotation="published"</code> (the K5 curve with its percentile error). The variant <code>rotation="ours"</code> uses the fitted mean motion instead.</li>
+<li><strong>Restrictions.</strong> Shares stars with K5, K9 and the combined key <code>gaia_edr3_ours</code> (forbidden together).</li>
+<li><strong>Status.</strong> a, b.</li>
+</ul>
+<h2 id="k5-vasiliev-baumgardt-2021-pm-dispersion-and-rotation-profiles">K5. Vasiliev &amp; Baumgardt 2021 PM dispersion and rotation profiles<a class="headerlink" href="#k5-vasiliev-baumgardt-2021-pm-dispersion-and-rotation-profiles" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Raw file.</strong> <code>$OCEN_CATALOGUES/vasiliev_baumgardt_2021_clusters.zip</code> (118,940,646 B). This is outside the repo. The published md5 <code>3a07093b…</code> is recorded as verified. The product reads the member <code>profiles/NGC_5139_oCen.txt</code>.</li>
+<li><strong>Builder.</strong> <code>src/ocen_dm/data/vasiliev2021.py:146 load_profiles</code> and <code>:171 preprocess</code>.</li>
+<li><strong>Product.</strong> <code>proc/kinematics/vasiliev2021_ocen_pm_profiles.ecsv</code> (101 rows, r 0–2400″).</li>
+<li>Columns: <code>sigma_pm_p02..p98</code>, <code>vrot_pm_p02..p98</code> [mas/yr], <code>undocumented_col12</code> (meaning unknown; absent from the readme).</li>
+<li>The source r is in degrees and is converted to arcsec.</li>
+<li><strong>Consumers.</strong></li>
+<li><code>likelihood.pm_rotation_curve</code> (:123) and <code>pm_rotation_error</code> (:137): streaming term for K1 tangential and K4 tangential (a*).</li>
+<li><code>_vasiliev2021</code> (:220, key <code>gaia_edr3_pm</code>, thinned to 8 points): legacy Jeans runs such as <code>results/fits/K1_noDM_composite</code> (h).</li>
+<li><code>vb2021_replication.published_profile</code> (:66): K4 error cut.</li>
+<li><code>plotting/constraints.py</code>.</li>
+<li><strong>Metadata rule.</strong> "authors' binned PM profiles from the same stars as the member catalogue: not independent of a likelihood built on those stars".</li>
+</ul>
+<h2 id="k6-vasiliev-baumgardt-2021-member-catalogue-cen">K6. Vasiliev &amp; Baumgardt 2021 member catalogue (ω Cen)<a class="headerlink" href="#k6-vasiliev-baumgardt-2021-member-catalogue-cen" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Raw file.</strong> <code>CAT/gc_members_gaia_vasiliev.fits</code> (222,621,120 B; sha256 <code>a75b33ca…</code>). This is the user's FITS compilation of the zip. Its ω Cen block was checked against <code>catalogues/NGC_5139_oCen.txt</code>; details in <code>datasets.yaml</code>.</li>
+<li><strong>Builder.</strong> <code>src/ocen_dm/data/vasiliev2021.py:131 load</code> and <code>:171 preprocess</code>. All 228,055 rows are kept with no probability cut (2,343,282 rows in the file).</li>
+<li><strong>Product.</strong> <code>proc/tails/vasiliev2021_ocen_members.ecsv</code> (31,197,357 B).</li>
+<li>Columns: <code>source_id</code>, <code>ra</code>, <code>dec</code>, <code>x</code>, <code>y</code> [deg], <code>parallax(_error)</code> [mas], <code>pmra</code>, <code>pmdec(_error)</code> [mas/yr], <code>pmra_pmdec_corr</code>, <code>g_mag</code>, <code>bp_rp</code>, <code>source_density</code> [arcmin⁻²], <code>quality_flag</code> (bit 0: 5-parameter solution; bit 1: passed quality filters), <code>membership_prob</code>.</li>
+<li><strong>Metadata rule.</strong> "astrometric membership probability: use as a stated selection threshold that belongs to the selection function, not as a per-star likelihood weight".</li>
+<li><strong>Consumers.</strong></li>
+<li><code>outer_profile.load_members</code> (:121) → K4, K8 (the μ_sys estimate)</li>
+<li><code>bin/build_count_profiles.py:112</code> → C2</li>
+<li><code>selection/hst_gaia_match.py:53</code> → K10</li>
+<li><code>cluster.centre("vasiliev")</code></li>
+<li><code>vb2021_replication</code></li>
+<li>plots</li>
+<li><strong>Status.</strong> a*.</li>
+</ul>
+<h2 id="k7-omegacat-vi-published-pm-profiles-hst_pm_radial-hst_pm_tangential-hst_pm_combined">K7. oMEGACat VI published PM profiles (<code>hst_pm_radial</code>, <code>hst_pm_tangential</code>, <code>hst_pm_combined</code>)<a class="headerlink" href="#k7-omegacat-vi-published-pm-profiles-hst_pm_radial-hst_pm_tangential-hst_pm_combined" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Raw file.</strong> <code>raw/omegacat_vi_kinematics/proper_motion_dispersion_log_bins.fits</code> (17,280 B, HDU 1).</li>
+<li><strong>Builder.</strong> <code>data/omegacat.py:257</code>.</li>
+<li><strong>Products.</strong> <code>proc/kinematics/omegacat_vi_pm_{radial,tangential,combined}.ecsv</code>, 40 rows each, r_median 1.8–311″ (edges to 346″). Columns <code>sigma_pm{r,t,c}</code>, <code>_err_lo/_hi</code> [mas/yr], plus <code>src_anisotropy</code>.</li>
+<li><strong>Consumers.</strong></li>
+<li><code>likelihood.py:360–362</code>.</li>
+<li>Presets <code>watkins2013</code> (radial and tangential) and <code>omegacat6</code>, <code>baumgardt2018</code>, <code>imbh_limit</code> in <code>kinematics/presets.py:51–93</code>.</li>
+<li>Older Jeans runs (<code>results/fits/preset_*</code>, <code>K1_noDM_composite</code>).</li>
+<li>Plots.</li>
+<li><strong>Restriction.</strong> <code>configs/data.yaml</code> notes that the three profiles come from one file, so they share bins and stars. Radial, tangential and combined are not independent, and <code>hst_pm_combined</code> is forbidden with the other two.</li>
+<li><strong>Status.</strong> b (literature presets only), h, d. They are superseded in the baseline by K1, which reaches 360″ against the published 300″.</li>
+</ul>
+<h2 id="k8-gaia-dr3-field-template">K8. Gaia DR3 field template<a class="headerlink" href="#k8-gaia-dr3-field-template" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Source.</strong> WSDB <code>gaia_dr3.gaia_source</code>.</li>
+<li>Query in <code>selection/field_template.py:35</code>: q3c annulus 0.75–1.6° about (201.69683, −47.47957), G &lt; 20.5, non-null PM.</li>
+<li>Fetched 2026-09-20T08:36Z: 267,966 fetched, 231,269 kept.</li>
+<li><strong>Builder.</strong> <code>selection/field_template.py:66 build_product</code> (CLI <code>ocen fetch-field-template</code>, <code>cli.py:417</code>, <code>:499</code>).</li>
+<li><strong>Cuts.</strong> RUWE &lt; 1.4, astrometric excess noise &lt; 1, mean PM error &lt; 1.5 mas/yr. No parallax cut since 2026-09-20.</li>
+<li><strong>Frame.</strong> Systemic 3-D velocity projected star by star, with μ_sys taken from K6 ((−3.2514, −6.7444) mas/yr) and v_los = 232.6 km/s.</li>
+<li><strong>Product.</strong> <code>proc/kinematics/ocen_field_template_dr3.ecsv</code> (35,323,170 B).</li>
+<li>Columns: <code>r_arcsec</code>, <code>sys_a</code>, <code>sys_d</code>, <code>mu_a</code>, <code>mu_d</code>, <code>mu_r</code>, <code>mu_t</code>, <code>pm_error</code>, <code>g_mag</code>.</li>
+<li>Surface density 10.24 arcmin⁻².</li>
+<li><strong>Consumers.</strong> <code>field_density_2d</code> / <code>field_kde</code> in K1 and K4 (a*); <code>pristine_profile.py</code>; <code>plotting/constraints.py</code>.</li>
+</ul>
+<h2 id="k9-gaia-dr2-pm-dispersion-baumgardt-et-al-2019">K9. Gaia DR2 PM dispersion (Baumgardt et al. 2019)<a class="headerlink" href="#k9-gaia-dr2-pm-dispersion-baumgardt-et-al-2019" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Source.</strong> MNRAS 482, 5138; DOI 10.1093/mnras/sty2997 (<code>verified: false</code>, from the VizieR record). VizieR <code>J/MNRAS/482/5138/table4</code>.</li>
+<li><strong>Raw file.</strong> <code>raw/baumgardt2019_pm_profiles/baumgardt2019_table4.vot</code> (38,671 B; 319 rows, 9 for NGC 5139).</li>
+<li><strong>Builder.</strong> <code>data/baumgardt2019.py:71</code>.</li>
+<li><strong>Product.</strong> <code>proc/kinematics/baumgardt2019_ocen_pm_dispersion.ecsv</code> (9 rows, r 179–1747″). Columns <code>sigma_pm</code>, <code>sigma_pm_err_hi/lo</code> [mas/yr], <code>n_stars</code>.</li>
+<li><strong>Likelihood use.</strong> Key <code>gaia_dr2_pm</code> (<code>likelihood.py:205</code>), with the note that it is ASSUMED to be a 1-D dispersion with no rotation term.</li>
+<li><strong>Metadata rule.</strong> "binned DR2 PM dispersion; stars overlap the EDR3 member sample and the Kuzma 2025 members -- not independent".</li>
+<li><strong>Status.</strong> h (dropped from the defaults on 2026-09-20, <code>cli.py:361</code>); used by <code>preset baumgardt2018</code> and in plots.</li>
+</ul>
+<h2 id="k10-hstgaia-pm-cross-match">K10. HST–Gaia PM cross-match<a class="headerlink" href="#k10-hstgaia-pm-cross-match" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Builder.</strong> <code>selection/hst_gaia_match.py:36 build_match</code> (tolerance 0.06″, epoch offset fitted).</li>
+<li><strong>Product.</strong> <code>proc/kinematics/hst_gaia_pm_match.ecsv</code> (1,554,184 B, 8,064 rows; built 2026-09-19).</li>
+<li><strong>Metadata note.</strong> HST PMs are relative, so only differences and dispersions are comparable.</li>
+<li><strong>Consumers.</strong> <code>plotting/constraints.py:936,1014</code>.</li>
+<li><strong>Status.</strong> d.</li>
+<li><strong>Caveat.</strong> The project journal (2026-10-08) flags that its <code>hst_quality</code> column (<code>hst_gaia_match.py:72</code>) uses <code>selection_hq_astrometry_and_membership</code>, which contains a CMD cut. This was flagged in JOURNAL and left unchanged.</li>
+</ul>
+<h2 id="c1c2-poisson-count-profiles">C1/C2. Poisson count profiles<a class="headerlink" href="#c1c2-poisson-count-profiles" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Builder.</strong> <code>bin/build_count_profiles.py</code> (<code>hst_counts</code> :71, <code>gaia_counts</code> :112, <code>build</code> :132, <code>main</code> :149). The likelihood is in <code>kinematics/counts.py</code> (<code>CountProfile</code>; schema 1/2 handling in <code>to_dict</code>/<code>from_dict</code>, :174–195).</li>
+</ul>
+<p><strong>C1, HST (<code>ocen_counts_hst_f625w19</code>).</strong>
+- <strong>Input.</strong> <code>raw/omegacat_vi_kinematics/catalog_and_selections.fits</code>.
+- <strong>Selection.</strong> All stars with measured F625W &lt; 19 and <strong>no quality flag</strong> (139,498 stars).
+- <strong>Binning and coverage.</strong> Centre pixel (15000, 15000) at 0.04″/px. 20 log bins from 2 to 250″. Coverage from the occupancy of 3″ cells, set to 1 inside 30″.
+- <strong>Field term.</strong> <code>fit_field=False</code>.
+- <strong>Rationale</strong> (metadata note). The hq flag is 12–15 % radially incomplete; N(&lt;20)/N(&lt;19) = 2.0–2.1 at all radii; the field is below 0.5 % at 250″.</p>
+<p><strong>C2, Gaia (<code>ocen_counts_gaia_g17</code>).</strong>
+- <strong>Input.</strong> K6.
+- <strong>Selection.</strong> All stars with G &lt; 17, members plus field (24,695 stars).
+- <strong>Binning.</strong> 12 full annuli from 300 to 2400″.
+- <strong>Field term.</strong> <code>fit_field=True</code> (a uniform field density is fitted).</p>
+<p><strong>Files</strong> (both in <code>proc/kinematics/</code>):</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Size (B)</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ocen_counts_hst_f625w19.ecsv</code></td>
+<td>3,870</td>
+<td>schema 2</td>
+</tr>
+<tr>
+<td><code>ocen_counts_hst_f625w19.json</code></td>
+<td>9,132</td>
+<td>schema 2, contains <code>node_weights</code></td>
+</tr>
+<tr>
+<td><code>ocen_counts_gaia_g17.ecsv</code></td>
+<td>2,292</td>
+<td>schema 2</td>
+</tr>
+<tr>
+<td><code>ocen_counts_gaia_g17.json</code></td>
+<td>5,368</td>
+<td>schema 2</td>
+</tr>
+<tr>
+<td><code>ocen_counts_*_schema1_20260923.{ecsv,json}</code></td>
+<td>—</td>
+<td>used by the baseline (sha256 match)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>ECSV columns.</strong> <code>r_lower</code>, <code>r_upper</code>, <code>r_median</code>, <code>n_stars</code>, <code>coverage</code>, <code>area_arcsec2</code>, <code>density_per_arcmin2</code>, <code>poisson_err_per_arcmin2</code>.</li>
+<li><strong>Consumers.</strong> <code>run_compact_df_recovery.py</code> with <code>--counts</code> (baseline; <code>rho20scan_*</code>; <code>mpsscan_*</code>; mocks). Plots: <code>bin/plot_count_profiles.py:38</code>, <code>plot_halo_compensation.py</code>, <code>plot_mass_per_star_profile.py</code>, <code>plot_remnant_halo_degeneracy.py</code>, <code>plot_mock_mass_per_star.py</code>.</li>
+<li><strong>Likelihood note</strong> (<code>counts.py</code> docstring). Schema-1 products are "read for replay only" because their mean is star-weighted, biased high by about 3 % per bin for Σ ∝ R⁻². The baseline and all 2026-09-23 scans used schema 1.</li>
+<li><strong>Status.</strong> a.</li>
+</ul>
+<h2 id="l1-trager-king-djorgovski-1995-surface-brightness-profile">L1. Trager, King &amp; Djorgovski 1995 surface-brightness profile<a class="headerlink" href="#l1-trager-king-djorgovski-1995-surface-brightness-profile" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Source.</strong> AJ 109, 218; ADS https://ui.adsabs.harvard.edu/abs/1995AJ....109..218T (<code>verified: false</code>). VizieR <code>J/AJ/109/218/tables</code>.</li>
+<li><strong>Raw file.</strong> <code>raw/trager1995_sbp/trager1995_tables.vot</code> (2,102,164 B; 17,148 rows).</li>
+<li><strong>Builder.</strong> <code>data/trager1995.py:87</code>. Rows are filtered to <code>ngc5139</code> (73 rows) and r = 10^logr.</li>
+<li><strong>Product.</strong> <code>proc/literature/trager1995_ocen_sbp.ecsv</code>. r 10.5–2588″; columns <code>mu_v</code>, <code>mu_v_fit</code>, <code>residual</code> [mag arcsec⁻²], <code>weight</code>, <code>data_set</code>.</li>
+<li><strong>Metadata rule.</strong> "surface-brightness SHAPE only: the M/L nuisance parameter absorbs the zero-point; heterogeneous data sets -- use the authors' weights".</li>
+<li><strong>Consumers.</strong> <code>light_model.load_trager_profile</code> (:85) → L2; Jeans <code>--tracer trager</code> (preset <code>watkins2013</code>).</li>
+</ul>
+<h2 id="l2-composite-tracer-profile-not-a-stored-product">L2. Composite tracer profile (not a stored product)<a class="headerlink" href="#l2-composite-tracer-profile-not-a-stored-product" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>What it is.</strong> <code>light_model.composite_profile</code> (:131) / <code>load_tracer_profile("composite")</code> (:165).</li>
+<li>Inside 25″: oMEGACat star counts with <code>selection_hq_f625w</code> and F625W &lt; 19 (<code>star_count_profile</code>, :98).</li>
+<li>Outside: Trager, with the zero point anchored over 30–100″ using Trager points of weight ≥ 0.5.</li>
+<li><strong>Consumers.</strong></li>
+<li>Jeans fits: <code>kinematics/fit.py</code>; tracer <code>composite</code> in rung0/1/2.</li>
+<li>K4 depth term (<code>outer_gaia.py:56</code>).</li>
+<li>DF runs without counts. Example: <code>dftwo_20260923</code> uses <code>photometry.json</code>, which came from <code>PhotometricData.from_relative_weights(load_tracer_profile("composite"))</code> in <code>bin/run_df_pilot.py:101</code>.</li>
+<li><code>tails/dm_density_plots.py</code>.</li>
+<li><strong>Note.</strong> L2 uses the hq flag, while C1 deliberately does not.</li>
+</ul>
+<h2 id="l3-baumgardt-gc-database-parameters">L3. Baumgardt GC database parameters<a class="headerlink" href="#l3-baumgardt-gc-database-parameters" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Raw file.</strong> <code>CAT/gc_catalog_updated.fits</code> (57,600 B; mtime 2025-05-16). The upstream version is not recorded, so the product is <strong>UNVERIFIED</strong> against the live database (https://people.smp.uq.edu.au/HolgerBaumgardt/globular/).</li>
+<li><strong>Builder.</strong> <code>data/baumgardt_catalogue.py:76</code>.</li>
+<li><strong>Product.</strong> <code>proc/literature/baumgardt_ocen_parameters.ecsv</code> (1 row: PM, distance, RV, mass, r_h, r_c, orbit, [Fe/H] and others).</li>
+<li><strong>Metadata rule.</strong> "use as priors and cross-checks, not as data in the likelihood".</li>
+<li><strong>Consumers.</strong> <code>plotting/data_overview.py</code> only.</li>
+<li><strong>Systemic values are defined elsewhere.</strong></li>
+<li><code>cluster.py:31–37</code> hard-codes the centre (from oMEGACat), <code>OCEN_VSYS_KMS=232.7</code> and <code>MU_SYS=(−3.257, −6.730)</code> ("Vasiliev &amp; Baumgardt 2021").</li>
+<li><code>streams/frames.py:20 OCEN_OBS</code> uses (pmra −3.2499, pmdec −6.7461, v_los 232.78).</li>
+<li><strong>Status.</strong> d.</li>
+</ul>
+<h2 id="m1-present-day-mass-function-and-mass-per-counted-star-mn19">M1. Present-day mass function and mass per counted star (M/N19)<a class="headerlink" href="#m1-present-day-mass-function-and-mass-per-counted-star-mn19" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Inputs.</strong></li>
+<li>oMEGACat <code>catalog_and_selections.fits</code>: unflagged stars with F625W and F814W in zones 10–30–60–100–175–250″, with a common fit limit F625W &lt; 21.0.</li>
+<li>MIST v1.2 bolometric-correction tables, through minimint 0.5.1. <code>HST_ACSWF.txz</code> and <code>HST_WFC3.txz</code> were downloaded from waps.cfa.harvard.edu/MIST/BC_tables/v1/ and prepared into the prefix <code>$OCEN_ISOCHRONES/minimint_hst/</code>. That directory exists (241 MB; 70 filter files plus symlinks to the base grid). See the project journal.</li>
+<li><strong>Builder.</strong> <code>bin/build_mass_function.py</code>:</li>
+<li>isochrone <code>minimint.Interpolator(["ACS_WFC_F625W", "ACS_WFC_F814W"])</code> at line 82;</li>
+<li>12.5 Gyr, D = 5.43 kpc, E(B−V) = 0.12;</li>
+<li>[Fe/H] from the ridge-line fit (adopted −1.20) or forced to <code>--feh -1.53</code>.</li>
+<li><strong>Products.</strong></li>
+<li><code>results/mass_function/mass_function_20260923.json</code> (9,262 B).</li>
+<li><code>results/mass_function/mass_function_feh153_20260923.json</code> (9,275 B).</li>
+<li>Keys: <code>age_gyr</code>, <code>feh_adopted</code>, <code>ridge_fits</code>, <code>dm0</code>, <code>a625</code>/<code>a814</code>, <code>m_turnoff</code>, <code>zones</code> and others.</li>
+<li>Plot: <code>plots/mass_function_*.png</code>.</li>
+<li><strong>Result</strong> (the project journal). M/N19 = 8.4–9.5 M☉ per star in the kinematically dominant zones.</li>
+<li><strong>Use.</strong> An external prior. <code>bin/run_mass_per_star_scan.sh</code> pins the HST count amplitude with <code>--mass-per-star ocen_counts_hst_f625w19=M</code> for M = 7–12, writing <code>results/df/mpsscan_*</code>, <code>mpsmock_*</code> and related plots. It is not part of the baseline.</li>
+<li><strong>Provenance gap.</strong> Not in <code>datasets.yaml</code>. The MIST citation and URL appear only in the project journal.</li>
+</ul>
+<h2 id="o1-unused-omegacat-vi-files">O1. Unused oMEGACat VI files<a class="headerlink" href="#o1-unused-omegacat-vi-files" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Location.</strong> <code>raw/omegacat_vi_kinematics/</code> (all md5-verified).</li>
+<li><strong>Files:</strong></li>
+<li><code>proper_motion_dispersion_{lin,equaln,voronoi}_bins.{fits,dat}</code></li>
+<li><code>los_dispersion_and_rotation_voronoi_bins.{fits,dat}</code></li>
+<li><code>energy_equipartition_{profiles,massbins}.{fits,dat}</code></li>
+<li><code>catalog_and_selections.dat</code> (250,605,025 B; duplicates the FITS)</li>
+<li><code>data_products_demonstration_and_test.ipynb</code></li>
+<li><strong>Status.</strong> e. They are listed in <code>data/omegacat.py:55 PRODUCT_FILES</code>. <code>configs/data.yaml</code> says that "fitting more than one binning of the same data would double-count it".</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.top", "search.highlight", "content.code.copy", "toc.follow"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

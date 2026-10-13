@@ -1,0 +1,343 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=2.4cm]{geometry}
+\usepackage{graphicx,booktabs,amsmath,amssymb,natbib,hyperref,xcolor}
+\usepackage[T1]{fontenc}
+\hypersetup{colorlinks=true,linkcolor=blue!55!black,citecolor=blue!55!black,urlcolor=blue!55!black}
+\graphicspath{{../plots/}}
+\newcommand{\masyr}{mas\,yr$^{-1}$}
+\newcommand{\kms}{km\,s$^{-1}$}
+\newcommand{\ocen}{$\omega$\,Cen}
+\newcommand{\Msun}{M_\odot}
+\title{\ocen: the mass-modelling procedure}
+\author{oCen\_dm project notes}
+\date{2026 September 21}
+
+\usepackage{microtype}
+\usepackage{adjustbox}
+\setlength{\emergencystretch}{2em}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The companion note describes how the kinematic data were prepared. This one describes what is
+done with them: the mass model, the dynamical solver, the likelihood, the priors, and the
+inference. The question is whether \ocen\ requires mass beyond its stars, remnants and any
+central black hole, and it is posed as a comparison of Bayesian evidence between two model
+families that differ by one component. Everything here is deliberately low-dimensional: the
+data are 89 binned points over roughly 0.1--55\,pc. Three isotropic fits without instrument
+scales are complete. They have no persuasive halo preference and all leave structured
+residuals, so the posteriors are conditional baselines. This note describes the implemented
+machinery and distinguishes it from the proposed anisotropy extension.
+\end{abstract}
+
+\section{The question, and how it is posed}
+
+Two families are fitted to the same observations and compared by evidence.
+
+\begin{description}
+\item[K1, no dark matter] stars, a compact remnant population, and a central point mass.
+\item[K2, dark matter] the same three components plus a truncated generalized NFW halo.
+\end{description}
+
+K1 is the zero-halo limit of the K2 equations. Zero is outside the adopted log-uniform
+K2 mass prior, so it is not a sampled nested point. The Bayes factor
+$\ln Z_{K2}-\ln Z_{K1}$ compares the separately specified families and their priors. Two K2 variants are run separately,
+a cored halo ($\gamma=0$) and a cuspy one ($\gamma=1$), rather than fitting $\gamma$: making
+the inner slope free gives the halo shape freedom the data do not support, and the two
+limiting cases bracket it.
+
+\section{The mass model}
+
+The potential is spherical and the components add:
+\begin{equation}
+M(<r) = M_\star(<r) + M_{\rm rem}(<r) + M_\bullet + M_{\rm DM}(<r).
+\end{equation}
+
+\paragraph{Stars.} A multi-Gaussian expansion, deprojected analytically under spherical
+symmetry, scaled by a single free total mass $M_\star$. Using an MGE rather than a Plummer
+sphere matters because the tracer density appears in the Jeans equation directly, so its
+shape is not a free choice.
+
+The default profile is not the surface brightness alone. It is a \emph{composite}: HST star
+counts inside $25''$ spliced onto the Trager surface-brightness profile outside, because the
+light profile is unreliable in the crowded core where a handful of bright giants dominate it.
+The Trager-only alternative is selectable. The same shape supplies both the tracer density
+$\nu(r)$ and the stellar mass density, which assumes a radius-independent mass-to-light
+ratio; mass segregation makes that an approximation.
+
+\paragraph{Remnants.} A Plummer sphere with free mass $M_{\rm rem}$ and scale $a_{\rm rem}$.
+It is a separate component rather than an inflation of the stellar mass-to-light ratio so that
+its mass appears under its own name in every posterior and can be confronted with
+multi-mass predictions later. The parametrisation is phenomenological: the point is to let a
+centrally concentrated dark component of \emph{known} astrophysical origin compete with the
+halo, so that a halo detection cannot be manufactured by forbidding one.
+
+\paragraph{Central point mass.} $M_\bullet$, an intermediate-mass black hole or any
+unresolved central mass.
+
+\paragraph{Dark halo (K2 only).} A truncated generalized NFW profile,
+\begin{equation}
+\rho(r) = \rho_s\left(\frac{r}{r_s}\right)^{-\gamma}
+          \left(1+\frac{r}{r_s}\right)^{\gamma-3} T(r), \qquad
+T(r) = \left[1+\left(\frac{r}{r_t}\right)^{2}\right]^{-2}.
+\end{equation}
+The taper falls as $r^{-4}$ outside $r_t$, giving an outer density proportional to
+$r^{-7}$ and finite total mass. The fitted family fixes $r_t=1000$\,pc, outside the
+measured radii. This is a phenomenological taper, not a tidal boundary derived from the
+cluster's orbit; it should not be confused with the much smaller radii in the survival
+experiments.
+
+The halo is parametrised by $M_{\rm DM}(<100\,\mathrm{pc})$ and $r_s$ rather than by $\rho_s$
+and $r_s$. The normalisation is solved from the enclosed mass at 100\,pc. Both this mass and $r_s$
+have log-uniform priors. The 100-pc mass remains an extrapolation beyond the outermost
+measured radius; the scale radius is poorly constrained in the baseline runs.
+
+\section{Anisotropy}
+
+The implemented choices are isotropic, constant $\beta$, or the monotonic form
+\begin{equation}
+\beta(r) = \beta_0 + (\beta_\infty-\beta_0)\,\frac{r^2}{r^2+r_\beta^2}.
+\end{equation}
+The last has three parameters and a closed-form Jeans integrating factor. It is the
+logistic form passed to JamPy with $\alpha=2$, although the two engines still use different
+numerical approximations. It can cross zero once; it cannot have an intermediate maximum.
+A turnover extension is motivated by the residuals and remains unimplemented.
+
+For a cored tracer in a central point-mass potential, the necessary condition from
+\citet{anevans2006} is $\beta(0)\le-1/2$. The varying family imposes
+$\beta_0\in[-1,-1/2]$. This is necessary, not sufficient, for a non-negative distribution
+function. The condition also applies to constant anisotropy: the isotropic baseline and
+constant-$\beta$ prior $[-1,0.5]$ deliberately allow moment models that violate it. Their
+purpose is diagnostic, and their central-mass estimates must be interpreted accordingly.
+
+\section{The dynamical solver}
+
+Given $\nu(r)$ from the tracer MGE, $M(<r)$ from the mass model and $\beta(r)$, the spherical
+Jeans equation
+\begin{equation}
+\frac{\mathrm{d}(\nu\sigma_r^2)}{\mathrm{d}r} + \frac{2\beta\nu\sigma_r^2}{r}
+= -\frac{\nu\,G M(<r)}{r^2}
+\end{equation}
+integrates with the factor $g(r)=\exp\left(2\int\beta/t\,\mathrm{d}t\right)$ to
+\begin{equation}
+\nu\sigma_r^2(r) = \frac{1}{g(r)}\int_r^\infty g(s)\,\nu(s)\,\frac{G M(<s)}{s^2}\,\mathrm{d}s ,
+\end{equation}
+and the projected second moments follow \citep{binneymamon1982}:
+\begin{align}
+\Sigma\sigma_{\rm los}^2(R) &= 2\int_R^\infty \left[1-\beta\frac{R^2}{r^2}\right]
+   \nu\sigma_r^2\,\frac{r\,\mathrm{d}r}{\sqrt{r^2-R^2}},\\
+\Sigma\sigma_{\rm pmR}^2(R) &= 2\int_R^\infty \left[1-\beta+\beta\frac{R^2}{r^2}\right]
+   \nu\sigma_r^2\,\frac{r\,\mathrm{d}r}{\sqrt{r^2-R^2}},\\
+\Sigma\sigma_{\rm pmT}^2(R) &= 2\int_R^\infty \left[1-\beta\right]
+   \nu\sigma_r^2\,\frac{r\,\mathrm{d}r}{\sqrt{r^2-R^2}} .
+\end{align}
+All three projections and $\Sigma(R)$ share their quadrature nodes, so one model evaluation
+delivers the line-of-sight, radial and tangential predictions together.
+
+\paragraph{Numerics.} The substitution $r=R\cosh u$ removes the integrable singularity at
+$r=R$ exactly, since $r\,\mathrm{d}r/\sqrt{r^2-R^2}=r\,\mathrm{d}u$, leaving smooth integrals
+that fixed Gauss--Legendre nodes handle to high accuracy. $\nu\sigma_r^2$ is tabulated once per
+model on a 600-point logarithmic grid and splined in the log. A full set of projected profiles
+costs a few milliseconds. The completed rung-0 runs required 3.2--14.3 million
+likelihood calls and 4.0--20.6 hours; sampling efficiency is a practical limitation.
+
+One defect worth recording: the outer integral was originally evaluated as
+$\mathrm{cumulative}[-1]-\mathrm{cumulative}$, which loses all significance once the remaining
+integral is small, and $\sigma_r$ collapsed to zero around three MGE scale lengths. It is now
+accumulated in reverse. The runs made before that fix are quarantined.
+
+\section{The likelihood}
+
+Each dataset is a set of binned dispersions with asymmetric errors. The log-likelihood is a
+split normal,
+\begin{equation}
+\ln \mathcal{L} = \sum_i -\frac{1}{2}\left(\frac{m_i-d_i}{\varepsilon_i}\right)^2
+                  + \ln\frac{\sqrt{2/\pi}}{\varepsilon_i^{-}+\varepsilon_i^{+}}, \qquad
+\varepsilon_i = \begin{cases}\varepsilon_i^{+} & m_i > d_i\\ \varepsilon_i^{-} & \text{else,}\end{cases}
+\end{equation}
+summed over datasets, which are treated as independent. The normalisation is \emph{shared}
+between the two sides, which is what makes the density continuous at $m_i=d_i$ and integrate
+to one; giving each side its own $-\ln\varepsilon$, as this did until 2026-09-20, produced a
+jump of $\varepsilon^{+}/\varepsilon^{-}$ across every datum.
+
+Three things happen between the model and the datum.
+
+\paragraph{Radial averaging.} For the datasets we measured ourselves --- the four HST and
+\emph{Gaia} profiles --- the model is averaged over the radii of the stars actually measured
+in each bin, eight equal-count quantiles stored with the data, rather than over a complete
+annulus with $\Sigma(R)R$ weighting. Where the selection's coverage changes inside a bin the
+two differ: HST's $300$--$340''$ sample has a star-weighted mean radius of $313.2''$ against
+the annulus midpoint of $320''$, worth up to $1.17\sigma$. The 29 \textbf{MUSE} bins are
+published, carry no such information, and are still averaged over complete annuli.
+
+\paragraph{Streaming.} The model predicts the full second moment; the data are dispersions
+about a rotating mean. Each dataset that needs it carries $\langle\bar v^2\rangle$, and the
+comparison is with $\sqrt{\sigma_{\rm model}^2-\langle\bar v^2\rangle}$. The uncertainty on
+that term is propagated into the datum's error for the HST and \emph{Gaia} profiles.
+\textbf{It is not for MUSE}, whose rotation and dispersion were fitted jointly by the survey
+and would need their covariance rather than an independent error: at the innermost bin the
+first-order rotation contribution is about $1.22$\,\kms\ against quoted errors of
+$1.90/2.52$\,\kms, so this is not negligible and is an outstanding item.
+
+\paragraph{Instrument scales.} Optional multiplicative nuisances $s_{\rm inst}$ on the model
+prediction, one per instrument, with uniform priors. They absorb a constant calibration
+offset. They are also strongly degenerate with the halo mass, which is why the adopted family comparisons use \texttt{--no-scales}. A separate scale-freeing diagnostic
+may be run after the sequence, but its evidence is not compared. The bare CLI still
+creates the three legacy scale parameters; the explicit flag is essential.
+
+\section{Parameters and priors}
+
+\begin{table}[h]
+\centering\small
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{llll}
+\toprule
+Parameter & Prior & Unit & Meaning \\
+\midrule
+$M_\star$ & log-uniform $[10^6, 10^7]$ & $\Msun$ & stellar mass \\
+$M_{\rm rem}$ & log-uniform $[10^4, 3\times10^6]$ & $\Msun$ & remnant mass \\
+$a_{\rm rem}$ & log-uniform $[0.3, 20]$ & pc & remnant scale radius \\
+$M_\bullet$ & log-uniform $[10^2, 3\times10^5]$ & $\Msun$ & central point mass \\
+$\beta_0$ & uniform $[-1, -1/2]$ & --- & central anisotropy (An \& Evans) \\
+$\beta_\infty$ & uniform $[-1, 1]$ & --- & outer anisotropy \\
+$r_\beta$ & log-uniform $[0.5, 100]$ & pc & anisotropy scale \\
+$M_{\rm DM}(<100\,\mathrm{pc})$ & log-uniform $[10^3, 3\times10^7]$ & $\Msun$ & K2 only \\
+$r_s$ & log-uniform $[3, 1000]$ & pc & K2 only \\
+$s_{\rm inst}$ & uniform, $\sim[0.7,1.3]$ & --- & optional, one per instrument \\
+$D$ & normal $(5.43, 0.05)$ & kpc & free in the adopted runs \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\caption{Available parameters. Rung 0 fixes anisotropy and removes instrument scales,
+leaving 5/7 parameters for K1/K2, including distance. Constant anisotropy gives 6/8;
+the implemented varying form gives 8/10. MUSE's diagnostic scale prior is $[0.85,1.15]$;
+the Gaia priors are $[0.7,1.3]$.}
+\end{table}
+
+\section{Inference}
+
+Nested sampling with \texttt{ultranest}: 400 live points, $\mathrm{d}\ln Z<0.5$, MLFriends by
+default with a slice stepper available for the higher-dimensional variants. Posterior mass profiles and residuals are the main scientific products; evidence
+compares the stated families after their adequacy and input comparability are checked.
+
+Each run writes an equally weighted posterior, a summary with evidence and per-dataset
+$\chi^2$ at the best sampled point, a subset of radial mass profiles, and \texttt{run.yaml}.
+The quoted evidence errors are sampler estimates; they do not include uncertainty from
+model inadequacy or missing data covariance.
+
+New runs save the actual likelihood arrays and resolved model before sampling: MGE
+coefficients, priors, fixed parameters, distance, halo taper and backend, together with
+sampler settings, source hashes, git state and package versions. Reports verify the data
+snapshot and reproduce the saved best-sample likelihood before plotting. The driver
+refuses an existing run directory, including an interrupted run.
+
+Older runs retain their original products. Reports reconstruct them from recorded options
+and current data, with a warning and a likelihood check. New evidence comparisons use
+the saved observation arrays; legacy comparisons retain conservative input hashes and
+the full mock provenance. See \path{docs/CODE_ANALYSIS_AUDIT.md} for the audit and repair
+record. These snapshots preserve resolved fit inputs, not a complete software installation
+or the raw-catalogue reduction history.
+
+\section{Cross-checks}
+\label{sec:crosschecks}
+
+The inference is not allowed to rest on one implementation.
+
+\paragraph{A second Jeans engine.} JamPy's spherical solver runs behind the same likelihood.
+The mass components are expanded as projected MGEs so it can consume them, and the anisotropy
+family matches JamPy's logistic parametrisation. The non-Gaussian mass-to-MGE conversion
+and independent quadrature make this a numerical cross-check, not an exact identity.
+At the K1 and cored best samples, total log likelihoods differ by about 0.7, with larger
+opposing HST contributions. The cause of that difference has not been isolated.
+
+\paragraph{A distribution-function model.} An AGAMA Cuddeford--Osipkov--Merritt DF, again
+behind the same likelihood. It is a \emph{limited} cross-check and is described as such: a
+successful construction does not certify a non-negative distribution function, because AGAMA
+clips negative values to zero, which can change the realised tracer density (a ratio of
+1.045 at 0.11 pc in one trial). Two further limits: its Cuddeford family cannot represent
+the anisotropy profile we fit, and the backend softens the point mass with a $10^{-4}$\,pc
+Plummer radius, so its central limit is not Keplerian. It is available as a separate diagnostic; there is no automatic DF-positivity veto on
+posterior draws. Its CLI family has different anisotropy parameters and cannot replay an
+arbitrary Jeans posterior vector.
+
+\paragraph{Published analyses.} Presets reproduce the assumptions of individual papers and
+compare conditional results. They are approximations to published assumptions, not
+independent reproductions of each paper's full data selection and dynamical method.
+
+\paragraph{Injection.} Earlier K1 mock fits are exploratory checks, not validation of the revised 89-point
+ladder. The generator draws symmetric Gaussian errors using the mean of each asymmetric
+error pair and clips low values. It is not an exact draw from the fitted split-normal
+likelihood. New mock runs record that noise prescription and restore the source run's
+model, including its ladder switches. The scientific design of a rung-specific recovery
+programme can therefore be chosen explicitly.
+
+\section{What the model does not include}
+
+Stated plainly, because each is a route by which a spurious halo could appear.
+
+\begin{enumerate}
+\item \textbf{Sphericity.} \ocen\ is flattened. A spherical model absorbs flattening into
+      mass and anisotropy.
+\item \textbf{Rotation is removed, not modelled.} The streaming term is subtracted from the
+      model's second moment. A rotating model would be preferable.
+\item \textbf{Equilibrium.} The outer bins are near plausible pericentric tidal scales.
+      Their ratio to $r_J$ depends on the orbit and tidal-radius convention; the data are
+      not demonstrably all inside an equilibrium region.
+\item \textbf{Diagonal likelihood.} The error-model choice, the rotation-curve uncertainty and
+      the shared field template can act coherently across bins. Rotation uncertainty enters
+      as per-bin errors, while the raw/eta choice is tested through separate fits. A shared nuisance parameter is the correct treatment; comparing separate
+      fits is the chosen alternative.
+\item \textbf{A single tracer population.} Mass segregation makes the dispersion depend on
+      stellar mass, and the selections differ in magnitude between instruments.
+\end{enumerate}
+
+\section{The runs}
+
+The default data contain 89 points. Rung 0 fixes $\beta=0$ and removes scales.
+\begin{center}
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{lrr}
+\toprule
+Family & $\ln Z$ & $\chi^2$ / number of points\\
+\midrule
+K1 & $-190.02\pm0.48$ & 772 / 89\\
+K2 cored & $-188.94\pm0.36$ & 761 / 89\\
+K2 NFW & $-190.09\pm0.35$ & 763 / 89\\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{center}
+Rung 0 completes the intended baseline stage. Its weak cored preference and structured
+outer residuals provide a reference for the next controlled comparisons. The central fit
+is acceptable under the adopted errors. The component ratios motivate varying anisotropy;
+they do not directly measure intrinsic $\beta(r)$.
+
+The next stage is constant $\beta$, followed by a specified turnover extension if justified.
+The existing monotonic form is available as an intermediate control. Instrument scales are
+outside the compared sequence. No rung-1 or turnover posterior on these data is complete.
+See \texttt{docs/MODELLING\_PLAN.md} for the authoritative recipes and
+\texttt{docs/RUNG0\_ANALYSIS.md} for the conditional numerical results.
+
+From the repository root with \texttt{PYTHONPATH=src}, use
+\texttt{python -m ocen\_dm.cli}, or the installed \texttt{ocen} command. The baseline
+requires \texttt{fit --family K1 --isotropic --no-scales}; choose a fresh
+\texttt{--label} to preserve old results. A bare \texttt{fit} selects the legacy varying
+model with scales, not the baseline.
+
+\texttt{--gaia-errors eta} and \texttt{--gaia-rotation ours} are sensitivity variants for
+Gaia only. HST always uses the published rotation curve in the current loader. There is
+no HST rotation switch; its locally corrected means cannot replace absolute streaming.
+Reports preserve these choices and check the saved likelihood. Mock generation from a
+source run restores its model independently of the fitted family's stage. Fits are
+launched only when explicitly requested.
+
+\begin{thebibliography}{9}
+\bibitem[An \& Evans(2006)]{anevans2006} An, J.~H., Evans, N.~W. 2006, ApJ, 642, 752.
+  \url{https://ui.adsabs.harvard.edu/abs/2006ApJ...642..752A}
+\bibitem[Binney \& Mamon(1982)]{binneymamon1982} Binney, J., Mamon, G.~A. 1982, MNRAS, 200,
+  361. \url{https://ui.adsabs.harvard.edu/abs/1982MNRAS.200..361B}
+\bibitem[Vasiliev \& Baumgardt(2021)]{vasiliev2021} Vasiliev, E., Baumgardt, H. 2021, MNRAS,
+  505, 5978. \url{https://arxiv.org/abs/2102.09568}
+\end{thebibliography}
+
+\end{document}
