@@ -33,9 +33,17 @@ against the current (blue) and superseded (orange) fits; dashed: the earlier
 Jeans model. Bottom row: residuals (signed Poisson deviance residuals for the
 counts). Both fits are evaluated with the corrected count likelihood.*
 
-**Enclosed mass of the current fit**
+### Mass components
 
-| r (pc) | Stars (10⁶ M☉) | Remnants (10⁶ M☉) | Total (10⁶ M☉) | Remnant fraction |
+![Mass components of the base model](../../plots/base_model_20261013_components.png)
+
+*Current fit, by component. (a) Density; (b) enclosed mass with the
+half-mass radii dotted; (c) circular velocity; (d) remnant share, local
+(\(\rho_{\rm rem}/\rho_{\rm tot}\)) and cumulative (\(M_{\rm rem}/M_{\rm tot}\));
+(e) dynamical-to-stellar mass ratio. Grey: outside the radial range of the
+kinematic data (0.1–63 pc).*
+
+| r (pc) | Stars (10⁶ M☉) | Remnants (10⁶ M☉) | Total (10⁶ M☉) | Remnant share of M(<r) |
 |---|---|---|---|---|
 | 1 | 0.012 | 0.020 | 0.032 | 62% |
 | 3 | 0.201 | 0.145 | 0.346 | 42% |
@@ -43,7 +51,57 @@ counts). Both fits are evaluated with the corrected count likelihood.*
 | 30 | 2.716 | 0.271 | 2.987 | 9% |
 | 100 | 2.987 | 0.273 | 3.260 | 8% |
 
-The total inside 10 pc differs from the superseded fit by −0.7%.
+- **Two components with different scales.** The stars have a 3D half-mass
+  radius of 10.4 pc (projected 7.7 pc; the Baumgardt database lists
+  r_h = 7.56 pc at 5.43 kpc, i.e. 7.46 pc at the fitted distance); the remnant
+  Plummer has 2.8 pc.
+- **The remnants dominate the core.** They are 66% of the central density
+  (6.0×10³ against 3.2×10³ M☉ pc⁻³ for the stars at 0.3 pc). The stars take
+  over the local density near 1.5 pc (remnants 59% at 1 pc, 26% at 3 pc) and
+  the enclosed mass near 2 pc.
+- **Mass-to-light-following mass.** \(M_{\rm tot}(<r)/M_\star(<r)\) falls from
+  2.9 in the centre to 1.09 overall. This is the quantity a mass-segregated
+  stellar population could also produce.
+- **Circular velocity** peaks at 27.0 km/s at 9.0 pc; the stars alone peak
+  at ~25 km/s near 10 pc, the remnants at ~14 km/s near 3 pc. The central
+  escape speed is 68 km/s.
+- The total inside 10 pc differs from the superseded fit by −0.7%.
+
+### Internal kinematics
+
+![Internal kinematics of the base model](../../plots/base_model_20261013_kinematics.png)
+
+*(a) Intrinsic radial and tangential (one component) dispersions, with the
+local escape speed/√12 for scale; (b) anisotropy β(r); (c) stellar surface
+density with the projected and 3D half-mass radii; (d) projected
+line-of-sight and proper-motion dispersions from the DF, before the
+published rotation is subtracted in the likelihood.*
+
+- **Isotropic core, radial bias at intermediate radii, tangential outskirts.**
+  β = 0.00 at 0.3 pc, 0.09 at 3 pc, peaks at +0.15 near 8 pc, crosses zero
+  near 22 pc, and reaches −0.08 at 30 pc and −0.53 at 100 pc.
+- **Central dispersion** σ_r ≈ σ_t ≈ 21.4 km/s; σ_r = 14.7 and σ_t = 13.5 km/s
+  at 10 pc.
+- **Projected dispersions** in the core: 19.8 km/s along the line of sight
+  and 19.3 km/s in each proper-motion component. The radial and tangential
+  proper-motion profiles differ by ≲ 0.5 km/s inside 30 pc and separate in the
+  tangentially biased outskirts.
+
+### Distribution function
+
+![Structure of the base-model DF](../../plots/df_structure_dftwo_counts_area_20261013_observed_no_halo_start3.png)
+
+*(a) Intrinsic moments and β(r); (b) the anisotropy bias \(b(q)\),
+\(q=J_r+L\), over the action distributions of the stars in the HST/MUSE
+(R ≤ 9.5 pc) and Gaia (9.4–63 pc) ranges, with the two transitions
+\(J_a\) and \(J_{\rm outer}\) dotted; (c) \(f(J_r, L)\).*
+
+- The radial bias (b ≈ +0.45 at its peak) sits on the actions of the
+  HST/MUSE stars; the tangential tail (b → −0.33) sits on the Gaia stars.
+  The data constrain the DF over \(q\) ≈ 10–1000 pc km/s; outside that range
+  its shape is extrapolated.
+- \(f\) is smooth and monotonic in both actions, with no features at the
+  transitions.
 
 ### What the base fits establish
 
