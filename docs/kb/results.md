@@ -33,6 +33,60 @@ against the current (blue) and superseded (orange) fits; dashed: the earlier
 Jeans model. Bottom row: residuals (signed Poisson deviance residuals for the
 counts). Both fits are evaluated with the corrected count likelihood.*
 
+### Comparison with the Jeans model (dashed curves)
+
+The dashed curves are the best rung-2 spherical Jeans fit without dark matter
+(`results/fits/rung2_K1_turnover`), the best model of the earlier
+[Jeans ladder](models/index.md#earlier-spherical-jeans-ladder-historical).
+Both models are fitted to the same 89-bin kinematic snapshot, so their
+kinematic χ² compare directly; the Jeans fit uses a fixed light profile (an MGE
+of the Trager+1995 profile joined to HST star counts) instead of the Poisson
+star counts.
+
+| | Jeans (rung 2, no DM) | DF base model |
+|---|---|---|
+| Stellar tracer and mass | MGE light profile, mass-to-light free | self-consistent action DF |
+| Anisotropy | turnover β(r): β₀ = −0.50 (centre) → +0.20 → −0.98 (outside) | isotropic core → +0.15 near 8 pc → −0.53 at 100 pc |
+| Central black hole | 4.4×10⁴ M☉ (16–84%: 3.9–4.6×10⁴) | none |
+| \(M_\star\) | 2.37×10⁶ M☉ | 3.00×10⁶ M☉ |
+| Remnants (Plummer) | 7.7×10⁵ M☉, a = 5.7 pc | 2.7×10⁵ M☉, a = 2.2 pc |
+| Total mass | 3.18×10⁶ M☉ | 3.26×10⁶ M☉ |
+| Distance | 5.34 kpc | 5.36 kpc |
+
+| χ² (per bin) | Jeans | DF |
+|---|---|---|
+| HST PM radial (21) | 61.8 (2.94) | 42.6 (2.03) |
+| HST PM tangential (21) | 36.6 (1.74) | 39.8 (1.89) |
+| MUSE LOS (29) | 51.7 (1.78) | 38.1 (1.31) |
+| Gaia PM radial (9) | 16.9 (1.88) | 14.4 (1.60) |
+| Gaia PM tangential (9) | 23.0 (2.56) | 21.5 (2.39) |
+| **Total (89)** | **190.0** | **156.4** |
+
+- **The DF fits better overall** (Δχ² = 34) and in every dataset except the
+  HST tangential proper motions.
+- **The Jeans model follows the central rise** of the HST proper-motion
+  dispersions inside 0.3 pc (~11″), which the DF, with an isotropic core and
+  no black hole, stays below by 1.5–2.4σ in several bins: χ² = 7.3 (Jeans)
+  against 21.5 (DF) for those 10 bins. This is where the black hole matters.
+- **It pays for this at intermediate radii:** at 2–20 pc (36 bins of HST,
+  MUSE and Gaia) χ² = 122.2 (Jeans) against 77.8 (DF), mostly in the HST
+  radial proper motions (40.2 against 20.2) and the MUSE line-of-sight
+  dispersions (30.9 against 18.7).
+- **The black hole is tied to an imposed anisotropy.** A cored stellar density
+  around a point mass needs β₀ ≤ −½ for any non-negative DF; the prior enforces
+  it and the fit sits at the bound (β₀ = −0.503). Even so, under the standard
+  separable construction the Jeans model has no non-negative DF at
+  0.02–0.18 pc (89.7% of posterior draws fail;
+  [DF consistency audit](../DF_CONSISTENCY_AUDIT.md)). The DF base model is
+  non-negative by construction.
+- **Both put about the same total mass** in the cluster (3.2–3.3×10⁶ M☉) but
+  divide it differently: the Jeans fit has 20% less stellar mass and nearly
+  three times more remnant mass, spread over a 2.5× larger scale. This is the
+  same stars-versus-dark-mass degeneracy seen within the DF fits.
+- A central black hole was not supported by the DF fits on binned data
+  (September step 3); whether the inner rise needs one, or radially biased
+  central orbits, or mass segregation, is not settled.
+
 ### Mass components
 
 ![Mass components of the base model](../../plots/base_model_20261013_components.png)
