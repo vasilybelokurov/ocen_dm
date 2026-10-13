@@ -3,7 +3,7 @@
 # Current DF, halo frozen (no-halo branch), two hand-picked starts, wide bounds.
 # Batches run one after another; each uses 2 jobs x (5 probe workers + 1) = 12 cores.
 set -eu
-PY=python
+PY=${PYTHON:-python}
 DRV=bin/run_compact_df_recovery.py
 TAG=20260923
 COMMON="--stop-delta 0.01 --jacobian-seed base --iteration-tolerance 5e-5 --probe-workers 5 \

@@ -22,7 +22,7 @@ import numpy as np
 from ..cluster import OCEN_RA, OCEN_DEC, OCEN_VSYS_KMS, MU_SYS
 from .progenitor_orbits import PRESENT
 
-OCEN_BAR_DIR = Path(os.environ.get("OCEN_BAR_DIR", "$OCEN_BAR_DIR")).expanduser()
+OCEN_BAR_DIR = Path(os.environ.get("OCEN_BAR_DIR", "$OCEN_BAR_DIR"))   # clone of github.com/adllmr/oCen_bar
 POT_DIR = OCEN_BAR_DIR / "agama_potentials"
 GSE_CONTOURS = OCEN_BAR_DIR / "artifacts" / "gaiadr3_gse_elz.fits"
 

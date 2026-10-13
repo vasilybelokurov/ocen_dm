@@ -18,7 +18,7 @@ import time
 
 for name in ("OMP_NUM_THREADS","OPENBLAS_NUM_THREADS","VECLIB_MAXIMUM_THREADS"):
     os.environ.setdefault(name,"1")
-os.environ.setdefault("MPLCONFIGDIR","/tmp/ocen-df-mpl")
+os.environ.setdefault("MPLCONFIGDIR",os.path.join(os.environ.get("TMPDIR", "/tmp"), "ocen-df-mpl"))
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"src"))
 

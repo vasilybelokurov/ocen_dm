@@ -287,7 +287,7 @@ def test_joint_progenitor_templates_are_admissible(tmp_path, filename):
 def test_host_assets_reproduce_forward_orbit_and_clock(tmp_path, kind, epoch):
     pytest.importorskip("agama")
     from ocen_dm.dynamics.orbits import build_track
-    if kind == "class3" and not (Path.home()/"Work/Code/oCen_bar/agama_potentials").exists():
+    if kind == "class3" and not (Path(os.environ.get("OCEN_BAR_DIR", "$OCEN_BAR_DIR"))/"agama_potentials").exists():
         pytest.skip("Hunter bar assets unavailable")
     c = replace(config(), orbit=Orbit(kind=kind, duration_myr=.1, sample_step_myr=.01, start_time_myr=epoch))
     track, record = build_track(c, tmp_path)

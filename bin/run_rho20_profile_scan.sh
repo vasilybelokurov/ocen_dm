@@ -4,7 +4,7 @@
 # refitted (r_s free, 5-500 pc); starts: the counts-based no-halo best fit plus one Latin start.
 # Batches run one after another, 2 jobs x (5 probe workers + 1) = 12 cores.
 set -eu
-PY=python
+PY=${PYTHON:-python}
 DRV=bin/run_compact_df_recovery.py
 TAG=20260923
 SEED="results/df/dftwo_counts_${TAG}::observed_no_halo_start0"

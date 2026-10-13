@@ -7,7 +7,7 @@
 # mock (never the truth), A and B of a seed run concurrently (12 cores).
 # Usage: sh bin/run_mock_mass_per_star.sh [M=truth] [SEEDS="11 12 13 14 15"] [RHO=1.0]
 set -eu
-PY=python
+PY=${PYTHON:-python}
 DRV=bin/run_compact_df_recovery.py
 TAG=20260923
 M=${1:-truth}

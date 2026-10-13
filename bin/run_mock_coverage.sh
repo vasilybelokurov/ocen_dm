@@ -5,7 +5,7 @@
 # (2 x (5 probe workers + 1) = 12 cores).
 # Usage: sh bin/run_mock_coverage.sh [RHO=1.0] [SEEDS="11 12 13 14 15"]
 set -eu
-PY=python
+PY=${PYTHON:-python}
 DRV=bin/run_compact_df_recovery.py
 TAG=20260923
 RHO=${1:-1.0}

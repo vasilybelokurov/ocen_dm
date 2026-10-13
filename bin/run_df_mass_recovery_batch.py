@@ -66,7 +66,7 @@ def main():
     env=os.environ.copy()
     for name in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','VECLIB_MAXIMUM_THREADS']:
         env[name]='1'
-    env['PYTHONDONTWRITEBYTECODE']='1';env['MPLCONFIGDIR']='/tmp/ocen-df-mpl'
+    env['PYTHONDONTWRITEBYTECODE']='1';env['MPLCONFIGDIR']=os.path.join(os.environ.get("TMPDIR", "/tmp"), "ocen-df-mpl")
     cases=['mixed_no_dm','mixed_with_dm']
     jobs=[]
     def job(case,start,seed=None,initial=None,shared=False):

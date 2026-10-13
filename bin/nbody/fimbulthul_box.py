@@ -14,7 +14,7 @@ Usage: python bin/nbody/fimbulthul_box.py
 import glob, json, os, sys
 from pathlib import Path
 for k in ("OMP_NUM_THREADS",): os.environ.setdefault(k, "1")
-os.environ.setdefault("MPLCONFIGDIR", "/tmp/ocen-df-mpl")
+os.environ.setdefault("MPLCONFIGDIR", os.path.join(os.environ.get("TMPDIR", "/tmp"), "ocen-df-mpl"))
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np

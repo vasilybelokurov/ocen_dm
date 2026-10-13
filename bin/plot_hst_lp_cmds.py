@@ -27,7 +27,7 @@ from pathlib import Path
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-os.environ.setdefault("MPLCONFIGDIR", "/tmp/ocen-df-mpl")
+os.environ.setdefault("MPLCONFIGDIR", os.path.join(os.environ.get("TMPDIR", "/tmp"), "ocen-df-mpl"))
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -35,7 +35,7 @@ from matplotlib.colors import LinearSegmentedColormap, LogNorm
 import numpy as np
 from astropy.coordinates import SkyCoord
 
-BASE = Path(os.path.expanduser("$OCEN_CATALOGUES/omegacen_hst_lp"))
+BASE = Path(os.path.expandvars("$OCEN_CATALOGUES/omegacen_hst_lp"))
 CENTRE = (201.696991, -47.479472)
 BANDS = ["WFC3_UVIS_F606W", "WFC3_UVIS_F814W"]
 RAMP = LinearSegmentedColormap.from_list("blue", ["#e8f0fb", "#9ec5f4", "#3987e5", "#1c5cab", "#0d366b"])
@@ -47,7 +47,7 @@ WD_FIT_RANGE = (9.5, 12.5)      # M_F606W range of the pooled white-dwarf track 
 
 def extinction_and_isochrone(age=12.5, feh=-1.53, ebv=0.12):
     import minimint
-    ii = minimint.Interpolator(BANDS, data_prefix=os.path.expanduser("$OCEN_ISOCHRONES/minimint_hst")+"/")
+    ii = minimint.Interpolator(BANDS, data_prefix=os.path.expandvars("$OCEN_ISOCHRONES/minimint_hst")+"/")
     mass = np.geomspace(.09, 1.2, 1200)
     res = ii(mass, np.log10(age*1e9), feh)
     good = np.isfinite(res[BANDS[0]]) & (res["phase"] <= 0)

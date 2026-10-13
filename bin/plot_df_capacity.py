@@ -8,7 +8,7 @@ import os
 from pathlib import Path
 import sys
 
-os.environ.setdefault("MPLCONFIGDIR", "/tmp/ocen-df-mpl")
+os.environ.setdefault("MPLCONFIGDIR", os.path.join(os.environ.get("TMPDIR", "/tmp"), "ocen-df-mpl"))
 os.environ.setdefault("OMP_NUM_THREADS", "1")
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/"src"))

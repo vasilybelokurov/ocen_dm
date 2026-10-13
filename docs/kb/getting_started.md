@@ -15,6 +15,28 @@ python -m ocen_dm.cli inventory     # what data are present
 
 `ocen` is declared in `pyproject.toml`; `ocen-dm` is not a command.
 
+## External locations
+
+Inputs that are not in the repository are found through environment
+variables; nothing in the code assumes a machine-specific path.
+
+| Variable | Contents | Needed by |
+|---|---|---|
+| `OCEN_CATALOGUES` | shared catalogue store: Vasiliev & Baumgardt 2021 members and cluster zip, Baumgardt GC tables, STREAMFINDER, HST Large Programme, Tango archive | provenance checks, Gaia products, all stream scripts |
+| `OCEN_ISOCHRONES` | MIST grids prepared with minimint (`minimint_hst/` with the HST filters) | mass function, HST CMD plots |
+| `OCEN_BAR_DIR` | clone of [oCen_bar](https://github.com/adllmr/oCen_bar) (Hunter+2024 and Portail+2017 potentials, GSE contours) | barred hosts, bar migration, stream fits |
+| `NEMO_DIR` | NEMO/falcON build | `bin/nemo_env.sh` (gyrfalcON runs) |
+| `PYTHON` | interpreter for the shell drivers (default `python`) | `bin/*.sh` |
+
+```bash
+export OCEN_CATALOGUES=/path/to/catalogues
+export OCEN_ISOCHRONES=/path/to/isochrones
+export OCEN_BAR_DIR=/path/to/oCen_bar
+```
+
+An unset variable shows up literally in the error message, for example
+`FileNotFoundError: ... '$OCEN_CATALOGUES/streamfinder_ibata2024_dr3.fits'`.
+
 ## Data
 
 ```bash

@@ -22,7 +22,7 @@ import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-os.environ.setdefault("MPLCONFIGDIR", "/tmp/ocen-df-mpl")
+os.environ.setdefault("MPLCONFIGDIR", os.path.join(os.environ.get("TMPDIR", "/tmp"), "ocen-df-mpl"))
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt

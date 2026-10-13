@@ -40,7 +40,7 @@ import sys
 
 for key in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "VECLIB_MAXIMUM_THREADS"):
     os.environ[key] = "1"
-os.environ.setdefault("MPLCONFIGDIR", "/tmp/ocen-df-mpl")
+os.environ.setdefault("MPLCONFIGDIR", os.path.join(os.environ.get("TMPDIR", "/tmp"), "ocen-df-mpl"))
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/"src"))
 
@@ -78,7 +78,7 @@ class Isochrone:
 
     def __init__(self, age_gyr, feh, distance_kpc, ebv, prefix=None):
         import minimint
-        prefix = prefix or os.path.expanduser("$OCEN_ISOCHRONES/minimint_hst")+"/"
+        prefix = prefix or os.path.expandvars("$OCEN_ISOCHRONES/minimint_hst")+"/"
         self.ii = minimint.Interpolator(BANDS, data_prefix=prefix)
         self.age, self.feh, self.dm0, self.av = age_gyr, feh, 5*np.log10(distance_kpc*1e3/10.), 3.1*ebv
         mass = np.geomspace(.09, 1.2, 1200)

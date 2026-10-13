@@ -6,7 +6,7 @@
 #   mockB: the same stars with an injected halo    -> is the injected rho20 recovered?
 # Usage: sh bin/run_mock_validation.sh [RHO20_INJECTED (default 1.0)] [TRUTH_JOB (default observed_no_halo_start0)]
 set -eu
-PY=python
+PY=${PYTHON:-python}
 DRV=bin/run_compact_df_recovery.py
 TAG=20260923
 RHO=${1:-1.0}

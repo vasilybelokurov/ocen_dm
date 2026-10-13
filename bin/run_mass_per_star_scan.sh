@@ -8,7 +8,7 @@
 # no-halo best fit plus one Latin start; 2 jobs x (5 probe workers + 1) = 12 cores per batch.
 # Usage: sh bin/run_mass_per_star_scan.sh [M/N19 values, default "7 8 9 10 11 12"]
 set -eu
-PY=python
+PY=${PYTHON:-python}
 DRV=bin/run_compact_df_recovery.py
 TAG=20260923
 SEED="results/df/dftwo_counts_${TAG}::observed_no_halo_start0"
