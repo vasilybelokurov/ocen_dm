@@ -8,7 +8,33 @@ from stellar kinematics, and estimate how much dark matter could survive the
 progenitor dwarf's disruption. The eventual joint kinematic-and-tail inference
 is still to be built.
 
-## Latest — 29 September 2026 (DF models and N-body tails)
+## Latest — 13 October 2026 (stream 54: the proper-motion knee)
+
+- **Problem.** The distal part of stream 54 (Ibata+2024; phi1 >~ 17 deg) bends in Gaia DR3
+  proper motion (the "knee"). No published model reproduces it, and neither do our static
+  McMillan17/DB98 sprays.
+- **Rotating bar (Hunter+2024).** Particle-spray fits in a barred host partly bend the arm
+  and steepen the pmdec gradient. The bar angle 16 deg beats 28 deg by ~285 in ln L on
+  held-out seeds (paired seed sd 101). The PM residual in the distal stream remains.
+- **LMC.** The MW-LMC interaction (rigid potentials, reflex frame) is benchmarked against the
+  Vasiliev+2021 Tango runs. It shifts the distal pmra by 0.2-0.6 mas/yr. At a fixed bar, a
+  0.03-0.05 mas/yr change in omega Cen's PMs absorbs it; the fit does not improve.
+- **Other checks.** Hunter's spiral forcing (pmdec shifts 0.1-0.25 mas/yr), the density
+  dependence of the conditional likelihood, Chen+2024 escape and both launch arms do not
+  remove the mismatch.
+- **Barred backtrack.** The 13 knee RV stars connect to the cluster much worse than model
+  controls (encounter diagnostic 1.9-2.0 vs ~1.1). This is a physical mismatch in the recent
+  (<= 700 Myr) fixed-potential models tested at two fitted states. It is not yet an exclusion.
+- **Next.** Extend the backward connection to 2 Gyr; optionally test a slowing bar and the
+  catalogue cluster state. If the knee stars stay unreachable, the result is negative: a recent
+  test-particle debris model in a barred Milky Way bends the stream partly but cannot match
+  the PM track.
+- **Details.** [PM refinement](docs/STREAM_PM_REFINEMENT_2026-10-13.md),
+  [knee investigation](docs/STREAM_KNEE_INVESTIGATION.md),
+  [diagnostic plan](docs/STREAM_DIAGNOSTIC_PLAN.md) and `JOURNAL.md` (from 2026-10-08).
+  Stream code: `src/ocen_dm/streams/`, scripts in `bin/streams/`.
+
+## 29 September 2026 (DF models and N-body tails)
 
 - **DF fits.** A two-transition action-based DF with Poisson star counts and a distance
   prior fits all kinematic data (chi2_kin = 158 for 89 bins) without dark matter.
@@ -95,6 +121,9 @@ evidence difference remains small.
 | [Section-11 tests](docs/SECTION11_TESTS.md) | Numerical work needed to validate survival predictions |
 | [Dynamical experiments](docs/DYNAMICAL_EXPERIMENTS.md) | Initial conditions, live/frozen drivers, controls and diagnostics |
 | [Dynamical batch analysis](docs/DYNAMICAL_BATCH_ANALYSIS.md) / [PDF](docs/dynamical_batch.pdf) / [LaTeX](docs/dynamical_batch.tex) | First-passage response, isolation controls, resolution and next experiments |
+| [Stream PM refinement](docs/STREAM_PM_REFINEMENT_2026-10-13.md) | Bar/LMC/spiral/escape-law tests of the stream-54 PM knee and the barred backtrack |
+| [Stream knee investigation](docs/STREAM_KNEE_INVESTIGATION.md) | Tails with different DM, rotation, host potentials and the knee (2026-10-08) |
+| [Stream fitting plans](docs/STREAM_FIT_CAMPAIGN_PLAN.md) / [methods review](docs/STREAM_FIT_METHODS_REVIEW.md) / [diagnostic plan](docs/STREAM_DIAGNOSTIC_PLAN.md) | Fitting campaign, likelihood choices and the diagnostic sequence |
 | [Original specification](OCEN_DM_TAILS_PROJECT.md) | Long-term scope; proposed interfaces are not implemented commands |
 | [Journal](JOURNAL.md) | Chronological record; later entries can supersede earlier results |
 
@@ -154,6 +183,8 @@ src/ocen_dm/kinematics/  estimators, dynamical engines, fits and reports
 src/ocen_dm/mass_models/ stellar, remnant, point-mass and halo components
 src/ocen_dm/tails/       orbital histories and exploratory survival models
 src/ocen_dm/dynamics/    controlled remnant/progenitor initial conditions and evolution
+src/ocen_dm/streams/     restricted N-body, particle spray, barred/LMC hosts, stream likelihoods
+bin/streams/             stream experiments, fits and diagnostics
 results/                local fits, orbit tables and diagnostics (not committed)
 results/plot_data/      plotted tables and figure provenance
 results/maintenance/    migration and housekeeping records
