@@ -2872,7 +2872,9 @@ its three levels.</p>
 <table>
 <thead>
 <tr>
+<th>#</th>
 <th>Parameter</th>
+<th>Meaning</th>
 <th>Prior</th>
 <th>Posterior median (16–84%)</th>
 <th>Maximum likelihood</th>
@@ -2880,61 +2882,81 @@ its three levels.</p>
 </thead>
 <tbody>
 <tr>
+<td>1</td>
 <td><span class="arithmatex">\(M_{\rm BH}\)</span> [M☉]</td>
+<td>central black hole (point mass)</td>
 <td>log-uniform 10²–3×10⁵</td>
 <td>4.25 (3.92–4.58) ×10⁴</td>
 <td>4.41×10⁴</td>
 </tr>
 <tr>
+<td>2</td>
 <td><span class="arithmatex">\(M_\star\)</span> [M☉]</td>
+<td>stellar mass (normalisation of the light profile, i.e. M/L)</td>
 <td>log-uniform 10⁶–10⁷</td>
 <td>2.66 (2.49–2.85) ×10⁶</td>
 <td>2.37×10⁶</td>
 </tr>
 <tr>
+<td>3</td>
 <td><span class="arithmatex">\(M_{\rm rem}\)</span> [M☉]</td>
+<td>remnant (Plummer) mass</td>
 <td>log-uniform 10⁴–3×10⁶</td>
 <td>5.4 (3.8–7.0) ×10⁵</td>
 <td>7.7×10⁵</td>
 </tr>
 <tr>
+<td>4</td>
 <td><span class="arithmatex">\(a_{\rm rem}\)</span> [pc]</td>
+<td>remnant Plummer scale</td>
 <td>log-uniform 0.3–20</td>
 <td>5.3 (4.8–5.6)</td>
 <td>5.7</td>
 </tr>
 <tr>
+<td>5</td>
 <td><span class="arithmatex">\(\beta_0\)</span></td>
+<td>central anisotropy (&lt;0 tangential; ≤ −½ required with a black hole)</td>
 <td>uniform −1 to −0.5</td>
 <td>−0.53 (−0.57 to −0.51)</td>
 <td>−0.50</td>
 </tr>
 <tr>
+<td>6</td>
 <td><span class="arithmatex">\(\beta_{\rm mid}\)</span></td>
+<td>intermediate anisotropy level (&gt;0 radial)</td>
 <td>uniform −1 to 1</td>
 <td>0.19 (0.18–0.21)</td>
 <td>0.20</td>
 </tr>
 <tr>
+<td>7</td>
 <td><span class="arithmatex">\(\beta_\infty\)</span></td>
+<td>outer anisotropy level</td>
 <td>uniform −1 to 1</td>
 <td>−0.81 (−0.94 to −0.63)</td>
 <td>−0.98</td>
 </tr>
 <tr>
+<td>8</td>
 <td><span class="arithmatex">\(r_1\)</span> [pc]</td>
+<td>first anisotropy transition radius</td>
 <td>log-uniform 0.05–30</td>
 <td>1.09 (0.98–1.20)</td>
 <td>1.16</td>
 </tr>
 <tr>
+<td>9</td>
 <td><span class="arithmatex">\(\Delta r=r_2-r_1\)</span> [pc]</td>
+<td>gap to the second transition radius</td>
 <td>log-uniform 0.5–150</td>
 <td>38 (33–43)</td>
 <td>44</td>
 </tr>
 <tr>
+<td>10</td>
 <td>D [kpc]</td>
+<td>distance</td>
 <td>normal 5.43 ± 0.05</td>
 <td>5.36 (5.34–5.38)</td>
 <td>5.34</td>
