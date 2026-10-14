@@ -41,6 +41,20 @@ fit residual 0.18 mag rms), deprojected spherically.
 | Black hole | point mass at the centre | \(M_{\rm BH}\) |
 | Dark matter | none | — |
 
+### How the stellar mass is determined
+
+- **One stellar parameter, \(M_\star\):** the mass normalisation of the fixed
+  light profile, i.e. the stellar mass-to-light ratio. The stellar density
+  shape is the MGE and is not fitted.
+- **The anisotropy parameters do not change the density.** They describe the
+  stars' velocities only (unlike in the DF, where they also shape the density).
+- **\(M_\star\) is set by the kinematics,** jointly with the remnants, the black
+  hole and the anisotropy; it is not taken from photometry.
+- **Mass-to-light ratio.** With L_V = 1.16×10⁶ L☉ (Harris V = 3.68,
+  E(B−V) = 0.12, at the fitted distance), \(M_\star/L_V\) = 2.0 at maximum
+  likelihood and 2.3 at the posterior median; \(M_{\rm tot}/L_V\) = 2.7–2.8,
+  the same as the DF base model (2.8).
+
 **Anisotropy ("turnover").** Three levels joined by two smooth transitions
 (`src/ocen_dm/kinematics/anisotropy.py`):
 

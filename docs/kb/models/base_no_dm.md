@@ -53,6 +53,27 @@ anisotropic at intermediate radii and tangential outside.
 | \(b_{\rm outer}\) | outer anisotropy | −4 to 2 | −0.33 (tangential) |
 | \(J_{\rm outer}\) | second transition (pc km/s) | 2–100 × \(J_a\) | 312 |
 
+### How the stellar mass is determined
+
+- **Seven stellar parameters:** the mass normalisation \(M_\star\) and the six
+  DF parameters (\(J_0\), \(\alpha\), \(b_{\rm out}\), \(J_a\), \(b_{\rm outer}\),
+  \(J_{\rm outer}\)). The stellar density is not an input: it is computed from
+  \(f(\mathbf J)\) in the total potential, so the envelope and the anisotropy
+  parameters together set its shape.
+- **The star counts constrain the shape only.** Their amplitude (counted
+  stars per unit model surface density) is a nuisance parameter, profiled
+  analytically at every evaluation; the counts say where the stars are, not how
+  much mass they carry.
+- **\(M_\star\) is set by the kinematics,** jointly with the remnants. It is
+  not taken from photometry. The mass per counted star (10.48 M☉ per
+  F625W < 19 star) is therefore an output of the fit.
+- **The only place \(M_\star\) is fixed externally** is the mass-per-star scan,
+  where the count amplitude is held at a value from the photometric mass
+  function instead of being profiled.
+- **Mass-to-light ratio.** With L_V = 1.16×10⁶ L☉ (Harris catalogue
+  V = 3.68 and E(B−V) = 0.12, at the fitted 5.356 kpc), \(M_\star/L_V = 2.6\)
+  and \(M_{\rm tot}/L_V = 2.8\).
+
 ### Remnant component
 
 \[
@@ -133,11 +154,13 @@ star counts.
 | | Jeans (rung 2, no DM) | DF base model |
 |---|---|---|
 | Stellar tracer and mass | MGE light profile, mass-to-light free | self-consistent action DF |
+| Free stellar parameters | \(M_\star\) only (density shape fixed by the light) | \(M_\star\) and six DF parameters (shape fitted to the counts) |
 | Anisotropy | turnover β(r): β₀ = −0.50 (centre) → +0.20 → −0.98 (outside) | isotropic core → +0.15 near 8 pc → −0.53 at 100 pc |
 | Central black hole | 4.4×10⁴ M☉ (16–84%: 3.9–4.6×10⁴) | none |
 | \(M_\star\) | 2.37×10⁶ M☉ | 3.00×10⁶ M☉ |
 | Remnants (Plummer) | 7.7×10⁵ M☉, a = 5.7 pc | 2.7×10⁵ M☉, a = 2.2 pc |
 | Total mass | 3.18×10⁶ M☉ | 3.26×10⁶ M☉ |
+| \(M_\star/L_V\), \(M_{\rm tot}/L_V\) | 2.0, 2.7 (ML); 2.3, 2.8 (median) | 2.6, 2.8 |
 | Distance | 5.34 kpc | 5.36 kpc |
 
 | χ² (per bin) | Jeans | DF |
@@ -170,6 +193,12 @@ star counts.
   divide it differently: the Jeans fit has 20% less stellar mass and nearly
   three times more remnant mass, spread over a 2.5× larger scale. This is the
   same stars-versus-dark-mass degeneracy seen within the DF fits.
+- **Why \(M_\star\) differs by 11% at the same total mass.** In neither model
+  is the stellar mass fixed by the light or the counts; it is the
+  normalisation the kinematics leave after the remnants (and, for Jeans, the
+  black hole and the imposed central anisotropy) take their share. The
+  remnant mass is close to the total minus \(M_\star\), so with remnants at
+  8–17% of the total, a 1% change in \(M_\star\) moves \(M_{\rm rem}\) by ~10%.
 - A central black hole was not supported by the DF fits on binned data
   (September step 3); whether the inner rise needs one, or radially biased
   central orbits, or mass segregation, is not settled.
