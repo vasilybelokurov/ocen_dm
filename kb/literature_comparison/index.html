@@ -2714,8 +2714,10 @@ otherwise; all papers are in the SciX library.</p>
   Jalali+2012). The DF model's compact remnant component (2.7×10⁵ M☉,
   2.2 pc scale, 8% of the mass, no black hole) matches the "extended
   central mass" picture: 2–3×10⁵ M☉ favoured by kinematics plus pulsar
-  timing (Bañares-Hernández+2025) and ~5% of the mass in stellar-mass
-  black holes (Zocchi+2019, Baumgardt+2019, Dickson+2024).</li>
+  timing (Bañares-Hernández+2025: 2.65×10⁵ M☉ in a Plummer of 1.88 pc,
+  the same form, mass and nearly the same scale as ours) and ~5% of the
+  mass in stellar-mass black holes (Zocchi+2019, Baumgardt+2019,
+  Dickson+2024).</li>
 <li><strong>Anisotropy:</strong> the DF profile (isotropic core, mildly radial at
   intermediate radii, tangential outside) agrees with oMEGACat VI and
   van de Ven+2006; the Jeans model's tangential core does not.</li>
@@ -2913,91 +2915,156 @@ is 0.923.</p>
   of ~10⁴ M☉ at fixed everything else is the natural next test.</li>
 </ul>
 <h3 id="remnant-mass-and-spatial-scale">Remnant mass and spatial scale<a class="headerlink" href="#remnant-mass-and-spatial-scale" title="Permanent link">&para;</a></h3>
-<p>Several independent methods find a centrally concentrated non-luminous mass
-of a few ×10⁵ M☉. Published black-hole mass fractions are converted to M☉
-here with a total of 3.3–3.9×10⁶ M☉ (our total and the Baumgardt database
-value); these conversions are ours, not the papers'.</p>
+<p>Numbers from the full texts (arXiv versions, read 2026-10-14), with their
+location in each paper. Values marked <em>computed</em> are ours, derived from the
+paper's numbers as shown.</p>
 <table>
 <thead>
 <tr>
 <th>Study</th>
-<th>Non-luminous component</th>
+<th>Component (definition)</th>
 <th>Mass [M☉]</th>
-<th>Spatial scale</th>
+<th>Fraction</th>
+<th>Form and scale</th>
+<th>Total mass, distance</th>
+<th>Where</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><strong>This work, DF base model</strong></td>
-<td>remnant Plummer (all non-light-following mass)</td>
-<td><strong>2.7×10⁵</strong> (8%)</td>
-<td>a = 2.2 pc, half-mass radius 2.8 pc</td>
+<td>remnant Plummer: all mass not following the counted light</td>
+<td><strong>2.73×10⁵</strong></td>
+<td>8.4%</td>
+<td>Plummer, <strong>a = 2.18 pc</strong> (3D; half-mass 2.85 pc)</td>
+<td>3.26×10⁶, 5.356 kpc</td>
+<td><a href="../models/base_no_dm/">base model</a></td>
 </tr>
 <tr>
 <td><strong>This work, Jeans model</strong></td>
 <td>remnant Plummer + black hole</td>
-<td><strong>5.4×10⁵ + 0.4×10⁵</strong></td>
-<td>a = 5.3 pc, half-mass radius 6.9 pc</td>
+<td><strong>5.4×10⁵ + 4.3×10⁴</strong></td>
+<td>16.5% + 1.3%</td>
+<td>Plummer, <strong>a = 5.3 pc</strong> (3D)</td>
+<td>3.24×10⁶, 5.36 kpc</td>
+<td><a href="../models/jeans_comparison/">Jeans model</a></td>
 </tr>
 <tr>
 <td><a href="https://ui.adsabs.harvard.edu/abs/2025A%26A...693A.104B">Bañares-Hernández+2025</a></td>
-<td>extended central mass, favoured over an IMBH</td>
-<td>~2–3×10⁵ (stated)</td>
-<td>"extended"; ~20% more massive and extended with the pulsar constraint than from stars alone</td>
-</tr>
-<tr>
-<td><a href="https://ui.adsabs.harvard.edu/abs/2022MNRAS.511.4251E">Evans+2022</a></td>
-<td>compact core of stellar remnants (their non-luminous component can be larger)</td>
-<td>≲ 5×10⁵ (stated)</td>
-<td>"compact core"; total non-luminous ≲ 10⁶ within r_h</td>
+<td>"extended central mass" on top of a light-traced M★ (which includes remnants that follow the light); interpreted as stellar-mass black holes</td>
+<td><strong>2.65 ± 0.19×10⁵</strong>; 2.20×10⁵ without the pulsar accelerations; 2.1–3.1×10⁵ across centres and profile shapes</td>
+<td>9.0% (<em>computed</em>: 2.65/(26.8+2.65))</td>
+<td>Plummer, <strong>r_cen = 1.88 ± 0.10 pc</strong> (3D; 1.59 pc without pulsars); Gaussian alternative σ = 1.37 pc</td>
+<td>M★ = 2.68 ± 0.05×10⁶; 5.2 kpc fixed</td>
+<td>Fig. 2, Table 2, Secs. 6, 8–9, App. B–D</td>
 </tr>
 <tr>
 <td><a href="https://ui.adsabs.harvard.edu/abs/2019MNRAS.488.5340B">Baumgardt+2019</a></td>
-<td>stellar-mass black holes, 4.6% of the mass</td>
-<td>≈ 1.5–1.8×10⁵ (converted)</td>
-<td>"centrally concentrated"</td>
+<td>stellar-mass black holes only</td>
+<td><strong>1.65×10⁵</strong></td>
+<td>4.6 ± 0.5%</td>
+<td>mass-segregated N-body; radius not given ("centrally concentrated")</td>
+<td>5.24 kpc adopted</td>
+<td>Secs. 4–5</td>
 </tr>
 <tr>
 <td><a href="https://ui.adsabs.harvard.edu/abs/2019MNRAS.482.4713Z">Zocchi+2019</a></td>
-<td>stellar-mass black holes, ~5% of the mass</td>
-<td>≈ 1.6–2×10⁵ (converted)</td>
-<td>mass-segregated in multimass models</td>
+<td>black holes as the dark component of two-component limepy models (white dwarfs and neutron stars in the visible component)</td>
+<td>1.35×10⁵ (<em>computed</em>: F₂ × M)</td>
+<td>4.5 (+4.0/−2.5)% anisotropic; 5.2% isotropic</td>
+<td>not fully segregated, extending to about the half-mass radius (r_h = 8.57 pc); ~1.4×10³ M☉ within 0.2 pc</td>
+<td>3.01×10⁶, 5.14 kpc (fitted)</td>
+<td>Table 2, Secs. 3–4</td>
 </tr>
 <tr>
 <td><a href="https://ui.adsabs.harvard.edu/abs/2024MNRAS.529..331D">Dickson+2024</a></td>
-<td>stellar-mass black holes, &gt; 5% of the mass</td>
-<td>≳ 1.6–2×10⁵ (converted)</td>
-<td>from multimass models</td>
+<td>(i) black holes; (ii) all dark remnants (white dwarfs, neutron stars, black holes)</td>
+<td>(i) <strong>1.82×10⁵</strong> (12,400 black holes, mean 14.8 M☉)</td>
+<td>(i) 5.9 ± 0.2% (statistical only); (ii) 50.3%</td>
+<td>multimass limepy; radius not given ("concentrated within the central regions")</td>
+<td>in their Paper I</td>
+<td>Table 1, Sec. 5.3</td>
 </tr>
 <tr>
-<td><a href="https://ui.adsabs.harvard.edu/abs/2010ApJ...710.1063V">van der Marel &amp; Anderson 2010</a></td>
-<td>dark cluster (only needed in cusp models)</td>
+<td><a href="https://ui.adsabs.harvard.edu/abs/2022MNRAS.511.4251E">Evans+2022</a></td>
+<td>generic non-luminous component (remnants or dark matter)</td>
+<td>10⁴–10⁶ within the ~6 pc half-light radius (posterior contours only)</td>
 <td>—</td>
-<td>extent ≲ 0.16 pc</td>
+<td>NFW with <strong>r_max ≲ 1 pc</strong> (r_s = r_max/2.16), or Gaussian</td>
+<td>5.24 kpc fixed</td>
+<td>Secs. 6–7, Figs. 5, 7</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Like-for-like with the closest model (Bañares-Hernández+2025, same Plummer form):</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>DF base model</th>
+<th>Bañares-Hernández+2025</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mass</td>
+<td>2.73×10⁵ M☉</td>
+<td>2.65 ± 0.19×10⁵ M☉</td>
+</tr>
+<tr>
+<td>Plummer scale</td>
+<td>2.18 pc</td>
+<td>1.88 ± 0.10 pc at 5.2 kpc; 1.94 pc scaled to 5.356 kpc (<em>computed</em>)</td>
+</tr>
+<tr>
+<td>Mass fraction</td>
+<td>8.4%</td>
+<td>9.0%</td>
+</tr>
+<tr>
+<td>M(&lt;1 pc), M(&lt;3 pc) (<em>computed</em>)</td>
+<td>2.0×10⁴, 1.45×10⁵ M☉</td>
+<td>2.7×10⁴, 1.61×10⁵ M☉</td>
+</tr>
+<tr>
+<td>Data</td>
+<td>HST, MUSE, Gaia kinematics; star counts</td>
+<td>stellar kinematics, surface density, millisecond-pulsar positions and accelerations</td>
+</tr>
+<tr>
+<td>Method</td>
+<td>self-consistent action DF</td>
+<td>Jeans (GravSphere)</td>
 </tr>
 </tbody>
 </table>
 <ul>
-<li><strong>The masses agree to within a factor of ~2.</strong> The DF value (2.7×10⁵ M☉)
-  lies inside the published 1.5–3×10⁵ M☉ range; the Jeans value
-  (5–6×10⁵ M☉) is at the upper end, near the Evans+2022 limit for remnants.</li>
-<li><strong>The contents differ.</strong> The published fractions count stellar-mass black
-  holes. Our Plummer absorbs all mass that does not follow the counted light:
-  black holes, neutron stars, and any mass-segregated white dwarfs and heavy
-  stars.</li>
-<li><strong>The scales are not yet compared quantitatively.</strong> Only van der Marel &amp;
-  Anderson give a number, for a different model (a dark cluster ≲ 0.16 pc in
-  cusp models); the other abstracts describe the component qualitatively. A
-  comparison needs the radial profiles from the full papers.</li>
+<li><strong>The DF remnant component reproduces the Bañares-Hernández central mass:</strong>
+  the same mass within 3%, a scale 12% larger once both are at the same
+  distance, and the same mass fraction. They reach it with a different method
+  and with pulsar timing; from stellar kinematics alone they find a smaller
+  and more compact component (2.20×10⁵ M☉, 1.59 pc).</li>
+<li><strong>The black-hole-only estimates are lower,</strong> 1.35–1.82×10⁵ M☉ (4.5–5.9%).
+  That is expected: our component also holds whatever neutron stars and
+  segregated white dwarfs do not follow the light, whereas those models put
+  white dwarfs and neutron stars in the visible or light-traced mass
+  (in Dickson+2024 all dark remnants make up 50% of the mass).</li>
+<li><strong>Scales:</strong> besides Bañares-Hernández, only Evans+2022 constrain one
+  (r_max ≲ 1 pc for an NFW), and Zocchi+2019 give a qualitative extent (to
+  about the half-mass radius, 8.6 pc). The concentration differs between
+  models: within 0.2 pc Zocchi's black-hole component holds ~1.4×10³ M☉,
+  against ~300 M☉ for the Bañares-Hernández Plummer and ~200 M☉ for ours
+  (<em>computed</em> for the Plummer models).</li>
+<li><strong>The Jeans model's remnant component</strong> (5.4×10⁵ M☉ at 5.3 pc) is twice as
+  massive and 2.5 times more extended than any of these; its central mass is
+  carried by the black hole instead.</li>
 <li><strong>Our remnant mass is the least constrained of our numbers.</strong> It trades
   against the stellar mass (±23% on mocks), and pinning the mass per counted
-  star between 8 and 12 M☉ moves it from 1.6 to 4.4×10⁵ M☉. "A few ×10⁵ M☉"
-  is the robust statement.</li>
-<li><strong>It depends on the anisotropy freedom.</strong> Zocchi+2019 find that allowing
-  radial anisotropy and mass segregation together reduces the required
-  remnant population, as anisotropy does the black-hole mass in our Jeans
-  model.</li>
+  star between 8 and 12 M☉ moves it from 1.6 to 4.4×10⁵ M☉.</li>
 </ul>
+<p>Caveat: the Bañares-Hernández values are from arXiv:2408.00939v6, which may
+differ in detail from the journal version; in it, the Sec. 8.1 statement on
+the centre dependence does not match the Fig. C.1 numbers.</p>
 <h2 id="anisotropy">Anisotropy<a class="headerlink" href="#anisotropy" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
