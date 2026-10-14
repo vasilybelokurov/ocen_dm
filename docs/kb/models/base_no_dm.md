@@ -12,6 +12,58 @@ variant is compared with it.
     were biased; parameters moved by ≤ 4% and the mass per counted star by
     −1.8%.
 
+## All parameters
+
+The fit is a multi-start optimisation (no posterior sampling), so best-fit
+values are given without uncertainties; mocks drawn from this model recover
+\(M_\star\) to ±6% and \(M_{\rm rem}\) to ±23% (see below).
+
+**Free parameters (10)**
+
+| # | Parameter | Meaning | Range (prior) | 2026-10-13 (current) | 2026-09-23 |
+|---|---|---|---|---|---|
+| 1 | \(M_\star\) | stellar mass (DF normalisation) | 10⁶–6×10⁶ M☉, log-uniform | 2.997×10⁶ M☉ | 3.000×10⁶ M☉ |
+| 2 | \(J_0\) | DF envelope scale | 30–800 pc km/s, log | 56.0 | 54.1 |
+| 3 | \(\alpha\) | DF envelope sharpness | 0.6–3 | 0.805 | 0.798 |
+| 4 | \(b_{\rm out}\) | intermediate anisotropy level (>0 radial) | −2 to 2 | +0.767 | +0.739 |
+| 5 | \(J_a\) | first anisotropy transition | 5–500 pc km/s, log | 65.5 | 64.5 |
+| 6 | \(b_{\rm outer}\) | outer anisotropy level (<0 tangential) | −4 to 2 | −0.327 | −0.330 |
+| 7 | \(J_{\rm outer}\) | second transition | 2–100 × \(J_a\) (log ratio) | 312 | 318 |
+| 8 | \(M_{\rm rem}\) | remnant (Plummer) mass | 10²–10⁶ M☉, log | 2.73×10⁵ M☉ | 2.62×10⁵ M☉ |
+| 9 | \(a_{\rm rem}\) | remnant Plummer scale | 0.3–20 pc, log | 2.18 pc | 2.15 pc |
+| 10 | \(D\) | distance | 4.8–6.0 kpc, prior N(5.43, 0.05) | 5.356 kpc | 5.356 kpc |
+
+**Nuisance parameters, profiled analytically at every evaluation (3)**
+
+| Parameter | Meaning | 2026-10-13 |
+|---|---|---|
+| \(a_{\rm HST}\) | counted F625W < 19 stars per unit model surface density | 6.44×10⁻⁵ |
+| \(a_{\rm Gaia}\) | counted G < 17 stars per unit model surface density | 4.69×10⁻⁶ |
+| \(b_{\rm Gaia}\) | uniform field density in the Gaia counts | 1.60 arcmin⁻² |
+
+The HST field term is fixed at zero (field < 0.5% at 250″).
+
+**Fixed choices**
+
+| Quantity | Value |
+|---|---|
+| Dark matter | none (\(\rho_{20}=0\)) |
+| Central black hole | none |
+| Anisotropy at the centre | \(b(q\to0)=0\) (isotropic core, by construction) |
+| Geometry | spherical, non-rotating; published rotation subtracted from the second moments |
+| Numerics | potential grid 10⁻⁴–10⁴ pc (128 nodes), 50 equilibrium iterations max, tolerance 5×10⁻⁵ |
+
+**Derived quantities (current fit)**
+
+| Quantity | Value |
+|---|---|
+| Total mass | 3.26×10⁶ M☉ |
+| Mass per F625W < 19 star | 10.48 M☉ |
+| \(M_\star/L_V\), \(M_{\rm tot}/L_V\) | 2.6, 2.8 |
+| Half-mass radius: stars (3D, projected), remnants | 10.4 pc, 7.7 pc; 2.8 pc |
+| Peak circular velocity | 27.0 km/s at 9.0 pc |
+| Central velocity dispersion | 21.4 km/s |
+
 ## Mass components
 
 | Component | Form | Free parameters (range) | Best fit |

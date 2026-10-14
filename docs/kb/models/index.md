@@ -14,6 +14,21 @@ Main results, figures and mock tests: [DF observed-fit write-up](../../df_observ
 ([LaTeX](../../df_observed_fit.tex)). The halo and scan numbers above use the
 count products from before the 2026-10-13 fix and have not been rerun.
 
+### Parameters of each model
+
+The [base model](base_no_dm.md#all-parameters) has 10 free parameters (7
+stellar, 2 remnant, the distance) and 3 profiled count nuisances. The
+dark-matter variants add a halo; the [Jeans model](jeans_comparison.md#parameters)
+has its own 10 parameters.
+
+| Model | Parameters beyond the base model | Range | Fixed |
+|---|---|---|---|
+| Free cored halo | \(\rho_{20}\) (DM density at 20 pc), \(r_s\) (scale) | 0–10 M☉ pc⁻³; 5–150 pc, log | \(\gamma=0\) (core), taper \(r_t=1\) kpc |
+| \(\rho_{20}\) profile | \(r_s\) | 5–150 pc, log | \(\rho_{20}\) = 0.25, 0.5, 1, 2, 4 |
+| Mass-per-star scan | \(\rho_{20}\), \(r_s\) | as the free halo | HST count amplitude pinned: 8–12 M☉ per counted star |
+
+Halo density: \(\rho(r)=\rho_{20}\,(r/20\,{\rm pc})^{-\gamma}\,[(1+r/r_s)/(1+20/r_s)]^{\gamma-3}\,e^{-(r^2-20^2)/r_t^2}\).
+
 **What the data constrain.** Twelve mocks drawn from the base model recover
 the total mass to ±3% at 20 pc and ±5% over 2–40 pc, but the recovered
 \(\rho_{20}\) scatters by 0.5–0.9 M☉ pc⁻³. The leading degeneracy is stellar
