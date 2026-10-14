@@ -131,6 +131,7 @@ kinematic data (0.1–63 pc).*
   at ~25 km/s near 10 pc, the remnants at ~14 km/s near 3 pc. The central
   escape speed is 68 km/s.
 - The total inside 10 pc differs from the superseded fit by −0.7%.
+- **The remnant component matches published fits.** Its mass and scale (2.73×10⁵ M☉, 2.18 pc) agree with the extended central mass of Bañares-Hernández+2025 (2.65×10⁵ M☉ in a 1.88 pc Plummer); black-hole-only estimates are 1.35–1.82×10⁵ M☉. See [Remnant mass and spatial scale](literature_comparison.md#remnant-mass-and-spatial-scale).
 
 ### Internal kinematics
 
@@ -190,7 +191,7 @@ published rotation is subtracted in the likelihood.*
 
 ### Comparison with published models
 
-Total mass, M/L, central dark mass and anisotropy against the literature (van de Ven+2006 to Bañares-Hernández+2025): [Comparison with published models](literature_comparison.md).
+Total mass, M/L, central dark mass and anisotropy against the literature (van de Ven+2006 to Bañares-Hernández+2025): [Comparison with published models](literature_comparison.md). The remnant masses and scales are compared in [Remnant mass and spatial scale](literature_comparison.md#remnant-mass-and-spatial-scale).
 
 ### Not yet rerun with the corrected count likelihood
 

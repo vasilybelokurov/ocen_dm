@@ -139,6 +139,8 @@ stars, and part of the effect of a central black hole. At the best fit it
 holds 8% of the total mass, has a half-mass radius of \(1.305\,a_{\rm rem}=2.8\)
 pc, and dominates the mass inside ~1.5 pc (60% inside 1 pc).
 
+**Comparison with the literature:** published fits find 1.35–2.65×10⁵ M☉ in a central non-luminous component; Bañares-Hernández+2025 fit the same Plummer form and get 2.65×10⁵ M☉ with a 1.88 pc scale. Details: [Remnant mass and spatial scale](../literature_comparison.md#remnant-mass-and-spatial-scale).
+
 ### Distance, geometry, rotation
 
 - Distance free in 4.8–6.0 kpc with a Gaussian prior \(N(5.43, 0.05)\) kpc;
