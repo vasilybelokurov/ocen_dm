@@ -2188,20 +2188,6 @@
    "arxiv": "",
    "doi": "",
    "bibcode": "",
-   "cite": "Banares-Hernandez et al. 2025",
-   "title": "",
-   "topic": "omega-cen-mass-imbh",
-   "relevance": "context",
-   "files": [
-    "docs/dm_capture_constraints.tex:629"
-   ],
-   "note": "central mass from kinematics + pulsar timing",
-   "needs_resolution": true
-  },
-  {
-   "arxiv": "",
-   "doi": "",
-   "bibcode": "",
    "cite": "Brown et al. 2019 (omega Cen DM / indirect detection)",
    "title": "",
    "topic": "omega-cen-mass-imbh",
@@ -2464,6 +2450,146 @@
    ],
    "note": "statistics reference in likelihood.py comment (two-sided normalisation)",
    "needs_resolution": true
+  },
+  {
+   "arxiv": "2408.00939",
+   "doi": "10.1051/0004-6361/202451763",
+   "bibcode": "2025A&A...693A.104B",
+   "cite": "Bañares-Hernández et al. 2025",
+   "title": "New constraints on the central mass contents of Omega Centauri from combined stellar kinematics and pulsar timing",
+   "topic": "omega-cen-mass-imbh",
+   "relevance": "core",
+   "files": [
+    "docs/kb/literature_comparison.md"
+   ],
+   "note": "Added 2026-10-14 from an ADS search for omega Cen mass models; bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": "1211.4399",
+   "doi": "10.1093/mnras/sts426",
+   "bibcode": "2013MNRAS.429.1887D",
+   "cite": "D'Souza & Rix 2013",
+   "title": "Mass estimates from stellar proper motions: the mass of omega Centauri",
+   "topic": "omega-cen-mass-imbh",
+   "relevance": "core",
+   "files": [
+    "docs/kb/literature_comparison.md"
+   ],
+   "note": "Added 2026-10-14 from an ADS search for omega Cen mass models; bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": "1111.5011",
+   "doi": "10.1051/0004-6361/201116923",
+   "bibcode": "2012A&A...538A..19J",
+   "cite": "Jalali et al. 2012",
+   "title": "A Dynamical N-body model for the central region of omega Centauri",
+   "topic": "omega-cen-mass-imbh",
+   "relevance": "context",
+   "files": [
+    "docs/kb/literature_comparison.md"
+   ],
+   "note": "Added 2026-10-14 from an ADS search for omega Cen mass models; bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": "astro-ph/9612184",
+   "doi": "10.1086/118538",
+   "bibcode": "1997AJ....114.1074M",
+   "cite": "Merritt, Meylan & Mayor 1997",
+   "title": "The stellar dynamics of omega Centauri",
+   "topic": "omega-cen-mass-imbh",
+   "relevance": "context",
+   "files": [
+    "docs/kb/literature_comparison.md"
+   ],
+   "note": "Added 2026-10-14 from an ADS search for omega Cen mass models; bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2023MNRAS.522.5320D",
+   "cite": "Dickson et al. 2023",
+   "title": "Multimass modelling of Milky Way globular clusters - I. Implications on their stellar initial mass function above 1 Msun",
+   "topic": "cluster-dynamics-methods",
+   "relevance": "context",
+   "files": [
+    "docs/kb/literature_comparison.md"
+   ],
+   "note": "Added 2026-10-14 from an ADS search for omega Cen mass models; bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2007MNRAS.381.1575S",
+   "cite": "Sollima et al. 2007",
+   "title": "The mass function of omega Centauri down to 0.15 Msun",
+   "topic": "stellar-populations-mf",
+   "relevance": "context",
+   "files": [
+    "docs/kb/literature_comparison.md"
+   ],
+   "note": "Added 2026-10-14 from an ADS search for omega Cen mass models; bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2010ApJ...710.1032A",
+   "cite": "Anderson & van der Marel 2010",
+   "title": "New Limits on an Intermediate-Mass Black Hole in Omega Centauri. I. HST Photometry and Proper Motions",
+   "topic": "omega-cen-mass-imbh",
+   "relevance": "context",
+   "files": [
+    "docs/kb/literature_comparison.md"
+   ],
+   "note": "Added 2026-10-14 from an ADS search for omega Cen mass models; bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "1995A&A...303..761M",
+   "cite": "Meylan et al. 1995",
+   "title": "Central velocity dispersion in the globular cluster omega Centauri",
+   "topic": "omega-cen-mass-imbh",
+   "relevance": "context",
+   "files": [
+    "docs/kb/literature_comparison.md"
+   ],
+   "note": "Added 2026-10-14 from an ADS search for omega Cen mass models; bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": "10.3847/1538-4357/ad167c",
+   "bibcode": "2024ApJ...963...60P",
+   "cite": "Platais et al. 2024",
+   "title": "Discovery of Astrometric Accelerations by Dark Companions in the Globular Cluster omega Centauri",
+   "topic": "omega-cen-mass-imbh",
+   "relevance": "context",
+   "files": [
+    "docs/kb/literature_comparison.md"
+   ],
+   "note": "Added 2026-10-14 from an ADS search for omega Cen mass models; bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2025ApJ...990L..69G",
+   "cite": "González Prieto et al. 2025",
+   "title": "Growing the Intermediate-mass Black Hole in Omega Centauri",
+   "topic": "omega-cen-mass-imbh",
+   "relevance": "context",
+   "files": [
+    "docs/kb/literature_comparison.md"
+   ],
+   "note": "Added 2026-10-14 from an ADS search for omega Cen mass models; bibcode from ADS.",
+   "needs_resolution": false
   }
  ],
  "erroneous_identifiers_exclude": [
