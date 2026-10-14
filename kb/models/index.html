@@ -2463,6 +2463,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Current: action-based DF models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters-of-each-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters of each model
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2543,6 +2560,42 @@
 <p>Main results, figures and mock tests: <a href="../../df_observed_fit.pdf">DF observed-fit write-up</a>
 (<a href="../../df_observed_fit.tex">LaTeX</a>). The halo and scan numbers above use the
 count products from before the 2026-10-13 fix and have not been rerun.</p>
+<h3 id="parameters-of-each-model">Parameters of each model<a class="headerlink" href="#parameters-of-each-model" title="Permanent link">&para;</a></h3>
+<p>The <a href="base_no_dm/#all-parameters">base model</a> has 10 free parameters (7
+stellar, 2 remnant, the distance) and 3 profiled count nuisances. The
+dark-matter variants add a halo; the <a href="jeans_comparison/#parameters">Jeans model</a>
+has its own 10 parameters.</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Parameters beyond the base model</th>
+<th>Range</th>
+<th>Fixed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Free cored halo</td>
+<td><span class="arithmatex">\(\rho_{20}\)</span> (DM density at 20 pc), <span class="arithmatex">\(r_s\)</span> (scale)</td>
+<td>0–10 M☉ pc⁻³; 5–150 pc, log</td>
+<td><span class="arithmatex">\(\gamma=0\)</span> (core), taper <span class="arithmatex">\(r_t=1\)</span> kpc</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\rho_{20}\)</span> profile</td>
+<td><span class="arithmatex">\(r_s\)</span></td>
+<td>5–150 pc, log</td>
+<td><span class="arithmatex">\(\rho_{20}\)</span> = 0.25, 0.5, 1, 2, 4</td>
+</tr>
+<tr>
+<td>Mass-per-star scan</td>
+<td><span class="arithmatex">\(\rho_{20}\)</span>, <span class="arithmatex">\(r_s\)</span></td>
+<td>as the free halo</td>
+<td>HST count amplitude pinned: 8–12 M☉ per counted star</td>
+</tr>
+</tbody>
+</table>
+<p>Halo density: <span class="arithmatex">\(\rho(r)=\rho_{20}\,(r/20\,{\rm pc})^{-\gamma}\,[(1+r/r_s)/(1+20/r_s)]^{\gamma-3}\,e^{-(r^2-20^2)/r_t^2}\)</span>.</p>
 <p><strong>What the data constrain.</strong> Twelve mocks drawn from the base model recover
 the total mass to ±3% at 20 pc and ±5% over 2–40 pc, but the recovered
 <span class="arithmatex">\(\rho_{20}\)</span> scatters by 0.5–0.9 M☉ pc⁻³. The leading degeneracy is stellar

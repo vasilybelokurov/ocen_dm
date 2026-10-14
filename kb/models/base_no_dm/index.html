@@ -938,6 +938,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#all-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        All parameters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#mass-components" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2651,6 +2662,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#all-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        All parameters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#mass-components" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2832,6 +2854,199 @@ its own data-fit gate</strong>. It supersedes the 2026-09-23 fit
 were biased; parameters moved by ≤ 4% and the mass per counted star by
 −1.8%.</p>
 </div>
+<h2 id="all-parameters">All parameters<a class="headerlink" href="#all-parameters" title="Permanent link">&para;</a></h2>
+<p>The fit is a multi-start optimisation (no posterior sampling), so best-fit
+values are given without uncertainties; mocks drawn from this model recover
+<span class="arithmatex">\(M_\star\)</span> to ±6% and <span class="arithmatex">\(M_{\rm rem}\)</span> to ±23% (see below).</p>
+<p><strong>Free parameters (10)</strong></p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Parameter</th>
+<th>Meaning</th>
+<th>Range (prior)</th>
+<th>2026-10-13 (current)</th>
+<th>2026-09-23</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><span class="arithmatex">\(M_\star\)</span></td>
+<td>stellar mass (DF normalisation)</td>
+<td>10⁶–6×10⁶ M☉, log-uniform</td>
+<td>2.997×10⁶ M☉</td>
+<td>3.000×10⁶ M☉</td>
+</tr>
+<tr>
+<td>2</td>
+<td><span class="arithmatex">\(J_0\)</span></td>
+<td>DF envelope scale</td>
+<td>30–800 pc km/s, log</td>
+<td>56.0</td>
+<td>54.1</td>
+</tr>
+<tr>
+<td>3</td>
+<td><span class="arithmatex">\(\alpha\)</span></td>
+<td>DF envelope sharpness</td>
+<td>0.6–3</td>
+<td>0.805</td>
+<td>0.798</td>
+</tr>
+<tr>
+<td>4</td>
+<td><span class="arithmatex">\(b_{\rm out}\)</span></td>
+<td>intermediate anisotropy level (&gt;0 radial)</td>
+<td>−2 to 2</td>
+<td>+0.767</td>
+<td>+0.739</td>
+</tr>
+<tr>
+<td>5</td>
+<td><span class="arithmatex">\(J_a\)</span></td>
+<td>first anisotropy transition</td>
+<td>5–500 pc km/s, log</td>
+<td>65.5</td>
+<td>64.5</td>
+</tr>
+<tr>
+<td>6</td>
+<td><span class="arithmatex">\(b_{\rm outer}\)</span></td>
+<td>outer anisotropy level (&lt;0 tangential)</td>
+<td>−4 to 2</td>
+<td>−0.327</td>
+<td>−0.330</td>
+</tr>
+<tr>
+<td>7</td>
+<td><span class="arithmatex">\(J_{\rm outer}\)</span></td>
+<td>second transition</td>
+<td>2–100 × <span class="arithmatex">\(J_a\)</span> (log ratio)</td>
+<td>312</td>
+<td>318</td>
+</tr>
+<tr>
+<td>8</td>
+<td><span class="arithmatex">\(M_{\rm rem}\)</span></td>
+<td>remnant (Plummer) mass</td>
+<td>10²–10⁶ M☉, log</td>
+<td>2.73×10⁵ M☉</td>
+<td>2.62×10⁵ M☉</td>
+</tr>
+<tr>
+<td>9</td>
+<td><span class="arithmatex">\(a_{\rm rem}\)</span></td>
+<td>remnant Plummer scale</td>
+<td>0.3–20 pc, log</td>
+<td>2.18 pc</td>
+<td>2.15 pc</td>
+</tr>
+<tr>
+<td>10</td>
+<td><span class="arithmatex">\(D\)</span></td>
+<td>distance</td>
+<td>4.8–6.0 kpc, prior N(5.43, 0.05)</td>
+<td>5.356 kpc</td>
+<td>5.356 kpc</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Nuisance parameters, profiled analytically at every evaluation (3)</strong></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Meaning</th>
+<th>2026-10-13</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(a_{\rm HST}\)</span></td>
+<td>counted F625W &lt; 19 stars per unit model surface density</td>
+<td>6.44×10⁻⁵</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(a_{\rm Gaia}\)</span></td>
+<td>counted G &lt; 17 stars per unit model surface density</td>
+<td>4.69×10⁻⁶</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(b_{\rm Gaia}\)</span></td>
+<td>uniform field density in the Gaia counts</td>
+<td>1.60 arcmin⁻²</td>
+</tr>
+</tbody>
+</table>
+<p>The HST field term is fixed at zero (field &lt; 0.5% at 250″).</p>
+<p><strong>Fixed choices</strong></p>
+<table>
+<thead>
+<tr>
+<th>Quantity</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dark matter</td>
+<td>none (<span class="arithmatex">\(\rho_{20}=0\)</span>)</td>
+</tr>
+<tr>
+<td>Central black hole</td>
+<td>none</td>
+</tr>
+<tr>
+<td>Anisotropy at the centre</td>
+<td><span class="arithmatex">\(b(q\to0)=0\)</span> (isotropic core, by construction)</td>
+</tr>
+<tr>
+<td>Geometry</td>
+<td>spherical, non-rotating; published rotation subtracted from the second moments</td>
+</tr>
+<tr>
+<td>Numerics</td>
+<td>potential grid 10⁻⁴–10⁴ pc (128 nodes), 50 equilibrium iterations max, tolerance 5×10⁻⁵</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Derived quantities (current fit)</strong></p>
+<table>
+<thead>
+<tr>
+<th>Quantity</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Total mass</td>
+<td>3.26×10⁶ M☉</td>
+</tr>
+<tr>
+<td>Mass per F625W &lt; 19 star</td>
+<td>10.48 M☉</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(M_\star/L_V\)</span>, <span class="arithmatex">\(M_{\rm tot}/L_V\)</span></td>
+<td>2.6, 2.8</td>
+</tr>
+<tr>
+<td>Half-mass radius: stars (3D, projected), remnants</td>
+<td>10.4 pc, 7.7 pc; 2.8 pc</td>
+</tr>
+<tr>
+<td>Peak circular velocity</td>
+<td>27.0 km/s at 9.0 pc</td>
+</tr>
+<tr>
+<td>Central velocity dispersion</td>
+<td>21.4 km/s</td>
+</tr>
+</tbody>
+</table>
 <h2 id="mass-components">Mass components<a class="headerlink" href="#mass-components" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
