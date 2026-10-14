@@ -71,18 +71,18 @@ its three levels.
 
 ## Parameters
 
-| Parameter | Prior | Posterior median (16–84%) | Maximum likelihood |
-|---|---|---|---|
-| \(M_{\rm BH}\) [M☉] | log-uniform 10²–3×10⁵ | 4.25 (3.92–4.58) ×10⁴ | 4.41×10⁴ |
-| \(M_\star\) [M☉] | log-uniform 10⁶–10⁷ | 2.66 (2.49–2.85) ×10⁶ | 2.37×10⁶ |
-| \(M_{\rm rem}\) [M☉] | log-uniform 10⁴–3×10⁶ | 5.4 (3.8–7.0) ×10⁵ | 7.7×10⁵ |
-| \(a_{\rm rem}\) [pc] | log-uniform 0.3–20 | 5.3 (4.8–5.6) | 5.7 |
-| \(\beta_0\) | uniform −1 to −0.5 | −0.53 (−0.57 to −0.51) | −0.50 |
-| \(\beta_{\rm mid}\) | uniform −1 to 1 | 0.19 (0.18–0.21) | 0.20 |
-| \(\beta_\infty\) | uniform −1 to 1 | −0.81 (−0.94 to −0.63) | −0.98 |
-| \(r_1\) [pc] | log-uniform 0.05–30 | 1.09 (0.98–1.20) | 1.16 |
-| \(\Delta r=r_2-r_1\) [pc] | log-uniform 0.5–150 | 38 (33–43) | 44 |
-| D [kpc] | normal 5.43 ± 0.05 | 5.36 (5.34–5.38) | 5.34 |
+| # | Parameter | Meaning | Prior | Posterior median (16–84%) | Maximum likelihood |
+|---|---|---|---|---|---|
+| 1 | \(M_{\rm BH}\) [M☉] | central black hole (point mass) | log-uniform 10²–3×10⁵ | 4.25 (3.92–4.58) ×10⁴ | 4.41×10⁴ |
+| 2 | \(M_\star\) [M☉] | stellar mass (normalisation of the light profile, i.e. M/L) | log-uniform 10⁶–10⁷ | 2.66 (2.49–2.85) ×10⁶ | 2.37×10⁶ |
+| 3 | \(M_{\rm rem}\) [M☉] | remnant (Plummer) mass | log-uniform 10⁴–3×10⁶ | 5.4 (3.8–7.0) ×10⁵ | 7.7×10⁵ |
+| 4 | \(a_{\rm rem}\) [pc] | remnant Plummer scale | log-uniform 0.3–20 | 5.3 (4.8–5.6) | 5.7 |
+| 5 | \(\beta_0\) | central anisotropy (<0 tangential; ≤ −½ required with a black hole) | uniform −1 to −0.5 | −0.53 (−0.57 to −0.51) | −0.50 |
+| 6 | \(\beta_{\rm mid}\) | intermediate anisotropy level (>0 radial) | uniform −1 to 1 | 0.19 (0.18–0.21) | 0.20 |
+| 7 | \(\beta_\infty\) | outer anisotropy level | uniform −1 to 1 | −0.81 (−0.94 to −0.63) | −0.98 |
+| 8 | \(r_1\) [pc] | first anisotropy transition radius | log-uniform 0.05–30 | 1.09 (0.98–1.20) | 1.16 |
+| 9 | \(\Delta r=r_2-r_1\) [pc] | gap to the second transition radius | log-uniform 0.5–150 | 38 (33–43) | 44 |
+| 10 | D [kpc] | distance | normal 5.43 ± 0.05 | 5.36 (5.34–5.38) | 5.34 |
 
 Fit: χ²_kin = 190.0 for 89 bins at maximum likelihood (DF base model: 156.4);
 ln Z = 85.96. Sampler: UltraNest, 400 live points, Δln Z = 0.5, slice steps
