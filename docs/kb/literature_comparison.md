@@ -24,12 +24,11 @@ otherwise; all papers are in the [SciX library](literature.md).
     - **Anisotropy:** the DF profile (isotropic core, mildly radial at
       intermediate radii, tangential outside) agrees with oMEGACat VI and
       van de Ven+2006; the Jeans model's tangential core does not.
-    - **The fast-moving stars favour the Jeans side.** Häberle+2024 set a
-      lower limit of 21,100 M☉ (99%) from velocities and accelerations, and
-      their N-body comparison prefers 39,000–47,000 M☉, which brackets our
-      Jeans black hole, while disfavouring a stellar-mass black-hole
-      cluster. Whether the DF model with such a point mass still fits is
-      not yet tested.
+    - **The fast-moving stars require a point mass of at least 8,200 M☉**
+      (Häberle+2024, robust bound). Their model-dependent estimates go
+      higher (≥ 21,100 M☉ with accelerations; 39,000–47,000 M☉ preferred by
+      an N-body comparison, which brackets our Jeans black hole). Whether
+      the DF model with such a point mass still fits is not yet tested.
 
 ## Total mass, mass-to-light ratio and distance
 
@@ -84,7 +83,7 @@ is 0.923.
 | [Baumgardt+2019](https://ui.adsabs.harvard.edu/abs/2019MNRAS.488.5340B) | N-body grid + fast-star test | no IMBH; 4.6% of the mass in a central cluster of stellar-mass black holes |
 | [Evans+2022](https://ui.adsabs.harvard.edu/abs/2022MNRAS.511.4251E) | axisymmetric Jeans, dark + luminous components | non-luminous component ≲ 10⁶ M☉ within r_h preferred over constant M/L; a compact remnant core can supply up to ~5×10⁵ M☉ |
 | [Dickson+2024](https://ui.adsabs.harvard.edu/abs/2024MNRAS.529..331D) | multimass models | black-hole mass fraction above 5% |
-| [Häberle+2024](https://ui.adsabs.harvard.edu/abs/2024Natur.631..285H) | seven fast-moving stars in the central 3″ (0.08 pc), multi-epoch HST; projected velocities 66–113 km/s against a no-IMBH escape velocity of 62 km/s | IMBH ≥ 8,200 M☉ from the velocities; ≥ 21,100 M☉ (99%) including the measured accelerations; N-body comparison of the inner 10″ prefers 39,000–47,000 M☉ and strongly disfavours no IMBH, a stellar-mass black-hole cluster, and > 50,000 M☉ (full text, main text p. 3) |
+| [Häberle+2024](https://ui.adsabs.harvard.edu/abs/2024Natur.631..285H) | seven fast-moving stars in the central 3″ (0.08 pc), multi-epoch HST; projected velocities 66–113 km/s against a no-IMBH escape velocity of 62 km/s | **IMBH ≥ 8,200 M☉** (robust bound: velocities and escape velocity only). Model-dependent: ≥ 21,100 M☉ (99%) with the measured accelerations (all consistent with zero within 3σ); an N-body comparison of the inner 10″ prefers 39,000–47,000 M☉ and disfavours no IMBH, a stellar-mass black-hole cluster and > 50,000 M☉, with the authors' caveat of low number statistics (full text, main text p. 3) |
 | [Bañares-Hernández+2025](https://ui.adsabs.harvard.edu/abs/2025A%26A...693A.104B) | Jeans (GravSphere) + millisecond-pulsar accelerations | extended central mass ~2–3×10⁵ M☉ favoured over an IMBH; IMBH < 6×10³ M☉ (3σ) |
 
 - **Our two models reproduce the two sides of the debate with the same
@@ -99,13 +98,16 @@ is 0.923.
   Zocchi+2019, Baumgardt+2019 and Dickson+2024, and the ≲ 5×10⁵ M☉ remnant
   core that Evans+2022 allow. Our component is a generic Plummer, so it can
   also contain white dwarfs and neutron stars.
-- **The fast-moving stars are the strongest constraint on a point mass.**
-  Häberle+2024 find ≥ 8,200 M☉ from the velocities alone and ≥ 21,100 M☉
-  (99%) when the measured accelerations are included; their comparison with
-  N-body models of the inner 10″ prefers 39,000–47,000 M☉ and disfavours a
-  stellar-mass black-hole cluster without an IMBH. These limits exceed the
-  3σ upper limits of Bañares-Hernández+2025 (6×10³ M☉) and van der Marel &
-  Anderson 2010 (1.8×10⁴ M☉): the published results are in tension.
+- **The fast-moving stars set a robust lower bound on a point mass.**
+  Häberle+2024 find ≥ 8,200 M☉ from the velocities and escape velocity
+  alone. This already exceeds the 3σ upper limit of Bañares-Hernández+2025
+  (6×10³ M☉): the published results are in tension. Their model-dependent
+  estimates are higher: ≥ 21,100 M☉ (99%) when the accelerations (all
+  within 3σ of zero) are modelled, and 39,000–47,000 M☉ preferred by a
+  comparison with N-body models of the inner 10″, which also disfavours a
+  stellar-mass black-hole cluster without an IMBH; the authors caution that
+  low number statistics limit that comparison. The 21,100 M☉ limit would
+  also exceed the 3σ limit of van der Marel & Anderson 2010 (1.8×10⁴ M☉).
 - **Our two models map onto that tension.** The Jeans black hole
   (4.3×10⁴ M☉) lies inside Häberle's preferred range; the DF model's
   extended remnants match Bañares-Hernández. The DF model has no point mass;
