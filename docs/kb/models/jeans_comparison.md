@@ -7,9 +7,12 @@ black hole. It is fitted to the same 89-bin kinematic snapshot as the
 [DF base model](base_no_dm.md), so the kinematic χ² of the two compare directly.
 
 !!! info "Status"
-    Completed 2026-09-21 (nested sampling, 15,972 posterior samples). A
-    historical comparison model: it is not refitted with the star counts, and
-    its stellar distribution function is not shown to be non-negative (below).
+    Completed 2026-09-21 (nested sampling, 15,972 posterior samples). Current:
+    it uses the same 89-bin kinematic snapshot as the DF base model and its
+    likelihood replays exactly; the 2026-10-13 count-likelihood fix does not
+    apply to it, because it uses a fixed light profile as its tracer, not the
+    star counts. Physically consistent outside the central ~0.2 pc; inside,
+    the standard separable DF construction fails ([below](#physical-consistency)).
 
 ## Model definition
 
@@ -168,20 +171,36 @@ predictions and residuals.*
 
 ## Physical consistency
 
-The spatial densities of all components are non-negative. The stellar
-distribution function is not shown to exist: under the separable
-construction, the second-derivative condition fails at 0.02–0.18 pc for the
-best sample and for 89.7% of posterior draws
-([DF consistency audit](../../DF_CONSISTENCY_AUDIT.md)). A non-separable DF is
-not excluded. The DF base model is non-negative by construction.
+Checks from the [DF consistency audit](../../DF_CONSISTENCY_AUDIT.md), which
+tests necessary conditions for a non-negative stellar distribution function
+(passing them is not a proof that one exists):
+
+| Check | Result |
+|---|---|
+| Spatial density of every component | non-negative everywhere |
+| Central condition with a black hole and a cored tracer, β₀ ≤ −½ | met (enforced by the prior; β₀ = −0.503) |
+| Separable DF, first derivative (B₁) | passes everywhere |
+| Separable DF, radial condition (R₂) | passes everywhere |
+| Separable DF, second derivative (B₂) | fails at 0.02–0.18 pc (minimum −0.11 at 0.12 pc); 89.7% of posterior draws fail in the same region |
+
+- **Outside the central ~0.2 pc no failure is found.**
+- **Inside it, the standard separable construction gives no non-negative DF.**
+  A non-separable DF with the same density and dispersions is not excluded,
+  so the model is not shown to be unphysical there, only not shown to be
+  physical.
+- **That region is where the black hole dominates** the mass and where its
+  evidence comes from (the central bins above), which is why the result
+  matters for the black-hole question.
+- The DF base model is non-negative by construction.
 
 ## What this model says about a black hole
 
 Within the Jeans framework the central rise of the HST proper-motion
 dispersions is fitted by a 4×10⁴ M☉ point mass with tangential central orbits.
 The evidence is local (Δχ² ≈ 6 from a few bins inside 0.3 pc), it depends on
-an anisotropy forced to its physical limit, and the resulting model has no
-demonstrated non-negative distribution function. Alternatives that are not
+an anisotropy forced to its physical limit, and in the central ~0.2 pc,
+where the black hole acts, the standard separable construction of a
+non-negative distribution function fails. Alternatives that are not
 yet tested in the DF framework are a point mass with a self-consistent
 DF, radially biased orbits in the core, and mass segregation of the
 remnants.

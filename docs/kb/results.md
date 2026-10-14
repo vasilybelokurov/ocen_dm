@@ -79,8 +79,9 @@ star counts.
 - **The black hole is tied to an imposed anisotropy.** A cored stellar density
   around a point mass needs β₀ ≤ −½ for any non-negative DF; the prior enforces
   it and the fit sits at the bound (β₀ = −0.503). Even so, under the standard
-  separable construction the Jeans model has no non-negative DF at
-  0.02–0.18 pc (89.7% of posterior draws fail;
+  separable construction a non-negative DF fails to exist at 0.02–0.18 pc,
+  where the black hole dominates (89.7% of posterior draws fail; no failure
+  outside ~0.2 pc; a non-separable DF is not excluded;
   [DF consistency audit](../DF_CONSISTENCY_AUDIT.md)). The DF base model is
   non-negative by construction.
 - **Both put about the same total mass** in the cluster (3.2–3.3×10⁶ M☉) but
