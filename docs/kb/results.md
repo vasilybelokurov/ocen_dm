@@ -188,6 +188,10 @@ published rotation is subtracted in the likelihood.*
   (mass segregation, rotation, a different remnant shape); this is not yet
   separated.
 
+### Comparison with published models
+
+Total mass, M/L, central dark mass and anisotropy against the literature (van de Ven+2006 to Bañares-Hernández+2025): [Comparison with published models](literature_comparison.md).
+
 ### Not yet rerun with the corrected count likelihood
 
 The free-halo fit, the \(\rho_{20}\) profile, the mass-per-star scan and the

@@ -106,6 +106,7 @@ nav:
           - Code and analysis audit: CODE_ANALYSIS_AUDIT.md
   - Results:
       - kb/results.md
+      - Comparison with published models: kb/literature_comparison.md
       - N-body and DM survival:
           - Dynamical experiments: DYNAMICAL_EXPERIMENTS.md
           - Batch analysis: DYNAMICAL_BATCH_ANALYSIS.md
