@@ -17,8 +17,10 @@ otherwise; all papers are in the [SciX library](literature.md).
       Jalali+2012). The DF model's compact remnant component (2.7×10⁵ M☉,
       2.2 pc scale, 8% of the mass, no black hole) matches the "extended
       central mass" picture: 2–3×10⁵ M☉ favoured by kinematics plus pulsar
-      timing (Bañares-Hernández+2025) and ~5% of the mass in stellar-mass
-      black holes (Zocchi+2019, Baumgardt+2019, Dickson+2024).
+      timing (Bañares-Hernández+2025: 2.65×10⁵ M☉ in a Plummer of 1.88 pc,
+      the same form, mass and nearly the same scale as ours) and ~5% of the
+      mass in stellar-mass black holes (Zocchi+2019, Baumgardt+2019,
+      Dickson+2024).
     - **Anisotropy:** the DF profile (isotropic core, mildly radial at
       intermediate radii, tangential outside) agrees with oMEGACat VI and
       van de Ven+2006; the Jeans model's tangential core does not.
@@ -102,41 +104,57 @@ is 0.923.
 
 ### Remnant mass and spatial scale
 
-Several independent methods find a centrally concentrated non-luminous mass
-of a few ×10⁵ M☉. Published black-hole mass fractions are converted to M☉
-here with a total of 3.3–3.9×10⁶ M☉ (our total and the Baumgardt database
-value); these conversions are ours, not the papers'.
+Numbers from the full texts (arXiv versions, read 2026-10-14), with their
+location in each paper. Values marked *computed* are ours, derived from the
+paper's numbers as shown.
 
-| Study | Non-luminous component | Mass [M☉] | Spatial scale |
-|---|---|---|---|
-| **This work, DF base model** | remnant Plummer (all non-light-following mass) | **2.7×10⁵** (8%) | a = 2.2 pc, half-mass radius 2.8 pc |
-| **This work, Jeans model** | remnant Plummer + black hole | **5.4×10⁵ + 0.4×10⁵** | a = 5.3 pc, half-mass radius 6.9 pc |
-| [Bañares-Hernández+2025](https://ui.adsabs.harvard.edu/abs/2025A%26A...693A.104B) | extended central mass, favoured over an IMBH | ~2–3×10⁵ (stated) | "extended"; ~20% more massive and extended with the pulsar constraint than from stars alone |
-| [Evans+2022](https://ui.adsabs.harvard.edu/abs/2022MNRAS.511.4251E) | compact core of stellar remnants (their non-luminous component can be larger) | ≲ 5×10⁵ (stated) | "compact core"; total non-luminous ≲ 10⁶ within r_h |
-| [Baumgardt+2019](https://ui.adsabs.harvard.edu/abs/2019MNRAS.488.5340B) | stellar-mass black holes, 4.6% of the mass | ≈ 1.5–1.8×10⁵ (converted) | "centrally concentrated" |
-| [Zocchi+2019](https://ui.adsabs.harvard.edu/abs/2019MNRAS.482.4713Z) | stellar-mass black holes, ~5% of the mass | ≈ 1.6–2×10⁵ (converted) | mass-segregated in multimass models |
-| [Dickson+2024](https://ui.adsabs.harvard.edu/abs/2024MNRAS.529..331D) | stellar-mass black holes, > 5% of the mass | ≳ 1.6–2×10⁵ (converted) | from multimass models |
-| [van der Marel & Anderson 2010](https://ui.adsabs.harvard.edu/abs/2010ApJ...710.1063V) | dark cluster (only needed in cusp models) | — | extent ≲ 0.16 pc |
+| Study | Component (definition) | Mass [M☉] | Fraction | Form and scale | Total mass, distance | Where |
+|---|---|---|---|---|---|---|
+| **This work, DF base model** | remnant Plummer: all mass not following the counted light | **2.73×10⁵** | 8.4% | Plummer, **a = 2.18 pc** (3D; half-mass 2.85 pc) | 3.26×10⁶, 5.356 kpc | [base model](models/base_no_dm.md) |
+| **This work, Jeans model** | remnant Plummer + black hole | **5.4×10⁵ + 4.3×10⁴** | 16.5% + 1.3% | Plummer, **a = 5.3 pc** (3D) | 3.24×10⁶, 5.36 kpc | [Jeans model](models/jeans_comparison.md) |
+| [Bañares-Hernández+2025](https://ui.adsabs.harvard.edu/abs/2025A%26A...693A.104B) | "extended central mass" on top of a light-traced M★ (which includes remnants that follow the light); interpreted as stellar-mass black holes | **2.65 ± 0.19×10⁵**; 2.20×10⁵ without the pulsar accelerations; 2.1–3.1×10⁵ across centres and profile shapes | 9.0% (*computed*: 2.65/(26.8+2.65)) | Plummer, **r_cen = 1.88 ± 0.10 pc** (3D; 1.59 pc without pulsars); Gaussian alternative σ = 1.37 pc | M★ = 2.68 ± 0.05×10⁶; 5.2 kpc fixed | Fig. 2, Table 2, Secs. 6, 8–9, App. B–D |
+| [Baumgardt+2019](https://ui.adsabs.harvard.edu/abs/2019MNRAS.488.5340B) | stellar-mass black holes only | **1.65×10⁵** | 4.6 ± 0.5% | mass-segregated N-body; radius not given ("centrally concentrated") | 5.24 kpc adopted | Secs. 4–5 |
+| [Zocchi+2019](https://ui.adsabs.harvard.edu/abs/2019MNRAS.482.4713Z) | black holes as the dark component of two-component limepy models (white dwarfs and neutron stars in the visible component) | 1.35×10⁵ (*computed*: F₂ × M) | 4.5 (+4.0/−2.5)% anisotropic; 5.2% isotropic | not fully segregated, extending to about the half-mass radius (r_h = 8.57 pc); ~1.4×10³ M☉ within 0.2 pc | 3.01×10⁶, 5.14 kpc (fitted) | Table 2, Secs. 3–4 |
+| [Dickson+2024](https://ui.adsabs.harvard.edu/abs/2024MNRAS.529..331D) | (i) black holes; (ii) all dark remnants (white dwarfs, neutron stars, black holes) | (i) **1.82×10⁵** (12,400 black holes, mean 14.8 M☉) | (i) 5.9 ± 0.2% (statistical only); (ii) 50.3% | multimass limepy; radius not given ("concentrated within the central regions") | in their Paper I | Table 1, Sec. 5.3 |
+| [Evans+2022](https://ui.adsabs.harvard.edu/abs/2022MNRAS.511.4251E) | generic non-luminous component (remnants or dark matter) | 10⁴–10⁶ within the ~6 pc half-light radius (posterior contours only) | — | NFW with **r_max ≲ 1 pc** (r_s = r_max/2.16), or Gaussian | 5.24 kpc fixed | Secs. 6–7, Figs. 5, 7 |
 
-- **The masses agree to within a factor of ~2.** The DF value (2.7×10⁵ M☉)
-  lies inside the published 1.5–3×10⁵ M☉ range; the Jeans value
-  (5–6×10⁵ M☉) is at the upper end, near the Evans+2022 limit for remnants.
-- **The contents differ.** The published fractions count stellar-mass black
-  holes. Our Plummer absorbs all mass that does not follow the counted light:
-  black holes, neutron stars, and any mass-segregated white dwarfs and heavy
-  stars.
-- **The scales are not yet compared quantitatively.** Only van der Marel &
-  Anderson give a number, for a different model (a dark cluster ≲ 0.16 pc in
-  cusp models); the other abstracts describe the component qualitatively. A
-  comparison needs the radial profiles from the full papers.
+**Like-for-like with the closest model (Bañares-Hernández+2025, same Plummer form):**
+
+| | DF base model | Bañares-Hernández+2025 |
+|---|---|---|
+| Mass | 2.73×10⁵ M☉ | 2.65 ± 0.19×10⁵ M☉ |
+| Plummer scale | 2.18 pc | 1.88 ± 0.10 pc at 5.2 kpc; 1.94 pc scaled to 5.356 kpc (*computed*) |
+| Mass fraction | 8.4% | 9.0% |
+| M(<1 pc), M(<3 pc) (*computed*) | 2.0×10⁴, 1.45×10⁵ M☉ | 2.7×10⁴, 1.61×10⁵ M☉ |
+| Data | HST, MUSE, Gaia kinematics; star counts | stellar kinematics, surface density, millisecond-pulsar positions and accelerations |
+| Method | self-consistent action DF | Jeans (GravSphere) |
+
+- **The DF remnant component reproduces the Bañares-Hernández central mass:**
+  the same mass within 3%, a scale 12% larger once both are at the same
+  distance, and the same mass fraction. They reach it with a different method
+  and with pulsar timing; from stellar kinematics alone they find a smaller
+  and more compact component (2.20×10⁵ M☉, 1.59 pc).
+- **The black-hole-only estimates are lower,** 1.35–1.82×10⁵ M☉ (4.5–5.9%).
+  That is expected: our component also holds whatever neutron stars and
+  segregated white dwarfs do not follow the light, whereas those models put
+  white dwarfs and neutron stars in the visible or light-traced mass
+  (in Dickson+2024 all dark remnants make up 50% of the mass).
+- **Scales:** besides Bañares-Hernández, only Evans+2022 constrain one
+  (r_max ≲ 1 pc for an NFW), and Zocchi+2019 give a qualitative extent (to
+  about the half-mass radius, 8.6 pc). The concentration differs between
+  models: within 0.2 pc Zocchi's black-hole component holds ~1.4×10³ M☉,
+  against ~300 M☉ for the Bañares-Hernández Plummer and ~200 M☉ for ours
+  (*computed* for the Plummer models).
+- **The Jeans model's remnant component** (5.4×10⁵ M☉ at 5.3 pc) is twice as
+  massive and 2.5 times more extended than any of these; its central mass is
+  carried by the black hole instead.
 - **Our remnant mass is the least constrained of our numbers.** It trades
   against the stellar mass (±23% on mocks), and pinning the mass per counted
-  star between 8 and 12 M☉ moves it from 1.6 to 4.4×10⁵ M☉. "A few ×10⁵ M☉"
-  is the robust statement.
-- **It depends on the anisotropy freedom.** Zocchi+2019 find that allowing
-  radial anisotropy and mass segregation together reduces the required
-  remnant population, as anisotropy does the black-hole mass in our Jeans
-  model.
+  star between 8 and 12 M☉ moves it from 1.6 to 4.4×10⁵ M☉.
+
+Caveat: the Bañares-Hernández values are from arXiv:2408.00939v6, which may
+differ in detail from the journal version; in it, the Sec. 8.1 statement on
+the centre dependence does not match the Fig. C.1 numbers.
 
 ## Anisotropy
 
