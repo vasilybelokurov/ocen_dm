@@ -961,6 +961,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#how-the-stellar-mass-is-determined" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the stellar mass is determined
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#remnant-component" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2663,6 +2674,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#how-the-stellar-mass-is-determined" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the stellar mass is determined
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#remnant-component" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2912,6 +2934,27 @@ anisotropic at intermediate radii and tangential outside.</p>
 </tr>
 </tbody>
 </table>
+<h3 id="how-the-stellar-mass-is-determined">How the stellar mass is determined<a class="headerlink" href="#how-the-stellar-mass-is-determined" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Seven stellar parameters:</strong> the mass normalisation <span class="arithmatex">\(M_\star\)</span> and the six
+  DF parameters (<span class="arithmatex">\(J_0\)</span>, <span class="arithmatex">\(\alpha\)</span>, <span class="arithmatex">\(b_{\rm out}\)</span>, <span class="arithmatex">\(J_a\)</span>, <span class="arithmatex">\(b_{\rm outer}\)</span>,
+  <span class="arithmatex">\(J_{\rm outer}\)</span>). The stellar density is not an input: it is computed from
+  <span class="arithmatex">\(f(\mathbf J)\)</span> in the total potential, so the envelope and the anisotropy
+  parameters together set its shape.</li>
+<li><strong>The star counts constrain the shape only.</strong> Their amplitude (counted
+  stars per unit model surface density) is a nuisance parameter, profiled
+  analytically at every evaluation; the counts say where the stars are, not how
+  much mass they carry.</li>
+<li><strong><span class="arithmatex">\(M_\star\)</span> is set by the kinematics,</strong> jointly with the remnants. It is
+  not taken from photometry. The mass per counted star (10.48 M☉ per
+  F625W &lt; 19 star) is therefore an output of the fit.</li>
+<li><strong>The only place <span class="arithmatex">\(M_\star\)</span> is fixed externally</strong> is the mass-per-star scan,
+  where the count amplitude is held at a value from the photometric mass
+  function instead of being profiled.</li>
+<li><strong>Mass-to-light ratio.</strong> With L_V = 1.16×10⁶ L☉ (Harris catalogue
+  V = 3.68 and E(B−V) = 0.12, at the fitted 5.356 kpc), <span class="arithmatex">\(M_\star/L_V = 2.6\)</span>
+  and <span class="arithmatex">\(M_{\rm tot}/L_V = 2.8\)</span>.</li>
+</ul>
 <h3 id="remnant-component">Remnant component<a class="headerlink" href="#remnant-component" title="Permanent link">&para;</a></h3>
 <div class="arithmatex">\[
 \rho_{\rm rem}(r)=\frac{3M_{\rm rem}}{4\pi a_{\rm rem}^3}
@@ -3079,6 +3122,11 @@ star counts.</p>
 <td>self-consistent action DF</td>
 </tr>
 <tr>
+<td>Free stellar parameters</td>
+<td><span class="arithmatex">\(M_\star\)</span> only (density shape fixed by the light)</td>
+<td><span class="arithmatex">\(M_\star\)</span> and six DF parameters (shape fitted to the counts)</td>
+</tr>
+<tr>
 <td>Anisotropy</td>
 <td>turnover β(r): β₀ = −0.50 (centre) → +0.20 → −0.98 (outside)</td>
 <td>isotropic core → +0.15 near 8 pc → −0.53 at 100 pc</td>
@@ -3102,6 +3150,11 @@ star counts.</p>
 <td>Total mass</td>
 <td>3.18×10⁶ M☉</td>
 <td>3.26×10⁶ M☉</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(M_\star/L_V\)</span>, <span class="arithmatex">\(M_{\rm tot}/L_V\)</span></td>
+<td>2.0, 2.7 (ML); 2.3, 2.8 (median)</td>
+<td>2.6, 2.8</td>
 </tr>
 <tr>
 <td>Distance</td>
@@ -3173,6 +3226,12 @@ star counts.</p>
   divide it differently: the Jeans fit has 20% less stellar mass and nearly
   three times more remnant mass, spread over a 2.5× larger scale. This is the
   same stars-versus-dark-mass degeneracy seen within the DF fits.</li>
+<li><strong>Why <span class="arithmatex">\(M_\star\)</span> differs by 11% at the same total mass.</strong> In neither model
+  is the stellar mass fixed by the light or the counts; it is the
+  normalisation the kinematics leave after the remnants (and, for Jeans, the
+  black hole and the imposed central anisotropy) take their share. The
+  remnant mass is close to the total minus <span class="arithmatex">\(M_\star\)</span>, so with remnants at
+  8–17% of the total, a 1% change in <span class="arithmatex">\(M_\star\)</span> moves <span class="arithmatex">\(M_{\rm rem}\)</span> by ~10%.</li>
 <li>A central black hole was not supported by the DF fits on binned data
   (September step 3); whether the inner rise needs one, or radially biased
   central orbits, or mass segregation, is not settled.</li>
