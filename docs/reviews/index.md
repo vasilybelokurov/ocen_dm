@@ -5,6 +5,7 @@ These files moved from `docs/` to `docs/reviews/` on 2026-10-13. Links to `resul
 
 | Date | Review | Subject |
 |---|---|---|
+| 2026-10-15 | [codex_df_point_mass_2026-10-15](codex_df_point_mass_2026-10-15.md) | Adding a central point mass to the DF: radial boundary, depletion in L_c, cusp slopes, validation |
 | 2026-10-15 | [codex_remnant_priors_2026-10-15](codex_remnant_priors_2026-10-15.md) | Remnant mass tied to the IMF; priors on the extra remnant component; literature (research pass) |
 | 2026-10-13 | [codex_mass_model_next_2026-10-13](codex_mass_model_next_2026-10-13.md) | Mass-model state and next steps; found the count-likelihood bias |
 | 2026-10-11 | [codex_speed_review_2026-10-11](codex_speed_review_2026-10-11.md) | Particle-spray speed-ups |
