@@ -8,7 +8,7 @@ This module does not alter the older DoublePowerLaw models or their schema.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
-from functools import cached_property
+from functools import cached_property, lru_cache
 
 import numpy as np
 from scipy.integrate import solve_ivp
@@ -69,6 +69,13 @@ class ContourNumerics:
             raise ValueError("invalid contour tolerances")
         if self.frequency_mode not in ("exact", "epicycle"):
             raise ValueError("frequency_mode must be exact or epicycle")
+
+
+@lru_cache(maxsize=None)
+def _gauss_legendre(nodes):
+    z, w = np.polynomial.legendre.leggauss(nodes)
+    z.flags.writeable = w.flags.writeable = False
+    return z, w
 
 
 class _SphericalOrbitQuadrature:
@@ -148,7 +155,7 @@ class _SphericalOrbitQuadrature:
         return bisect(r_in, r0, inside_is_hi=True), bisect(r0, r_out, inside_is_hi=False)
 
     def _quadratures_at(self, energy, L, rp, ra, nodes):
-        z, w = np.polynomial.legendre.leggauss(nodes)
+        z, w = _gauss_legendre(nodes)
         theta = .5*np.pi*(z+1)
         sin = np.sin(theta)[None, :]
         quad = lambda f: .5*np.pi*np.sum(w[None, :]*f, axis=1)
@@ -216,11 +223,12 @@ class _SphericalOrbitQuadrature:
             raise DFConvergenceError("invalid apsidal angle")
         return 2*np.pi/dphi
 
-    def _energy_from_actions(self, jr, L, r_circ=None, tolerance=1e-12, iterations=300):
+    def _energy_from_actions(self, jr, L, r_circ=None, tolerance=1e-12, iterations=300, guess=None):
         """E with Jr(E, L) = jr: safeguarded Newton in w = 1/sqrt(-2E).
 
         Jr(w) is exactly linear in Kepler (Jr = GM w - L) and monotone in general;
-        the bracket starts at the circular orbit (Jr = 0) and is open above.
+        the bracket starts at the circular orbit (Jr = 0) and is open above. ``guess``
+        (an approximate bound energy, NaN where unknown) seeds Newton.
         """
         jr, L = np.asarray(jr, float), np.asarray(L, float)
         r_circ = self._circular_radius(L) if r_circ is None else np.asarray(r_circ, float)
@@ -228,6 +236,10 @@ class _SphericalOrbitQuadrature:
         lo, hi = 1/np.sqrt(-2*e_circ), np.full_like(e_circ, np.inf)
         gm = -self._phi_radial(r_circ)*r_circ
         w = lo+jr/gm
+        if guess is not None:
+            guess = np.asarray(guess, float)
+            usable = np.isfinite(guess) & (guess < 0)
+            w = np.where(usable, np.maximum(1/np.sqrt(-2*np.where(usable, guess, -1.)), lo*(1+1e-12)), w)
         previous = np.full_like(w, np.inf)
         for _ in range(iterations):
             energy = -.5/w**2
@@ -329,6 +341,8 @@ class SphericalFrequencyRatio(_SphericalOrbitQuadrature):
         self.radial_limit = 1. if self.point_mass else 2.
         self.potential, self.mode, self.agama = potential, mode, agama
         self.mapper = agama.ActionMapper(potential)
+        if self.point_mass:
+            self.mass_total = float(np.ravel(potential.enclosedMass(1e15))[0])
 
     def __call__(self, jr, angular):
         jr, angular = np.broadcast_arrays(jr, angular)
@@ -341,6 +355,17 @@ class SphericalFrequencyRatio(_SphericalOrbitQuadrature):
             # turning points. The epicycle limit has O(Jr/L) error here.
             circular = (~radial) & (jr < 1e-5*angular)
             general = ~(radial | circular)
+            if self.point_mass and np.any(general):
+                # Orbits whose Kepler pericentre (total mass) encloses all but 1e-6 of the
+                # mass are Keplerian to O(1e-6): ratio 1, no mapper or inversion needed.
+                # Most contour-padding actions (q >~ 1e4, where the DF has underflowed) are.
+                idx = np.flatnonzero(general)
+                q, c = jr[idx]+angular[idx], angular[idx]/(jr[idx]+angular[idx])
+                r_peri = q**2/(self.agama.G*self.mass_total)*c**2/(1+np.sqrt(1-c**2))
+                outside = 1-np.ravel(self.potential.enclosedMass(r_peri))/self.mass_total
+                kepler = idx[outside < 1e-6]
+                ratio[kepler] = 1.
+                general[kepler] = False
             if np.any(circular):
                 r = np.atleast_1d(self.potential.Rcirc(L=angular[circular]))
                 force, deriv = self.potential.eval(_xyz(r), acc=True, der=True)
@@ -376,8 +401,9 @@ class SphericalFrequencyRatio(_SphericalOrbitQuadrature):
                         dphi[kept] = d
                         lost[kept[np.abs(j-target[kept]) > 1e-2*(target[kept]+L[kept])]] = True
                     if np.any(lost):
+                        guess = np.where(finite & (energy < 0), energy, np.nan)[lost]
                         r0[lost] = self._circular_radius(L[lost])
-                        energy[lost] = self._energy_from_actions(target[lost], L[lost], r0[lost])
+                        energy[lost] = self._energy_from_actions(target[lost], L[lost], r0[lost], guess=guess)
                         dphi[lost] = self._radial_quadratures(energy[lost], L[lost], r0[lost], rtol=(1e-5, None, None))[0]
                     if np.any(~np.isfinite(dphi)) or np.any(dphi <= 0):
                         raise DFConvergenceError("invalid apsidal angle")
