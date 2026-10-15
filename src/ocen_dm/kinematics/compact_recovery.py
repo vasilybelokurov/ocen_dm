@@ -110,7 +110,7 @@ def refined_config(config):
 
 
 def mass_profiles(model, radii):
-    """Enclosed stellar, remnant and halo masses on the same physical radii."""
+    """Enclosed stellar, remnant, halo and central point-mass masses on the same physical radii."""
     radii = np.asarray(radii, float)
     if np.any(radii <= 0) or np.any(~np.isfinite(radii)):
         raise ValueError("mass radii must be finite and positive")
@@ -122,8 +122,9 @@ def mass_profiles(model, radii):
     z, w = roots_legendre(128)
     r = radii[:, None]*(z+1)/2
     halo = 2*np.pi*radii*np.sum(w*r*r*matter.halo_density(r), axis=1)
+    bh = np.full_like(radii, getattr(matter, "M_bh", 0.))
     return dict(r_pc=radii.tolist(), stars=stars.tolist(), remnants=remnants.tolist(),
-                halo=halo.tolist(), total=(stars+remnants+halo).tolist(),
+                halo=halo.tolist(), bh=bh.tolist(), total=(stars+remnants+halo+bh).tolist(),
                 M_star=float(model.diagnostics["stellar_mass"]), rho20=matter.rho20)
 
 

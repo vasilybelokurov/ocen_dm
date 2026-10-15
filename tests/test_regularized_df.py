@@ -88,8 +88,9 @@ def test_exact_isochrone_frequencies_and_ergodic_contours(agama):
     assert np.ptp(f)/np.mean(f) < 5e-5
     rho, pr, pt = spherical_velocity_moments(p, df, agama.ActionFinder(p), [.1, 1, 10, 60], 64).T
     np.testing.assert_allclose(pt/pr, 1., atol=1e-4)
-    with pytest.raises(ValueError, match="point mass"):
-        SphericalFrequencyRatio(agama.Potential(type="Plummer", mass=1e4, scaleRadius=0.))
+    # A point mass is supported in the exact mode only; the epicycle reference assumes a finite centre.
+    with pytest.raises(ValueError, match="finite centre"):
+        SphericalFrequencyRatio(agama.Potential(type="Plummer", mass=1e4, scaleRadius=0.), mode="epicycle")
 
 
 @pytest.mark.parametrize("bias", [-.8, .8])
@@ -172,3 +173,104 @@ def test_frequency_representative_preserves_angular_momentum(agama, monkeypatch)
     np.testing.assert_allclose(action[:, 0], jr, rtol=2e-6)
     np.testing.assert_allclose(action[:, 1]+abs(action[:, 2]), angular, rtol=1e-6)
     assert ratio == pytest.approx(2., rel=2e-5)
+
+
+# ----------------------------------------------------------------------------- central point mass
+def test_point_mass_kepler_frequencies_contours_and_isotropy(agama):
+    """Pure Kepler: Omega_r = Omega_t, H depends on Jr+L only, so ergodic contours are L_c = Jr+L."""
+    p = agama.Potential(type="Plummer", mass=3e6, scaleRadius=0.)
+    ratio = SphericalFrequencyRatio(p)
+    assert ratio.point_mass and ratio.radial_limit == 1.
+    rng = np.random.default_rng(7)
+    jr, l = 10**rng.uniform(-2, 3, (2, 60))
+    np.testing.assert_allclose(ratio(jr, l), 1., rtol=1e-8)
+    np.testing.assert_allclose(ratio(jr, 0*l), 1.)
+    df = RegularizedExponentialDF(3e6, ExponentialParameters(b_out=0), potential=p)
+    np.testing.assert_allclose(df.contour_label(jr, l), jr+l, rtol=2e-5)
+    np.testing.assert_allclose(df.direct_contour_label(jr, l), jr+l, rtol=1e-6)
+    rho, pr, pt = spherical_velocity_moments(p, df, agama.ActionFinder(p), [.01, .1, 1, 10], 64).T
+    np.testing.assert_allclose(pt/pr, 1., atol=1e-4)
+
+
+def test_point_mass_sets_the_radial_orbit_limit(agama):
+    """With a finite core plus a point mass, near-radial orbits swing 2 pi at pericentre: ratio -> 1, not 2."""
+    core = agama.Potential(type="Isochrone", mass=3e6, scaleRadius=5.)
+    both = agama.Potential(core, agama.Potential(type="Plummer", mass=1e4, scaleRadius=0.))
+    assert SphericalFrequencyRatio(core).radial_limit == 2.
+    ratio = SphericalFrequencyRatio(both)
+    assert ratio.radial_limit == 1.
+    jr = np.array([1., 10., 100., 1000.])
+    small = ratio(jr, 1e-6*jr)
+    np.testing.assert_allclose(small, 1., atol=2e-2)
+    np.testing.assert_allclose(ratio(jr, 0*jr), 1.)
+
+
+def test_uniform_df_moments_around_a_point_mass(agama):
+    """f ~ const near a point mass (q << J0): rho = 4 pi f v_esc^3/3, sigma_r^2 = v_esc^2/5 (escape-shell accuracy)."""
+    gm = agama.G*1e4
+    p = agama.Potential(type="Plummer", mass=1e4, scaleRadius=0.)
+    df = RegularizedExponentialDF(1., ExponentialParameters(J0=1e9, alpha=1., b_out=0), potential=p)
+    r = np.array([.01, .1, 1.])
+    rho, pr, pt = spherical_velocity_moments(p, df, agama.ActionFinder(p), r, 32).T
+    vesc = np.sqrt(2*gm/r)
+    f0 = df.amplitude
+    np.testing.assert_allclose(rho, 4*np.pi*f0*vesc**3/3, rtol=2e-3)
+    np.testing.assert_allclose(pr/rho, vesc**2/5, rtol=2e-3)
+    np.testing.assert_allclose(pt/pr, 1., atol=2e-3)
+
+
+@pytest.mark.parametrize("b_out,b_outer", [(2., None), (-2., None), (.8, -.6), (-1.5, 1.5)])
+def test_contour_label_lower_bound_used_for_underflow(agama, b_out, b_outer):
+    """Lc >= q exp(1-e^B), |bias| <= B: the bound that keeps near-escape point-mass orbits out of the mapper."""
+    core = agama.Potential(type="Isochrone", mass=3e6, scaleRadius=5.)
+    both = agama.Potential(core, agama.Potential(type="Plummer", mass=4e4, scaleRadius=0.))
+    p = ExponentialParameters(b_out=b_out, J_a=50., b_outer=b_outer, J_outer=None if b_outer is None else 500.)
+    bound = abs(b_out)+(abs(b_outer-b_out) if b_outer is not None else 0.)
+    for pot in (core, both):
+        df = RegularizedExponentialDF(3e6, p, potential=pot)
+        q = np.geomspace(1e-2, 1e5, 15)[:, None]
+        c = np.array([0., 1e-3, .1, .5, .9])[None, :]
+        lc = df.contour_label(q*(1-c), q*c+0*q)
+        assert np.all(lc >= q*np.exp(1-np.exp(bound)))
+    huge = np.array([[2.6e12, 0., 7.9e9], [3e20, 0., 1e-35]])
+    np.testing.assert_array_equal(df(huge), 0.)
+
+
+def test_prescribed_point_mass_config_and_potential(agama):
+    from ocen_dm.kinematics.positive_df import DFNumerics
+    n = DFNumerics()
+    assert len(PrescribedMatter().potentials(n)) == 0
+    pots = PrescribedMatter(M_bh=1e4).potentials(n)
+    assert len(pots) == 1
+    force = -pots[0].force([2., 0., 0.])[0]
+    assert force == pytest.approx(agama.G*1e4/4, rel=1e-12)
+    with pytest.raises(ValueError):
+        PrescribedMatter(M_bh=-1.)
+    cfg = RegularizedDFConfig(matter=PrescribedMatter(M_rem=2e5, a_rem=2., M_bh=8200.))
+    back = RegularizedDFConfig.from_dict(json.loads(json.dumps(cfg.to_dict())))
+    assert back.matter.M_bh == 8200.
+    legacy = cfg.to_dict()
+    del legacy["matter"]["M_bh"]           # configurations written before the point mass existed
+    assert RegularizedDFConfig.from_dict(legacy).matter.M_bh == 0.
+
+
+def test_mass_profiles_include_the_point_mass(agama):
+    from types import SimpleNamespace
+    from ocen_dm.kinematics.compact_recovery import mass_profiles
+    star = agama.Potential(type="Plummer", mass=3e6, scaleRadius=5.)
+    model = SimpleNamespace(stellar_potential=star, config=SimpleNamespace(matter=PrescribedMatter(M_bh=8200.)),
+                            diagnostics=dict(stellar_mass=3e6))
+    out = mass_profiles(model, [.1, 1., 10.])
+    np.testing.assert_allclose(out["bh"], 8200.)
+    np.testing.assert_allclose(np.array(out["total"]), np.array(out["stars"])+8200., rtol=1e-12)
+
+
+def test_apsidal_quadrature_matches_the_exact_isochrone_ratio(agama):
+    """The point-mass frequency path (direct apsidal angle) reproduces the analytic isochrone ratio."""
+    p = agama.Potential(type="Isochrone", mass=3e6, scaleRadius=5.)
+    ratio = SphericalFrequencyRatio(p)
+    rng = np.random.default_rng(11)
+    jr, l = 10**rng.uniform(-2, 3, (2, 128))
+    xv = ratio.mapper(np.column_stack((jr, 0*jr, l, np.ones((len(jr), 3)))))
+    k = agama.G*3e6*5
+    np.testing.assert_allclose(ratio._apsidal_ratio(xv, l), 2/(1+l/np.sqrt(l*l+4*k)), rtol=1e-7)

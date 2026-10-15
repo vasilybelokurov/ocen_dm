@@ -72,18 +72,25 @@ class ContourNumerics:
 
 
 class SphericalFrequencyRatio:
-    """Omega_r/Omega_t in a spherical, finite-central-potential model.
+    """Omega_r/Omega_t in a spherical model, with a finite centre or an exact central point mass.
 
     ActionMapper returns spherical frequencies without numerical differencing
     of the Hamiltonian.  The optional epicycle prescription is an explicitly
     different, approximate reference, evaluated pointwise along every contour.
+
+    The radial-orbit limit (L -> 0) depends on the centre: an orbit through a
+    finite (harmonic) core advances by pi per radial period, so the ratio is 2;
+    with a central point mass the near-radial orbit swings by 2 pi around it at
+    pericentre, so the ratio is 1, at every energy.  ``radial_limit`` holds it.
     """
     def __init__(self, potential, mode="exact"):
         agama = agama_pc()
-        if not np.isfinite(potential.potential([0., 0., 0.])):
-            raise ValueError("regularized finite-centre DF does not support a point mass")
         if mode not in ("exact", "epicycle"):
             raise ValueError("unknown frequency reference")
+        self.point_mass = not np.isfinite(potential.potential([0., 0., 0.]))
+        if self.point_mass and mode != "exact":
+            raise ValueError("the epicycle frequency reference assumes a finite centre; use mode='exact'")
+        self.radial_limit = 1. if self.point_mass else 2.
         self.potential, self.mode, self.agama = potential, mode, agama
         self.mapper = agama.ActionMapper(potential)
 
@@ -92,7 +99,7 @@ class SphericalFrequencyRatio:
         shape = jr.shape
         jr, angular = jr.ravel(), angular.ravel()
         if self.mode == "exact":
-            ratio = np.full(len(jr), 2.)
+            ratio = np.full(len(jr), self.radial_limit)
             radial = angular == 0
             # Direct period integrals lose precision at a coalescing pair of
             # turning points. The epicycle limit has O(Jr/L) error here.
@@ -112,10 +119,16 @@ class SphericalFrequencyRatio:
                 xv = self.mapper(aa)
                 if np.any(~np.isfinite(xv)):
                     raise DFConvergenceError("nonfinite mapped orbit in spherical frequency calculation")
-                # Interpolated Hamiltonian derivatives may turn negative on
-                # very eccentric weakly bound orbits. Use direct integration.
-                _, omega = self.agama.actions(self.potential, xv, frequencies=True)
-                ratio[general] = omega[:, 0]/omega[:, 1]
+                if self.point_mass:
+                    # AGAMA's frequencies are inaccurate for highly eccentric orbits
+                    # around a point mass (e.g. ratio 0.69 instead of 1 in pure Kepler
+                    # at L/Jr = 1e-3); integrate the apsidal angle directly instead.
+                    ratio[general] = self._apsidal_ratio(xv, angular[general])
+                else:
+                    # Interpolated Hamiltonian derivatives may turn negative on
+                    # very eccentric weakly bound orbits. Use direct integration.
+                    _, omega = self.agama.actions(self.potential, xv, frequencies=True)
+                    ratio[general] = omega[:, 0]/omega[:, 1]
         else:
             ell = angular+1.4*jr
             r = np.atleast_1d(self.potential.Rcirc(L=np.maximum(ell, 1e-100)))
@@ -124,23 +137,91 @@ class SphericalFrequencyRatio:
             kappa2 = -deriv[:, 0]+3*omega2
             c = np.divide(angular, jr+angular, out=np.zeros_like(jr), where=jr+angular > 0)
             ratio = 1/(.5+c*(np.sqrt(omega2/kappa2)-.5))
-        # Analytic radial-orbit limit, including the joint origin by continuity.
-        ratio[angular == 0] = 2.
+        # Analytic radial-orbit limit (2 for a finite centre, 1 with a point mass),
+        # including the joint origin by continuity.
+        ratio[angular == 0] = self.radial_limit
         if np.any(~np.isfinite(ratio)) or np.any(ratio <= 0):
             bad = (~np.isfinite(ratio)) | (ratio <= 0)
             raise DFConvergenceError(f"invalid spherical frequencies at actions "
                                      f"{np.column_stack((jr[bad], angular[bad]))[:3].tolist()}")
         return ratio.reshape(shape)
 
+    def _phi_radial(self, r):
+        r = np.asarray(r, float)
+        return self.potential.potential(np.column_stack((r.ravel(), 0*r.ravel(), 0*r.ravel()))).reshape(r.shape)
+
+    def _apsidal_ratio(self, xv, angular, nodes=96, iterations=200):
+        """Omega_r/Omega_t = 2 pi/Delta phi, Delta phi = 2 int L du/sqrt(2(E-Phi(1/u))-L^2 u^2).
+
+        E is taken from the phase-space point mapped from the actions (accurate),
+        the turning points are bracketed around that point's radius and found by
+        bisection in log r, and u = u_mid + du cos(theta) removes both
+        inverse-square-root singularities (the integral is exactly 2 pi in pure
+        Kepler). Vectorised over orbits.
+        """
+        r0 = np.linalg.norm(xv[:, :3], axis=1)
+        energy = self._phi_radial(r0)+.5*np.sum(xv[:, 3:]**2, axis=1)
+        L = np.asarray(angular, float)
+
+        def F(r):          # > 0 between the turning points
+            return 2*(energy-self._phi_radial(r))*r*r-L*L
+
+        def bisect(lo, hi, inside_is_hi):
+            for _ in range(iterations):
+                mid = np.sqrt(lo*hi)
+                positive = F(mid) > 0
+                if inside_is_hi:
+                    hi, lo = np.where(positive, mid, hi), np.where(positive, lo, mid)
+                else:
+                    lo, hi = np.where(positive, mid, lo), np.where(positive, hi, mid)
+                if np.all(hi/lo-1 < 1e-15):
+                    break
+            return np.sqrt(lo*hi)
+        r_out = r0*2.
+        for _ in range(200):
+            grow = F(r_out) > 0
+            if not np.any(grow):
+                break
+            r_out = np.where(grow, r_out*2, r_out)
+        if np.any(F(r_out) > 0):
+            raise DFConvergenceError("apocentre not bracketed in apsidal-angle integration")
+        r_in = r0*.5
+        for _ in range(1000):       # F -> -L^2 < 0 as r -> 0 (point-mass potential ~ -GM/r)
+            shrink = F(r_in) > 0
+            if not np.any(shrink):
+                break
+            r_in = np.where(shrink, r_in*.5, r_in)
+        if np.any(F(r_in) > 0):
+            raise DFConvergenceError("pericentre not bracketed in apsidal-angle integration")
+        rp = bisect(r_in, r0, inside_is_hi=True)
+        ra = bisect(r0, r_out, inside_is_hi=False)
+        up, ua = 1/rp, 1/ra
+        um, du = .5*(up+ua), .5*(up-ua)
+        z, w = np.polynomial.legendre.leggauss(nodes)
+        theta = .5*np.pi*(z+1)
+        u = um[:, None]+du[:, None]*np.cos(theta)[None, :]
+        rad = 2*(energy[:, None]-self._phi_radial(1/u))-(L[:, None]*u)**2
+        rad = np.maximum(rad, 0.)
+        # integrand L du sin(theta)/sqrt(rad); rad ~ (u-ua)(up-u) G(u), regular after substitution
+        with np.errstate(divide="ignore", invalid="ignore"):
+            f = L[:, None]*du[:, None]*np.sin(theta)[None, :]/np.sqrt(rad)
+        f = np.where(np.isfinite(f), f, 0.)
+        dphi = 2*.5*np.pi*np.sum(w[None, :]*f, axis=1)
+        if np.any(~np.isfinite(dphi)) or np.any(dphi <= 0):
+            raise DFConvergenceError("invalid apsidal angle")
+        return 2*np.pi/dphi
+
 
 class _ContourSpline:
     """Tensor cubic interpolation, with characteristic-derived c derivatives.
 
-    The radial boundary obeys h_c=-h_x/2 exactly for the interpolated h=ln Lc,
-    not merely at the tabulated nodes.  Thus interpolation preserves the
-    low-L derivative ratio. No clipping or repair of negative DFs is used.
+    The radial boundary obeys h_c=-k h_x exactly for the interpolated h=ln Lc,
+    not merely at the tabulated nodes, with k=(g0-1)/g0 from the radial-orbit
+    frequency ratio g0 (k=1/2 for a finite centre, 0 with a central point mass).
+    Thus interpolation preserves the low-L derivative ratio. No clipping or
+    repair of negative DFs is used.
     """
-    def __init__(self, x, c, h, slopes):
+    def __init__(self, x, c, h, slopes, radial_factor=.5):
         ch = CubicHermiteSpline(c, h.T, slopes.T, axis=0)
         self.coeff = CubicSpline(x, np.moveaxis(ch.c, -1, 0), axis=0).c
         self.x, self.c = x, c
@@ -149,7 +230,7 @@ class _ContourSpline:
         hx = CubicSpline(x, h, axis=0)
         h0, h1 = hx.c[:, :, 0], hx.c[:, :, 1]
         d0 = np.zeros_like(h0)
-        d0[1:] = -.5*np.arange(3, 0, -1)[:, None]*h0[:-1]
+        d0[1:] = -radial_factor*np.arange(3, 0, -1)[:, None]*h0[:-1]
         d1 = CubicSpline(x, slopes[:, 1]).c
         dc = c[1]-c[0]
         self.coeff[:, :, 3, 0] = h0
@@ -213,7 +294,8 @@ class RegularizedExponentialDF:
                              for i in range(len(self.c))])
         hx = CubicSpline(self.x, h, axis=0)(self.x, 1)
         slopes = -self._flow(np.exp(self.x[:, None]), self.c[None, :])*hx
-        self.spline = _ContourSpline(self.x, self.c, h, slopes)
+        g0 = float(np.ravel(self.frequency_ratio(np.array([1.]), np.array([0.])))[0])
+        self.spline = _ContourSpline(self.x, self.c, h, slopes, radial_factor=(g0-1)/g0)
         self.integral = self.normalization_integral(n.normalization_order)
         refined = self.normalization_integral(2*n.normalization_order)
         self.normalization_error = abs(self.integral/refined-1)
@@ -292,12 +374,18 @@ class RegularizedExponentialDF:
         angular = actions[..., 1]+abs(actions[..., 2])
         # Lc >= L because g>0. Avoid computing contours whose DF is already
         # guaranteed below floating-point range, without imposing a tail cut.
-        cutoff = (np.log(self.amplitude)-np.log(np.nextafter(0., 1.))+2)**(1/self.parameters.alpha)
-        active = angular < self.parameters.J0*cutoff
+        # Also Lc >= q exp(1-e^B): the frequency ratio is >= 1 for any nonnegative
+        # spherical density, |bias| <= B, so the contour flow is >= 1-e^B. This keeps
+        # near-escape orbits around a point mass (Jr ~ 1e12+) out of the action mapper.
+        p = self.parameters
+        bound = abs(p.b_out)+(abs(p.b_outer-p.b_out) if p.b_outer is not None else 0.)
+        q = actions[..., 0]+angular
+        cutoff = (np.log(self.amplitude)-np.log(np.nextafter(0., 1.))+2)**(1/p.alpha)
+        active = (angular < p.J0*cutoff) & (q*np.exp(1-np.exp(bound)) < p.J0*cutoff)
         result = np.zeros(angular.shape)
         lc = self.contour_label(actions[..., 0][active], angular[active])
         with np.errstate(over="ignore"):
-            result[active] = self.amplitude*np.exp(-(lc/self.parameters.J0)**self.parameters.alpha)
+            result[active] = self.amplitude*np.exp(-(lc/p.J0)**p.alpha)
         return result
 
     def totalMass(self):
@@ -314,10 +402,11 @@ class PrescribedMatter:
     r_t: float = 1000.
     M_rem: float = 0.
     a_rem: float = 3.
+    M_bh: float = 0.          # exact central point mass (Msun); 0 = none
 
     def __post_init__(self):
         _finite(**asdict(self))
-        if min(self.rho20, self.M_rem) < 0 or min(self.r_s, self.r_t, self.a_rem) <= 0:
+        if min(self.rho20, self.M_rem, self.M_bh) < 0 or min(self.r_s, self.r_t, self.a_rem) <= 0:
             raise ValueError("invalid prescribed density mass/scale")
         if self.gamma not in (0., 1.):
             raise ValueError("choose gamma=0 (core) or gamma=1 (cusp) as separate models")
@@ -341,6 +430,8 @@ class PrescribedMatter:
         result = []
         if self.M_rem:
             result.append(agama.Potential(type="Plummer", mass=self.M_rem, scaleRadius=self.a_rem))
+        if self.M_bh:
+            result.append(agama.Potential(type="Plummer", mass=self.M_bh, scaleRadius=0.))  # exact point mass
         if self.rho20:
             density = agama.Density(density=lambda xyz: self.halo_density(np.linalg.norm(xyz, axis=1)),
                                     symmetry="s")
@@ -395,7 +486,7 @@ def _resolved_density(agama, radii, density):
 
 
 class RegularizedDFModel(PositiveDFModel):
-    """Self-gravitating stars plus prescribed dark densities; no central BH.
+    """Self-gravitating stars plus prescribed dark densities and an optional central point mass.
 
     Convergence compares stellar density where rho > 1e-12 peak OR the
     stellar mass per log-radius exceeds 1e-8 Mstar, plus total force everywhere.
