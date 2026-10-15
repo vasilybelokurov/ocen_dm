@@ -113,6 +113,8 @@ share of the enclosed mass. Grey: outside the radial range of the data.*
   puts 2.7×10⁵ M☉ in a Plummer of 2.2 pc. At 10 pc the non-stellar share is
   ~23% (Jeans) against 15% (DF).
 
+**Physical plausibility of the remnant mass:** 18–26% of the total including the black hole, 1.5–2.9× the IMF budget for remnants heavier than the tracers; see [Remnant mass and the stellar population](../remnant_mass.md#our-models-against-these-bounds).
+
 ## Anisotropy
 
 ![Anisotropy of the Jeans model against the DF base model](../../../plots/jeans_rung2_K1_turnover_beta.png)

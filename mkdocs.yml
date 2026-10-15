@@ -107,6 +107,7 @@ nav:
   - Results:
       - kb/results.md
       - Comparison with published models: kb/literature_comparison.md
+      - Remnant mass and the stellar population: kb/remnant_mass.md
       - N-body and DM survival:
           - Dynamical experiments: DYNAMICAL_EXPERIMENTS.md
           - Batch analysis: DYNAMICAL_BATCH_ANALYSIS.md

@@ -2590,6 +2590,328 @@
    ],
    "note": "Added 2026-10-14 from an ADS search for omega Cen mass models; bibcode from ADS.",
    "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2001MNRAS.322..231K",
+   "cite": "Kroupa 2001",
+   "title": "On the variation of the initial mass function",
+   "topic": "stellar-populations-mf",
+   "relevance": "core",
+   "files": [
+    "docs/kb/remnant_mass.md"
+   ],
+   "note": "Added 2026-10-15 (remnant-mass discussion); bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2003PASP..115..763C",
+   "cite": "Chabrier 2003",
+   "title": "Galactic Stellar and Substellar Initial Mass Function",
+   "topic": "stellar-populations-mf",
+   "relevance": "context",
+   "files": [
+    "docs/kb/remnant_mass.md"
+   ],
+   "note": "Added 2026-10-15 (remnant-mass discussion); bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2008ApJ...676..594K",
+   "cite": "Kalirai et al. 2008",
+   "title": "The Initial-Final Mass Relation: Direct Constraints at the Low-Mass End",
+   "topic": "stellar-populations-mf",
+   "relevance": "core",
+   "files": [
+    "docs/kb/remnant_mass.md"
+   ],
+   "note": "Added 2026-10-15 (remnant-mass discussion); bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2003MNRAS.340..227B",
+   "cite": "Baumgardt & Makino 2003",
+   "title": "Dynamical evolution of star clusters in tidal fields",
+   "topic": "cluster-dynamics-methods",
+   "relevance": "context",
+   "files": [
+    "docs/kb/remnant_mass.md"
+   ],
+   "note": "Added 2026-10-15 (remnant-mass discussion); bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2017MNRAS.471.3668S",
+   "cite": "Sollima & Baumgardt 2017",
+   "title": "The global mass functions of 35 Galactic globular clusters: I",
+   "topic": "stellar-populations-mf",
+   "relevance": "context",
+   "files": [
+    "docs/kb/remnant_mass.md"
+   ],
+   "note": "Added 2026-10-15 (remnant-mass discussion); bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2017MNRAS.472..744B",
+   "cite": "Baumgardt & Sollima 2017",
+   "title": "The global mass functions of 35 Galactic globular clusters - II",
+   "topic": "stellar-populations-mf",
+   "relevance": "context",
+   "files": [
+    "docs/kb/remnant_mass.md"
+   ],
+   "note": "Added 2026-10-15 (remnant-mass discussion); bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2005MNRAS.360..974H",
+   "cite": "Hobbs et al. 2005",
+   "title": "A statistical study of 233 pulsar proper motions",
+   "topic": "stellar-populations-mf",
+   "relevance": "context",
+   "files": [
+    "docs/kb/remnant_mass.md"
+   ],
+   "note": "Added 2026-10-15 (remnant-mass discussion); bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2002ApJ...573..283P",
+   "cite": "Pfahl, Rappaport & Podsiadlowski 2002",
+   "title": "A Comprehensive Study of Neutron Star Retention in Globular Clusters",
+   "topic": "stellar-populations-mf",
+   "relevance": "context",
+   "files": [
+    "docs/kb/remnant_mass.md"
+   ],
+   "note": "Added 2026-10-15 (remnant-mass discussion); bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2012ApJ...749...91F",
+   "cite": "Fryer et al. 2012",
+   "title": "Compact Remnant Mass Function: Dependence on the Explosion Mechanism and Metallicity",
+   "topic": "stellar-populations-mf",
+   "relevance": "context",
+   "files": [
+    "docs/kb/remnant_mass.md"
+   ],
+   "note": "Added 2026-10-15 (remnant-mass discussion); bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2017MNRAS.470.2736P",
+   "cite": "Peuten et al. 2017",
+   "title": "Testing lowered isothermal models with direct N-body simulations of globular clusters - II. Multimass models",
+   "topic": "cluster-dynamics-methods",
+   "relevance": "context",
+   "files": [
+    "docs/kb/remnant_mass.md"
+   ],
+   "note": "Added 2026-10-15 (remnant-mass discussion); bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2018ApJ...864...13W",
+   "cite": "Weatherford et al. 2018",
+   "title": "Predicting Stellar-mass Black Hole Populations in Globular Clusters",
+   "topic": "cluster-dynamics-methods",
+   "relevance": "context",
+   "files": [
+    "docs/kb/remnant_mass.md"
+   ],
+   "note": "Added 2026-10-15 (remnant-mass discussion); bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2020ApJ...898..162W",
+   "cite": "Weatherford et al. 2020",
+   "title": "A Dynamical Survey of Stellar-mass Black Holes in 50 Milky Way Globular Clusters",
+   "topic": "cluster-dynamics-methods",
+   "relevance": "context",
+   "files": [
+    "docs/kb/remnant_mass.md"
+   ],
+   "note": "Added 2026-10-15 (remnant-mass discussion); bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2020ApJS..247...48K",
+   "cite": "Kremer et al. 2020",
+   "title": "Modeling Dense Star Clusters in the Milky Way and Beyond with the CMC Cluster Catalog",
+   "topic": "cluster-dynamics-methods",
+   "relevance": "context",
+   "files": [
+    "docs/kb/remnant_mass.md"
+   ],
+   "note": "Added 2026-10-15 (remnant-mass discussion); bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2021NatAs...5..957G",
+   "cite": "Gieles et al. 2021",
+   "title": "A supra-massive population of stellar-mass black holes in the globular cluster Palomar 5",
+   "topic": "cluster-dynamics-methods",
+   "relevance": "context",
+   "files": [
+    "docs/kb/remnant_mass.md"
+   ],
+   "note": "Added 2026-10-15 (remnant-mass discussion); bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2013MNRAS.432.2779B",
+   "cite": "Breen & Heggie 2013",
+   "title": "Dynamical evolution of black hole subsystems in idealized star clusters",
+   "topic": "cluster-dynamics-methods",
+   "relevance": "context",
+   "files": [
+    "docs/kb/remnant_mass.md"
+   ],
+   "note": "Added 2026-10-15 (remnant-mass discussion); bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2015ApJ...804...53H",
+   "cite": "Heyl et al. 2015",
+   "title": "A Measurement of Diffusion in 47 Tucanae",
+   "topic": "cluster-dynamics-methods",
+   "relevance": "context",
+   "files": [
+    "docs/kb/remnant_mass.md"
+   ],
+   "note": "Added 2026-10-15 (remnant-mass discussion); bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2013ApJ...769L..32B",
+   "cite": "Bellini et al. 2013",
+   "title": "A Double White-dwarf Cooling Sequence in omega Centauri",
+   "topic": "stellar-populations-mf",
+   "relevance": "context",
+   "files": [
+    "docs/kb/remnant_mass.md"
+   ],
+   "note": "Added 2026-10-15 (remnant-mass discussion); bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2020ApJ...904...43H",
+   "cite": "Haghi et al. 2020",
+   "title": "The Lifetimes of Star Clusters Born with a Top-heavy IMF",
+   "topic": "stellar-populations-mf",
+   "relevance": "context",
+   "files": [
+    "docs/kb/remnant_mass.md"
+   ],
+   "note": "Added 2026-10-15 (remnant-mass discussion); bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2025MNRAS.536.1332R",
+   "cite": "Rostami-Shirazi et al. 2025",
+   "title": "Origin of high dark remnant fractions in Milky Way globular clusters: the crucial role of initial black hole retention",
+   "topic": "cluster-dynamics-methods",
+   "relevance": "context",
+   "files": [
+    "docs/kb/remnant_mass.md"
+   ],
+   "note": "Added 2026-10-15 (remnant-mass discussion); bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2026ApJ..1006L...1W",
+   "cite": "Whitaker et al. 2026",
+   "title": "A Long Period Stellar-mass Black Hole Binary in omega Centauri",
+   "topic": "omega-cen-mass-imbh",
+   "relevance": "context",
+   "files": [
+    "docs/kb/remnant_mass.md"
+   ],
+   "note": "Added 2026-10-15 (remnant-mass discussion); bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2026arXiv260707010D",
+   "cite": "Dickson et al. 2026a (preprint)",
+   "title": "Fast Dynamical Modelling of Milky Way Globular Clusters -- I",
+   "topic": "cluster-dynamics-methods",
+   "relevance": "context",
+   "files": [
+    "docs/kb/remnant_mass.md"
+   ],
+   "note": "Added 2026-10-15 (remnant-mass discussion); bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2026arXiv260910955D",
+   "cite": "Dickson et al. 2026b (preprint)",
+   "title": "Fast Dynamical Modelling of Milky Way Globular Clusters -- II",
+   "topic": "cluster-dynamics-methods",
+   "relevance": "context",
+   "files": [
+    "docs/kb/remnant_mass.md"
+   ],
+   "note": "Added 2026-10-15 (remnant-mass discussion); bibcode from ADS.",
+   "needs_resolution": false
+  },
+  {
+   "arxiv": null,
+   "doi": null,
+   "bibcode": "2026arXiv260321845B",
+   "cite": "Colom i Bernadich et al. 2026 (preprint)",
+   "title": "A joint MeerKAT and Parkes view of Omega Centauri: New TRAPUM Searches and Pulsar Timing",
+   "topic": "omega-cen-mass-imbh",
+   "relevance": "context",
+   "files": [
+    "docs/kb/remnant_mass.md"
+   ],
+   "note": "Added 2026-10-15 (remnant-mass discussion); bibcode from ADS.",
+   "needs_resolution": false
   }
  ],
  "erroneous_identifiers_exclude": [

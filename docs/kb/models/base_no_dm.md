@@ -141,6 +141,8 @@ pc, and dominates the mass inside ~1.5 pc (60% inside 1 pc).
 
 **Comparison with the literature:** published fits find 1.35–2.65×10⁵ M☉ in a central non-luminous component; Bañares-Hernández+2025 fit the same Plummer form and get 2.65×10⁵ M☉ with a 1.88 pc scale. Details: [Remnant mass and spatial scale](../literature_comparison.md#remnant-mass-and-spatial-scale).
 
+**Is this remnant mass physically sensible?** It is 8.4% of the total and 0.09 of the stellar mass, inside the IMF budget for remnants heavier than the tracer stars (8.7–11.8% with all black holes retained): [Remnant mass and the stellar population](../remnant_mass.md).
+
 ### Distance, geometry, rotation
 
 - Distance free in 4.8–6.0 kpc with a Gaussian prior \(N(5.43, 0.05)\) kpc;

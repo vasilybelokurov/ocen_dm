@@ -163,6 +163,8 @@ paper's numbers as shown.
   against the stellar mass (±23% on mocks), and pinning the mass per counted
   star between 8 and 12 M☉ moves it from 1.6 to 4.4×10⁵ M☉.
 
+How these remnant masses relate to the stellar mass and the IMF, and which are physically allowed: [Remnant mass and the stellar population](remnant_mass.md).
+
 Caveat: the Bañares-Hernández values are from arXiv:2408.00939v6, which may
 differ in detail from the journal version; in it, the Sec. 8.1 statement on
 the centre dependence does not match the Fig. C.1 numbers.
