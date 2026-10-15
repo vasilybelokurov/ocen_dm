@@ -71,7 +71,243 @@ class ContourNumerics:
             raise ValueError("frequency_mode must be exact or epicycle")
 
 
-class SphericalFrequencyRatio:
+class _SphericalOrbitQuadrature:
+    """Direct radial-orbit quadratures in a spherical potential (``self.potential``).
+
+    Validated against analytic Kepler and isochrone actions (~1e-11) and against
+    numerical orbit integration (~5e-11). Used where AGAMA's spherical action
+    routines are not accurate enough: with an exact central point mass they are
+    off by ~1e-4 for near-radial orbits (also in pure Kepler) and can fail for
+    weakly bound ones (Jr = 0 at 1e4 pc).
+    """
+    def _phi_radial(self, r):
+        r = np.asarray(r, float)
+        return self.potential.potential(np.column_stack((r.ravel(), 0*r.ravel(), 0*r.ravel()))).reshape(r.shape)
+
+    def _circular_radius(self, L, iterations=400):
+        """R_circ(L) from r^3 dPhi/dr = L^2 by bisection in log r (monotone for any
+        nonnegative spherical density)."""
+        L = np.asarray(L, float)
+        lo, hi = np.full_like(L, np.log(1e-30)), np.full_like(L, np.log(1e30))
+        for _ in range(iterations):
+            mid = .5*(lo+hi)
+            r = np.exp(mid)
+            force = self.potential.force(np.column_stack((r, 0*r, 0*r)))[:, 0]
+            inside = -force*r**3 < L*L
+            lo, hi = np.where(inside, mid, lo), np.where(inside, hi, mid)
+            if np.all(hi-lo < 1e-14):
+                break
+        return np.exp(.5*(lo+hi))
+
+    def _turning_points(self, energy, L, r0=None, iterations=200):
+        """Peri- and apocentre by bisection in log r, bracketed outwards from an interior radius.
+
+        Rows where r0 is missing or not strictly inside the orbit use R_circ(L),
+        which lies inside every non-circular orbit; an orbit with F(R_circ) <= 0
+        is circular to rounding and returns r_p = r_a = R_circ.
+        """
+        energy, L = np.asarray(energy, float), np.asarray(L, float)
+        if np.any(~np.isfinite(energy)) or np.any(energy >= 0) or np.any(~(L > 0)):
+            raise DFConvergenceError("turning points need bound orbits with L > 0")
+
+        def F(r):          # > 0 between the turning points
+            return 2*(energy-self._phi_radial(r))*r*r-L*L
+
+        r0 = self._circular_radius(L) if r0 is None else np.array(r0, float)
+        outside = ~(F(r0) > 0)
+        if np.any(outside):
+            r0[outside] = self._circular_radius(L[outside])
+
+        def bisect(lo, hi, inside_is_hi):
+            for _ in range(iterations):
+                mid = np.sqrt(lo*hi)
+                positive = F(mid) > 0
+                if inside_is_hi:
+                    hi, lo = np.where(positive, mid, hi), np.where(positive, lo, mid)
+                else:
+                    lo, hi = np.where(positive, mid, lo), np.where(positive, hi, mid)
+                if np.all(hi/lo-1 < 1e-15):
+                    break
+            return np.sqrt(lo*hi)
+        r_out = r0*2.
+        for _ in range(1000):
+            grow = F(r_out) > 0
+            if not np.any(grow):
+                break
+            r_out = np.where(grow, r_out*2, r_out)
+        if np.any(F(r_out) > 0):
+            raise DFConvergenceError("apocentre not bracketed in radial-orbit quadrature")
+        r_in = r0*.5
+        for _ in range(1000):       # F -> -L^2 < 0 as r -> 0 (point-mass potential ~ -GM/r)
+            shrink = F(r_in) > 0
+            if not np.any(shrink):
+                break
+            r_in = np.where(shrink, r_in*.5, r_in)
+        if np.any(F(r_in) > 0):
+            raise DFConvergenceError("pericentre not bracketed in radial-orbit quadrature")
+        return bisect(r_in, r0, inside_is_hi=True), bisect(r0, r_out, inside_is_hi=False)
+
+    def _quadratures_at(self, energy, L, rp, ra, nodes):
+        z, w = np.polynomial.legendre.leggauss(nodes)
+        theta = .5*np.pi*(z+1)
+        sin = np.sin(theta)[None, :]
+        quad = lambda f: .5*np.pi*np.sum(w[None, :]*f, axis=1)
+
+        def radicand(r, rad):
+            peak = np.max(np.abs(rad), axis=1, keepdims=True)
+            if np.any(rad < -1e-6*peak):
+                raise DFConvergenceError("negative radicand inside the orbit (non-monotone potential?)")
+            return np.maximum(rad, 0.)
+        up, ua = 1/rp, 1/ra
+        um, du = .5*(up+ua), .5*(up-ua)
+        u = um[:, None]+du[:, None]*np.cos(theta)[None, :]
+        rad = radicand(1/u, 2*(energy[:, None]-self._phi_radial(1/u))-(L[:, None]*u)**2)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            dphi = 2*quad(np.where(rad > 0, L[:, None]*du[:, None]*sin/np.sqrt(rad), 0.))
+        half = .5*np.log(ra/rp)
+        r = rp[:, None]*np.exp(2*half[:, None]*np.sin(theta/2)[None, :]**2)
+        pr2 = radicand(r, 2*(energy[:, None]-self._phi_radial(r))-(L[:, None]/r)**2)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            inv = np.where(pr2 > 0, r*half[:, None]*sin/np.sqrt(pr2), 0.)
+        jr = quad(r*half[:, None]*sin*np.sqrt(pr2))/np.pi
+        djr = quad(inv)/np.pi
+        return dphi, jr, djr
+
+    def _radial_quadratures(self, energy, L, r0=None, nodes=96, rtol=(1e-6, 1e-9, 1e-6), max_nodes=1536):
+        """Delta phi, Jr and dJr/dE = T_r/(2 pi), vectorised over orbits.
+
+        Delta phi uses u = 1/r = u_mid + du cos(theta) (pericentre-weighted; exactly
+        2 pi in pure Kepler); Jr and T_r use ln r = ln r_p + Delta (1-cos theta), which
+        resolves the outer orbit that dominates them at extreme eccentricity
+        (r_p/r_a ~ 1e-20 around a point mass). Both substitutions remove the
+        inverse-square-root singularities at the turning points. The node count is
+        doubled per orbit until successive orders agree to rtol (Delta phi, Jr, T_r; None = not required);
+        Delta phi and T_r have a ~1e-7 rounding floor on near-circular orbits.
+        """
+        energy, L = np.asarray(energy, float), np.asarray(L, float)
+        rp, ra = self._turning_points(energy, L, r0)
+        out = np.array(self._quadratures_at(energy, L, rp, ra, nodes))
+        todo = np.arange(len(energy))
+        while len(todo):
+            if 2*nodes > max_nodes:
+                raise DFConvergenceError(f"radial-orbit quadrature unconverged at {nodes} nodes")
+            nodes *= 2
+            finer = np.array(self._quadratures_at(energy[todo], L[todo], rp[todo], ra[todo], nodes))
+            # Jr is judged relative to Jr + L (the DF depends on the actions through
+            # it): near-circular orbits have a ~1e-9 relative rounding floor in Jr alone.
+            scale = np.abs(finer)
+            scale[1] += L[todo]
+            with np.errstate(divide="ignore", invalid="ignore"):
+                change = np.abs(finer-out[:, todo])/scale
+            change = np.where(finer == out[:, todo], 0., change)
+            out[:, todo] = finer
+            tol = np.array([np.inf if t is None else t for t in rtol])[:, None]   # None: not required
+            todo = todo[np.any(~(change <= tol), axis=0)]
+        return out[0], out[1], out[2]
+
+    def _apsidal_ratio(self, energy, L, r0=None):
+        """Omega_r/Omega_t = 2 pi/Delta phi, Delta phi = 2 int L du/sqrt(2(E-Phi(1/u))-L^2 u^2).
+
+        E is taken from the phase-space point mapped from the actions (or from
+        inverting Jr(E, L) where the mapper fails); r0 is a radius on the orbit.
+        """
+        dphi = self._radial_quadratures(energy, L, r0, rtol=(1e-5, None, None))[0]
+        if np.any(~np.isfinite(dphi)) or np.any(dphi <= 0):
+            raise DFConvergenceError("invalid apsidal angle")
+        return 2*np.pi/dphi
+
+    def _energy_from_actions(self, jr, L, r_circ=None, tolerance=1e-12, iterations=300):
+        """E with Jr(E, L) = jr: safeguarded Newton in w = 1/sqrt(-2E).
+
+        Jr(w) is exactly linear in Kepler (Jr = GM w - L) and monotone in general;
+        the bracket starts at the circular orbit (Jr = 0) and is open above.
+        """
+        jr, L = np.asarray(jr, float), np.asarray(L, float)
+        r_circ = self._circular_radius(L) if r_circ is None else np.asarray(r_circ, float)
+        e_circ = self._phi_radial(r_circ)+.5*(L/r_circ)**2
+        lo, hi = 1/np.sqrt(-2*e_circ), np.full_like(e_circ, np.inf)
+        gm = -self._phi_radial(r_circ)*r_circ
+        w = lo+jr/gm
+        previous = np.full_like(w, np.inf)
+        for _ in range(iterations):
+            energy = -.5/w**2
+            _, j, dj = self._radial_quadratures(energy, L, r_circ, rtol=(None, 1e-9, None))   # T_r only steers Newton
+            resid = j-jr
+            if np.all(np.abs(resid) <= tolerance*jr):
+                break
+            lo, hi = np.where(resid < 0, w, lo), np.where(resid < 0, hi, w)
+            with np.errstate(divide="ignore", invalid="ignore"):
+                step = w-resid/(dj/w**3)                     # dJr/dw = dJr/dE / w^3
+            # Newton unless it leaves the bracket or the residual failed to halve
+            # (Jr(E) steepens where the orbit leaves the point mass's sphere of influence).
+            newton = (step > lo) & (step < hi) & (np.abs(resid) < .5*previous)
+            fallback = np.where(np.isfinite(hi), np.sqrt(lo*hi), 2*lo)
+            w = np.where(newton, step, fallback)
+            previous = np.where(newton, np.abs(resid), np.inf)
+        energy = -.5/w**2
+        if np.any(np.abs(self._radial_quadratures(energy, L, r_circ, rtol=(None, 1e-9, None))[1]/jr-1) > 1e-9):
+            raise DFConvergenceError("radial-action inversion failed")
+        return energy
+
+
+class ExactSphericalActions(_SphericalOrbitQuadrature):
+    """AGAMA-compatible action finder by direct quadrature: N x 6 points -> (Jr, Jz, Jphi).
+
+    For spherical potentials with an exact central point mass (see
+    _SphericalOrbitQuadrature); several times slower than agama.ActionFinder.
+    """
+    def __init__(self, potential, chunk=8192):
+        self.potential, self.agama, self.chunk = potential, agama_pc(), chunk
+
+    def __call__(self, points):
+        p = np.asarray(points, float)
+        if p.ndim != 2 or p.shape[1] != 6 or np.any(~np.isfinite(p)):
+            raise ValueError("expected a finite N x 6 array")
+        x, v = p[:, :3], p[:, 3:]
+        r = np.linalg.norm(x, axis=1)
+        energy = self._phi_radial(r)+.5*np.sum(v*v, axis=1)
+        if np.any(~(energy < 0)):
+            raise DFConvergenceError("actions requested for unbound or non-finite points")
+        lvec = np.cross(x, v)
+        lz, L = lvec[:, 2], np.linalg.norm(lvec, axis=1)
+        # Radial rows: Jr is continuous in L, so a relative 1e-14 floor changes it negligibly.
+        L_eff = np.maximum(L, 1e-14*r*np.linalg.norm(v, axis=1))
+        jr = np.empty(len(p))
+        for s in range(0, len(p), self.chunk):
+            k = slice(s, s+self.chunk)
+            jr[k] = self._radial_quadratures(energy[k], L_eff[k], r[k].copy(), rtol=(None, 1e-9, None))[1]
+        return np.column_stack((jr, L-np.abs(lz), lz))
+
+
+class GuardedActionFinder:
+    """agama.ActionFinder for point-mass models, with exact quadrature where its errors could add mass.
+
+    Compared with exact actions, AGAMA's moves the kinematic bin predictions of point-mass models by
+    <= 0.01 sigma (bin/compare_df_actions.py), but for some DFs it returns Jr ~ 0 for slow orbits far
+    outside the cluster, where the true DF has underflowed: spurious mass in the outermost grid cells.
+    Points beyond r_guard whose AGAMA actions give f > 0, and any non-finite AGAMA actions, are
+    recomputed exactly. Not caught:
+    an AGAMA overestimate of Jr out there, which could only remove mass where f is negligible anyway.
+    """
+    def __init__(self, potential, df, r_guard=300.):
+        self.af, self.exact = agama_pc().ActionFinder(potential), ExactSphericalActions(potential)
+        self.df, self.r_guard = df, r_guard
+
+    def __call__(self, points):
+        points = np.asarray(points, float)
+        actions = np.array(self.af(points))
+        broken = ~np.all(np.isfinite(actions), axis=1) | np.any(actions[:, :2] < 0, axis=1)
+        if np.any(broken):          # AGAMA can also return NaN actions around a point mass
+            actions[broken] = self.exact(points[broken])
+        far = np.flatnonzero(np.linalg.norm(points[:, :3], axis=1) > self.r_guard)
+        if len(far):
+            suspect = far[self.df(actions[far]) > 0]
+            if len(suspect):
+                actions[suspect] = self.exact(points[suspect])
+        return actions
+
+
+class SphericalFrequencyRatio(_SphericalOrbitQuadrature):
     """Omega_r/Omega_t in a spherical model, with a finite centre or an exact central point mass.
 
     ActionMapper returns spherical frequencies without numerical differencing
@@ -117,13 +353,37 @@ class SphericalFrequencyRatio:
             aa[:, 0], aa[:, 2], aa[:, 3:] = jr[general], angular[general], 1.
             if len(aa):
                 xv = self.mapper(aa)
-                if np.any(~np.isfinite(xv)):
-                    raise DFConvergenceError("nonfinite mapped orbit in spherical frequency calculation")
                 if self.point_mass:
                     # AGAMA's frequencies are inaccurate for highly eccentric orbits
                     # around a point mass (e.g. ratio 0.69 instead of 1 in pure Kepler
                     # at L/Jr = 1e-3); integrate the apsidal angle directly instead.
-                    ratio[general] = self._apsidal_ratio(xv, angular[general])
+                    # The mapper also returns NaN, or unbound points (E >= 0), at large
+                    # Jr (>~1e6, apocentres >~1e8 pc) around a point mass: invert Jr(E, L)
+                    # there (exact, but ~50x slower than the mapper).
+                    L = angular[general]
+                    finite = np.all(np.isfinite(xv), axis=1)
+                    r0 = np.where(finite, np.linalg.norm(np.where(finite[:, None], xv, 1.)[:, :3], axis=1), 1.)
+                    energy = np.where(finite, self._phi_radial(r0)+.5*np.sum(np.where(finite[:, None], xv, 0.)[:, 3:]**2, axis=1), 0.)
+                    lost = ~finite | (energy >= 0)
+                    target = jr[general]
+                    dphi = np.empty(len(L))
+                    kept = np.flatnonzero(~lost)
+                    if len(kept):
+                        # Also reject finite mapped orbits whose own Jr misses the request by
+                        # > 1% of Jr + L (seen: 20x too small at ~1e3 pc); its usual ~1e-3
+                        # errors move the frequency ratio by < 3e-5.
+                        d, j, _ = self._radial_quadratures(energy[kept], L[kept], r0[kept], rtol=(1e-5, 1e-9, None))
+                        dphi[kept] = d
+                        lost[kept[np.abs(j-target[kept]) > 1e-2*(target[kept]+L[kept])]] = True
+                    if np.any(lost):
+                        r0[lost] = self._circular_radius(L[lost])
+                        energy[lost] = self._energy_from_actions(target[lost], L[lost], r0[lost])
+                        dphi[lost] = self._radial_quadratures(energy[lost], L[lost], r0[lost], rtol=(1e-5, None, None))[0]
+                    if np.any(~np.isfinite(dphi)) or np.any(dphi <= 0):
+                        raise DFConvergenceError("invalid apsidal angle")
+                    ratio[general] = 2*np.pi/dphi
+                elif np.any(~np.isfinite(xv)):
+                    raise DFConvergenceError("nonfinite mapped orbit in spherical frequency calculation")
                 else:
                     # Interpolated Hamiltonian derivatives may turn negative on
                     # very eccentric weakly bound orbits. Use direct integration.
@@ -145,72 +405,6 @@ class SphericalFrequencyRatio:
             raise DFConvergenceError(f"invalid spherical frequencies at actions "
                                      f"{np.column_stack((jr[bad], angular[bad]))[:3].tolist()}")
         return ratio.reshape(shape)
-
-    def _phi_radial(self, r):
-        r = np.asarray(r, float)
-        return self.potential.potential(np.column_stack((r.ravel(), 0*r.ravel(), 0*r.ravel()))).reshape(r.shape)
-
-    def _apsidal_ratio(self, xv, angular, nodes=96, iterations=200):
-        """Omega_r/Omega_t = 2 pi/Delta phi, Delta phi = 2 int L du/sqrt(2(E-Phi(1/u))-L^2 u^2).
-
-        E is taken from the phase-space point mapped from the actions (accurate),
-        the turning points are bracketed around that point's radius and found by
-        bisection in log r, and u = u_mid + du cos(theta) removes both
-        inverse-square-root singularities (the integral is exactly 2 pi in pure
-        Kepler). Vectorised over orbits.
-        """
-        r0 = np.linalg.norm(xv[:, :3], axis=1)
-        energy = self._phi_radial(r0)+.5*np.sum(xv[:, 3:]**2, axis=1)
-        L = np.asarray(angular, float)
-
-        def F(r):          # > 0 between the turning points
-            return 2*(energy-self._phi_radial(r))*r*r-L*L
-
-        def bisect(lo, hi, inside_is_hi):
-            for _ in range(iterations):
-                mid = np.sqrt(lo*hi)
-                positive = F(mid) > 0
-                if inside_is_hi:
-                    hi, lo = np.where(positive, mid, hi), np.where(positive, lo, mid)
-                else:
-                    lo, hi = np.where(positive, mid, lo), np.where(positive, hi, mid)
-                if np.all(hi/lo-1 < 1e-15):
-                    break
-            return np.sqrt(lo*hi)
-        r_out = r0*2.
-        for _ in range(200):
-            grow = F(r_out) > 0
-            if not np.any(grow):
-                break
-            r_out = np.where(grow, r_out*2, r_out)
-        if np.any(F(r_out) > 0):
-            raise DFConvergenceError("apocentre not bracketed in apsidal-angle integration")
-        r_in = r0*.5
-        for _ in range(1000):       # F -> -L^2 < 0 as r -> 0 (point-mass potential ~ -GM/r)
-            shrink = F(r_in) > 0
-            if not np.any(shrink):
-                break
-            r_in = np.where(shrink, r_in*.5, r_in)
-        if np.any(F(r_in) > 0):
-            raise DFConvergenceError("pericentre not bracketed in apsidal-angle integration")
-        rp = bisect(r_in, r0, inside_is_hi=True)
-        ra = bisect(r0, r_out, inside_is_hi=False)
-        up, ua = 1/rp, 1/ra
-        um, du = .5*(up+ua), .5*(up-ua)
-        z, w = np.polynomial.legendre.leggauss(nodes)
-        theta = .5*np.pi*(z+1)
-        u = um[:, None]+du[:, None]*np.cos(theta)[None, :]
-        rad = 2*(energy[:, None]-self._phi_radial(1/u))-(L[:, None]*u)**2
-        rad = np.maximum(rad, 0.)
-        # integrand L du sin(theta)/sqrt(rad); rad ~ (u-ua)(up-u) G(u), regular after substitution
-        with np.errstate(divide="ignore", invalid="ignore"):
-            f = L[:, None]*du[:, None]*np.sin(theta)[None, :]/np.sqrt(rad)
-        f = np.where(np.isfinite(f), f, 0.)
-        dphi = 2*.5*np.pi*np.sum(w[None, :]*f, axis=1)
-        if np.any(~np.isfinite(dphi)) or np.any(dphi <= 0):
-            raise DFConvergenceError("invalid apsidal angle")
-        return 2*np.pi/dphi
-
 
 class _ContourSpline:
     """Tensor cubic interpolation, with characteristic-derived c derivatives.
@@ -506,7 +700,7 @@ class RegularizedDFModel(PositiveDFModel):
         for i in range(n.max_iterations):
             df = RegularizedExponentialDF(config.M_star, config.stellar, potential=self.potential,
                                           numerics=config.contours)
-            af = agama.ActionFinder(self.potential)
+            af = self._action_finder(self.potential, df)
             density = spherical_velocity_moments(self.potential, df, af, r, n.velocity_nodes)[:, 0]
             self.stellar_density = _resolved_density(agama, r, density)
             star = agama.Potential(type="Multipole", density=self.stellar_density, lmax=0,
@@ -532,9 +726,10 @@ class RegularizedDFModel(PositiveDFModel):
         # Rebuild once more in the final potential: never retain the seed's map.
         self.df = RegularizedExponentialDF(config.M_star, config.stellar, potential=self.potential,
                                            numerics=config.contours)
-        self.af = agama.ActionFinder(self.potential)
+        self.af = self._action_finder(self.potential, self.df)
         self.stellar_potential = star
-        self.galaxy = agama.GalaxyModel(self.potential, self.df, self.af)
+        # GalaxyModel (direct_projected_moments, validation only) needs AGAMA's own finder.
+        self.galaxy = agama.GalaxyModel(self.potential, self.df, agama.ActionFinder(self.potential))
         check_r = np.sqrt(r[:-1]*r[1:])
         direct = spherical_velocity_moments(self.potential, self.df, self.af, check_r,
                                             2*n.velocity_nodes)[:, 0]
@@ -551,6 +746,13 @@ class RegularizedDFModel(PositiveDFModel):
                                 closure_radius_pc=[float(check_r[active][0]), float(check_r[active][-1])])
         if closure > n.closure_tolerance or self.diagnostics["mass_error"] > n.mass_tolerance:
             raise DFConvergenceError(f"regularized DF closure failed: {self.diagnostics}")
+
+    def _action_finder(self, potential, df):
+        if self.config.numerics.exact_actions:
+            return ExactSphericalActions(potential)
+        if self.config.matter.M_bh > 0:
+            return GuardedActionFinder(potential, df)
+        return agama_pc().ActionFinder(potential)
 
     def _active(self, r, rho):
         return (rho > rho.max()*1e-12) | (4*np.pi*r**3*rho > self.config.M_star*1e-8)

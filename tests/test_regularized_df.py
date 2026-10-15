@@ -9,6 +9,7 @@ from scipy.special import gamma
 
 from ocen_dm.kinematics.df_fit import FitCoordinate, config_at, model_config_from_dict
 from ocen_dm.kinematics.regularized_df import (
+    ExactSphericalActions,
     ContourNumerics, ExponentialParameters, PrescribedMatter, RegularizedDFConfig,
     RegularizedExponentialDF, SphericalFrequencyRatio,
 )
@@ -183,7 +184,7 @@ def test_point_mass_kepler_frequencies_contours_and_isotropy(agama):
     assert ratio.point_mass and ratio.radial_limit == 1.
     rng = np.random.default_rng(7)
     jr, l = 10**rng.uniform(-2, 3, (2, 60))
-    np.testing.assert_allclose(ratio(jr, l), 1., rtol=1e-8)
+    np.testing.assert_allclose(ratio(jr, l), 1., rtol=3e-8)   # ~1e-8 rounding floor on near-circular orbits
     np.testing.assert_allclose(ratio(jr, 0*l), 1.)
     df = RegularizedExponentialDF(3e6, ExponentialParameters(b_out=0), potential=p)
     np.testing.assert_allclose(df.contour_label(jr, l), jr+l, rtol=2e-5)
@@ -272,5 +273,79 @@ def test_apsidal_quadrature_matches_the_exact_isochrone_ratio(agama):
     rng = np.random.default_rng(11)
     jr, l = 10**rng.uniform(-2, 3, (2, 128))
     xv = ratio.mapper(np.column_stack((jr, 0*jr, l, np.ones((len(jr), 3)))))
+    r0 = np.linalg.norm(xv[:, :3], axis=1)
+    energy = ratio._phi_radial(r0)+.5*np.sum(xv[:, 3:]**2, axis=1)
     k = agama.G*3e6*5
-    np.testing.assert_allclose(ratio._apsidal_ratio(xv, l), 2/(1+l/np.sqrt(l*l+4*k)), rtol=1e-7)
+    np.testing.assert_allclose(ratio._apsidal_ratio(energy, l, r0), 2/(1+l/np.sqrt(l*l+4*k)), rtol=1e-7)
+
+
+def test_radial_action_inversion_matches_the_exact_isochrone_energy(agama):
+    """Jr(E, L) inversion (fallback where the mapper fails) vs H = -(GM)^2/(2 [Jr + (L + sqrt(L^2+4GMb))/2]^2)."""
+    gm, b = agama.G*3e6, 5.
+    p = agama.Potential(type="Isochrone", mass=3e6, scaleRadius=b)
+    ratio = SphericalFrequencyRatio(p)
+    rng = np.random.default_rng(12)
+    jr, l = 10**rng.uniform(-2, 9, 96), 10**rng.uniform(-3, 7, 96)
+    exact = -.5*(gm/(jr+.5*(l+np.sqrt(l*l+4*gm*b))))**2
+    r_circ = np.atleast_1d(p.Rcirc(L=l))
+    np.testing.assert_allclose(ratio._energy_from_actions(jr, l, r_circ), exact, rtol=1e-9)
+
+
+def test_radial_action_inversion_is_exact_in_kepler(agama):
+    """Jr + L = GM/sqrt(-2E) for all eccentricities, including near-radial orbits."""
+    gm = agama.G*8200.
+    ratio = SphericalFrequencyRatio(agama.Potential(type="Plummer", mass=8200., scaleRadius=0.))
+    q = np.geomspace(1e-2, 1e8, 21)
+    for c in (1e-4, 1e-3, .3, .95):
+        jr, l = q*(1-c), q*c
+        np.testing.assert_allclose(ratio._energy_from_actions(jr, l, l**2/gm), -.5*(gm/q)**2, rtol=1e-11)
+
+
+def test_point_mass_frequencies_survive_mapper_failure(agama, monkeypatch):
+    """Around a point mass AGAMA's mapper can return NaN at large Jr: those rows use the Jr(E, L) inversion,
+    which AGAMA's (independent) action finder confirms, and the ratio matches the mapper path where both work."""
+    multi = agama.Potential(type="Multipole", density=agama.Density(type="Plummer", mass=3e6, scaleRadius=3.),
+                            lmax=0, gridSizeR=80, rmin=1e-4, rmax=1e5)
+    both = agama.Potential(multi, agama.Potential(type="Plummer", mass=2.7e5, scaleRadius=2.2),
+                           agama.Potential(type="Plummer", mass=8200., scaleRadius=0.))
+    ratio = SphericalFrequencyRatio(both)
+    q = np.geomspace(1e-2, 1e8, 33)
+    for c in (1e-3, .3, .95):
+        jr, l = q*(1-c), q*c
+        r_circ = np.atleast_1d(both.Rcirc(L=l))
+        energy = ratio._energy_from_actions(jr, l, r_circ)
+        vr = np.sqrt(np.maximum(2*(energy-ratio._phi_radial(r_circ))-(l/r_circ)**2, 0.))
+        xv = np.column_stack((r_circ, 0*q, 0*q, vr, l/r_circ, 0*q))
+        # AGAMA's action finder is itself off at huge actions and (4.5e-4 in exact Kepler) at c = 1e-3
+        if c > .1:
+            small = q < 1e5
+            np.testing.assert_allclose(agama.actions(both, xv[small])[:, 0], jr[small], rtol=1e-6)
+        reference = ratio(jr, l)
+        mapper = ratio.mapper
+        monkeypatch.setattr(ratio, "mapper", lambda aa: np.where(np.arange(len(aa))[:, None] % 2 == 0, np.nan, mapper(aa)))
+        mixed = ratio(jr, l)
+        monkeypatch.setattr(ratio, "mapper", mapper)
+        assert np.all(np.isfinite(mixed)) and np.all((mixed > 1-1e-9) & (mixed < 2))
+        np.testing.assert_allclose(mixed, reference, atol=1e-4)
+
+
+@pytest.mark.parametrize("kind", ["isochrone", "kepler"])
+def test_exact_spherical_actions_match_analytic_actions(agama, kind):
+    """Jr = GM/sqrt(-2E) - (L + sqrt(L^2 + 4 GM b))/2 (b = 0: Kepler), incl. near-radial and near-escape points."""
+    gm, b = agama.G*3e6, (3. if kind == "isochrone" else 0.)
+    p = (agama.Potential(type="Isochrone", mass=3e6, scaleRadius=b) if b else
+         agama.Potential(type="Plummer", mass=3e6, scaleRadius=0.))
+    rng = np.random.default_rng(5)
+    n = 400
+    r = 10**rng.uniform(-3, 4, n)
+    vesc = np.sqrt(-2*p.potential(np.column_stack((r, 0*r, 0*r))))
+    v = vesc*np.concatenate([rng.uniform(0, 1, n-50), 1-10**rng.uniform(-6, -2, 50)])
+    mu = np.concatenate([rng.uniform(-1, 1, n-100), 1-10**rng.uniform(-8, -3, 100)])
+    pos = r[:, None]*np.array([[0.6, 0., 0.8]])
+    vel = v[:, None]*np.column_stack((0.6*mu, np.sqrt(1-mu**2), 0.8*mu))
+    actions = ExactSphericalActions(p)(np.column_stack((pos, vel)))
+    energy = p.potential(pos)+.5*v**2
+    L = r*v*np.sqrt(1-mu**2)
+    jr = gm/np.sqrt(-2*energy)-.5*(L+np.sqrt(L*L+4*gm*b))
+    np.testing.assert_allclose(actions[:, 0], jr, rtol=1e-8, atol=1e-12*gm/np.sqrt(-2*energy).min())
+    np.testing.assert_allclose(actions[:, 1]+np.abs(actions[:, 2]), L, rtol=1e-12)

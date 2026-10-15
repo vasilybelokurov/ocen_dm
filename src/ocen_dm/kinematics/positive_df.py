@@ -89,9 +89,14 @@ class DFNumerics:
     iteration_tolerance: float = 5e-4
     closure_tolerance: float = 0.005
     mass_tolerance: float = 0.005
+    # Regularized DF only: direct-quadrature actions instead of agama.ActionFinder
+    # (needed with an exact central point mass; see regularized_df.ExactSphericalActions).
+    exact_actions: bool = False
 
     def __post_init__(self):
         _finite(**asdict(self))
+        if not isinstance(self.exact_actions, bool):
+            raise ValueError("exact_actions must be a bool")
         if not 0 < self.r_min < self.r_max:
             raise ValueError("invalid radial domain")
         for key in ("potential_nodes", "velocity_nodes", "moment_nodes", "projection_nodes", "max_iterations"):
