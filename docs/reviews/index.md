@@ -5,6 +5,7 @@ These files moved from `docs/` to `docs/reviews/` on 2026-10-13. Links to `resul
 
 | Date | Review | Subject |
 |---|---|---|
+| 2026-10-16 | [codex_stream_paper_plan_2026-10-16](codex_stream_paper_plan_2026-10-16.md) | Stream paper plan: rejects "impossible without a bar"; matched null-vs-bar fit and mocks needed; six-figure plan |
 | 2026-10-15 | [codex_cusp_depletion_2026-10-15](codex_cusp_depletion_2026-10-15.md) | Depletion term for the stellar cusp around a central BH: p, identifiability, remnants, numerics |
 | 2026-10-15 | [codex_central_counts_research_2026-10-15](codex_central_counts_research_2026-10-15.md) | Central HST counts: oMEGACat completeness, core vs cusp literature, IMBH cusp expectations (research pass) |
 | 2026-10-15 | [codex_agama_point_mass_2026-10-15](codex_agama_point_mass_2026-10-15.md) | AGAMA spherical actions with an unsoftened central point mass; exact-quadrature fallback |
