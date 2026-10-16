@@ -794,6 +794,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#gaia-completeness-from-the-hst-large-programme-fields-2026-10-16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gaia completeness from the HST Large Programme fields (2026-10-16)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3003,6 +3014,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#gaia-completeness-from-the-hst-large-programme-fields-2026-10-16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gaia completeness from the HST Large Programme fields (2026-10-16)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3463,7 +3485,7 @@
 </ul>
 </li>
 <li><strong>What it implies for the model.</strong> With one stellar profile and the measured ratio, the current fits would predict roughly 5–15 % more G &lt; 17 stars in the Gaia region than observed, relative to the HST region. Put another way, the fitted profile falls slightly too slowly between the two regions. The fits have no data at 250–300″, so this comparison relies on the model profile being smooth across the gap.</li>
-<li><strong>Precision is set by the catalogue edges.</strong> Only one 50″ annulus is usable, and Gaia completeness beyond 350″ cannot be checked against HST. This is a 5–15 % tension, not a firm offset. The completeness-corrected version below puts it at 7–9 %.</li>
+<li><strong>Precision is set by the catalogue edges.</strong> Only one 50″ annulus is usable, and Gaia completeness beyond 350″ cannot be checked against HST. This is a 5–15 % tension, not a firm offset. The completeness-corrected version below and the Large Programme fields put it at 13–15 %.</li>
 </ul>
 <h4 id="completeness-corrected-ratio">Completeness-corrected ratio<a class="headerlink" href="#completeness-corrected-ratio" title="Permanent link">&para;</a></h4>
 <p><img alt="Completeness-corrected HST/Gaia count ratio" src="../../../plots/count_ratio_corrected.png" /></p>
@@ -3520,20 +3542,137 @@
 <li>The remaining assumptions: the model profile is smooth across 250–300″, and the missing Gaia stars do not depend on position within each annulus.</li>
 </ul>
 </li>
-<li><strong>Gaia completeness has a floor of about 0.9.</strong> c<sub>G</sub> stops rising at about 250″ and stays at 0.88–0.90 from 250 to 350″, while the crowding keeps falling.<ul>
-<li>The first Gaia count bin (300–357″) is therefore measured at 0.89–0.90.</li>
-<li>The simplest reading is a constant completeness of 0.90 in all Gaia bins. The free a<sub>Gaia</sub> absorbs a constant factor exactly, so the shape of the Gaia profile is not biased.</li>
-<li>The ratio the fit should then give for raw counts is 11.42 × 0.990 / 0.90 = <strong>12.6 ± 0.3</strong>. The fits give 13.5–13.7, which is 7–9 % too high.</li>
-<li>If completeness instead rises to 1 beyond 357″ (not measurable with HST), the expected ratio is 11.3.</li>
+<li><strong>Gaia completeness beyond 350″</strong> is measured with further HST fields; see the next section. (An earlier reading of the oMEGACat data alone, a constant 0.9 "floor", is withdrawn.)</li>
+</ul>
+<h3 id="gaia-completeness-from-the-hst-large-programme-fields-2026-10-16">Gaia completeness from the HST Large Programme fields (2026-10-16)<a class="headerlink" href="#gaia-completeness-from-the-hst-large-programme-fields-2026-10-16" title="Permanent link">&para;</a></h3>
+<p><img alt="Gaia completeness from HST fields" src="../../../plots/gaia_completeness_lp.png" /></p>
+<p><em>Gaia completeness of the G &lt; 17 count sample against radius. Each point is the fraction of HST stars brighter than the HST equivalent of G = 17 that are present in the Vasiliev &amp; Baumgardt (2021) catalogue used for the Gaia count product.</em></p>
+<ul>
+<li><em>HST equivalent of G = 17:</em> F606W = 17.03–17.09 (field-dependent median F606W − G), or F625W = 16.83 for oMEGACat.</li>
+<li><em>Match:</em> within 0.1″, after removing each field's epoch offset.</li>
+<li><em>Grey lines:</em> the Gaia count-product bins.</li>
+<li><em>Black bars:</em> the Large Programme fields combined, per bin with at least 10 stars.</li>
+<li><em>Error bars:</em> binomial; where every star is found, the 68 % lower limit.</li>
+</ul>
+<p><em>Script: <code>bin/check_gaia_completeness_lp.py</code>. Numbers: <code>results/plot_data/gaia_completeness_lp.json</code>.</em></p>
+<p><strong>HST data.</strong> The HST Large Programme on ω Cen (GO-14118+14662, PI Bedin) has five external fields with public catalogues:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Radius</th>
+<th>Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F5</td>
+<td>224–435″</td>
+<td>Scalco, Bedin &amp; Vesperini 2024, <a href="https://ui.adsabs.harvard.edu/abs/2024A%26A...688A.180S">A&amp;A 688, A180</a></td>
+</tr>
+<tr>
+<td>F4</td>
+<td>262–443″</td>
+<td>same</td>
+</tr>
+<tr>
+<td>F2 + F3</td>
+<td>593–850″</td>
+<td>Scalco et al. 2021, <a href="https://ui.adsabs.harvard.edu/abs/2021MNRAS.505.3549S">MNRAS 505, 3549</a></td>
+</tr>
+<tr>
+<td>F1</td>
+<td>868–1101″</td>
+<td>Scalco, Bedin &amp; Vesperini 2024</td>
+</tr>
+</tbody>
+</table>
+<p>They are held in <code>$OCEN_CATALOGUES/omegacen_hst_lp</code>. These fields are uncrowded for Gaia's purposes, and HST is complete there to far below F606W = 17.</p>
+<p><strong>Results</strong> (stars found / HST stars):</p>
+<table>
+<thead>
+<tr>
+<th>R</th>
+<th>Large Programme fields</th>
+<th>c<sub>G</sub></th>
+<th>oMEGACat</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>250–300″</td>
+<td>205/234</td>
+<td>0.876 ± 0.022</td>
+<td>0.886 ± 0.008</td>
+</tr>
+<tr>
+<td>300–350″ (Gaia bin 1)</td>
+<td>286/311</td>
+<td>0.920 ± 0.015</td>
+<td>0.894 ± 0.017</td>
+</tr>
+<tr>
+<td>350–400″ (bin 2)</td>
+<td>216/224</td>
+<td>0.964 ± 0.012</td>
+<td>—</td>
+</tr>
+<tr>
+<td>400–450″ (bin 3)</td>
+<td>83/89</td>
+<td>0.933 ± 0.027</td>
+<td>—</td>
+</tr>
+<tr>
+<td>600–700″</td>
+<td>72/74</td>
+<td>0.973 ± 0.019</td>
+<td>—</td>
+</tr>
+<tr>
+<td>700–800″</td>
+<td>70/76</td>
+<td>0.921 ± 0.031</td>
+<td>—</td>
+</tr>
+<tr>
+<td>800–1000″</td>
+<td>38/39</td>
+<td>0.974 ± 0.025</td>
+<td>—</td>
+</tr>
+<tr>
+<td>beyond 500″, all</td>
+<td>191/200</td>
+<td><strong>0.955 ± 0.015</strong></td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Completeness rises outwards and then levels off.</strong> It is 0.88 at 250–300″ and 0.91 in the first Gaia bin (300–350″; oMEGACat and the Large Programme combined, 590/651). From 350″ to 1100″ it is a constant 0.95 within the errors.</li>
+<li><strong>The level of about 0.95 is not crowding.</strong> About 5 % of the HST stars brighter than G = 17 are missing from the Gaia catalogue even at 600–1100″. That could be stars without a five-parameter EDR3 solution, or losses in the catalogue selection (not identified).<ul>
+<li>In F2 + F3 the brightest stars (F606W &lt; 15.5) are found at only 0.91. This may come from spurious HST detections around saturated stars (not tested).</li>
 </ul>
 </li>
-<li><strong>Proposed tie (not implemented).</strong><ul>
-<li>Fix a<sub>Gaia</sub> = a<sub>HST</sub> / 12.6, and check the result at 11.3.</li>
-<li>The HST amplitude a<sub>HST</sub> and the uniform Gaia field density b stay free. The field term counts the non-member Milky Way stars in the Gaia counts, and has nothing to do with the cluster's luminosity function.</li>
-<li>A first check without refitting: evaluate the Gaia count deviance of the current best fit with the ratio held at 12.6.</li>
+<li><strong>Effect on the Gaia count product.</strong><ul>
+<li>Only the first bin (300–350″) is depleted relative to the rest, by 0.906 / 0.955 = 0.95, i.e. 5 %. A free a<sub>Gaia</sub> cannot absorb that.</li>
+<li>The constant level of 0.95 is absorbed by a<sub>Gaia</sub>.</li>
+</ul>
+</li>
+<li><strong>Expected amplitude ratio for the raw counts.</strong><ul>
+<li>The count-weighted Gaia completeness of the product is c<sub>eff</sub> = 0.946. The weights are member counts per bin, with c<sub>G</sub> = 0.906, 0.964, 0.933 in bins 1–3 and 0.955 beyond.</li>
+<li>This gives a<sub>HST</sub>/a<sub>Gaia</sub> = 11.42 × 0.990 / 0.946 = <strong>11.95 ± 0.3</strong>.</li>
+<li>The fits give 13.5–13.7, which is <strong>13–15 % too high</strong>.</li>
 </ul>
 </li>
 </ul>
+<p><strong>Proposed change to the count likelihood (not yet implemented).</strong></p>
+<ol>
+<li>Multiply the model Gaia counts in each bin by the measured c<sub>G</sub>: 0.906, 0.964 and 0.933 in bins 1–3, and 0.955 beyond 450″. Equivalently, divide the data by it.</li>
+<li>Tie the amplitude: a<sub>Gaia</sub> × c<sub>G</sub>(R) = a<sub>HST</sub> × 0.990 / 11.42, i.e. the ratio for complete samples, with its 2 % error carried as a Gaussian prior.</li>
+<li>a<sub>HST</sub> and the uniform field density b stay free. The field term counts the non-member Milky Way stars in the Gaia counts, and is unrelated to the cluster's luminosity function.</li>
+</ol>
 <h2 id="l1-trager-king-djorgovski-1995-surface-brightness-profile">L1. Trager, King &amp; Djorgovski 1995 surface-brightness profile<a class="headerlink" href="#l1-trager-king-djorgovski-1995-surface-brightness-profile" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Source.</strong> AJ 109, 218; ADS https://ui.adsabs.harvard.edu/abs/1995AJ....109..218T (<code>verified: false</code>). VizieR <code>J/AJ/109/218/tables</code>.</li>
