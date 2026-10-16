@@ -3463,7 +3463,7 @@
 </ul>
 </li>
 <li><strong>What it implies for the model.</strong> With one stellar profile and the measured ratio, the current fits would predict roughly 5–15 % more G &lt; 17 stars in the Gaia region than observed, relative to the HST region. Put another way, the fitted profile falls slightly too slowly between the two regions. The fits have no data at 250–300″, so this comparison relies on the model profile being smooth across the gap.</li>
-<li><strong>Precision is set by the catalogue edges.</strong> Only one 50″ annulus is usable, and Gaia completeness beyond 350″ cannot be checked against HST. This is a 5–15 % tension, not a firm offset. The completeness-corrected version below sharpens it to 8–22 %.</li>
+<li><strong>Precision is set by the catalogue edges.</strong> Only one 50″ annulus is usable, and Gaia completeness beyond 350″ cannot be checked against HST. This is a 5–15 % tension, not a firm offset. The completeness-corrected version below puts it at 7–9 %.</li>
 </ul>
 <h4 id="completeness-corrected-ratio">Completeness-corrected ratio<a class="headerlink" href="#completeness-corrected-ratio" title="Permanent link">&para;</a></h4>
 <p><img alt="Completeness-corrected HST/Gaia count ratio" src="../../../plots/count_ratio_corrected.png" /></p>
@@ -3513,14 +3513,26 @@
 <li>This gives <strong>12.3–13.9</strong> for the no-BH fit. The black-hole fits are lower by at most 0.2.</li>
 </ul>
 </li>
-<li><strong>Result.</strong> Against the measured 11.42 ± 0.23, the fitted ratio is <strong>8–22 % too high</strong>. Even at the lower end of the band the difference is 3.7σ (Poisson errors only).</li>
+<li><strong>Result.</strong> Against the measured 11.42 ± 0.23, the fitted ratio is <strong>8–22 % too high</strong>. Even at the lower end of the band (Gaia completeness 0.886 beyond 300″) the difference is 3.7σ (Poisson errors only); see the floor below for the most likely value.</li>
 <li><strong>What it implies.</strong><ul>
 <li>With one stellar profile, the fits put 8–22 % too many G &lt; 17 stars in the Gaia region compared with the HST region.</li>
 <li>The free a<sub>Gaia</sub> hides this by scaling the Gaia counts down.</li>
 <li>The remaining assumptions: the model profile is smooth across 250–300″, and the missing Gaia stars do not depend on position within each annulus.</li>
 </ul>
 </li>
-<li><strong>A further effect on the Gaia product.</strong> Gaia is about 0.89 complete at 250–300″. If it reaches 1 farther out, the inner Gaia count bins are depleted by up to about 11 % relative to the outer ones. That distorts the shape of the Gaia profile, and a free amplitude cannot absorb it.</li>
+<li><strong>Gaia completeness has a floor of about 0.9.</strong> c<sub>G</sub> stops rising at about 250″ and stays at 0.88–0.90 from 250 to 350″, while the crowding keeps falling.<ul>
+<li>The first Gaia count bin (300–357″) is therefore measured at 0.89–0.90.</li>
+<li>The simplest reading is a constant completeness of 0.90 in all Gaia bins. The free a<sub>Gaia</sub> absorbs a constant factor exactly, so the shape of the Gaia profile is not biased.</li>
+<li>The ratio the fit should then give for raw counts is 11.42 × 0.990 / 0.90 = <strong>12.6 ± 0.3</strong>. The fits give 13.5–13.7, which is 7–9 % too high.</li>
+<li>If completeness instead rises to 1 beyond 357″ (not measurable with HST), the expected ratio is 11.3.</li>
+</ul>
+</li>
+<li><strong>Proposed tie (not implemented).</strong><ul>
+<li>Fix a<sub>Gaia</sub> = a<sub>HST</sub> / 12.6, and check the result at 11.3.</li>
+<li>The HST amplitude a<sub>HST</sub> and the uniform Gaia field density b stay free. The field term counts the non-member Milky Way stars in the Gaia counts, and has nothing to do with the cluster's luminosity function.</li>
+<li>A first check without refitting: evaluate the Gaia count deviance of the current best fit with the ratio held at 12.6.</li>
+</ul>
+</li>
 </ul>
 <h2 id="l1-trager-king-djorgovski-1995-surface-brightness-profile">L1. Trager, King &amp; Djorgovski 1995 surface-brightness profile<a class="headerlink" href="#l1-trager-king-djorgovski-1995-surface-brightness-profile" title="Permanent link">&para;</a></h2>
 <ul>
