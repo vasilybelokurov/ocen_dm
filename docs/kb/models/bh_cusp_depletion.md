@@ -40,9 +40,9 @@ settings were those of the [base model](base_no_dm.md).
 - **How the 4×10⁴ fit compensates.** Less stellar mass, more remnant mass spread over a larger
   scale (its central density is 0.29 of the base value), and a more radial inner DF.
 
-![Models vs data](../../plots/bh_fixed_20261015_data.png)
+![Models vs data](../../../plots/bh_fixed_20261015_data.png)
 
-![Diagnostics](../../plots/bh_fixed_20261015_diagnostics.png)
+![Diagnostics](../../../plots/bh_fixed_20261015_diagnostics.png)
 
 ### The central HST counts
 
@@ -55,9 +55,9 @@ The HST counts are all oMEGACat stars with F625W < 19.
 | Centre: 25 centres within ±2″ plus the oMEGACat VI kinematic centre | the innermost "drop" is noise from the centre choice (innermost bin holds 3–16 stars). Over the 8 inner bins (2–13″), BH 4×10⁴ is worse than no BH at **every** centre: deviance +6 to +19, median +12. BH 8,200 cannot be told apart from no BH (−0.6 to +1.8) |
 | Literature | Anderson & van der Marel 2010: completeness-corrected counts (> 80 % complete even at the centre) are flat, with a marginally lower centre. van der Marel & Anderson 2010: projected slope inside 15″ is 0.00 ± 0.07. oMEGACat publishes no artificial-star tests |
 
-![Completeness and Poisson checks](../../plots/hst_counts_completeness_20261015.png)
+![Completeness and Poisson checks](../../../plots/hst_counts_completeness_20261015.png)
 
-![Centre sensitivity](../../plots/hst_count_centre_20261015.png)
+![Centre sensitivity](../../../plots/hst_count_centre_20261015.png)
 
 Scripts: `bin/check_hst_count_completeness.py`, `bin/check_count_centre.py`.
 
