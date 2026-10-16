@@ -263,6 +263,31 @@ star counts.
   (September step 3); whether the inner rise needs one, or radially biased
   central orbits, or mass segregation, is not settled.
 
+## Refit with completeness-corrected counts and tied amplitudes (2026-10-16)
+
+This refit uses the same model, data and settings, with two changes to the count likelihood:
+
+- **Per-bin detection completeness.** HST 0.96–0.995; Gaia 0.906 in its first bin and 0.955 beyond.
+- **A tied amplitude ratio.** a<sub>HST</sub>/a<sub>Gaia</sub> for complete samples has a prior N(11.42, 0.23), from the [measured ratio](../data/cluster.md#gaia-completeness-from-the-hst-large-programme-fields-2026-10-16).
+
+The fit was seeded from the base best fit and then restarted from its own best point; the restart changed the objective by less than 0.001. Runs: `results/df/dftie_seed_20261016` and `results/df/dftie_restart_20261016`.
+
+![Base vs tied refit](../../../plots/dftie_vs_base_20261016_data.png)
+
+| Quantity | Base (free amplitudes) | Tied, completeness-corrected |
+|---|---|---|
+| Objective (the likelihoods differ) | 280.7 | 295.8 |
+| χ²<sub>kin</sub> (89 bins) | 156.4 | 159.4 |
+| HST / Gaia count deviance | 96.9 / 25.2 | 84.3 / 45.9 |
+| Count ratio, complete samples | free (13.1 at the base fit) | 11.88 (prior 11.42 ± 0.23) |
+| M<sub>★</sub>; M<sub>rem</sub>; a<sub>rem</sub> | 3.00×10⁶; 2.73×10⁵; 2.18 pc | 3.08×10⁶; 2.00×10⁵; 1.88 pc |
+| b<sub>out</sub>, J<sub>a</sub>; b<sub>outer</sub>, J<sub>outer</sub> | 0.77, 65; −0.33, 312 | 1.57, 91; −0.18, 182 |
+| D | 5.356 kpc | 5.359 kpc |
+
+- **The predictions change by a few per cent at most.** The kinematic curves overlap. With the ratio tied, the Gaia counts at 15–30 pc lie 3–4σ above the model, while the outermost HST bin improves. A 3–4σ residual in a Gaia bin of about 1,000 stars is a 3–4 % shortfall.
+- **The parameters move much more.** M<sub>rem</sub> drops by 27 % and the anisotropy changes. So these parameters are only weakly fixed by the data: a few per cent in the predictions trades against tens of per cent in them.
+- **One smooth profile can fit both count sets with the measured ratio** (the MGE in the [Jeans twin](jeans_comparison.md#twin-model-with-the-star-count-tracer-j-counts-2026-10-16): Gaia deviance 13.5 over 12 bins). The DF's outer envelope cannot quite reproduce it.
+
 ## Properties of the fitted model
 
 ![Mass components of the base model](../../../plots/base_model_20261013_components.png)

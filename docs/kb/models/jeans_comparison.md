@@ -207,6 +207,37 @@ yet tested in the DF framework are a point mass with a self-consistent
 DF, radially biased orbits in the core, and mass segregation of the
 remnants.
 
+## Twin model with the star-count tracer (J-counts, 2026-10-16)
+
+This model is identical to the one above (call it **J-Trager**) except for its tracer: the same 89 bins, 10 parameters, priors and sampler (400 live points). Only the multi-Gaussian expansion (MGE) is replaced. It was fitted to the completeness-corrected HST (2–250″) and Gaia (300–2400″) star counts, with their amplitude ratio tied to the measured value ([count ratio](../data/cluster.md#gaia-completeness-from-the-hst-large-programme-fields-2026-10-16)). The MGE fits both count sets: HST deviance 20.5 over 20 bins, Gaia 13.5 over 12. Run: `results/fits/jeans_K1_turnover_counts_c`.
+
+![J-Trager vs J-counts](../../../plots/jeans_tracer_twins_20261016.png)
+
+*Kinematic data with each model's best fit, and residuals, for line-of-sight dispersion, radial PM (HST ●, Gaia □) and tangential PM. Top right: the two tracer profiles, J-counts divided by J-Trager. Bottom right: enclosed mass (posterior medians).*
+
+*Scripts: `bin/fit_count_tracer_mge.py`, `bin/run_jeans_counts_tracer.py`, `bin/plot_jeans_tracer_twins.py`.*
+
+| Quantity | J-Trager | J-counts |
+|---|---|---|
+| χ² of the best fit (89 bins) | 190.0 | **152.2** |
+| HST PM radial / tangential (21 + 21 bins) | 61.8 / 36.6 | 30.5 / 50.1 |
+| MUSE LOS (29) | 51.7 | 49.8 |
+| Gaia PM radial / tangential (9 + 9) | 16.9 / 23.0 | 10.7 / 11.2 |
+| ln L<sub>max</sub>; ln Z | 121.1; 86.0 ± 0.3 | 140.0; 103.9 ± 0.5 |
+| M<sub>★</sub> | 2.67 (2.49–2.85)×10⁶ | 2.28 (2.09–2.48)×10⁶ |
+| M<sub>rem</sub>; a<sub>rem</sub> | 5.4 (3.8–7.0)×10⁵; 5.28 pc | 8.4 (6.8–10.1)×10⁵; 5.13 pc |
+| M<sub>BH</sub> | 4.25 (3.92–4.58)×10⁴ | 3.67 (3.30–4.02)×10⁴ |
+| β<sub>0</sub>, β<sub>mid</sub>, β<sub>∞</sub> | −0.53, 0.19, −0.81 | −0.52, 0.19, −0.86 |
+| D | 5.361 kpc | 5.362 kpc |
+
+Ranges are 16th–84th percentiles; the other values are posterior medians.
+
+- **The tracers differ by 5–50 %.** Relative to J-Trager, the count tracer is up to 7 % higher at 10–100″ and 5–10 % lower at 200–600″. Beyond 1000″ it is up to 50 % higher; there the Trager profile has no data and the MGE is an extrapolation.
+- **The kinematic fit improves by Δχ² = −38 with the same number of parameters.** The gain comes from the HST radial PMs at 100–400″ (−31) and both Gaia PM components (−18). It is partly offset by the HST tangential PMs (+13). The kinematic curves differ only slightly (see the residual panels). The kinematics are fitted at a level comparable to the DF base model (χ² 156–159).
+- **The mass split shifts, but the total hardly changes.** M<sub>★</sub> falls by 15 % and M<sub>rem</sub> rises by 57 %; the total is 3.16×10⁶ against 3.25×10⁶ M<sub>⊙</sub>.
+- **M<sub>BH</sub> moves down by 14 %** (1.3 posterior σ), and is still non-zero at high significance.
+- **Caveat on the evidence.** Δln Z = +18 between the two tracers is not a model comparison: the tracers are fixed inputs taken from different data, not fitted parameters.
+
 ## Reproduce
 
 ```bash
