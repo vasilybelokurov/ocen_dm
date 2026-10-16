@@ -41,3 +41,6 @@ JOURNAL.md
 
 # machine-specific locations of external inputs (see docs/kb/getting_started.md)
 .env
+
+# draft papers (unpublished; kept out of the public repository)
+/paper/
