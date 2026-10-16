@@ -3606,57 +3606,162 @@ star counts.</p>
 </ul>
 <p>The fit was seeded from the base best fit and then restarted from its own best point; the restart changed the objective by less than 0.001. Runs: <code>results/df/dftie_seed_20261016</code> and <code>results/df/dftie_restart_20261016</code>.</p>
 <p><img alt="Base vs tied refit" src="../../../plots/dftie_vs_base_20261016_data.png" /></p>
+<p><em>Data with both models, and residuals. Blue: the base fit (free amplitudes). Orange: the tied refit. Dashed: the Jeans model J-Trager.</em></p>
+<p><img alt="Residual diagnostics, base vs tied" src="../../../plots/dftie_vs_base_20261016_diagnostics.png" /></p>
+<p><strong>All parameters</strong></p>
 <table>
 <thead>
 <tr>
-<th>Quantity</th>
+<th>#</th>
+<th>Parameter</th>
 <th>Base (free amplitudes)</th>
 <th>Tied, completeness-corrected</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Objective (the likelihoods differ)</td>
-<td>280.7</td>
-<td>295.8</td>
+<td>1</td>
+<td>M<sub>★</sub></td>
+<td>2.997×10⁶ M<sub>⊙</sub></td>
+<td>3.080×10⁶ M<sub>⊙</sub></td>
 </tr>
 <tr>
-<td>χ²<sub>kin</sub> (89 bins)</td>
-<td>156.4</td>
-<td>159.4</td>
+<td>2</td>
+<td>J<sub>0</sub> (pc km/s)</td>
+<td>56.0</td>
+<td>58.5</td>
 </tr>
 <tr>
-<td>HST / Gaia count deviance</td>
-<td>96.9 / 25.2</td>
-<td>84.3 / 45.9</td>
+<td>3</td>
+<td>α</td>
+<td>0.805</td>
+<td>0.829</td>
 </tr>
 <tr>
-<td>Count ratio, complete samples</td>
-<td>free (13.1 at the base fit)</td>
-<td>11.88 (prior 11.42 ± 0.23)</td>
+<td>4</td>
+<td>b<sub>out</sub></td>
+<td>+0.767</td>
+<td>+1.572</td>
 </tr>
 <tr>
-<td>M<sub>★</sub>; M<sub>rem</sub>; a<sub>rem</sub></td>
-<td>3.00×10⁶; 2.73×10⁵; 2.18 pc</td>
-<td>3.08×10⁶; 2.00×10⁵; 1.88 pc</td>
+<td>5</td>
+<td>J<sub>a</sub> (pc km/s)</td>
+<td>65.5</td>
+<td>90.8</td>
 </tr>
 <tr>
-<td>b<sub>out</sub>, J<sub>a</sub>; b<sub>outer</sub>, J<sub>outer</sub></td>
-<td>0.77, 65; −0.33, 312</td>
-<td>1.57, 91; −0.18, 182</td>
+<td>6</td>
+<td>b<sub>outer</sub></td>
+<td>−0.327</td>
+<td>−0.180</td>
 </tr>
 <tr>
+<td>7</td>
+<td>J<sub>outer</sub> (pc km/s)</td>
+<td>312</td>
+<td>182</td>
+</tr>
+<tr>
+<td>8</td>
+<td>M<sub>rem</sub></td>
+<td>2.73×10⁵ M<sub>⊙</sub></td>
+<td>2.00×10⁵ M<sub>⊙</sub></td>
+</tr>
+<tr>
+<td>9</td>
+<td>a<sub>rem</sub></td>
+<td>2.18 pc</td>
+<td>1.88 pc</td>
+</tr>
+<tr>
+<td>10</td>
 <td>D</td>
 <td>5.356 kpc</td>
 <td>5.359 kpc</td>
 </tr>
+<tr>
+<td>—</td>
+<td>a<sub>HST</sub></td>
+<td>6.44×10⁻⁵</td>
+<td>6.03×10⁻⁵ (complete sample)</td>
+</tr>
+<tr>
+<td>—</td>
+<td>a<sub>HST</sub>/a<sub>Gaia</sub></td>
+<td>13.7 (free, raw counts)</td>
+<td>11.88 (tied, complete samples)</td>
+</tr>
+<tr>
+<td>—</td>
+<td>b<sub>Gaia</sub> (field)</td>
+<td>1.60 arcmin⁻²</td>
+<td>1.61 arcmin⁻²</td>
+</tr>
 </tbody>
 </table>
+<p><strong>Fit quality and derived quantities</strong></p>
+<table>
+<thead>
+<tr>
+<th>Quantity</th>
+<th>Base</th>
+<th>Tied</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>χ²<sub>kin</sub> / 89</td>
+<td>156.4 (1.76)</td>
+<td>159.4 (1.79)</td>
+</tr>
+<tr>
+<td>χ² per bin: HST PM R, HST PM T, MUSE, Gaia PM R, Gaia PM T</td>
+<td>2.03, 1.89, 1.31, 1.60, 2.39</td>
+<td>2.09, 2.02, 1.33, 2.12, 1.69</td>
+</tr>
+<tr>
+<td>HST / Gaia count deviance per bin</td>
+<td>4.8 / 2.1</td>
+<td>4.2 / 3.8</td>
+</tr>
+<tr>
+<td>Tie prior term</td>
+<td>—</td>
+<td>4.2 (2.1σ)</td>
+</tr>
+<tr>
+<td>Mass per F625W &lt; 19 star</td>
+<td>10.48 M<sub>⊙</sub></td>
+<td>11.20 M<sub>⊙</sub> (complete sample)</td>
+</tr>
+<tr>
+<td>Total mass</td>
+<td>3.26×10⁶ M<sub>⊙</sub></td>
+<td>3.27×10⁶ M<sub>⊙</sub></td>
+</tr>
+<tr>
+<td>Half-mass radius: stars 3-D, projected; remnants</td>
+<td>10.4, 7.7; 2.8 pc</td>
+<td>9.9, 7.3; 2.5 pc</td>
+</tr>
+<tr>
+<td>v<sub>c,max</sub>; central v<sub>esc</sub></td>
+<td>27.0 km/s at 9.0 pc; 68.1 km/s</td>
+<td>27.4 km/s at 9.0 pc; 68.6 km/s</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Interpretation</strong></p>
 <ul>
-<li><strong>The predictions change by a few per cent at most.</strong> The kinematic curves overlap. With the ratio tied, the Gaia counts at 15–30 pc lie 3–4σ above the model, while the outermost HST bin improves. A 3–4σ residual in a Gaia bin of about 1,000 stars is a 3–4 % shortfall.</li>
-<li><strong>The parameters move much more.</strong> M<sub>rem</sub> drops by 27 % and the anisotropy changes. So these parameters are only weakly fixed by the data: a few per cent in the predictions trades against tens of per cent in them.</li>
-<li><strong>One smooth profile can fit both count sets with the measured ratio</strong> (the MGE in the <a href="../jeans_comparison/#twin-model-with-the-star-count-tracer-j-counts-2026-10-16">Jeans twin</a>: Gaia deviance 13.5 over 12 bins). The DF's outer envelope cannot quite reproduce it.</li>
+<li><strong>The predictions change by a few per cent at most.</strong> The kinematic curves overlap. With the ratio tied, the Gaia counts at 15–30 pc lie 3–4σ above the model, i.e. 3–4 % in a bin of about 1,000 stars. The outermost HST bin improves.</li>
+<li><strong>The parameters move much more.</strong> M<sub>rem</sub> drops by 27 % and the anisotropy changes, while the total mass stays the same. These parameters are therefore only weakly fixed by the data: a few per cent in the predictions trades against tens of per cent in them.</li>
+<li><strong>The DF's outer envelope is too rigid.</strong> One smooth profile does fit both count sets with the measured ratio: the MGE of the <a href="../jeans_comparison/#twin-model-with-the-star-count-tracer-j-counts-2026-10-16">Jeans twin</a> has Gaia deviance 13.5 over 12 bins. The DF's outer envelope cannot quite reproduce it.</li>
 </ul>
+<p><strong>Properties of the tied model</strong></p>
+<p><img alt="Components, tied refit" src="../../../plots/dftie_model_20261016_components.png" /></p>
+<p><img alt="Kinematics, tied refit" src="../../../plots/dftie_model_20261016_kinematics.png" /></p>
+<p><em>Panels and shading as for the base model <a href="#properties-of-the-fitted-model">below</a>.</em></p>
+<p><em>Figures: <code>bin/plot_best_fit_performance.py</code>, <code>bin/plot_base_model_properties.py</code>; numbers in <code>results/plot_data/dftie_model_20261016.json</code>.</em></p>
 <h2 id="properties-of-the-fitted-model">Properties of the fitted model<a class="headerlink" href="#properties-of-the-fitted-model" title="Permanent link">&para;</a></h2>
 <p><img alt="Mass components of the base model" src="../../../plots/base_model_20261013_components.png" /></p>
 <p><em>By component: (a) density; (b) enclosed mass with half-mass radii dotted;
