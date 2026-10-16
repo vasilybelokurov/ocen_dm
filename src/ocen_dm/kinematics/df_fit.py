@@ -11,6 +11,7 @@ import copy
 
 import numpy as np
 
+from .counts import tied_compare
 from .likelihood import ARCSEC_PER_RAD, KinematicData, ProfileLikelihood
 from .positive_df import DFModelConfig, PositiveDFModel
 
@@ -109,9 +110,13 @@ class DFJointProblem:
     everything that follows the light) per counted star. The count amplitude is
     then ``a = (pc per arcsec)^2 / mass_per_star`` at the trial distance instead
     of being profiled, tying the stellar mass normalization to the counts.
+
+    ``count_tie`` (counts.CountTie) makes two count products share one amplitude
+    with a Gaussian prior on their complete-sample ratio; the prior adds one
+    residual and its chi2 to the objective.
     """
     def __init__(self, data: KinematicData, photometry: PhotometricData | None = None, counts=(),
-                 mass_per_star=None):
+                 mass_per_star=None, count_tie=None):
         if photometry is None and not counts:
             raise ValueError("a tracer-density constraint is required: photometry and/or counts")
         self.data, self.photometry, self.counts = data, photometry, tuple(counts)
@@ -119,13 +124,19 @@ class DFJointProblem:
         names = {c.name for c in self.counts}
         if set(self.mass_per_star)-names or any(v <= 0 for v in self.mass_per_star.values()):
             raise ValueError(f"mass_per_star must name count products {sorted(names)} with positive values")
+        self.count_tie = count_tie
+        if count_tie is not None:
+            if {count_tie.numerator, count_tie.denominator}-names:
+                raise ValueError(f"count tie must name count products {sorted(names)}")
+            if {count_tie.numerator, count_tie.denominator} & set(self.mass_per_star):
+                raise ValueError("a tied count product cannot also have a fixed mass per star")
         self.likelihood = ProfileLikelihood(KinematicData(tuple(
             replace(p, streaming2=None) for p in data.profiles)))
 
     @property
     def n_residuals(self):
         return (self.data.n_points+(len(self.photometry.mu) if self.photometry is not None else 0)
-                +sum(c.n for c in self.counts))
+                +sum(c.n for c in self.counts)+(1 if self.count_tie is not None else 0))
 
     def evaluate(self, config: DFModelConfig, model=None):
         model = model or build_df_model(config)
@@ -148,20 +159,30 @@ class DFJointProblem:
         if self.photometry is not None:
             R = self.photometry.r_arcsec*pc_per_arcsec
             photo = self.photometry.compare(model.projected_moments(R)["Sigma"])
-        count_terms = {}
+        count_terms, sigmas = {}, {}
         for c in self.counts:
-            sigma = model.projected_moments(np.asarray(c.r_nodes).ravel()*pc_per_arcsec)["Sigma"]
-            m = self.mass_per_star.get(c.name)
-            count_terms[c.name] = c.compare(sigma, amplitude=None if m is None else pc_per_arcsec**2/m)
+            sigmas[c.name] = model.projected_moments(np.asarray(c.r_nodes).ravel()*pc_per_arcsec)["Sigma"]
+        tie_term = None
+        if self.count_tie is not None:
+            t = self.count_tie
+            num, den = (next(c for c in self.counts if c.name == k) for k in (t.numerator, t.denominator))
+            count_terms[num.name], count_terms[den.name], tie_term = tied_compare(
+                num, den, sigmas[num.name], sigmas[den.name], t)
+        for c in self.counts:
+            if c.name not in count_terms:
+                m = self.mass_per_star.get(c.name)
+                count_terms[c.name] = c.compare(sigmas[c.name], amplitude=None if m is None else pc_per_arcsec**2/m)
             count_terms[c.name]["mass_per_star"] = pc_per_arcsec**2/count_terms[c.name]["amplitude"]
         chi2_kin = sum(t["chi2"] for t in terms.values())
         lnlike_kin = sum(t["loglike"] for t in terms.values())
         deviance = sum(t["deviance"] for t in count_terms.values())
+        tie_chi2 = tie_term["chi2"] if tie_term else 0.
         return dict(model=model, predictions=pred, photometry=photo, counts=count_terms, terms=terms,
                     chi2_kinematic=chi2_kin, loglike_kinematic=lnlike_kin, deviance_counts=deviance,
-                    objective=chi2_kin+(photo["chi2"] if photo else 0.)+deviance,
+                    count_tie=tie_term,
+                    objective=chi2_kin+(photo["chi2"] if photo else 0.)+deviance+tie_chi2,
                     loglike_profiled=lnlike_kin+(photo["loglike"] if photo else 0.)
-                    +sum(t["loglike"] for t in count_terms.values()))
+                    +sum(t["loglike"] for t in count_terms.values())-0.5*tie_chi2)
 
 
 #: Derived coordinate Delta = ln(J_outer/J_a) > 0, so J_outer > J_a for any trial.

@@ -35,7 +35,7 @@ from ocen_dm.kinematics.df_fit import (
     ARCSEC_PER_RAD, DFJointProblem, FitCoordinate, PhotometricData, build_df_model, config_at,
     model_config_from_dict,
 )
-from ocen_dm.kinematics.counts import CountProfile
+from ocen_dm.kinematics.counts import CountProfile, CountTie
 from ocen_dm.kinematics.likelihood import KinematicData
 from ocen_dm.kinematics.regularized_df import RegularizedDFModel
 from ocen_dm.kinematics.run_io import code_state, read_data_snapshot, sha256, write_data_snapshot
@@ -69,8 +69,9 @@ def load_problem(directory):
         if sha256(path) != record["counts_sha256"][name]:
             raise ValueError(f"count profile changed: {path}")
         counts.append(CountProfile.from_dict(read(path)))
+    tie = CountTie.from_dict(record["count_tie"]) if record.get("count_tie") else None
     return DFJointProblem(read_data_snapshot(directory, record["data_snapshot"]), photometry, counts,
-                          mass_per_star=record.get("mass_per_star") or None)
+                          mass_per_star=record.get("mass_per_star") or None, count_tie=tie)
 
 
 def prepare(out, project, fitting=None):
@@ -226,8 +227,12 @@ TWO_TRANSITION_COORDS = [dict(path="stellar.b_outer", lower=-4., upper=2.),
 
 def prepare_real(out, project, fitting, starts, bounds=None, n_random=0, datasets=None,
                  gaia_error_floor=0., free_distance=None, branches=("free_halo", "no_halo"),
-                 two_transition=False, counts=(), distance_prior=None, fixed=None, mass_per_star=None):
+                 two_transition=False, counts=(), distance_prior=None, fixed=None, mass_per_star=None,
+                 count_tie=None):
     """Fit the observed data (pilot snapshot) with free-halo and no-halo branches.
+
+    ``count_tie`` = dict(numerator, denominator, ratio, sigma[, note]) ties two count
+    amplitudes (counts.CountTie); it is stored in problem.json and the manifest.
 
     ``mass_per_star`` = {count product: Msun per counted star} pins that product's
     count amplitude (external stellar-mass assumption) instead of profiling it.
@@ -260,7 +265,8 @@ def prepare_real(out, project, fitting, starts, bounds=None, n_random=0, dataset
         snapshot = write_data_snapshot(observed_variant(original, datasets, gaia_error_floor), d)
     dump(d/"problem.json", dict(data_snapshot=snapshot, source=str(source), datasets=datasets,
                                 gaia_error_floor_masyr=gaia_error_floor, photometry=not counts,
-                                counts=list(counts), counts_sha256=count_sha, mass_per_star=dict(mass_per_star or {})))
+                                counts=list(counts), counts_sha256=count_sha, mass_per_star=dict(mass_per_star or {}),
+                                count_tie=CountTie(**count_tie).to_dict() if count_tie else None))
     spec = read(frozen/"configs/df/regularized_no_dm.json")
     model_spec = spec["model"]
     if two_transition:  # placeholder second transition; every start sets its own values
@@ -282,6 +288,7 @@ def prepare_real(out, project, fitting, starts, bounds=None, n_random=0, dataset
                     fixed=dict(distance_kpc=base.distance_kpc, gamma=0, halo_taper_pc=base.matter.r_t),
                     fitting=fitting, priors={k: list(v) for k, v in (distance_prior and {"distance_kpc": distance_prior} or {}).items()},
                     fixed_overrides=dict(fixed or {}), mass_per_star=dict(mass_per_star or {}),
+                    count_tie=dict(count_tie) if count_tie else None,
                     gates=dict(chi2_kin_per_point=1.3, chi2_per_point_any_dataset=2.0,
                                chi2_phot_per_point=2.0, deviance_per_bin_counts=2.0, numerical_shift_sigma=.1),
                     source_sha256={str(p.relative_to(frozen)): sha256(p)
@@ -819,6 +826,9 @@ def main():
                    help="prepend that fit's best configuration as start 0 (prepare-real)")
     p.add_argument("--fix", action="append", default=[], metavar="PATH=VALUE",
                    help="hold a config value at VALUE for every start (prepare-real), e.g. matter.rho20=0.5")
+    p.add_argument("--count-tie", default=None, metavar="JSON",
+                   help="prepare-real: JSON file {numerator, denominator, ratio, sigma, note} tying two count "
+                        "amplitudes for complete samples, e.g. data/processed/kinematics/ocen_counts_tie_c.json")
     p.add_argument("--mass-per-star", action="append", default=[], metavar="COUNTS=MSUN",
                    help="pin a count product's amplitude to an assumed stellar mass per counted star "
                         "(prepare-real/prepare-mock), e.g. ocen_counts_hst_f625w19=9.0; prepare-mock also "
@@ -917,7 +927,8 @@ def main():
                      counts=tuple(args.counts.split(",")) if args.counts else (),
                      distance_prior=tuple(map(float, args.distance_prior.split(":"))) if args.distance_prior else None,
                      fixed={k: float(v) for k, v in (item.split("=") for item in args.fix)},
-                     mass_per_star={k: float(v) for k, v in (item.split("=") for item in args.mass_per_star)})
+                     mass_per_star={k: float(v) for k, v in (item.split("=") for item in args.mass_per_star)},
+                     count_tie=read(Path(args.count_tie)) if args.count_tie else None)
     elif args.command == "fit":
         if args.job is None:
             p.error("fit requires --job")

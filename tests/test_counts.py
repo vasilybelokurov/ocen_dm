@@ -124,3 +124,54 @@ def test_weighted_profile_roundtrip_and_legacy_replay():
     np.testing.assert_allclose(legacy.bin_average(nodes), [1.5, 3.])
     with pytest.raises(ValueError):
         CountProfile("x", lo, hi, nodes, np.array([10, 5]), np.ones(2), "s", "sel", node_weights=np.array([[.3, .6], [.5, .5]]))
+
+
+def _pair(rng, a=0.2, ratio=12., b=2e-5, c_num=None, c_den=None):
+    """Two products of one population: 'inner' (no field) and 'outer' (field); complete-sample ratio ``ratio``."""
+    def make(name, edges, amp, field, comp):
+        lo, hi = edges[:-1], edges[1:]
+        area = np.pi*(hi**2-lo**2)
+        nodes = np.sqrt(lo*hi)[:, None]*np.array([.8, 1., 1.2])[None, :]
+        shape = 1./(1.+(nodes/100.)**2)
+        c = np.ones(len(lo)) if comp is None else comp
+        mu = area*(amp*c*shape.mean(axis=1)+field)
+        p = CountProfile(name, lo, hi, nodes, rng.poisson(mu), area, "synthetic",
+                         "toy", fit_field=field > 0, completeness=comp)
+        return p, shape
+    num, s_num = make("inner", np.geomspace(5., 250., 11), a, 0., c_num)
+    den, s_den = make("outer", np.geomspace(300., 2400., 9), a/ratio, b, c_den)
+    return num, s_num, den, s_den
+
+
+def test_completeness_scales_the_model_and_roundtrips():
+    rng = np.random.default_rng(7)
+    c = np.linspace(.8, 1., 8)
+    _, _, den, s = _pair(rng, c_den=c)
+    out = den.compare(s)
+    assert out["amplitude"] == pytest.approx(0.2/12., rel=.05)          # complete-sample amplitude recovered
+    q = CountProfile.from_dict(den.to_dict())
+    np.testing.assert_array_equal(q.completeness, c)
+    assert q.compare(s)["deviance"] == pytest.approx(out["deviance"])
+    bare = CountProfile.from_dict({k: v for k, v in den.to_dict().items() if k != "completeness"})
+    assert bare.completeness is None and bare.compare(s)["deviance"] > out["deviance"]
+    with pytest.raises(ValueError):
+        CountProfile.from_dict(dict(den.to_dict(), completeness=[1.2]*den.n))
+
+
+def test_tied_compare_recovers_ratio_and_reduces_to_free_fits_with_a_wide_prior():
+    from ocen_dm.kinematics.counts import CountTie, tied_compare
+    rng = np.random.default_rng(11)
+    num, s_num, den, s_den = _pair(rng, ratio=12., c_den=np.full(8, .95))
+    tn, td, tt = tied_compare(num, den, s_num, s_den, CountTie("inner", "outer", 12., .2))
+    assert tt["ratio"] == pytest.approx(12., abs=.5) and tn["amplitude"]/td["amplitude"] == pytest.approx(tt["ratio"])
+    assert tt["chi2"] == pytest.approx(((tt["ratio"]-12.)/.2)**2)
+    # a very wide prior reproduces the separately profiled amplitudes
+    fn, fd = num.compare(s_num), den.compare(s_den)
+    wn, wd, wt = tied_compare(num, den, s_num, s_den, CountTie("inner", "outer", fn["amplitude"]/fd["amplitude"], 1e3))
+    assert wn["amplitude"] == pytest.approx(fn["amplitude"], rel=1e-5) and wd["amplitude"] == pytest.approx(fd["amplitude"], rel=1e-4)
+    assert wn["deviance"]+wd["deviance"] == pytest.approx(fn["deviance"]+fd["deviance"], abs=1e-4)
+    # a prior far from the free ratio costs deviance + prior
+    _, _, bad = tied_compare(num, den, s_num, s_den, CountTie("inner", "outer", 8., .1))
+    assert bad["chi2"] > 1. and bad["ratio"] < 12.
+    with pytest.raises(ValueError):
+        tied_compare(den, num, s_den, s_num, CountTie("outer", "inner", 1/12., .01))   # numerator with a field

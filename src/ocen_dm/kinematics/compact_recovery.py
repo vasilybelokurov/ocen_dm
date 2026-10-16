@@ -68,7 +68,7 @@ def residual_vector(problem, evaluation, priors=None):
     """Signed residuals whose squared norm equals the joint objective (+ Gaussian priors).
 
     Order: kinematic profiles, photometry (if any), count deviance residuals (if
-    any), then one residual (value - mu)/sigma per Gaussian prior on a config
+    any), the count-tie prior residual (if any), then one residual (value - mu)/sigma per Gaussian prior on a config
     coordinate, e.g. ``{"distance_kpc": (5.43, 0.05)}``.
     """
     rows = []
@@ -81,6 +81,8 @@ def residual_vector(problem, evaluation, priors=None):
                     / problem.photometry.sigma_mag)
     for c in problem.counts:
         rows.append(np.asarray(evaluation["counts"][c.name]["residual"], float))
+    if getattr(problem, "count_tie", None) is not None:
+        rows.append(np.asarray(evaluation["count_tie"]["residual"], float))
     for path, (mu, sigma) in (priors or {}).items():
         node = evaluation["model"].config.to_dict()
         for key in path.split("."):
@@ -219,6 +221,10 @@ def data_fit_gates(optimizer_success, numerical_passed, evaluation, thresholds):
                    count_amplitudes={k: c["amplitude"] for k, c in counts.items()},
                    count_field_per_arcmin2={k: c["field_density_per_arcmin2"] for k, c in counts.items()})
         density_ok &= bool(max(per_count.values()) < thresholds.get("deviance_per_bin_counts", 2.))
+    if evaluation.get("count_tie"):
+        t = evaluation["count_tie"]
+        out.update(count_tie=dict(ratio=t["ratio"], prior_ratio=t["prior_ratio"], prior_sigma=t["prior_sigma"],
+                                  chi2=t["chi2"], at_bound=t["at_bound"]))
     fit_ok = bool(chi2_kin/n_kin < thresholds["chi2_kin_per_point"] and
                   max(per_term.values()) < thresholds["chi2_per_point_any_dataset"] and density_ok)
     out.update(data_fit_passed=fit_ok, passed=bool(optimizer_success and numerical_passed and fit_ok))
