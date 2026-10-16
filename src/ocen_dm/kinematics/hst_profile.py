@@ -72,7 +72,7 @@ from astropy.table import Table
 from pathlib import Path
 
 from ..paths import raw_dir
-from ..cluster import OCEN_DEC, OCEN_RA
+from ..cluster import MU_SYS, OCEN_DEC, OCEN_DISTANCE_KPC, OCEN_RA
 from .outer_profile import KMS_PER_MASYR_KPC, MemberSample, dispersion_2d
 
 __all__ = ["MU_SYS", "HST_R_MAX_ARCSEC", "HST_FLAG_MAX_ARCSEC", "UNFLAGGED_BIAS",
@@ -103,8 +103,6 @@ DEFAULT_EDGES = np.concatenate([np.geomspace(2.0, 250.0, 21), [300.0, 340.0, 360
 #: measured ratio of the unflagged to the flagged dispersion, and its uncertainty
 UNFLAGGED_BIAS = (1.077, 0.011)
 
-#: systemic proper motion, used only to place the field template in the relative frame
-MU_SYS = (-3.257, -6.730)
 #: the catalogue's own outer edge
 HST_R_MAX_ARCSEC = 466.0
 
@@ -168,7 +166,7 @@ def unflagged_bias(edges_arcsec=(150.0, 200.0, 250.0, 300.0, 340.0)) -> tuple[fl
 
 
 def hst_profile(edges_arcsec=(300.0, 340.0), require_flag: bool = True,
-                distance_kpc: float = 5.43, min_stars: int = 100,
+                distance_kpc: float = OCEN_DISTANCE_KPC, min_stars: int = 100,
                 correct_unflagged: bool = False) -> Table:
     """Cluster dispersion per annulus from the mixture fit, with no proper-motion window.
 
@@ -218,7 +216,7 @@ def hst_profile(edges_arcsec=(300.0, 340.0), require_flag: bool = True,
                                "the Gaia DR3 empirical template scored in absolute PM."})
 
 
-def build_hst_profile(edges_arcsec=None, distance_kpc: float = 5.43,
+def build_hst_profile(edges_arcsec=None, distance_kpc: float = OCEN_DISTANCE_KPC,
                       min_stars: int = 60) -> "Path":
     """Measure and write ``ocen_pm_dispersion_hst_ours.ecsv``, flagged stars only.
 

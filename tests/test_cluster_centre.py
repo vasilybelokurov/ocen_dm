@@ -44,14 +44,6 @@ def test_every_module_uses_the_one_definition():
         assert mod.OCEN_RA == OCEN_RA and mod.OCEN_DEC == OCEN_DEC, mod.__name__
 
 
-def test_no_module_hard_codes_a_centre():
-    import pathlib
-    src = pathlib.Path(__file__).resolve().parents[1] / "src" / "ocen_dm"
-    offenders = [p.name for p in src.rglob("*.py")
-                 if p.name != "cluster.py" and "-47.4" in p.read_text()]
-    assert not offenders, f"centre literal re-introduced in {offenders}"
-
-
 def test_the_loader_agrees_with_the_catalogue_on_every_star():
     """The symptom that exposed it: 'r = 3 arcsec' stars were really at 8-14 arcsec.
 

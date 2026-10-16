@@ -24,6 +24,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from astropy.table import Table
 
+from ..cluster import OCEN_DISTANCE_KPC
 from ..kinematics.likelihood import BinnedProfile, KinematicData, ProfileLikelihood
 from ..kinematics.outer_profile import KMS_PER_MASYR_KPC, binned_dispersion, load_members
 from ..kinematics.report import _family_for
@@ -45,7 +46,7 @@ QUALITY_BIT = 2
 _TRACER_CACHE: dict = {}
 
 
-def _composite_tracer(distance_kpc: float = 5.43):
+def _composite_tracer(distance_kpc: float = OCEN_DISTANCE_KPC):
     """The composite (star-count) tracer MGE, for the line-of-sight depth term."""
     if distance_kpc not in _TRACER_CACHE:
         from ..light_model import build_stellar_mge, fit_mge_projected, load_tracer_profile
@@ -54,7 +55,7 @@ def _composite_tracer(distance_kpc: float = 5.43):
     return _TRACER_CACHE[distance_kpc]
 
 
-def our_mixture_profile(edges: np.ndarray = OUTER_EDGES, distance_kpc: float = 5.43,
+def our_mixture_profile(edges: np.ndarray = OUTER_EDGES, distance_kpc: float = OCEN_DISTANCE_KPC,
                         g_max: float = np.inf, field_sigma_min: float = 1.5,
                         field: str = "2d", bw_method: float = 0.05) -> Table:
     """Contamination-modelled PM dispersion over ALL quality stars (no membership cut).
@@ -111,7 +112,7 @@ def our_mixture_profile(edges: np.ndarray = OUTER_EDGES, distance_kpc: float = 5
 
 def our_outer_profile(edges: np.ndarray = OUTER_EDGES, prob_min: float = 0.9,
                       quality_mask: int | None = QUALITY_BIT, exact: bool = True, depth: bool = True,
-                      distance_kpc: float = 5.43, **kwargs) -> Table:
+                      distance_kpc: float = OCEN_DISTANCE_KPC, **kwargs) -> Table:
     """Our error-deconvolved PM dispersion profile from the member catalogue.
 
     ``exact`` projects the systemic 3-D velocity onto each star's own tangent basis
@@ -294,7 +295,7 @@ def plot_outer_tracer_audit(path: Path | str = "plots/outer_tracer_audit.png", r
                  ls="-" if i == 0 else (0, (4, 2)), label=lab)
     a_n.set_yscale("log"); a_n.set_xscale("log"); a_n.set_ylabel("members per annulus")
     a_n.set_xlabel("R  [arcsec]"); a_n.legend(fontsize=7.5); a_n.set_title("How many distant tracers", fontsize=10)
-    add_pc_axis(a_n, 5.43)
+    add_pc_axis(a_n, OCEN_DISTANCE_KPC)
 
     a_err.plot(ref["r_median"], ref["median_err"], "o-", color=style.COLOR_FIELD, lw=1.6,
                label="median per-star error, all members")
@@ -306,7 +307,7 @@ def plot_outer_tracer_audit(path: Path | str = "plots/outer_tracer_audit.png", r
     a_err.set_xscale("log"); a_err.set_yscale("log"); a_err.set_xlabel("R  [arcsec]")
     a_err.set_ylabel("mas / yr"); a_err.legend(fontsize=8)
     a_err.set_title("Is the dispersion resolved or deconvolved?", fontsize=10)
-    add_pc_axis(a_err, 5.43)
+    add_pc_axis(a_err, OCEN_DISTANCE_KPC)
 
     for lab, t, c, m in tables:
         a_sig.errorbar(t["r_median"], t["sigma_pm"], yerr=t["sigma_pmr_err"], fmt=m, ms=4, color=c,
@@ -317,7 +318,7 @@ def plot_outer_tracer_audit(path: Path | str = "plots/outer_tracer_audit.png", r
     a_sig.set_xscale("log"); a_sig.set_yscale("log"); a_sig.set_xlabel("R  [arcsec]")
     a_sig.set_ylabel("1-D PM dispersion  [mas/yr]"); a_sig.legend(fontsize=7.5)
     a_sig.set_title("The measurement under different cuts", fontsize=10)
-    add_pc_axis(a_sig, 5.43)
+    add_pc_axis(a_sig, OCEN_DISTANCE_KPC)
 
     for lab, t, c, m in tables[1:]:
         ref_at = np.interp(np.asarray(t["r_median"]), np.asarray(ref["r_median"]), np.asarray(ref["sigma_pm"]))
@@ -330,7 +331,7 @@ def plot_outer_tracer_audit(path: Path | str = "plots/outer_tracer_audit.png", r
     a_rat.set_xscale("log"); a_rat.set_xlabel("R  [arcsec]")
     a_rat.set_ylabel("change vs reference  [%]"); a_rat.legend(fontsize=7, ncol=2)
     a_rat.set_title("Robustness of the outer dispersion", fontsize=10)
-    add_pc_axis(a_rat, 5.43)
+    add_pc_axis(a_rat, OCEN_DISTANCE_KPC)
 
     fig.suptitle("Audit of the distant tracers (Vasiliev & Baumgardt 2021 EDR3 members)"
                  + ("  -- reference: contamination modelled" if reference == "mixture" else "  -- reference: P > 0.9 members"), y=1.0)
@@ -382,7 +383,7 @@ def _model_histogram(sub, fit, dens2d, bins, depth_var, component: str = "r",
     return clu, fld
 
 
-def annulus_fits(edges: np.ndarray = OUTER_EDGES, distance_kpc: float = 5.43):
+def annulus_fits(edges: np.ndarray = OUTER_EDGES, distance_kpc: float = OCEN_DISTANCE_KPC):
     """Fit every annulus and return ``(sample, [(lo, hi, subsample, fit, depth_var), ...])``."""
     from ..kinematics.outer_profile import dispersion_2d
     from ..kinematics.perspective import depth_dispersion
@@ -404,7 +405,7 @@ def annulus_fits(edges: np.ndarray = OUTER_EDGES, distance_kpc: float = 5.43):
     return q, dens2d, out
 
 
-def fit_quality_table(edges: np.ndarray = OUTER_EDGES, distance_kpc: float = 5.43,
+def fit_quality_table(edges: np.ndarray = OUTER_EDGES, distance_kpc: float = OCEN_DISTANCE_KPC,
                       save: bool = True) -> Table:
     """Per-annulus parameters and goodness of fit of the 2-D cluster + field model.
 
@@ -440,7 +441,7 @@ def fit_quality_table(edges: np.ndarray = OUTER_EDGES, distance_kpc: float = 5.4
 
 
 def plot_annulus_fits(path: Path | str = "plots/outer_fit_annuli.png", component: str = "r",
-                      edges: np.ndarray = OUTER_EDGES, distance_kpc: float = 5.43, n_col: int = 2) -> Path:
+                      edges: np.ndarray = OUTER_EDGES, distance_kpc: float = OCEN_DISTANCE_KPC, n_col: int = 2) -> Path:
     """Data and fitted model in every annulus, with residuals and the chi2 of each panel."""
     style.apply()
     q, dens2d, fits = annulus_fits(edges, distance_kpc)
@@ -489,7 +490,7 @@ def plot_annulus_fits(path: Path | str = "plots/outer_fit_annuli.png", component
 
 def plot_contamination_model(path: Path | str = "plots/contamination_model.png",
                              annuli: tuple[tuple[float, float], ...] = ((700.0, 1000.0), (1400.0, 1800.0), (1800.0, 2400.0)),
-                             distance_kpc: float = 5.43) -> Path:
+                             distance_kpc: float = OCEN_DISTANCE_KPC) -> Path:
     """How the field is modelled and how well it fits.
 
     Top row: the observed radial-PM histogram of all quality stars in each annulus with the
@@ -576,7 +577,7 @@ def plot_contamination_model(path: Path | str = "plots/contamination_model.png",
 
 
 def plot_method_comparison(path: Path | str = "plots/outer_method_comparison.png",
-                           edges: np.ndarray = OUTER_EDGES, distance_kpc: float = 5.43) -> Path:
+                           edges: np.ndarray = OUTER_EDGES, distance_kpc: float = OCEN_DISTANCE_KPC) -> Path:
     """Membership cut versus cluster+field decomposition, component by component.
 
     Panels: the radial and tangential dispersion profiles measured both ways; their
@@ -642,7 +643,7 @@ def plot_method_comparison(path: Path | str = "plots/outer_method_comparison.png
 
 
 def plot_dataset_step(path: Path | str = "plots/hst_gaia_step.png", k1: str = "K1_noDM_composite",
-                      distance_kpc: float = 5.43) -> Path:
+                      distance_kpc: float = OCEN_DISTANCE_KPC) -> Path:
     """Where HST ends and Gaia begins: do the two datasets join smoothly?
 
     Both are compared with the **same unscaled** model, so the fitted Gaia scale cannot hide
@@ -705,7 +706,7 @@ def plot_dataset_step(path: Path | str = "plots/hst_gaia_step.png", k1: str = "K
 
 def plot_residual_significance(path: Path | str = "plots/outer_residual_significance.png",
                                k1: str = "K1_noDM_composite", edges: np.ndarray | None = None,
-                               distance_kpc: float = 5.43) -> Path:
+                               distance_kpc: float = OCEN_DISTANCE_KPC) -> Path:
     """Is the apparent wiggle in the Gaia residuals real?
 
     Top: the deviation of our Gaia measurement from the no-dark-matter model, in total
@@ -780,7 +781,7 @@ def plot_residual_significance(path: Path | str = "plots/outer_residual_signific
 
 
 def plot_offset_explained(path: Path | str = "plots/outer_offset_explained.png",
-                          k1: str = "K1_noDM_composite", distance_kpc: float = 5.43) -> Path:
+                          k1: str = "K1_noDM_composite", distance_kpc: float = OCEN_DISTANCE_KPC) -> Path:
     """Why the Gaia points sit above the model beyond 500 arcsec.
 
     Left: the deviation split into what each step contributes -- the fitted instrument scale,
@@ -850,7 +851,7 @@ def plot_offset_explained(path: Path | str = "plots/outer_offset_explained.png",
 
 
 def plot_datasets_unscaled(path: Path | str = "plots/datasets_unscaled.png", model_x: str | None = None,
-                           distance_kpc: float = 5.43) -> Path:
+                           distance_kpc: float = OCEN_DISTANCE_KPC) -> Path:
     """Every dataset against one model, with no per-instrument rescaling anywhere.
 
     The reference is a K1 (no dark matter) model fitted with the instrument nuisances
@@ -960,7 +961,7 @@ def hst_gaia_excess_table(edges=(0., 100., 200., 300., 460.), g_max: float = 17.
                                    "sigma_gaia", "ratio", "ratio_err", "excess_noise", "quoted"))
 
 
-def hst_gaia_overlap_table(lo: float = 300.0, hi: float = 380.0, distance_kpc: float = 5.43):
+def hst_gaia_overlap_table(lo: float = 300.0, hi: float = 380.0, distance_kpc: float = OCEN_DISTANCE_KPC):
     """HST against **quality-flagged** Gaia in the one annulus where both are usable.
 
     HST's high-quality astrometry ends at 380 arcsec and Gaia's quality flag passes no star
@@ -1000,7 +1001,7 @@ def hst_gaia_overlap_table(lo: float = 300.0, hi: float = 380.0, distance_kpc: f
 
 
 def plot_hst_gaia_star_by_star(path: Path | str = "plots/hst_gaia_star_by_star.png",
-                               distance_kpc: float = 5.43) -> Path:
+                               distance_kpc: float = OCEN_DISTANCE_KPC) -> Path:
     """Do the two proper-motion catalogues agree?
 
     Top left: the per-star Gaia-minus-HST difference against what the quoted errors allow.
@@ -1088,7 +1089,7 @@ def plot_hst_gaia_star_by_star(path: Path | str = "plots/hst_gaia_star_by_star.p
 
 
 def plot_pm_datasets(path: Path | str = "plots/pm_datasets_edr3_rebuild.png",
-                     distance_kpc: float = 5.43) -> Path:
+                     distance_kpc: float = OCEN_DISTANCE_KPC) -> Path:
     """Every proper-motion dispersion measurement on one axis, and what changed.
 
     Top: HST and Gaia DR2 as published, the published Gaia EDR3 spline with its confidence
@@ -1173,7 +1174,7 @@ def plot_pm_datasets(path: Path | str = "plots/pm_datasets_edr3_rebuild.png",
 
 
 def plot_periphery(path: Path | str = "plots/periphery_where_the_cluster_ends.png",
-                   distance_kpc: float = 5.43) -> Path:
+                   distance_kpc: float = OCEN_DISTANCE_KPC) -> Path:
     """Where does omega Cen stop? The profile from the centre out to 400 pc.
 
     The Gaia member catalogue is truncated at 63 pc, which is a retrieval radius and not a
@@ -1251,7 +1252,7 @@ def plot_periphery(path: Path | str = "plots/periphery_where_the_cluster_ends.pn
 
 
 def plot_periphery_density(path: Path | str = "plots/periphery_overdensity.png",
-                           distance_kpc: float = 5.43) -> Path:
+                           distance_kpc: float = OCEN_DISTANCE_KPC) -> Path:
     """Are the stars measured in the periphery actually there? A star-count test.
 
     Left: the sky distribution of cluster-like stars, selected on proper motion and CaHK
@@ -1325,7 +1326,7 @@ def plot_periphery_density(path: Path | str = "plots/periphery_overdensity.png",
 
 
 def plot_extended_profile(path: Path | str = "plots/profile_extended_pristine.png",
-                          distance_kpc: float = 5.43) -> Path:
+                          distance_kpc: float = OCEN_DISTANCE_KPC) -> Path:
     """The dispersion profile extended outwards with Pristine, under our own mixture model.
 
     Left: HST, our Gaia EDR3 measurement, the Pristine mixture measurement with no
@@ -1437,7 +1438,7 @@ def gaia_streaming2(which: str = "ours", per_component: bool = False):
 
 
 def plot_master_datasets(path: Path | str = "plots/master_datasets.png",
-                         datasets: str | None = None, distance_kpc: float = 5.43,
+                         datasets: str | None = None, distance_kpc: float = OCEN_DISTANCE_KPC,
                          streaming: str | None = None) -> Path:
     """Everything the likelihood is shown, in one figure, in km/s.
 
@@ -1653,7 +1654,7 @@ def hst_gaia_overlap_profile(edges_arcsec=(300.0, 380.0, 460.0)) -> Table:
                                    "f_unflagged"))
 
 
-def hst_gaia_overlap_tests(distance_kpc: float = 5.43) -> Table:
+def hst_gaia_overlap_tests(distance_kpc: float = OCEN_DISTANCE_KPC) -> Table:
     """Three routes to the same comparison, differing in how HST's unflagged stars are used.
 
     1. ``300-340", both flagged`` -- HST's own quality flag and Gaia's, nothing corrected.
@@ -1708,7 +1709,7 @@ def hst_gaia_overlap_tests(distance_kpc: float = 5.43) -> Table:
 
 
 def plot_hst_gaia_overlap(path: Path | str = "plots/hst_gaia_overlap.png",
-                          distance_kpc: float = 5.43) -> Path:
+                          distance_kpc: float = OCEN_DISTANCE_KPC) -> Path:
     """The HST/Gaia overlap, built from each survey's own quality selection.
 
     Left: HST measured from flagged stars alone, which reaches 340 arcsec, against Gaia,
@@ -1783,7 +1784,7 @@ def plot_hst_gaia_overlap(path: Path | str = "plots/hst_gaia_overlap.png",
 
 
 def plot_estimator_audit(path: Path | str = "plots/estimator_before_after.png",
-                         distance_kpc: float = 5.43) -> Path:
+                         distance_kpc: float = OCEN_DISTANCE_KPC) -> Path:
     """What the two estimator fixes of 2026-09-19 changed, and what they did not.
 
     Top left: the combined dispersion, the quantity the likelihood receives, is untouched.

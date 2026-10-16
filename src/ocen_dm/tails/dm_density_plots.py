@@ -15,6 +15,7 @@ from __future__ import annotations
 import warnings; warnings.filterwarnings("ignore")
 from pathlib import Path
 import numpy as np
+from ..cluster import OCEN_DISTANCE_KPC
 from .tidal_tracks import NFW
 
 MSUN_PC3_TO_GEV_CM3 = 37.97
@@ -35,7 +36,7 @@ def rho_retained(halo: NFW, r_pc, rj_pc, sharp=False):
     return rho * np.exp(-np.asarray(r_pc) / rj_pc)
 
 
-def stellar_density(r_pc, m_star=2.88e6, distance_kpc=5.43):
+def stellar_density(r_pc, m_star=2.88e6, distance_kpc=OCEN_DISTANCE_KPC):
     """Stellar mass density [Msun/pc^3] from the project's MGE light model scaled to the rung-0 K1 M_star."""
     from ..light_model import build_stellar_mge, fit_mge_projected, load_tracer_profile
     fit = fit_mge_projected(load_tracer_profile("composite"), sigma_range_arcsec=(7.0, 3000.0))

@@ -39,6 +39,7 @@ from __future__ import annotations
 import numpy as np
 from astropy.table import Table
 
+from ..cluster import OCEN_DISTANCE_KPC
 from ..paths import processed_dir
 from .outer_profile import dispersion_ml, load_members
 
@@ -70,7 +71,7 @@ def published_profile() -> tuple[np.ndarray, np.ndarray]:
 
 
 def replication_table(edges: np.ndarray | None = None, prob_min: float = 0.9,
-                      distance_kpc: float = 5.43) -> Table:
+                      distance_kpc: float = OCEN_DISTANCE_KPC) -> Table:
     """Our annulus dispersions with and without their prescriptions, against their profile.
 
     Columns: ``sigma_raw`` deconvolves the catalogue errors as released, ``sigma_eta``
@@ -111,7 +112,7 @@ def replication_table(edges: np.ndarray | None = None, prob_min: float = 0.9,
 
 def magnitude_consistency(annuli=((460., 700.), (700., 1000.), (1000., 1500.), (1500., 2400.)),
                           g_bright: float = 17.0, g_faint: float = 19.0,
-                          prob_min: float = 0.9, distance_kpc: float = 5.43) -> Table:
+                          prob_min: float = 0.9, distance_kpc: float = OCEN_DISTANCE_KPC) -> Table:
     """Is the error model right? A correct one makes the deconvolved sigma independent of G.
 
     This is the authors' own validation (their Figure 6) and it is not circular: it never
@@ -149,7 +150,7 @@ def magnitude_consistency(annuli=((460., 700.), (700., 1000.), (1000., 1500.), (
 
 
 def low_noise_profile(edges: np.ndarray | None = None, err_max_frac: float = 0.4,
-                      prob_min: float = 0.9, distance_kpc: float = 5.43) -> Table:
+                      prob_min: float = 0.9, distance_kpc: float = OCEN_DISTANCE_KPC) -> Table:
     """Dispersion from stars whose errors are small next to the signal, where the error model
     cannot matter.
 

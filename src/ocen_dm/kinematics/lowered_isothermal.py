@@ -14,6 +14,7 @@ import numpy as np
 from scipy.integrate import solve_ivp
 from scipy.special import gamma, hyp1f1
 
+from ..cluster import OCEN_DISTANCE_KPC
 from .positive_df import DFConvergenceError, DFNumerics, _xyz, agama_pc
 from .regularized_df import PrescribedMatter
 
@@ -73,7 +74,7 @@ class LoweredIsothermalConfig:
     truncation_index: float = 1.
     matter: PrescribedMatter = field(default_factory=PrescribedMatter)
     numerics: DFNumerics = field(default_factory=DFNumerics)
-    distance_kpc: float = 5.43
+    distance_kpc: float = OCEN_DISTANCE_KPC
     poisson_rtol: float = 2e-9
 
     def __post_init__(self):

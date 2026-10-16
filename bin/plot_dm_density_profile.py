@@ -12,6 +12,7 @@ import numpy as np
 from astropy.table import Table
 
 from profile_dm_density_limit import ROOT, OUTPUT, CASES, digest
+from ocen_dm.cluster import OCEN_DISTANCE_ERR_KPC, OCEN_DISTANCE_KPC
 from ocen_dm.kinematics.report import load_run_metadata, problem_for
 from ocen_dm.kinematics.run_io import data_fingerprint
 
@@ -59,7 +60,7 @@ def validate(states):
                               for p in problem.data.profiles)
                 np.testing.assert_allclose(-2*(lnlike-lognorm), r["chi2_kinematics"], atol=1e-8)
                 distance = r["parameters"]["distance"]
-                np.testing.assert_allclose(r["objective"], r["chi2_kinematics"]+((distance-5.43)/.05)**2)
+                np.testing.assert_allclose(r["objective"], r["chi2_kinematics"]+((distance-OCEN_DISTANCE_KPC)/OCEN_DISTANCE_ERR_KPC)**2)
                 assert 5.03 < distance < 5.83  # numerical normal-prior bounds never active
                 density = float(np.asarray(problem.family.halo(r["parameters"]).density(20.)).item())
                 np.testing.assert_allclose(density, r["rho"], rtol=1e-8)

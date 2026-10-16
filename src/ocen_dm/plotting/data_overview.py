@@ -21,19 +21,16 @@ from . import style
 __all__ = ["plot_all", "PLOTS"]
 
 #: NGC 5139 centre, SIMBAD (J2000): 13h26m47.28s -47d28m46.1s
-from ..cluster import OCEN_DEC, OCEN_RA  # single definition, derived from the data
+from ..cluster import OCEN_DEC, OCEN_DISTANCE_KPC, OCEN_DISTANCE_OMEGACAT_KPC, OCEN_RA, OCEN_VSYS_KMS  # single definition
 #: Distance used for display: the Baumgardt & Vasiliev (2021) catalogue value,
 #: 5.43 +- 0.05 kpc (products/literature/baumgardt_ocen_parameters). oMEGACat VI's
 #: own kinematic distance is 5.494 +- 0.061 kpc (Haberle et al. 2025, section 4.4);
 #: the two differ by 0.8 sigma and the choice changes pc scales and PM->km/s by 1.2%.
 #: Converts proper motions for display: v = 4.74047 * mu * D.
-OCEN_DISTANCE_KPC = 5.43
-OCEN_DISTANCE_OMEGACAT_KPC = 5.494
 ARCSEC_TO_PC = OCEN_DISTANCE_KPC * 1e3 / 206265.0
 MASYR_TO_KMS = 4.74047 * OCEN_DISTANCE_KPC
-#: systemic heliocentric velocity, taken as the median of the high-quality
-#: oMEGACat sample (232.6 km/s), used only to centre displays
-OCEN_VSYS = 232.6
+#: systemic heliocentric velocity used to centre displays (ocen_dm.cluster)
+OCEN_VSYS = OCEN_VSYS_KMS
 MEMBER_THRESHOLD = 0.5
 
 

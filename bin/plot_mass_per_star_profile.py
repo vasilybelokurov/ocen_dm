@@ -21,6 +21,7 @@ from datetime import datetime, timezone
 import glob
 import hashlib
 import json
+import sys
 import os
 from pathlib import Path
 
@@ -31,6 +32,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT/"src"))
+from ocen_dm.cluster import OCEN_DISTANCE_ERR_KPC, OCEN_DISTANCE_KPC  # noqa: E402
 ARCSEC_PER_RAD = 206264.806
 COUNTS = "ocen_counts_hst_f625w19"
 # photometric mass function, Msun per F625W<19 star: zones 30-175 arcsec (Kroupa / fitted slope,
@@ -62,7 +65,7 @@ def extract(row, label):
     return dict(label=label, mass_per_star=mps, amplitude_fixed=hst.get("amplitude_fixed", False),
                 objective=s["refined_score"], chi2_kin=g["chi2_kinematic"],
                 deviance_counts=sum(g.get("deviance_counts", {}).values()),
-                deviance_hst=g.get("deviance_counts", {}).get(COUNTS), prior=((c["distance_kpc"]-5.43)/0.05)**2,
+                deviance_hst=g.get("deviance_counts", {}).get(COUNTS), prior=((c["distance_kpc"]-OCEN_DISTANCE_KPC)/OCEN_DISTANCE_ERR_KPC)**2,
                 rho20=c["matter"]["rho20"], r_s=c["matter"]["r_s"], M_star=c["M_star"], M_rem=c["matter"]["M_rem"],
                 a_rem=c["matter"]["a_rem"], D=c["distance_kpc"],
                 M_halo_10=float(np.interp(10., prof["r_pc"], prof["halo"])),

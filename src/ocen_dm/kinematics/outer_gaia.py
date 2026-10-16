@@ -23,6 +23,7 @@ from pathlib import Path
 import numpy as np
 from astropy.table import Table
 
+from ..cluster import OCEN_DISTANCE_KPC
 from ..paths import processed_dir
 from .outer_profile import dispersion_2d, load_members
 from .vb2021_replication import error_inflation, published_profile
@@ -59,7 +60,7 @@ def _composite_tracer(distance_kpc: float):
 
 
 def build_edr3_profile(edges: np.ndarray | None = None, err_max_frac: float = 0.4,
-                       distance_kpc: float = 5.43) -> Path:
+                       distance_kpc: float = OCEN_DISTANCE_KPC) -> Path:
     """Measure the profile and write ``ocen_pm_dispersion_edr3_ours.ecsv``."""
     from ..selection.field_template import field_density_2d
     from .perspective import depth_dispersion

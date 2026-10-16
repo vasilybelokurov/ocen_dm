@@ -13,6 +13,7 @@ from typing import Any
 
 import numpy as np
 
+from ..cluster import OCEN_DISTANCE_OMEGACAT_KPC
 from .fit import DarkMatterModel, NoDarkMatterModel, Prior
 
 __all__ = ["Preset", "PRESETS", "build_preset", "v_band_luminosity"]
@@ -68,7 +69,7 @@ PRESETS: dict[str, Preset] = {
         url="https://ui.adsabs.harvard.edu/abs/2025ApJ...983...95H",
         datasets=("hst_pm_radial", "hst_pm_tangential", "muse_los_dispersion"),
         family_kwargs=dict(tracer="composite", distance_prior=Prior("uniform", 4.5, 6.5), instruments=("MUSE",)),
-        published={"distance": (5.494, 0.061, "kinematic distance, kpc")},
+        published={"distance": (OCEN_DISTANCE_OMEGACAT_KPC, 0.061, "kinematic distance, kpc")},
         notes="Flat distance prior so the number is ours, not the prior's; the MUSE/HST equipartition "
               "scale is left free as in the K1 fits (their analysis treats the samples differently).",
     ),

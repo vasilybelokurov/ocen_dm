@@ -25,6 +25,7 @@ from __future__ import annotations
 import numpy as np
 from astropy.table import Table
 
+from ..cluster import MU_SYS, OCEN_DISTANCE_KPC
 from ..paths import processed_dir
 from .outer_profile import (KMS_PER_MASYR_KPC, MemberSample, OCEN_DEC, OCEN_RA, OCEN_VSYS_KMS,
                             dispersion_2d)
@@ -32,11 +33,9 @@ from .perspective import systemic_pm_field, systemic_velocity_vector
 
 __all__ = ["MU_SYS", "load_pristine_sample", "pristine_field_density", "pristine_profile"]
 
-#: systemic proper motion of the cluster (mas/yr), Vasiliev & Baumgardt 2021
-MU_SYS = (-3.257, -6.730)
 
 
-def load_pristine_sample(feh_max: float = -1.2, distance_kpc: float = 5.43) -> MemberSample:
+def load_pristine_sample(feh_max: float = -1.2, distance_kpc: float = OCEN_DISTANCE_KPC) -> MemberSample:
     """Pristine metal-poor stars as a :class:`MemberSample`, systemic field removed exactly."""
     t = Table.read(processed_dir() / "tails" / "kuzma2025_periphery.ecsv")
     cov = Table.read(processed_dir() / "tails" / "kuzma2025_periphery_gaia_covariance.ecsv")
@@ -82,7 +81,7 @@ def pristine_field_density(sample: MemberSample, field_r_min_deg: float = 3.6,
 
 def pristine_profile(edges_deg=(0.30, 0.50, 0.70, 0.90, 1.20, 1.60, 2.10, 2.80),
                      feh_max: float = -1.2, field_r_min_deg: float = 3.6,
-                     distance_kpc: float = 5.43, min_stars: int = 30,
+                     distance_kpc: float = OCEN_DISTANCE_KPC, min_stars: int = 30,
                      min_cluster: float = 10.0) -> Table:
     """Cluster dispersion per annulus from the mixture fit, with no proper-motion selection."""
     s = load_pristine_sample(feh_max=feh_max, distance_kpc=distance_kpc)

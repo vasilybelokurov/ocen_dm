@@ -22,7 +22,7 @@ dependencies = [
 [project.optional-dependencies]
 dynamics = ["agama", "galpy", "gala"]
 inference = ["ultranest", "dynesty", "corner"]
-dev = ["pytest", "ruff"]
+dev = ["pytest", "pytest-xdist", "ruff"]
 
 [project.scripts]
 ocen = "ocen_dm.cli:main"

@@ -18,6 +18,7 @@ from datetime import datetime, timezone
 import glob
 import hashlib
 import json
+import sys
 import os
 from pathlib import Path
 
@@ -28,6 +29,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT/"src"))
+from ocen_dm.cluster import OCEN_DISTANCE_ERR_KPC, OCEN_DISTANCE_KPC  # noqa: E402
 
 
 def read(path):
@@ -107,7 +110,7 @@ def _extract(row):
     g = s["gates"]; c = s["best"]["config"]; job = s["job"]
     pinned = [cc["path"].split(".")[-1] for cc, v in zip(job["coordinates"], s["best"]["x"]) if v < 1e-3 or v > 1-1e-3]
     dev = sum(g.get("deviance_counts", {}).values())
-    prior = ((c["distance_kpc"]-5.43)/0.05)**2
+    prior = ((c["distance_kpc"]-OCEN_DISTANCE_KPC)/OCEN_DISTANCE_ERR_KPC)**2
     return dict(objective=s["refined_score"], chi2_kin=g["chi2_kinematic"], deviance_counts=dev, prior=prior,
                 r_s=c["matter"]["r_s"], M_star=c["M_star"], M_rem=c["matter"]["M_rem"], D=c["distance_kpc"],
                 M_halo_20=halo_mass(s["refined_profiles"], 20.), M_halo_63=halo_mass(s["refined_profiles"], 63.),

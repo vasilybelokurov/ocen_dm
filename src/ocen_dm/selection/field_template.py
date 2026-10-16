@@ -29,7 +29,7 @@ __all__ = ["QUERY", "PRODUCT", "fetch_field", "build_product", "load_field_templ
            "field_density_2d"]
 
 #: centre and annulus of the field sample (deg)
-from ..cluster import OCEN_DEC, OCEN_RA  # single definition, derived from the data
+from ..cluster import OCEN_DEC, OCEN_DISTANCE_KPC, OCEN_RA, OCEN_VSYS_KMS  # single definition, derived from the data
 R_INNER_DEG, R_OUTER_DEG = 0.75, 1.6
 
 QUERY = """
@@ -64,7 +64,7 @@ def fetch_field(g_max: float = 20.5) -> dict[str, np.ndarray]:
 
 
 def build_product(g_max: float = 20.5, ruwe_max: float = 1.4, excess_noise_max: float = 1.0,
-                  pm_error_max: float = 1.5, distance_kpc: float = 5.43, v_los: float = 232.6,
+                  pm_error_max: float = 1.5, distance_kpc: float = OCEN_DISTANCE_KPC, v_los: float = OCEN_VSYS_KMS,
                   mu_sys: tuple[float, float] | None = None) -> Path:
     """Fetch the field, put it in the cluster's radial/tangential frame, and write the product.
 

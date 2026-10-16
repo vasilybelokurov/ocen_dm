@@ -40,7 +40,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT/"bin"/"nbody"))
 from run_nbody import cluster_centre, bound_mask  # noqa: E402
-from analyse_tails import to_sky  # noqa: E402
+from analyse_tails import OCEN_B, OCEN_L, to_sky  # noqa: E402
 
 MODELS = (("A_nodm", "A: no DM", "tab:blue"), ("B_dm_phot", "B: DM halo", "tab:orange"))
 R_T, R_W, R_J = 46.4/60, 70.6/60, 106.9/60           # deg
@@ -177,7 +177,7 @@ def main():
     g = SkyCoord(ra=I19_POS[:, 0]*u.deg, dec=I19_POS[:, 1]*u.deg).galactic
     ax[5].plot(np.where(g.l.deg > 180, g.l.deg-360, g.l.deg), g.b.deg, "k*", ms=12, label="I19 CFHT Fimbulthul stars")
     ax[5].add_patch(plt.Rectangle((FIMB_L[0], FIMB_B[0]), FIMB_L[1]-FIMB_L[0], FIMB_B[1]-FIMB_B[0], fill=False, color="black", ls="--"))
-    ax[5].plot(-50.898, 14.968, "kx", ms=10, mew=2, label="omega Cen observed")
+    ax[5].plot(OCEN_L-360, OCEN_B, "kx", ms=10, mew=2, label="omega Cen observed")
     ax[5].set(xlim=(-10, -80), ylim=(-10, 55), xlabel="l [deg]", ylabel="b [deg]", title="(f) unbound stars on the sky around Fimbulthul (dashed box)")
     ax[5].legend(fontsize=7, markerscale=1)
     fig.suptitle("N-body tails of the no-DM (A) and DM (B) models vs observed omega Cen tails (K21 = Kuzma+2021, DC12 = Da Costa 2012, K26 = Kuzma+2026, I19 = Ibata+2019)")

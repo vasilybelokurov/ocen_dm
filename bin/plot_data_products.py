@@ -35,9 +35,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 from astropy.table import Table
 
+from ocen_dm.cluster import OCEN_DISTANCE_KPC
 from ocen_dm.kinematics.likelihood import load_profile
 
-D_KPC = 5.43                                   # distance used for the pc axis
+D_KPC = OCEN_DISTANCE_KPC                                   # distance used for the pc axis
 PC_PER_ARCSEC = D_KPC*1e3/206264.806
 KMS_PER_MASYR = 4.740470*D_KPC
 PROC = ROOT/"data/processed/kinematics"

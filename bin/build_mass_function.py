@@ -47,6 +47,7 @@ sys.path.insert(0, str(ROOT/"src"))
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from ocen_dm.cluster import OCEN_DISTANCE_KPC
 import numpy as np
 from astropy.io import fits
 from scipy.optimize import minimize_scalar
@@ -149,7 +150,7 @@ def number_integral(k, alpha, a, b):
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--age", type=float, default=12.5, help="Gyr")
-    parser.add_argument("--distance", type=float, default=5.43, help="kpc")
+    parser.add_argument("--distance", type=float, default=OCEN_DISTANCE_KPC, help="kpc")
     parser.add_argument("--ebv", type=float, default=.12)
     parser.add_argument("--feh", type=float, default=None,
                         help="force the isochrone [Fe/H] instead of the ridge-line best fit (systematic variant)")

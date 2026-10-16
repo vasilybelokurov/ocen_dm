@@ -27,6 +27,7 @@ from pathlib import Path
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT/"src"))
 os.environ.setdefault("MPLCONFIGDIR", os.path.join(os.environ.get("TMPDIR", "/tmp"), "ocen-df-mpl"))
 import matplotlib
 matplotlib.use("Agg")
@@ -35,8 +36,10 @@ from matplotlib.colors import LinearSegmentedColormap, LogNorm
 import numpy as np
 from astropy.coordinates import SkyCoord
 
+from ocen_dm.cluster import OCEN_DEC, OCEN_DISTANCE_KPC, OCEN_RA
+
 BASE = Path(os.path.expandvars("$OCEN_CATALOGUES/omegacen_hst_lp"))
-CENTRE = (201.696991, -47.479472)
+CENTRE = (OCEN_RA, OCEN_DEC)
 BANDS = ["WFC3_UVIS_F606W", "WFC3_UVIS_F814W"]
 RAMP = LinearSegmentedColormap.from_list("blue", ["#e8f0fb", "#9ec5f4", "#3987e5", "#1c5cab", "#0d366b"])
 INK, MUTED = "#1f1f1e", "#6b6a64"
@@ -84,7 +87,7 @@ def main():
     p.add_argument("--pmin", type=float, default=90., help="membership probability threshold [per cent; the catalogues give 0-100]")
     p.add_argument("--qfit", type=float, default=0.8)
     p.add_argument("--method", default="m2")
-    p.add_argument("--distance", type=float, default=5.43)
+    p.add_argument("--distance", type=float, default=OCEN_DISTANCE_KPC)
     args = p.parse_args()
     a6, a8, iso_M, iso_c = extinction_and_isochrone()
     dm0 = 5*np.log10(args.distance*1e3/10)

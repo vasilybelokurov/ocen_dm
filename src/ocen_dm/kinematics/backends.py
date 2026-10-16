@@ -25,6 +25,7 @@ from typing import Any
 import numpy as np
 from scipy import integrate, optimize
 
+from ..cluster import OCEN_DISTANCE_KPC
 from ..mass_models import MGE, CompositeMassModel, PointMass
 from ..mass_models.base import MassComponent
 from .anisotropy import Anisotropy
@@ -90,7 +91,7 @@ class JamBackend:
     mass: MassComponent
     tracer: MGE
     anisotropy: Anisotropy = Anisotropy()
-    distance_kpc: float = 5.43
+    distance_kpc: float = OCEN_DISTANCE_KPC
     epsrel: float = 1e-4
     mge_sigmas_pc: tuple[float, ...] = tuple(np.geomspace(0.05, 500.0, 40))
 
@@ -167,7 +168,7 @@ class AgamaDFBackend:
     tracer: MassComponent
     beta0: float = 0.0
     r_a: float = np.inf
-    distance_kpc: float = 5.43
+    distance_kpc: float = OCEN_DISTANCE_KPC
     r_min: float = 1e-3
     r_max: float = 1e4
 

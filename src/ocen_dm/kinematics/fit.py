@@ -28,6 +28,7 @@ import numpy as np
 from astropy.table import Table
 from scipy.special import erfinv
 
+from ..cluster import OCEN_DISTANCE_ERR_KPC, OCEN_DISTANCE_KPC  # Baumgardt & Vasiliev 2021
 from ..light_model import MGEFit, build_stellar_mge, fit_mge_projected, load_tracer_profile
 from ..mass_models import CompositeMassModel, PointMass, RemnantPlummer, TruncatedGNFW
 from .anisotropy import Anisotropy, TurnoverAnisotropy
@@ -37,8 +38,6 @@ from .likelihood import KinematicData, ProfileLikelihood
 __all__ = ["Prior", "Parameter", "NoDarkMatterModel", "DarkMatterModel", "FitProblem",
            "run_nested", "maximum_likelihood", "OCEN_DISTANCE_KPC"]
 
-OCEN_DISTANCE_KPC = 5.43          # Baumgardt & Vasiliev 2021; oMEGACat kinematic 5.494 differs by 1.2 per cent
-OCEN_DISTANCE_ERR_KPC = 0.05
 #: default distance prior: the literature value. Distance is degenerate with the
 #: LOS/PM dispersion ratio, which is exactly what the MUSE and HST samples disagree
 #: on at the 4 per cent level (JOURNAL 2026-09-17), so it is never fixed in a fit.

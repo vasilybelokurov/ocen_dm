@@ -27,7 +27,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from ..cluster import MU_SYS, OCEN_DEC, OCEN_RA, OCEN_VSYS_KMS
+from ..cluster import MU_SYS, OCEN_DEC, OCEN_DISTANCE_KPC, OCEN_RA, OCEN_VSYS_KMS
 
 
 def _import_galpy_safely() -> None:
@@ -60,7 +60,7 @@ __all__ = ["PRESENT", "OrbitSummary", "present_day_orbit", "class1_current_orbit
            "class3_bar_migration_orbits", "CLASS3_OMEGA_B"]
 
 #: present-day observables (D and v_los as used throughout the project)
-PRESENT = dict(ra=OCEN_RA, dec=OCEN_DEC, distance_kpc=5.43,
+PRESENT = dict(ra=OCEN_RA, dec=OCEN_DEC, distance_kpc=OCEN_DISTANCE_KPC,
                pmra=MU_SYS[0], pmdec=MU_SYS[1], vlos=OCEN_VSYS_KMS)
 #: solar parameters used for every conversion (McMillan 2017 / galpy defaults)
 R0_KPC, V0_KMS, ZSUN_KPC = 8.21, 233.1, 0.0208

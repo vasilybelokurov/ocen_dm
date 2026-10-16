@@ -32,14 +32,13 @@ from __future__ import annotations
 import numpy as np
 from astropy.table import Table
 
+from ..cluster import MU_SYS, OCEN_DISTANCE_KPC
 from ..kinematics.outer_profile import OCEN_DEC, OCEN_RA
 from ..paths import processed_dir
 
 __all__ = ["MU_SYS", "TAIL_AXIS_PA_DEG", "load_periphery", "candidate_masks",
            "density_profile", "axial_rayleigh", "along_across"]
 
-#: systemic proper motion used to centre the selection window (mas/yr)
-MU_SYS = (-3.257, -6.730)
 #: preferred axis of the outer candidates, position angle east of the x (east) axis
 TAIL_AXIS_PA_DEG = 148.0
 
@@ -70,7 +69,7 @@ def candidate_masks(t: Table, window_masyr: float = 0.8, feh_max: float = -1.2,
 
 
 def density_profile(edges_deg=(0.5, 0.7, 0.9, 1.2, 1.6, 2.1, 2.8, 3.6, 4.4, 5.1),
-                    distance_kpc: float = 5.43, **kw) -> Table:
+                    distance_kpc: float = OCEN_DISTANCE_KPC, **kw) -> Table:
     """Background-subtracted surface density of cluster-like stars, per square degree."""
     t, r, _ = load_periphery()
     sig, ctrl = candidate_masks(t, **kw)

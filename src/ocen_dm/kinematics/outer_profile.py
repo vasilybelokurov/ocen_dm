@@ -42,8 +42,7 @@ __all__ = ["MemberSample", "load_members", "systemic_pm", "dispersion_ml", "binn
 #: set these outside :mod:`ocen_dm.kinematics.estimator_audit`.
 LEGACY: set[str] = set()
 
-from ..cluster import OCEN_DEC, OCEN_RA  # single definition, derived from the data
-OCEN_VSYS_KMS = 232.6         # systemic line-of-sight velocity (oMEGACat VI)
+from ..cluster import OCEN_DEC, OCEN_DISTANCE_KPC, OCEN_RA, OCEN_VSYS_KMS  # single definition (ocen_dm.cluster)
 KMS_PER_MASYR_KPC = 4.740470463533348
 
 
@@ -120,7 +119,7 @@ def systemic_pm(table: Table, r_arcsec: np.ndarray, prob_min: float = 0.9,
 
 def load_members(path: Any = None, ra0: float = OCEN_RA, dec0: float = OCEN_DEC,
                  mu_sys: tuple[float, float] | None = None, v_los: float = OCEN_VSYS_KMS,
-                 distance_kpc: float = 5.43, exact: bool = True) -> MemberSample:
+                 distance_kpc: float = OCEN_DISTANCE_KPC, exact: bool = True) -> MemberSample:
     """Read the processed member table and project PMs and their covariance to (R, T).
 
     The systemic motion is removed **star by star**: the cluster's 3-D velocity (from
@@ -219,7 +218,7 @@ def dispersion_ml(values: np.ndarray, errors: np.ndarray, err_scale: float = 1.0
 def binned_dispersion(sample: MemberSample, edges: np.ndarray, prob_min: float = 0.9,
                       g_range: tuple[float, float] = (-np.inf, np.inf), err_scale: float = 1.0,
                       sigma_sys: float = 0.0, quality_mask: int | None = None,
-                      depth_tracer: Any = None, distance_kpc: float = 5.43) -> Table:
+                      depth_tracer: Any = None, distance_kpc: float = OCEN_DISTANCE_KPC) -> Table:
     """Radial and tangential PM dispersion in each annulus, with diagnostics.
 
     ``depth_tracer`` (a mass component whose density is the tracer's) switches on the
@@ -320,7 +319,7 @@ def mixture_dispersion(values: np.ndarray, errors: np.ndarray, field_pdf, extra_
 
 
 def contamination_audit(sample: MemberSample, edges: np.ndarray, quality_mask: int | None = 2,
-                        field_prob_max: float = 0.05, depth_tracer: Any = None, distance_kpc: float = 5.43) -> Table:
+                        field_prob_max: float = 0.05, depth_tracer: Any = None, distance_kpc: float = OCEN_DISTANCE_KPC) -> Table:
     """Per annulus: the P-cut dispersions (P>0.9, P>0.99), the mixture-model dispersion fitted to
     all quality stars with the field distribution taken from the P<``field_prob_max`` stars, the
     fitted contaminant fraction, and the published-probability estimate ``sum(1-P)/N``."""

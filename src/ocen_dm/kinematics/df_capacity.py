@@ -12,6 +12,7 @@ from dataclasses import replace
 import numpy as np
 from scipy.special import expit, softmax
 
+from ..cluster import OCEN_DISTANCE_KPC
 from .likelihood import ARCSEC_PER_RAD, KinematicData, ProfileLikelihood
 from .jeans import KMS_PER_MASYR_KPC
 from .positive_df import agama_pc
@@ -190,7 +191,7 @@ adopted error scale, so the combined score is diagnostic, not a likelihood
 calibrated for model selection. All observations sample the same light DF.
     """
 
-    def __init__(self, template, photometry, truth, distance_kpc=5.43):
+    def __init__(self, template, photometry, truth, distance_kpc=OCEN_DISTANCE_KPC):
         self.data = KinematicData(tuple(replace(p, streaming2=None) for p in template.profiles))
         self.photo = photometry
         self.distance_kpc = distance_kpc

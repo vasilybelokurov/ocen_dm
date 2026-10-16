@@ -43,6 +43,9 @@ from scipy.spatial import cKDTree
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT/"bin"/"nbody"))
 from run_nbody import AGAMA_T_MYR, G, OCEN_TODAY, SPECIES, T_UNIT, bound_mask, cluster_centre, mw_potential  # noqa: E402
+sys.path.insert(0, str(ROOT/"src"))
+from ocen_dm.cluster import OCEN_DISTANCE_KPC, OCEN_VSYS_KMS, galactic  # noqa: E402
+OCEN_L, OCEN_B = galactic()
 
 COLORS = dict(stars="tab:blue", remnants="tab:red", halo="tab:green")
 T_ORB = 400.       # Myr each way for the orbit-coordinate reference track
@@ -104,8 +107,9 @@ def to_sky(pos_pc, vel):
 def check_frame():
     """Heliocentric values of omega Cen from OCEN_TODAY with the adopted solar parameters."""
     l, b, d, vr, pml, pmb = to_sky(OCEN_TODAY[None, :3]*1e3, OCEN_TODAY[None, 3:])
-    ref = dict(l=309.102, b=14.968, d=5.43, vr=232.78, pml=None, pmb=None)
-    print(f"frame check omega Cen: l {l[0]:.3f} (cat 309.102), b {b[0]:.3f} (14.968), d {d[0]:.3f} (5.43), v_los {vr[0]:.1f} (232.78), pm_l* {pml[0]:.2f}, pm_b {pmb[0]:.2f}")
+    ref = dict(l=OCEN_L, b=OCEN_B, d=OCEN_DISTANCE_KPC, vr=OCEN_VSYS_KMS, pml=None, pmb=None)
+    print(f"frame check omega Cen: l {l[0]:.3f} (ref {OCEN_L:.3f}), b {b[0]:.3f} ({OCEN_B:.3f}), d {d[0]:.3f} ({OCEN_DISTANCE_KPC}), "
+          f"v_los {vr[0]:.1f} ({OCEN_VSYS_KMS}), pm_l* {pml[0]:.2f}, pm_b {pmb[0]:.2f}")
     return dict(l=float(l[0]), b=float(b[0]), d=float(d[0]), v_los=float(vr[0]), pm_l=float(pml[0]), pm_b=float(pmb[0]), reference=ref)
 
 
@@ -198,7 +202,7 @@ def main():
                 ax.scatter(wrap(lh), bh, s=.3, color="tab:green", alpha=.15, rasterized=True, label="unbound DM", zorder=1)
             ax.scatter(l, b, s=.5, color="tab:blue", alpha=.5, rasterized=True, label=f"{label}: unbound stars", zorder=2)
             lc, bc, *_ = to_sky(centre[None, :], vcentre[None, :]); lc = wrap(lc); ax.plot(lc, bc, "k+", ms=12, zorder=3)
-            ax.scatter(wrap(np.array([309.102])), [14.968], marker="x", color="red", s=6, zorder=3, label="omega Cen observed")
+            ax.scatter(wrap(np.array([OCEN_L])), [OCEN_B], marker="x", color="red", s=6, zorder=3, label="omega Cen observed")
             ax.set_xlim(75, -75); ax.set_ylim(-60, 60)
             ax.set(xlabel="l [deg]", ylabel="b [deg]", title=f"{label}: debris on the sky today (+: model cluster)"); ax.legend(fontsize=7, markerscale=8)
             ax = axes2[1, i]

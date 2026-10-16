@@ -45,6 +45,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap, LogNorm
+from ocen_dm.cluster import OCEN_DISTANCE_KPC
 import numpy as np
 from astropy.io import fits
 
@@ -57,7 +58,7 @@ MBINS = np.arange(-2.0, 12.0, 0.04)
 def main():
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--edges", nargs="+", type=float, default=[0, 30, 60, 120, 200, 340])
-    p.add_argument("--distance", type=float, default=5.43, help="kpc")
+    p.add_argument("--distance", type=float, default=OCEN_DISTANCE_KPC, help="kpc")
     p.add_argument("--ebv", type=float, default=0.12)
     p.add_argument("--feh", type=float, default=-1.53, help="isochrone [Fe/H] (overlay only)")
     p.add_argument("--age", type=float, default=12.5, help="isochrone age [Gyr] (overlay only)")

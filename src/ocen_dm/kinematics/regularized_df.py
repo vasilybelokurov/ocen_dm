@@ -15,6 +15,7 @@ from scipy.integrate import solve_ivp
 from scipy.interpolate import CubicHermiteSpline, CubicSpline
 from scipy.special import gammainccinv, gammaln
 
+from ..cluster import OCEN_DISTANCE_KPC
 from .positive_df import (
     DFConvergenceError, DFNumerics, PositiveDFModel, _density_interpolator,
     _finite, _xyz, agama_pc, spherical_velocity_moments,
@@ -668,7 +669,7 @@ class RegularizedDFConfig:
     matter: PrescribedMatter = field(default_factory=PrescribedMatter)
     numerics: DFNumerics = field(default_factory=DFNumerics)
     contours: ContourNumerics = field(default_factory=ContourNumerics)
-    distance_kpc: float = 5.43
+    distance_kpc: float = OCEN_DISTANCE_KPC
     seed_radius: float = 5.
 
     def __post_init__(self):

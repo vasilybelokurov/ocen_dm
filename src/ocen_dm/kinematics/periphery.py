@@ -33,6 +33,7 @@ from __future__ import annotations
 import numpy as np
 from astropy.table import Table
 
+from ..cluster import MU_SYS, OCEN_DISTANCE_KPC
 from ..paths import processed_dir
 from .outer_profile import OCEN_DEC, OCEN_RA, dispersion_ml
 
@@ -54,7 +55,7 @@ def radius_deg(ra: np.ndarray, dec: np.ndarray) -> np.ndarray:
 
 def periphery_pm_profile(window_masyr: float = 0.8, prob_min: float = 0.5,
                          edges_deg=(0.20, 0.40, 0.67, 1.00, 1.60, 2.60, 5.20),
-                         distance_kpc: float = 5.43, mu_sys=(-3.257, -6.730)) -> Table:
+                         distance_kpc: float = OCEN_DISTANCE_KPC, mu_sys=MU_SYS) -> Table:
     """PM dispersion of the Pristine periphery sample inside a **fixed** PM window.
 
     The window must be fixed and stated, because the catalogue's own membership probability
@@ -84,7 +85,7 @@ def periphery_pm_profile(window_masyr: float = 0.8, prob_min: float = 0.5,
                        "warning": "membership is PM-based; the window is part of the measurement"})
 
 
-def periphery_los_profile(edges_deg=(0.0, 0.8, 1.2, 3.2), distance_kpc: float = 5.43) -> Table:
+def periphery_los_profile(edges_deg=(0.0, 0.8, 1.2, 3.2), distance_kpc: float = OCEN_DISTANCE_KPC) -> Table:
     """Line-of-sight dispersion of the flagged spectroscopic members: no PM selection."""
     t = Table.read(processed_dir() / "tails" / "kuzma2026_spectroscopy.ecsv")
     r = radius_deg(t["ra"], t["dec"])

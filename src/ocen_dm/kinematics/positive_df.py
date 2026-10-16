@@ -13,6 +13,7 @@ import importlib
 import numpy as np
 from scipy.interpolate import CubicSpline, PchipInterpolator
 
+from ..cluster import OCEN_DISTANCE_KPC
 from ..mass_models import TruncatedGNFW
 
 
@@ -117,7 +118,7 @@ class DFModelConfig:
     r_s: float = 30.
     gamma: float = 0.
     r_t: float = 1000.
-    distance_kpc: float = 5.43
+    distance_kpc: float = OCEN_DISTANCE_KPC
     seed_radius: float = 5.
     components: tuple[ActionComponent, ...] = field(default_factory=lambda: (ActionComponent(),))
     numerics: DFNumerics = field(default_factory=DFNumerics)
