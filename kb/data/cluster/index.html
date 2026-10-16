@@ -775,6 +775,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Ratio of the two count products in the overlap (2026-10-16)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#completeness-corrected-ratio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Completeness-corrected ratio
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
       </ul>
@@ -2967,6 +2984,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Ratio of the two count products in the overlap (2026-10-16)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#completeness-corrected-ratio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Completeness-corrected ratio
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
       </ul>
@@ -3429,7 +3463,64 @@
 </ul>
 </li>
 <li><strong>What it implies for the model.</strong> With one stellar profile and the measured ratio, the current fits would predict roughly 5–15 % more G &lt; 17 stars in the Gaia region than observed, relative to the HST region. Put another way, the fitted profile falls slightly too slowly between the two regions. The fits have no data at 250–300″, so this comparison relies on the model profile being smooth across the gap.</li>
-<li><strong>Precision is set by the catalogue edges.</strong> Only one 50″ annulus is usable, and Gaia completeness beyond 350″ cannot be checked against HST. This is a 5–15 % tension, not a firm offset.</li>
+<li><strong>Precision is set by the catalogue edges.</strong> Only one 50″ annulus is usable, and Gaia completeness beyond 350″ cannot be checked against HST. This is a 5–15 % tension, not a firm offset. The completeness-corrected version below sharpens it to 8–22 %.</li>
+</ul>
+<h4 id="completeness-corrected-ratio">Completeness-corrected ratio<a class="headerlink" href="#completeness-corrected-ratio" title="Permanent link">&para;</a></h4>
+<p><img alt="Completeness-corrected HST/Gaia count ratio" src="../../../plots/count_ratio_corrected.png" /></p>
+<p><em>(a) Completeness measured in each sample's own magnitude range.</em></p>
+<ul>
+<li><em>Gaia, c<sub>G</sub> (solid blue):</em> the fraction of oMEGACat stars with F625W &lt; 16.83 (the HST equivalent of G &lt; 17) that have a Gaia counterpart. The 0.06″ and 0.10″ match tolerances give the same values.</li>
+<li><em>Dotted:</em> c<sub>G</sub> in three magnitude slices.</li>
+<li><em>HST, c<sub>H</sub> (red):</em> the fraction of stars with F814W &lt; 18.55 that have a measured F625W. Here 18.55 is the F814W equivalent of F625W = 19, using the median colour at 18.5 &lt; F625W &lt; 19.</li>
+</ul>
+<p><em>(b) Ratio for complete samples.</em></p>
+<ul>
+<li><em>Black:</em> [N<sub>H19</sub>/c<sub>H</sub>] / [(N<sub>G17</sub> − field)/c<sub>G</sub>].</li>
+<li><em>Green:</em> the HST-only ratio.</li>
+<li><em>Purple band:</em> the fitted a<sub>HST</sub>/a<sub>Gaia</sub>, converted to complete samples.</li>
+<li><em>Grey band:</em> the inverse-variance mean of the corrected points at 150–275″.</li>
+</ul>
+<p><em>Script: <code>bin/check_count_ratio_corrected.py</code>.</em></p>
+<p><strong>Completeness.</strong></p>
+<ul>
+<li><strong>Gaia completeness depends strongly on magnitude.</strong><ul>
+<li>At 250–300″ the G &lt; 17 sample is 0.89 complete overall: 0.95 for F625W &lt; 15.5, but only 0.77 just above the limit.</li>
+<li>The bright-star value of 0.91–0.92 used above therefore overstated it.</li>
+</ul>
+</li>
+<li><strong>HST F625W &lt; 19 is complete.</strong> c<sub>H</sub> is 0.97–1.00 at every radius from 2 to 350″, with a count-weighted 0.990 over 2–250″.<ul>
+<li>The lower "F625W measured" fraction in the first plot (0.90 at 50–100″) comes from faint stars without F625W, not from stars brighter than F625W = 19.</li>
+<li>So the HST count product does not carry the radial incompleteness suggested there.</li>
+</ul>
+</li>
+</ul>
+<p><strong>The corrected ratio.</strong></p>
+<ul>
+<li><strong>It is flat.</strong> From 10 to 275″ it is 10.5–11.9, wherever c<sub>G</sub> &gt; 0.1, and it agrees with the HST-only ratio in every annulus. This confirms that the completeness estimates account for the inward climb of the raw ratio.</li>
+<li><strong>Mean.</strong> The mean at 150–275″ is <strong>11.42 ± 0.23</strong>.</li>
+<li><strong>Edge annuli.</strong><ul>
+<li>The 275–300″ point is low (10.1 ± 0.4). Beyond 300″ the corrected ratio falls to 6.9 and 2.4, although c<sub>H</sub> stays near 1 there.</li>
+<li>The HST-only ratio does not fall, so this is a mismatch of area at the mosaic edge, not a change in the luminosity function. The edge cells are only partly covered by HST but are counted as fully covered for both catalogues (the likely explanation, not tested).</li>
+<li>These points are excluded from the mean.</li>
+</ul>
+</li>
+</ul>
+<p><strong>Comparison with the fit.</strong></p>
+<ul>
+<li><strong>Converting the fitted ratio.</strong> The fitted a<sub>HST</sub>/a<sub>Gaia</sub> contains each product's own completeness. It becomes a complete-sample ratio as fitted × c<sub>G,out</sub> / c<sub>H,in</sub>.<ul>
+<li>c<sub>H,in</sub> = 0.990.</li>
+<li>c<sub>G,out</sub> is Gaia's completeness over the fitted 300–2400″. It cannot be measured against HST, so it is taken between 0.886 (the 250–300″ value) and 1.</li>
+<li>This gives <strong>12.3–13.9</strong> for the no-BH fit. The black-hole fits are lower by at most 0.2.</li>
+</ul>
+</li>
+<li><strong>Result.</strong> Against the measured 11.42 ± 0.23, the fitted ratio is <strong>8–22 % too high</strong>. Even at the lower end of the band the difference is 3.7σ (Poisson errors only).</li>
+<li><strong>What it implies.</strong><ul>
+<li>With one stellar profile, the fits put 8–22 % too many G &lt; 17 stars in the Gaia region compared with the HST region.</li>
+<li>The free a<sub>Gaia</sub> hides this by scaling the Gaia counts down.</li>
+<li>The remaining assumptions: the model profile is smooth across 250–300″, and the missing Gaia stars do not depend on position within each annulus.</li>
+</ul>
+</li>
+<li><strong>A further effect on the Gaia product.</strong> Gaia is about 0.89 complete at 250–300″. If it reaches 1 farther out, the inner Gaia count bins are depleted by up to about 11 % relative to the outer ones. That distorts the shape of the Gaia profile, and a free amplitude cannot absorb it.</li>
 </ul>
 <h2 id="l1-trager-king-djorgovski-1995-surface-brightness-profile">L1. Trager, King &amp; Djorgovski 1995 surface-brightness profile<a class="headerlink" href="#l1-trager-king-djorgovski-1995-surface-brightness-profile" title="Permanent link">&para;</a></h2>
 <ul>
