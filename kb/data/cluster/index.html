@@ -763,6 +763,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="C1/C2. Poisson count profiles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ratio-of-the-two-count-products-in-the-overlap-2026-10-16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ratio of the two count products in the overlap (2026-10-16)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2938,6 +2955,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="C1/C2. Poisson count profiles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ratio-of-the-two-count-products-in-the-overlap-2026-10-16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ratio of the two count products in the overlap (2026-10-16)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -3322,6 +3356,80 @@
 <li><strong>Consumers.</strong> <code>run_compact_df_recovery.py</code> with <code>--counts</code> (baseline; <code>rho20scan_*</code>; <code>mpsscan_*</code>; mocks). Plots: <code>bin/plot_count_profiles.py:38</code>, <code>plot_halo_compensation.py</code>, <code>plot_mass_per_star_profile.py</code>, <code>plot_remnant_halo_degeneracy.py</code>, <code>plot_mock_mass_per_star.py</code>.</li>
 <li><strong>Likelihood note</strong> (<code>counts.py</code> docstring). Schema-1 products are "read for replay only" because their mean is star-weighted, biased high by about 3 % per bin for Σ ∝ R⁻². The baseline and all 2026-09-23 scans used schema 1.</li>
 <li><strong>Status.</strong> a.</li>
+</ul>
+<h3 id="ratio-of-the-two-count-products-in-the-overlap-2026-10-16">Ratio of the two count products in the overlap (2026-10-16)<a class="headerlink" href="#ratio-of-the-two-count-products-in-the-overlap-2026-10-16" title="Permanent link">&para;</a></h3>
+<p>The fits give C1 and C2 separate free amplitudes, a<sub>HST</sub> and a<sub>Gaia</sub>. For a single cluster with a single stellar population, their ratio N(F625W &lt; 19)/N(G &lt; 17) is set by the luminosity function. So it can be measured where both catalogues are complete and compared with the fit. <strong>The amplitudes have not been tied, and nothing was refitted.</strong></p>
+<p><img alt="HST/Gaia count ratio in the overlap" src="../../../plots/count_ratio_overlap.png" /></p>
+<p><em>(a) Completeness against radius.</em></p>
+<ul>
+<li><em>Gaia: the fraction of bright HST stars (F625W &lt; 16.5) with a Gaia counterpart.</em> The match uses a 0.06″ tolerance, after removing the (−0.045, −0.090)″ offset between the two catalogue epochs.</li>
+<li><em>HST: the fraction of oMEGACat stars with a measured F625W.</em></li>
+</ul>
+<p><em>(b) N(F625W &lt; 19)/N(G &lt; 17), from both catalogues counted in the same area (the 3″ cells holding oMEGACat stars), with the 1.60 arcmin⁻² Gaia field subtracted.</em></p>
+<ul>
+<li><em>Black and grey points:</em> the ratio in 25″ annuli.</li>
+<li><em>Orange:</em> the 250–300″ annulus.</li>
+<li><em>Green:</em> HST alone, N(F625W &lt; 19)/N(F625W &lt; 16.83). Here 16.83 = 17 + (F625W − G), with F625W − G = −0.171 the median for matched stars at 16.5 &lt; G &lt; 17.5.</li>
+<li><em>Purple lines:</em> the fitted a<sub>HST</sub>/a<sub>Gaia</sub>.*</li>
+</ul>
+<p><em>Script: <code>bin/check_count_ratio_overlap.py</code>. Numbers: <code>results/plot_data/count_ratio_overlap.json</code>.</em></p>
+<p><strong>Where the measurement is possible.</strong></p>
+<ul>
+<li><strong>Inside 250″ Gaia is incomplete.</strong> It recovers 18 % of bright HST stars at 50–75″ and 84 % at 225–250″. The direct ratio therefore climbs inwards (grey points).</li>
+<li><strong>Beyond 300″ HST is incomplete.</strong> The mosaic edge leaves only 67 % and 23 % of stars with F625W at 300–325″ and 325–350″.</li>
+<li><strong>Both catalogues exceed 0.9 completeness only at 250–300″.</strong> Even there Gaia is 0.91–0.92 complete, not 1.</li>
+</ul>
+<p><strong>Results.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Estimate</th>
+<th>N(F625W&lt;19)/N(G&lt;17)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Direct, 250–275″ (Gaia 0.92, HST 0.98 complete)</td>
+<td>13.2 ± 0.5</td>
+</tr>
+<tr>
+<td>Direct, 275–300″ (Gaia 0.91, HST 0.92 complete)</td>
+<td>11.4 ± 0.5</td>
+</tr>
+<tr>
+<td>Direct, 250–300″</td>
+<td>12.40 ± 0.34</td>
+</tr>
+<tr>
+<td>HST alone: ratio for a complete G &lt; 17 sample, 50–300″</td>
+<td>10.3–11.6, no radial trend</td>
+</tr>
+<tr>
+<td>HST alone, divided by the measured Gaia completeness at 250–300″</td>
+<td>≈ 12.3</td>
+</tr>
+<tr>
+<td><strong>Fitted a<sub>HST</sub>/a<sub>Gaia</sub>:</strong> no BH, BH 8,200, BH 4×10⁴</td>
+<td>13.72, 13.70, 13.49</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>The fitted amplitudes include Gaia's incompleteness.</strong> A completeness factor below 1 lowers a<sub>Gaia</sub> and raises the fitted ratio. So the fit should be compared with the <em>raw</em> ratio of Gaia's counts, not with the HST-alone ratio.</li>
+<li><strong>Against the directly measured ratio, the fit is high by 0–10 %.</strong><ul>
+<li>It is high by 4 % (1σ) at 250–275″, where both catalogues are most complete.</li>
+<li>It is high by 11 % (3.9σ, Poisson errors only) for 250–300″ as a whole.</li>
+<li>The ratio steps down from 13.2 to 11.4 between the two halves of that annulus, a 2.6σ change. This coincides with HST losing F625W at 275–300″. The HST-alone ratio is flat across the step, so the step is probably not in the luminosity function.</li>
+</ul>
+</li>
+<li><strong>Against the luminosity-function estimate, the fit is high by 10–15 %.</strong><ul>
+<li>The HST-alone ratio divided by Gaia's completeness predicts a raw ratio of about 12.3, against the fitted 13.5–13.7.</li>
+<li>The Gaia counts are fitted beyond 300″. If Gaia is more complete there than at 250–300″, as its rising N(G&lt;17)/N(G&lt;16) (1.75 at 250–275″, 1.87 at 275–300″) suggests, the expected raw ratio is lower still.</li>
+<li>This estimate rests on two assumptions: the F625W − G offset holds at G ≈ 17, and the missing Gaia stars are a magnitude-blind subset.</li>
+</ul>
+</li>
+<li><strong>What it implies for the model.</strong> With one stellar profile and the measured ratio, the current fits would predict roughly 5–15 % more G &lt; 17 stars in the Gaia region than observed, relative to the HST region. Put another way, the fitted profile falls slightly too slowly between the two regions. The fits have no data at 250–300″, so this comparison relies on the model profile being smooth across the gap.</li>
+<li><strong>Precision is set by the catalogue edges.</strong> Only one 50″ annulus is usable, and Gaia completeness beyond 350″ cannot be checked against HST. This is a 5–15 % tension, not a firm offset.</li>
 </ul>
 <h2 id="l1-trager-king-djorgovski-1995-surface-brightness-profile">L1. Trager, King &amp; Djorgovski 1995 surface-brightness profile<a class="headerlink" href="#l1-trager-king-djorgovski-1995-surface-brightness-profile" title="Permanent link">&para;</a></h2>
 <ul>
