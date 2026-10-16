@@ -395,7 +395,7 @@ They are held in `$OCEN_CATALOGUES/omegacen_hst_lp`. These fields are uncrowded 
     - This gives a<sub>HST</sub>/a<sub>Gaia</sub> = 11.42 × 0.990 / 0.946 = **11.95 ± 0.3**.
     - The fits give 13.5–13.7, which is **13–15 % too high**.
 
-**Proposed change to the count likelihood (not yet implemented).**
+**Change to the count likelihood (implemented 2026-10-16, commit 30bdcb3).** It is used in the [DF refit](../models/base_no_dm.md#refit-with-completeness-corrected-counts-and-tied-amplitudes-2026-10-16) and in the count-based tracer of the [Jeans twin](../models/jeans_comparison.md#twin-model-with-the-star-count-tracer-j-counts-2026-10-16). The code is `kinematics/counts.py` (`CountProfile.completeness`, `CountTie`, `tied_compare`), and the products are built by `bin/build_count_completeness.py`. The Gaia completeness beyond 350″ is 0.955, the Large Programme fields combined.
 
 1. Multiply the model Gaia counts in each bin by the measured c<sub>G</sub>: 0.906, 0.964 and 0.933 in bins 1–3, and 0.955 beyond 450″. Equivalently, divide the data by it.
 2. Tie the amplitude: a<sub>Gaia</sub> × c<sub>G</sub>(R) = a<sub>HST</sub> × 0.990 / 11.42, i.e. the ratio for complete samples, with its 2 % error carried as a Gaussian prior.

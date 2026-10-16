@@ -154,7 +154,14 @@ def main():
     corr = np.corrcoef(X.T)
 
     # ---------------------------------------------------------------- centre
-    jt = Table.read(ROOT/"results/plot_data/rung0_rung1_rung2_no_dm_vs_dm.ecsv")
+    # Jeans predictions at this run's own maximum-likelihood point (chi2 replayed against the saved value);
+    # before 2026-10-16 this read the rung2_K1_turnover column of a ladder table for every run.
+    from ocen_dm.kinematics.report import load_run_metadata, problem_for
+    jrun = load_run_metadata(jd)
+    jprob = problem_for(jrun)
+    jx = np.array([jrun["summary"]["parameters"][n]["ml"] for n in jprob.family.names])
+    jpred = jprob.predict(jx)
+    assert np.isclose(sum(v[0] for v in jprob.chi2(jx).values()), jrun["summary"]["chi2_ml_total"], atol=.011)
     od = Path(batch)/"observed"
     rec = json.loads((od/"problem.json").read_text())
     counts = [CountProfile.from_dict(json.loads((od/f"{n}.json").read_text())) for n in rec["counts"]]
@@ -168,10 +175,9 @@ def main():
                                            ("hst_pm_tangential_ours", "HST PM tangential", "mas/yr"),
                                            ("muse_los_dispersion", "MUSE line of sight", "km/s"))):
         prf = [x for x in prob.data.profiles if x.name == name][0]
-        rows = jt[jt["dataset"] == name]
         R = prf.r*pc
         k = R < 2.
-        jm = np.asarray(rows["rung2_K1_turnover"], float)
+        jm = np.asarray(jpred[name], float)
         dm = ev["predictions"][name]
         ax[0, i].errorbar(R[k], prf.value[k], yerr=[prf.err_lo[k], prf.err_hi[k]], fmt="o", color="k", ms=4, lw=0.8, label="data")
         ax[0, i].plot(R[k], jm[k], color=JC, marker="s", ms=3, label="Jeans + black hole")

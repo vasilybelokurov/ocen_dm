@@ -217,6 +217,22 @@ This model is identical to the one above (call it **J-Trager**) except for its t
 
 *Scripts: `bin/fit_count_tracer_mge.py`, `bin/run_jeans_counts_tracer.py`, `bin/plot_jeans_tracer_twins.py`.*
 
+![Count tracer fit](../../../plots/tracer_mge_counts_c.png)
+
+*The count tracer. Top: the completeness-corrected HST counts, and the Gaia counts times the fitted ratio, with the 12-Gaussian MGE (solid). Dashed: the composite (Trager) MGE of J-Trager, scaled to the HST counts. Bottom: data / MGE − 1. Dashed: composite MGE / count MGE − 1.*
+
+**J-counts posterior.** These figures come from the same script as for J-Trager. Here the DF comparison is the [tied DF refit](base_no_dm.md#refit-with-completeness-corrected-counts-and-tied-amplitudes-2026-10-16), not the base fit.
+
+![J-counts components](../../../plots/jeans_jeans_K1_turnover_counts_c_components.png)
+
+![J-counts anisotropy](../../../plots/jeans_jeans_K1_turnover_counts_c_beta.png)
+
+![J-counts corner](../../../plots/jeans_jeans_K1_turnover_counts_c_corner.png)
+
+![J-counts centre](../../../plots/jeans_jeans_K1_turnover_counts_c_centre.png)
+
+*Script: `bin/plot_jeans_comparison_model.py --name jeans_K1_turnover_counts_c --jeans results/fits/jeans_K1_turnover_counts_c --df results/df/dftie_restart_20261016::observed_no_halo_start0`.*
+
 | Quantity | J-Trager | J-counts |
 |---|---|---|
 | χ² of the best fit (89 bins) | 190.0 | **152.2** |

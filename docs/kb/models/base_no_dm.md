@@ -274,19 +274,56 @@ The fit was seeded from the base best fit and then restarted from its own best p
 
 ![Base vs tied refit](../../../plots/dftie_vs_base_20261016_data.png)
 
-| Quantity | Base (free amplitudes) | Tied, completeness-corrected |
-|---|---|---|
-| Objective (the likelihoods differ) | 280.7 | 295.8 |
-| χ²<sub>kin</sub> (89 bins) | 156.4 | 159.4 |
-| HST / Gaia count deviance | 96.9 / 25.2 | 84.3 / 45.9 |
-| Count ratio, complete samples | free (13.1 at the base fit) | 11.88 (prior 11.42 ± 0.23) |
-| M<sub>★</sub>; M<sub>rem</sub>; a<sub>rem</sub> | 3.00×10⁶; 2.73×10⁵; 2.18 pc | 3.08×10⁶; 2.00×10⁵; 1.88 pc |
-| b<sub>out</sub>, J<sub>a</sub>; b<sub>outer</sub>, J<sub>outer</sub> | 0.77, 65; −0.33, 312 | 1.57, 91; −0.18, 182 |
-| D | 5.356 kpc | 5.359 kpc |
+*Data with both models, and residuals. Blue: the base fit (free amplitudes). Orange: the tied refit. Dashed: the Jeans model J-Trager.*
 
-- **The predictions change by a few per cent at most.** The kinematic curves overlap. With the ratio tied, the Gaia counts at 15–30 pc lie 3–4σ above the model, while the outermost HST bin improves. A 3–4σ residual in a Gaia bin of about 1,000 stars is a 3–4 % shortfall.
-- **The parameters move much more.** M<sub>rem</sub> drops by 27 % and the anisotropy changes. So these parameters are only weakly fixed by the data: a few per cent in the predictions trades against tens of per cent in them.
-- **One smooth profile can fit both count sets with the measured ratio** (the MGE in the [Jeans twin](jeans_comparison.md#twin-model-with-the-star-count-tracer-j-counts-2026-10-16): Gaia deviance 13.5 over 12 bins). The DF's outer envelope cannot quite reproduce it.
+![Residual diagnostics, base vs tied](../../../plots/dftie_vs_base_20261016_diagnostics.png)
+
+**All parameters**
+
+| # | Parameter | Base (free amplitudes) | Tied, completeness-corrected |
+|---|---|---|---|
+| 1 | M<sub>★</sub> | 2.997×10⁶ M<sub>⊙</sub> | 3.080×10⁶ M<sub>⊙</sub> |
+| 2 | J<sub>0</sub> (pc km/s) | 56.0 | 58.5 |
+| 3 | α | 0.805 | 0.829 |
+| 4 | b<sub>out</sub> | +0.767 | +1.572 |
+| 5 | J<sub>a</sub> (pc km/s) | 65.5 | 90.8 |
+| 6 | b<sub>outer</sub> | −0.327 | −0.180 |
+| 7 | J<sub>outer</sub> (pc km/s) | 312 | 182 |
+| 8 | M<sub>rem</sub> | 2.73×10⁵ M<sub>⊙</sub> | 2.00×10⁵ M<sub>⊙</sub> |
+| 9 | a<sub>rem</sub> | 2.18 pc | 1.88 pc |
+| 10 | D | 5.356 kpc | 5.359 kpc |
+| — | a<sub>HST</sub> | 6.44×10⁻⁵ | 6.03×10⁻⁵ (complete sample) |
+| — | a<sub>HST</sub>/a<sub>Gaia</sub> | 13.7 (free, raw counts) | 11.88 (tied, complete samples) |
+| — | b<sub>Gaia</sub> (field) | 1.60 arcmin⁻² | 1.61 arcmin⁻² |
+
+**Fit quality and derived quantities**
+
+| Quantity | Base | Tied |
+|---|---|---|
+| χ²<sub>kin</sub> / 89 | 156.4 (1.76) | 159.4 (1.79) |
+| χ² per bin: HST PM R, HST PM T, MUSE, Gaia PM R, Gaia PM T | 2.03, 1.89, 1.31, 1.60, 2.39 | 2.09, 2.02, 1.33, 2.12, 1.69 |
+| HST / Gaia count deviance per bin | 4.8 / 2.1 | 4.2 / 3.8 |
+| Tie prior term | — | 4.2 (2.1σ) |
+| Mass per F625W < 19 star | 10.48 M<sub>⊙</sub> | 11.20 M<sub>⊙</sub> (complete sample) |
+| Total mass | 3.26×10⁶ M<sub>⊙</sub> | 3.27×10⁶ M<sub>⊙</sub> |
+| Half-mass radius: stars 3-D, projected; remnants | 10.4, 7.7; 2.8 pc | 9.9, 7.3; 2.5 pc |
+| v<sub>c,max</sub>; central v<sub>esc</sub> | 27.0 km/s at 9.0 pc; 68.1 km/s | 27.4 km/s at 9.0 pc; 68.6 km/s |
+
+**Interpretation**
+
+- **The predictions change by a few per cent at most.** The kinematic curves overlap. With the ratio tied, the Gaia counts at 15–30 pc lie 3–4σ above the model, i.e. 3–4 % in a bin of about 1,000 stars. The outermost HST bin improves.
+- **The parameters move much more.** M<sub>rem</sub> drops by 27 % and the anisotropy changes, while the total mass stays the same. These parameters are therefore only weakly fixed by the data: a few per cent in the predictions trades against tens of per cent in them.
+- **The DF's outer envelope is too rigid.** One smooth profile does fit both count sets with the measured ratio: the MGE of the [Jeans twin](jeans_comparison.md#twin-model-with-the-star-count-tracer-j-counts-2026-10-16) has Gaia deviance 13.5 over 12 bins. The DF's outer envelope cannot quite reproduce it.
+
+**Properties of the tied model**
+
+![Components, tied refit](../../../plots/dftie_model_20261016_components.png)
+
+![Kinematics, tied refit](../../../plots/dftie_model_20261016_kinematics.png)
+
+*Panels and shading as for the base model [below](#properties-of-the-fitted-model).*
+
+*Figures: `bin/plot_best_fit_performance.py`, `bin/plot_base_model_properties.py`; numbers in `results/plot_data/dftie_model_20261016.json`.*
 
 ## Properties of the fitted model
 
