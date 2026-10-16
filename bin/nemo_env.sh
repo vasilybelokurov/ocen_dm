@@ -4,6 +4,8 @@
 #  * never launch through /usr/bin/time or other SIP-protected binaries (DYLD_* is stripped);
 #  * agama.so links LLVM libomp, whose initialisation leaves a stale dlerror() string that NEMO's
 #    loadobj misreads as a failed dlopen -> preload a stub defining the looked-up symbols.
+_repo=$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")/.." && pwd)
+[ -z "$NEMO_DIR" ] && [ -f "$_repo/.env" ] && NEMO_DIR=$(sed -n 's/^ *\(export \)\{0,1\}NEMO_DIR *= *//p' "$_repo/.env" | tail -1 | sed "s|^~|$HOME|")
 source "$NEMO_DIR/nemo_start.sh" > /dev/null 2>&1
 export DYLD_LIBRARY_PATH=$FALCON/lib:$FALCON/utils/lib:$NEMOLIB
 _stub_dir=${OCEN_NBODY_SCRATCH:-${TMPDIR:-/tmp}/ocen_dm}; mkdir -p "$_stub_dir"

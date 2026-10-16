@@ -38,3 +38,6 @@ recovery_snapshot_*.tar.gz
 site/
 # project journal: kept locally, never committed
 JOURNAL.md
+
+# machine-specific locations of external inputs (see docs/kb/getting_started.md)
+.env

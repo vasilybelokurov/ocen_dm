@@ -28,13 +28,20 @@ variables; nothing in the code assumes a machine-specific path.
 | `NEMO_DIR` | NEMO/falcON build | `bin/nemo_env.sh` (gyrfalcON runs) |
 | `PYTHON` | interpreter for the shell drivers (default `python`) | `bin/*.sh` |
 
+Put them in a file named `.env` in the repository root. It is gitignored, so the locations
+never enter the repository, and `import ocen_dm` reads it, so scripts, tests and fits find the
+inputs without any shell setup (`bin/nemo_env.sh` reads `NEMO_DIR` from it too):
+
 ```bash
-export OCEN_CATALOGUES=/path/to/catalogues
-export OCEN_ISOCHRONES=/path/to/isochrones
-export OCEN_BAR_DIR=/path/to/oCen_bar
+# .env -- one NAME=value per line; ~ and $VAR are expanded
+OCEN_CATALOGUES=/path/to/catalogues
+OCEN_ISOCHRONES=/path/to/isochrones
+OCEN_BAR_DIR=/path/to/oCen_bar
+NEMO_DIR=/path/to/nemo
 ```
 
-An unset variable shows up literally in the error message, for example
+A variable exported in the shell always wins over the file. An unset variable shows up
+literally in the error message, for example
 `FileNotFoundError: ... '$OCEN_CATALOGUES/streamfinder_ibata2024_dr3.fits'`.
 
 ## Data
