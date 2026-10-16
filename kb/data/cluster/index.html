@@ -3291,9 +3291,12 @@
 <li><strong>Product.</strong> <code>proc/literature/baumgardt_ocen_parameters.ecsv</code> (1 row: PM, distance, RV, mass, r_h, r_c, orbit, [Fe/H] and others).</li>
 <li><strong>Metadata rule.</strong> "use as priors and cross-checks, not as data in the likelihood".</li>
 <li><strong>Consumers.</strong> <code>plotting/data_overview.py</code> only.</li>
-<li><strong>Systemic values are defined elsewhere.</strong></li>
-<li><code>cluster.py:31–37</code> hard-codes the centre (from oMEGACat), <code>OCEN_VSYS_KMS=232.7</code> and <code>MU_SYS=(−3.257, −6.730)</code> ("Vasiliev &amp; Baumgardt 2021").</li>
-<li><code>streams/frames.py:20 OCEN_OBS</code> uses (pmra −3.2499, pmdec −6.7461, v_los 232.78).</li>
+<li><strong>Systemic values are defined elsewhere.</strong> <code>cluster.py</code> is the single reference for omega Cen's position, motion and distance (since 2026-10-16), each value with its published source:</li>
+<li>centre: oMEGACat / Anderson &amp; van der Marel 2010;</li>
+<li>systemic PM (−3.250, −6.746) ± 0.022 mas/yr: Vasiliev &amp; Baumgardt 2021, Table A1 (the earlier (−3.257, −6.730), labelled with that paper, matched no source);</li>
+<li>v_los 232.7 ± 0.2 km/s: Baumgardt &amp; Hilker 2018;</li>
+<li>distance 5.43 ± 0.05 kpc: Baumgardt &amp; Vasiliev 2021.</li>
+<li>These are the values the oMEGACat papers adopt. <code>tests/test_cluster_reference.py</code> fails if any of them is typed in anywhere else in <code>src/</code> or <code>bin/</code>.</li>
 <li><strong>Status.</strong> d.</li>
 </ul>
 <h2 id="m1-present-day-mass-function-and-mass-per-counted-star-mn19">M1. Present-day mass function and mass per counted star (M/N19)<a class="headerlink" href="#m1-present-day-mass-function-and-mass-per-counted-star-mn19" title="Permanent link">&para;</a></h2>

@@ -2569,10 +2569,9 @@
 <li>The VB21 zip under <code>&lt;code&gt;/apogee_halo_rotation</code>.</li>
 <li>The oCen_bar potentials and GSE contours under <code>OB</code>, reached through two different path conventions.</li>
 <li>McMillan17 from the installed AGAMA package, so results depend on the AGAMA version.</li>
-<li><strong>Inconsistent systemic values across modules.</strong></li>
-<li>μ_sys: <code>cluster.MU_SYS = (−3.257, −6.730)</code>; the K8 template frame uses (−3.2514, −6.7444), derived from K6; <code>streams/frames.py</code> uses (−3.2499, −6.7461).</li>
-<li>v_los: 232.7 in <code>cluster.py</code>, 232.6 in <code>field_template.py</code>, 232.78 in <code>frames.py</code> and in the Baumgardt registry.</li>
-<li>Each choice may be intentional, but none is documented as a single source.</li>
+<li><strong>Inconsistent systemic values across modules.</strong> <em>Resolved 2026-10-16.</em></li>
+<li><code>cluster.py</code> is now the single reference for centre, systemic PM, v_los and distance, with published sources (see <a href="../cluster/">cluster data</a>); about 110 typed-in copies in 47 files import it, and <code>tests/test_cluster_reference.py</code> bans new ones.</li>
+<li>Products built before that date keep the values they were built with (e.g. the K8 template frame, (−3.2514, −6.7444) from K6, v_los 232.6).</li>
 <li><strong>Selection inconsistencies within the light and tracer chain.</strong></li>
 <li>L2 (Jeans tracer and K4 depth term) uses oMEGACat <code>selection_hq_f625w</code> star counts inside 25″.</li>
 <li>C1 (DF baseline) deliberately avoids that flag as 12–15 % radially incomplete.</li>
