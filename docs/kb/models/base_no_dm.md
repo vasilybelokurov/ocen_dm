@@ -2,6 +2,7 @@
 
 The reference model for the cluster mass distribution. Every dark-matter
 variant is compared with it.
+The same model with a fixed central black hole is on [DF + central black hole](df_bh.md).
 
 !!! info "Status (2026-10-13)"
     Refitted on 2026-10-13 with the corrected (area-weighted) count

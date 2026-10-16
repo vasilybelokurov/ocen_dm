@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Physical properties of a fitted base model (stars + remnants, optional halo), by component.
+"""Physical properties of a fitted base model (stars + remnants, optional halo and central black hole), by component.
 
 Figure 1 (``<name>_components.png``):
   (a) density rho(r) of stars, remnants (and halo) and the total;
@@ -43,7 +43,7 @@ from ocen_dm.kinematics.df_fit import build_df_model, model_config_from_dict
 from ocen_dm.kinematics.positive_df import agama_pc
 
 DATA_RANGE = (0.1, 63.)          # pc, innermost/outermost kinematic bin centres
-COLORS = dict(stars="C0", remnants="C3", halo="C2", total="k")
+COLORS = dict(stars="C0", remnants="C3", halo="C2", bh="C1", total="k")
 
 
 def half_radius(r, m):
@@ -64,19 +64,21 @@ def main():
     mat = cfg.matter
 
     rmax = cfg.numerics.r_max/100*0.999            # DF moment tables are valid to r_max/100
-    r = np.geomspace(0.03, rmax, 240)
+    r0 = 0.01 if mat.M_bh > 0 else 0.03          # resolve the black hole's sphere of influence
+    r = np.geomspace(r0, rmax, 240)
     mp = {k: np.asarray(v) for k, v in mass_profiles(model, r).items() if isinstance(v, list)}
     mom = model.intrinsic_moments(r)
     rho = dict(stars=mom["rho"], remnants=3*mat.M_rem/(4*np.pi*mat.a_rem**3)*(1+(r/mat.a_rem)**2)**-2.5,
                halo=mat.halo_density(r))
     rho["total"] = rho["stars"]+rho["remnants"]+rho["halo"]
     comps = ["stars", "remnants"]+(["halo"] if mat.rho20 > 0 else [])
-    vc = {k: np.sqrt(G*mp[k]/r) for k in comps+["total"]}
+    mcomps = comps+(["bh"] if mat.M_bh > 0 else [])    # point mass: enclosed mass and v_c only
+    vc = {k: np.sqrt(G*mp[k]/r) for k in mcomps+["total"]}
     sig_r = np.sqrt(mom["radial_pressure"]/mom["rho"])
     sig_t = np.sqrt(mom["tangential_pressure"]/mom["rho"])
     xyz = np.column_stack((r, 0*r, 0*r))
     vesc = np.sqrt(-2*model.potential.potential(xyz))
-    R = np.geomspace(0.03, rmax, 160)
+    R = np.geomspace(r0, rmax, 160)
     pm = model.projected_moments(R)
     sig = {k: np.sqrt(pm[k]/pm["Sigma"]) for k in ("los", "pmr", "pmt")}
     r_half = dict(stars=half_radius(r, mp["stars"]), remnants=1.305*mat.a_rem, total=half_radius(r, mp["total"]))
@@ -89,12 +91,14 @@ def main():
         ax.set_xscale("log")
         ax.set_xlim(r[0], r[-1])
 
-    title = (f"Base model ({Path(a.batch).name}, {a.job}): M* = {mp['stars'][-1]:.3g}, "
-             f"M_rem = {mat.M_rem:.3g} Msun (a = {mat.a_rem:.2f} pc), D = {cfg.distance_kpc:.3f} kpc")
+    title = (f"{'Model' if mat.M_bh > 0 else 'Base model'} ({Path(a.batch).name}, {a.job}): M* = {mp['stars'][-1]:.3g}, "
+             + (f"M_BH = {mat.M_bh:.3g}, " if mat.M_bh > 0 else "")
+             + f"M_rem = {mat.M_rem:.3g} Msun (a = {mat.a_rem:.2f} pc), D = {cfg.distance_kpc:.3f} kpc")
     # ---------------------------------------------------------------- figure 1
     fig, ax = plt.subplots(1, 5, figsize=(22, 4.6), constrained_layout=True)
     for k in comps+["total"]:
         ax[0].loglog(r, rho[k], color=COLORS[k], lw=2 if k == "total" else 1.4, label=k)
+    for k in mcomps+["total"]:
         ax[1].loglog(r, mp[k], color=COLORS[k], lw=2 if k == "total" else 1.4, label=k)
         ax[2].plot(r, vc[k], color=COLORS[k], lw=2 if k == "total" else 1.4, label=k)
     for k, v in r_half.items():
@@ -146,7 +150,7 @@ def main():
     at = np.array([0.3, 1., 3., 10., 30., 100.])
     pick = lambda y: [float(np.exp(np.interp(np.log(x), np.log(r), np.log(y)))) for x in at]
     rec = dict(batch=a.batch, job=a.job, r_pc=at.tolist(),
-               M_enclosed={k: pick(mp[k]) for k in comps+["total"]},
+               M_enclosed={k: pick(mp[k]) for k in mcomps+["total"]}, M_bh=float(mat.M_bh),
                rho={k: pick(rho[k]) for k in comps+["total"]},
                v_c_total=pick(vc["total"]), sigma_r=pick(sig_r), sigma_t=pick(sig_t),
                beta=[float(np.interp(np.log(x), np.log(r), mom["beta"])) for x in at],

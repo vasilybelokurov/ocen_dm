@@ -80,6 +80,7 @@ nav:
   - Models:
       - kb/models/index.md
       - Base no-DM model: kb/models/base_no_dm.md
+      - DF + central black hole: kb/models/df_bh.md
       - Jeans comparison model: kb/models/jeans_comparison.md
       - Central black hole, cusp depletion (proposal): kb/models/bh_cusp_depletion.md
       - DF family:

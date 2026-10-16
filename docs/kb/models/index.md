@@ -6,7 +6,7 @@
 |---|---|---|---|
 | [Base no-DM model](base_no_dm.md) | — | Reference fit | Refitted 2026-10-13 with the corrected count likelihood |
 | [Jeans comparison model](jeans_comparison.md) | spherical Jeans, MGE tracer, turnover anisotropy, black hole | Earlier best model; tests a central black hole | χ²_kin 190.0 (DF 156.4); M_BH 4.3×10⁴ M☉ |
-| [DF + fixed central black hole](bh_cusp_depletion.md) | exact point mass M_BH = 8,200 or 4×10⁴ M☉ in the DF potential | Is a central black hole compatible with the DF fit? | Objective 275.2 / 279.7 (base 280.7); 4×10⁴ over-predicts central counts. Cusp-depletion term **proposed, not adopted** |
+| [DF + central black hole](df_bh.md) | exact point mass M_BH = 8,200 or 4×10⁴ M☉ (fixed) in the DF potential | Is a central black hole compatible with the DF fit? | Objective 275.2 / 279.7 (base 280.7); 4×10⁴ over-predicts central counts. [Cusp-depletion term](bh_cusp_depletion.md) **proposed, not adopted** |
 | Free cored halo | gNFW halo with γ = 0, free \(\rho_{20}\) and \(r_s\) | Do the data want extended dark matter? | Free fit goes to \(\rho_{20}=0\) (2026-09-23, old counts) |
 | \(\rho_{20}\) profile | \(\rho_{20}\) fixed at 0.25, 0.5, 1, 2, 4 M☉ pc⁻³, all else refitted | How much DM is allowed at fixed fit quality | Δ objective +0.5 … +10.6; a sensitivity curve, not a limit (mocks scatter by ±0.7) |
 | Mass-per-star scan | HST count amplitude pinned at 8–12 M☉ per F625W < 19 star, free halo | How the star/dark split depends on the assumed stellar mass | \(\rho_{20}\) ≈ 2–4 at the photometric 8–9, 0 at the dynamical 10.7 |
