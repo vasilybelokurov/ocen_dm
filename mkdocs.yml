@@ -82,6 +82,7 @@ nav:
       - Base no-DM model: kb/models/base_no_dm.md
       - DF + central black hole: kb/models/df_bh.md
       - Jeans comparison model: kb/models/jeans_comparison.md
+      - Dark-matter fits of the reference models: kb/models/dm_fits.md
       - Central black hole, cusp depletion (proposal): kb/models/bh_cusp_depletion.md
       - DF family:
           - Regularized DF implementation: REGULARIZED_DF_IMPLEMENTATION.md

@@ -57,6 +57,8 @@ dynamical 10.7.
 - Next steps under discussion: [Codex review, 2026-10-13](../../reviews/codex_mass_model_next_2026-10-13.md)
   (multi-mass stellar populations, remnant treatment).
 
+**Dark matter (2026-10-16).** All three reference models were refitted with a dark-matter halo: J-Trager and J-counts each with an NFW and a cored halo, and the tied DF with a cored halo. None prefers one, as the [dark-matter fits](dm_fits.md) show.
+
 ## Earlier: spherical Jeans ladder (historical)
 
 The first modelling sequence used the project's spherical anisotropic Jeans
