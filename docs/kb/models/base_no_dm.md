@@ -196,6 +196,8 @@ with the earlier Jeans model (dashed). Bottom row: residuals; the count
 panel shows signed Poisson deviance residuals. Both fits are evaluated with
 the corrected count likelihood.*
 
+The two count profiles do not join, by design: they are different selections in their own units. HST counts are oMEGACat stars with F625W < 19 at 2–250″; Gaia counts are stars with G < 17 at 300–2400″. The brighter Gaia limit counts about 14 times fewer stars per unit stellar mass, so each profile has its own fitted count amplitude (a<sub>HST</sub>, a<sub>Gaia</sub>), and the Gaia model also includes a uniform field of about 1.6 stars arcmin⁻². The model curves are the same stellar surface density scaled by each amplitude. The gap between 250″ and 300″ is a gap in coverage.
+
 ## Comparison with the Jeans model (dashed curves)
 
 Full description, figures and posterior: [Jeans comparison model](jeans_comparison.md).

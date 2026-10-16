@@ -99,6 +99,8 @@ fixed per fit. Ranges are as in the [base model](base_no_dm.md#all-parameters).
 
 ![Residual diagnostics](../../../plots/bh_fixed_20261015_diagnostics.png)
 
+The two count profiles do not join, by design: they are different selections in their own units. HST counts are oMEGACat stars with F625W < 19 at 2–250″; Gaia counts are stars with G < 17 at 300–2400″. The brighter Gaia limit counts about 14 times fewer stars per unit stellar mass, so each profile has its own fitted count amplitude (a<sub>HST</sub>, a<sub>Gaia</sub>), and the Gaia model also includes a uniform field of about 1.6 stars arcmin⁻². The model curves are the same stellar surface density scaled by each amplitude. The gap between 250″ and 300″ is a gap in coverage.
+
 What the data comparison shows:
 
 - **Inside about 0.3 pc,** only the 4×10<sup>4</sup> model rises in proper-motion dispersion, to
