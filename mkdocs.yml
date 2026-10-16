@@ -81,6 +81,7 @@ nav:
       - kb/models/index.md
       - Base no-DM model: kb/models/base_no_dm.md
       - Jeans comparison model: kb/models/jeans_comparison.md
+      - Central black hole, cusp depletion (proposal): kb/models/bh_cusp_depletion.md
       - DF family:
           - Regularized DF implementation: REGULARIZED_DF_IMPLEMENTATION.md
           - Anisotropy diagnostics: DF_ANISOTROPY_DIAGNOSTICS.md
