@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Launch the Jeans reference model with the star-count tracer (J-counts), as a twin of J-Trager.
+"""Launch a Jeans reference model with the star-count tracer, as a twin of a J-Trager run.
+
+``--source`` picks the J-Trager parent: rung2_K1_turnover (no DM; twin jeans_K1_turnover_counts_c, J-counts),
+rung2_K2_nfw_turnover or rung2_K2_cored_turnover (with a dark halo; twins jeans_K2_{nfw,cored}_turnover_counts_c).
 
 J-Trager is rung2_K1_turnover (no dark matter, free black hole, turnover anisotropy), whose tracer and stellar-mass
 shape is the MGE of the composite HST-count/Trager light profile. J-counts copies that job exactly -- the same frozen
@@ -9,7 +12,7 @@ completeness-corrected HST + Gaia counts with the tied amplitude ratio (bin/fit_
 data/processed/kinematics/tracer_mge_counts_c.json).
 
 The worker is bin/run_rung2_fits.py `worker`, run from a frozen copy of the code in the batch directory.
-Usage: PYTHONPATH=src python bin/run_jeans_counts_tracer.py BATCH_DIR [--dry-run]
+Usage: PYTHONPATH=src python bin/run_jeans_counts_tracer.py BATCH_DIR [--source LABEL] [--dry-run]
 """
 from __future__ import annotations
 
@@ -30,8 +33,9 @@ from ocen_dm.kinematics.fit import FitProblem
 from ocen_dm.kinematics.run_io import data_fingerprint, family_config, family_from_config, read_data_snapshot, sha256
 
 SOURCE_BATCH = ROOT/"results/launches/rung2_turnover_20260921"
-SOURCE_LABEL = "rung2_K1_turnover"
-LABEL = "jeans_K1_turnover_counts_c"
+SOURCES = {"rung2_K1_turnover": "jeans_K1_turnover_counts_c",
+           "rung2_K2_nfw_turnover": "jeans_K2_nfw_turnover_counts_c",
+           "rung2_K2_cored_turnover": "jeans_K2_cored_turnover_counts_c"}
 TRACER = ROOT/"data/processed/kinematics/tracer_mge_counts_c.json"
 
 
@@ -42,8 +46,10 @@ def now():
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("batch", type=Path)
+    p.add_argument("--source", choices=sorted(SOURCES), default="rung2_K1_turnover")
     p.add_argument("--dry-run", action="store_true")
     args = p.parse_args()
+    SOURCE_LABEL, LABEL = args.source, SOURCES[args.source]
     batch = args.batch.resolve()
     if batch.exists() or (ROOT/"results/fits"/LABEL).exists():
         raise FileExistsError("batch or fit directory already exists")
