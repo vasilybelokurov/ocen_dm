@@ -294,7 +294,7 @@ The fits give C1 and C2 separate free amplitudes, a<sub>HST</sub> and a<sub>Gaia
     - The Gaia counts are fitted beyond 300″. If Gaia is more complete there than at 250–300″, as its rising N(G<17)/N(G<16) (1.75 at 250–275″, 1.87 at 275–300″) suggests, the expected raw ratio is lower still.
     - This estimate rests on two assumptions: the F625W − G offset holds at G ≈ 17, and the missing Gaia stars are a magnitude-blind subset.
 - **What it implies for the model.** With one stellar profile and the measured ratio, the current fits would predict roughly 5–15 % more G < 17 stars in the Gaia region than observed, relative to the HST region. Put another way, the fitted profile falls slightly too slowly between the two regions. The fits have no data at 250–300″, so this comparison relies on the model profile being smooth across the gap.
-- **Precision is set by the catalogue edges.** Only one 50″ annulus is usable, and Gaia completeness beyond 350″ cannot be checked against HST. This is a 5–15 % tension, not a firm offset. The completeness-corrected version below sharpens it to 8–22 %.
+- **Precision is set by the catalogue edges.** Only one 50″ annulus is usable, and Gaia completeness beyond 350″ cannot be checked against HST. This is a 5–15 % tension, not a firm offset. The completeness-corrected version below puts it at 7–9 %.
 
 #### Completeness-corrected ratio
 
@@ -339,12 +339,20 @@ The fits give C1 and C2 separate free amplitudes, a<sub>HST</sub> and a<sub>Gaia
     - c<sub>H,in</sub> = 0.990.
     - c<sub>G,out</sub> is Gaia's completeness over the fitted 300–2400″. It cannot be measured against HST, so it is taken between 0.886 (the 250–300″ value) and 1.
     - This gives **12.3–13.9** for the no-BH fit. The black-hole fits are lower by at most 0.2.
-- **Result.** Against the measured 11.42 ± 0.23, the fitted ratio is **8–22 % too high**. Even at the lower end of the band the difference is 3.7σ (Poisson errors only).
+- **Result.** Against the measured 11.42 ± 0.23, the fitted ratio is **8–22 % too high**. Even at the lower end of the band (Gaia completeness 0.886 beyond 300″) the difference is 3.7σ (Poisson errors only); see the floor below for the most likely value.
 - **What it implies.**
     - With one stellar profile, the fits put 8–22 % too many G < 17 stars in the Gaia region compared with the HST region.
     - The free a<sub>Gaia</sub> hides this by scaling the Gaia counts down.
     - The remaining assumptions: the model profile is smooth across 250–300″, and the missing Gaia stars do not depend on position within each annulus.
-- **A further effect on the Gaia product.** Gaia is about 0.89 complete at 250–300″. If it reaches 1 farther out, the inner Gaia count bins are depleted by up to about 11 % relative to the outer ones. That distorts the shape of the Gaia profile, and a free amplitude cannot absorb it.
+- **Gaia completeness has a floor of about 0.9.** c<sub>G</sub> stops rising at about 250″ and stays at 0.88–0.90 from 250 to 350″, while the crowding keeps falling.
+    - The first Gaia count bin (300–357″) is therefore measured at 0.89–0.90.
+    - The simplest reading is a constant completeness of 0.90 in all Gaia bins. The free a<sub>Gaia</sub> absorbs a constant factor exactly, so the shape of the Gaia profile is not biased.
+    - The ratio the fit should then give for raw counts is 11.42 × 0.990 / 0.90 = **12.6 ± 0.3**. The fits give 13.5–13.7, which is 7–9 % too high.
+    - If completeness instead rises to 1 beyond 357″ (not measurable with HST), the expected ratio is 11.3.
+- **Proposed tie (not implemented).**
+    - Fix a<sub>Gaia</sub> = a<sub>HST</sub> / 12.6, and check the result at 11.3.
+    - The HST amplitude a<sub>HST</sub> and the uniform Gaia field density b stay free. The field term counts the non-member Milky Way stars in the Gaia counts, and has nothing to do with the cluster's luminosity function.
+    - A first check without refitting: evaluate the Gaia count deviance of the current best fit with the ratio held at 12.6.
 
 ## L1. Trager, King & Djorgovski 1995 surface-brightness profile
 
