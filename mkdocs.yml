@@ -84,6 +84,8 @@ nav:
       - Jeans comparison model: kb/models/jeans_comparison.md
       - Dark-matter fits of the reference models: kb/models/dm_fits.md
       - Central black hole, cusp depletion (proposal): kb/models/bh_cusp_depletion.md
+      - Stream likelihood versions: kb/models/stream_likelihood_versions.md
+      - Stream results index: kb/models/stream_results_index.md
       - DF family:
           - Regularized DF implementation: REGULARIZED_DF_IMPLEMENTATION.md
           - Anisotropy diagnostics: DF_ANISOTROPY_DIAGNOSTICS.md
