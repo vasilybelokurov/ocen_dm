@@ -1,7 +1,7 @@
 # Jeans comparison model: no dark matter, free black hole
 
-The best model of the earlier [Jeans ladder](index.md#earlier-spherical-jeans-ladder-historical)
-(rung 2, `results/fits/rung2_K1_turnover`). It is shown as the dashed curve in
+The best no-DM model of the earlier [Jeans ladder](index.md#earlier-spherical-jeans-ladder-historical)
+(rung 2, `results/fits/rung2_K1_turnover`; the cored-halo `rung2_K2_cored_turnover` has a higher ln Z, 87.12 against 85.96; see [dark-matter fits](dm_fits.md)). It is shown as the dashed curve in
 the base-model figures and is the reference for the question of a central
 black hole. It is fitted to the same 89-bin kinematic snapshot as the
 [DF base model](base_no_dm.md), so the kinematic χ² of the two compare directly.
@@ -27,7 +27,8 @@ profile \(M(<r)\) with anisotropy \(\beta(r)\),
 
 with \(g(r)=\exp\left(2\int^r\beta/t\,dt\right)\). The line-of-sight and radial and
 tangential proper-motion dispersions follow from the standard projection
-integrals (Binney & Mamon 1982; van der Marel 1994) and are averaged over each
+integrals (Binney & Mamon 1982, [1982MNRAS.200..361B](https://ui.adsabs.harvard.edu/abs/1982MNRAS.200..361B);
+van der Marel 1994, [1994MNRAS.270..271V](https://ui.adsabs.harvard.edu/abs/1994MNRAS.270..271V)) and are averaged over each
 bin as for the DF. The published rotation is subtracted from the model's
 second moments exactly as in the DF fit. Solver: `src/ocen_dm/kinematics/jeans.py`.
 
@@ -106,7 +107,7 @@ share of the enclosed mass. Grey: outside the radial range of the data.*
   ~560 M☉. The circular velocity therefore rises towards the centre
   (Keplerian, 43 km/s at 0.1 pc), whereas in the DF model it falls to zero.
 - **Beyond ~3 pc the two models agree** on the total mass to within a few per
-  cent (Jeans 3.24×10⁶ M☉ in total, DF 3.26×10⁶) and on the circular-velocity
+  cent (Jeans 3.24×10⁶ M☉ in total, posterior median of M<sub>★</sub> + M<sub>rem</sub> + M<sub>BH</sub>; DF 3.27×10⁶, best fit) and on the circular-velocity
   peak (~27–28 km/s near 9 pc).
 - **They split the non-stellar mass differently.** The Jeans model puts
   5×10⁵ M☉ in a Plummer of 5.3 pc plus the 4×10⁴ M☉ black hole; the DF
@@ -168,7 +169,9 @@ predictions and residuals.*
   0.81–0.86 mas/yr and the DF stays at 0.76.
 - **It overshoots the tangential dispersions at 0.4–1.4 pc** (residuals −1 to
   −2.5σ), and the MUSE dispersions do not discriminate.
-- **Over all 89 bins the DF fits better by Δχ² = 34,** mostly at 2–20 pc; see
+- **Over all 89 bins the DF fits better than J-Trager by Δχ² = 34,** mostly at 2–20 pc (the
+  [J-counts twin](#twin-model-with-the-star-count-tracer-j-counts-2026-10-16), χ² 152.2, fits better
+  than the DF's 156.4); see
   [Comparison with the Jeans model](base_no_dm.md#comparison-with-the-jeans-model-dashed-curves).
 
 ## Physical consistency
@@ -202,9 +205,12 @@ dispersions is fitted by a 4×10⁴ M☉ point mass with tangential central orbi
 The evidence is local (Δχ² ≈ 6 from a few bins inside 0.3 pc), it depends on
 an anisotropy forced to its physical limit, and in the central ~0.2 pc,
 where the black hole acts, the standard separable construction of a
-non-negative distribution function fails. Alternatives that are not
-yet tested in the DF framework are a point mass with a self-consistent
-DF, radially biased orbits in the core, and mass segregation of the
+non-negative distribution function fails. A point mass with a
+self-consistent DF has since been tested ([DF + central black hole](df_bh.md),
+2026-10-15, fixed masses): objective 275.2 at 8,200 M☉ and 279.7 at
+4×10⁴ M☉ (280.7 without); the 4×10⁴ M☉ cusp fits the central kinematics
+better but over-predicts the central HST counts. Not yet tested in the DF
+framework: radially biased orbits in the core and mass segregation of the
 remnants.
 
 ## Twin model with the star-count tracer (J-counts, 2026-10-16)
@@ -250,9 +256,11 @@ Ranges are 16th–84th percentiles; the other values are posterior medians.
 
 - **The tracers differ by 5–50 %.** Relative to J-Trager, the count tracer is up to 7 % higher at 10–100″ and 5–10 % lower at 200–600″. Beyond 1000″ it is up to 50 % higher; there the Trager profile has no data and the MGE is an extrapolation.
 - **The kinematic fit improves by Δχ² = −38 with the same number of parameters.** The gain comes from the HST radial PMs at 100–400″ (−31) and both Gaia PM components (−18). It is partly offset by the HST tangential PMs (+13). The kinematic curves differ only slightly (see the residual panels). The kinematics are fitted at a level comparable to the DF base model (χ² 156–159).
-- **The mass split shifts, but the total hardly changes.** M<sub>★</sub> falls by 15 % and M<sub>rem</sub> rises by 57 %; the total is 3.16×10⁶ against 3.25×10⁶ M<sub>⊙</sub>.
+- **The mass split shifts, but the total hardly changes.** M<sub>★</sub> falls by 15 % and M<sub>rem</sub> rises by 57 %; the total (M<sub>★</sub> + M<sub>rem</sub> + M<sub>BH</sub>, posterior medians) is 3.16×10⁶ against 3.24×10⁶ M<sub>⊙</sub>.
 - **M<sub>BH</sub> moves down by 14 %** (1.3 posterior σ), and is still non-zero at high significance.
 - **Caveat on the evidence.** Δln Z = +18 between the two tracers is not a model comparison: the tracers are fixed inputs taken from different data, not fitted parameters.
+
+Dark-matter fits of both Jeans models and of the tied DF refit: [Dark-matter fits](dm_fits.md).
 
 ## Reproduce
 

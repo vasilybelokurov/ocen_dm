@@ -1,5 +1,9 @@
 # Independent DF flexibility challenge
 
+!!! note "Historical (2026-09)"
+    Mixture-DF experiment, superseded by the regularized compact DF
+    ([kb/models/base_no_dm.md](kb/models/base_no_dm.md)).
+
 This experiment asks whether the positive action-DF family can reproduce the
 projected light and velocity moments of an independently constructed equilibrium
 cluster **when its true gravitational potential is supplied**. It is the first

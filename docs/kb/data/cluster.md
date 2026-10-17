@@ -8,7 +8,7 @@ All drawn from the current processed products (`bin/plot_data_products.py`, `oce
 
 ![Kinematic profiles](../../../plots/data_kinematics.png)
 
-*The 89 kinematic bins of the baseline fit (colour) and published profiles that are not fitted. Top: HST proper-motion dispersions, radial and tangential (ours, black; oMEGACat VI published, grey) continued outward by our Gaia EDR3 profiles (blue); dashed: the rotation term each fitted profile carries. Bottom left: MUSE line-of-sight dispersion with its rotation term (v_rot/√2). Bottom right: published one-dimensional Gaia proper-motion profiles (Vasiliev & Baumgardt 2021, Baumgardt+2019) against ours; the Vasiliev & Baumgardt profile lies below the HST values inside ~200″. Proper motions in mas/yr (right axis: km/s at 5.43 kpc).*
+*The 89 kinematic bins of the reference fit (colour) and published profiles that are not fitted. Top: HST proper-motion dispersions, radial and tangential (ours, black; oMEGACat VI published, grey) continued outward by our Gaia EDR3 profiles (blue); dashed: the rotation term each fitted profile carries. Bottom left: MUSE line-of-sight dispersion with its rotation term (v_rot/√2). Bottom right: published one-dimensional Gaia proper-motion profiles (Vasiliev & Baumgardt 2021, Baumgardt+2019) against ours; the Vasiliev & Baumgardt profile lies below the HST values inside ~200″. Proper motions in mas/yr (right axis: km/s at 5.43 kpc).*
 
 ![Rotation inputs](../../../plots/data_rotation.png)
 
@@ -38,37 +38,40 @@ All drawn from the current processed products (`bin/plot_data_products.py`, `oce
 
 *Present-day mass function from the unflagged oMEGACat sample with a MIST 12.5 Gyr isochrone: CMD and ridge line; luminosity functions in five radial zones; mass functions over 0.52–0.78 M☉ with slopes steepening outward (−1.37 to −1.77); the light-following mass per F625W < 19 star for each variant; and the budget in the 60–100″ zone (observed main sequence, extrapolation below 0.52 M☉, evolved stars, white dwarfs).*
 
-## 0. How the baseline DF likelihood consumes its data
+## 0. How the reference DF likelihood consumes its data
 
 - **Driver.** `bin/run_compact_df_recovery.py`.
-  - `prepare-real` (lines 229–263) copies `proc/kinematics/<count>.json` into the run directory and records each sha256 (lines 249–252).
-  - It copies the kinematic `data_snapshot.json` from the `--start-from` source run.
-  - It writes `problem.json`. The baseline record is `photometry: false, counts: [hst, gaia]`.
-  - At run time, lines 63–72 verify the count sha256 and rebuild the `DFJointProblem`.
-- **Frozen inputs.** `results/df/dftwo_counts_20260923/observed/`:
+  - `prepare-real` (`prepare_real`, lines 228–330) copies `proc/kinematics/<count>.json` into the run directory and records each sha256 (lines 254–257).
+  - It copies the kinematic `data_snapshot.json` from `results/df/pilot_no_dm_20260922`; `--start-from` sets the starting configuration.
+  - With `--count-tie JSON` (line 829) it stores the amplitude tie in `problem.json` and the batch manifest.
+  - It writes `problem.json`. The reference record is `photometry: false, counts: [ocen_counts_hst_f625w19, ocen_counts_gaia_g17]`.
+  - At run time `load_problem` (lines 62–74) verifies the count sha256 and rebuilds the `DFJointProblem`, with the tie if one is recorded.
+- **Frozen inputs** of the reference fit, `results/df/dftwo_counts_area_20261013/observed/`:
 
   | File | Size (B) |
   |---|---|
   | `data_snapshot.json` | 19,656 |
-  | `ocen_counts_gaia_g17.json` | 3,226 |
-  | `ocen_counts_hst_f625w19.json` | 5,411 |
-  | `problem.json` | 717 |
+  | `ocen_counts_gaia_g17.json` | 5,368 |
+  | `ocen_counts_hst_f625w19.json` | 9,132 |
+  | `problem.json` | 740 |
 
-  `batch.json` records `source_commit 36bca6f`, `gaia_error_floor_masyr 0.0` and `distance 5.43` (fixed in the starting config; free between 4.8 and 6.0 in coordinates).
+  `batch.json` records `source_commit 1af8c33`, `gaia_error_floor_masyr 0.0` and `distance 5.43` (fixed in the starting config; free between 4.8 and 6.0 in coordinates; the same in the tied variant). The count files are schema 2, and their sha256 match the current products.
+- **Tied variant.** `results/df/dftie_restart_20261016/observed/` holds the same `data_snapshot.json`, `ocen_counts_hst_f625w19_c.json` (12,016 B), `ocen_counts_gaia_g17_c.json` (7,444 B) and a `problem.json` (1,085 B) that carries the `count_tie` record (ratio 11.4162 ± 0.2273). `batch.json` records `source_commit 30bdcb3`.
 - **Snapshot chain.** The `data_snapshot` comes from `results/df/pilot_no_dm_20260922`, whose `run.json` has `data_source = results/fits/rung2_K1_turnover`. The sha256 `570399f38ab2…` is identical in `rung1_K1_slice/summary.json` and `rung2_K1_turnover/summary.json`.
-- **Gate output.** `report.json` lists χ² per point by dataset and the count deviance:
+- **Gate output.** `report.json` lists χ² per point by dataset and the count deviance, for the best job of each fit:
 
-  | Dataset | χ²/pt | Count deviance / bin |
+  | Dataset | χ²/pt, reference (start 3) | χ²/pt, tied (start 0) |
   |---|---|---|
-  | hst_pm_radial_ours | 2.07 | |
-  | hst_pm_tangential_ours | 1.95 | |
-  | muse_los_dispersion | 1.31 | |
-  | gaia_edr3_ours_radial | 1.55 | |
-  | gaia_edr3_ours_tangential | 2.42 | |
-  | ocen_counts_hst_f625w19 | | 4.94 |
-  | ocen_counts_gaia_g17 | | 2.19 |
+  | hst_pm_radial_ours | 2.03 | 2.09 |
+  | hst_pm_tangential_ours | 1.89 | 2.02 |
+  | muse_los_dispersion | 1.31 | 1.33 |
+  | gaia_edr3_ours_radial | 1.60 | 2.12 |
+  | gaia_edr3_ours_tangential | 2.39 | 1.69 |
+  | HST counts, deviance / bin | 4.85 | 4.21 |
+  | Gaia counts, deviance / bin | 2.10 | 3.82 |
 
-  These are start 0.
+  The tied fit's amplitude ratio is 11.88 against the prior 11.42 ± 0.23 (χ² 4.2).
+- **Historical baseline.** `results/df/dftwo_counts_20260923` (schema-1 counts, `source_commit 36bca6f`) was the baseline until 2026-10-13. Its frozen count files (3,226 and 5,411 B) match `proc/kinematics/ocen_counts_*_schema1_20260923.json`; its start-0 deviance per bin was 4.94 (HST) and 2.19 (Gaia).
 - **Default dataset list.** `src/ocen_dm/cli.py:364 DEFAULT_DATASETS` holds the same five kinematic keys.
   - The note at `cli.py:359–363` records why `gaia_edr3_pm` (published VB21 spline) was replaced on 2026-09-19.
   - It also records why `gaia_dr2_pm` was dropped on 2026-09-20.
@@ -80,7 +83,7 @@ All drawn from the current processed products (`bin/plot_data_products.py`, `oce
   - arXiv: https://arxiv.org/abs/2503.04903
   - DOI: https://doi.org/10.3847/1538-4357/adbe67
   - Data: https://doi.org/10.5281/zenodo.14978551
-- **Raw file.** `raw/omegacat_vi_kinematics/catalog_and_selections.fits` (260,994,240 B). The published md5 `9de5a701…` was verified in `provenance/manifest.json`.
+- **Raw file.** `raw/omegacat_vi_kinematics/catalog_and_selections.fits` (260,994,240 B). The published md5 `9de5a701…` was verified in `provenance/manifest.json`. Since 2026-10-16 `data/raw/omegacat_vi_kinematics` may be a local link to an external copy of the release; the files were re-verified against `provenance/checksums.txt` after the move.
 - **Builder.** `src/ocen_dm/kinematics/hst_profile.py`:
   - `load_hst_sample` (:112)
   - `hst_profile` (:170)
@@ -163,7 +166,7 @@ All drawn from the current processed products (`bin/plot_data_products.py`, `oce
 - **Metadata rule.** "astrometric membership probability: use as a stated selection threshold that belongs to the selection function, not as a per-star likelihood weight".
 - **Consumers.**
   - `outer_profile.load_members` (:121) → K4, K8 (the μ_sys estimate)
-  - `bin/build_count_profiles.py:112` → C2
+  - `bin/build_count_profiles.py:117` → C2
   - `selection/hst_gaia_match.py:53` → K10
   - `cluster.centre("vasiliev")`
   - `vb2021_replication`
@@ -181,7 +184,7 @@ All drawn from the current processed products (`bin/plot_data_products.py`, `oce
   - Older Jeans runs (`results/fits/preset_*`, `K1_noDM_composite`).
   - Plots.
 - **Restriction.** `configs/data.yaml` notes that the three profiles come from one file, so they share bins and stars. Radial, tangential and combined are not independent, and `hst_pm_combined` is forbidden with the other two.
-- **Status.** b (literature presets only), h, d. They are superseded in the baseline by K1, which reaches 360″ against the published 300″.
+- **Status.** b (literature presets only), h, d. They are superseded in the reference fit by K1, which reaches 360″ against the published 300″.
 
 ## K8. Gaia DR3 field template
 
@@ -217,18 +220,19 @@ All drawn from the current processed products (`bin/plot_data_products.py`, `oce
 
 ## C1/C2. Poisson count profiles
 
-- **Builder.** `bin/build_count_profiles.py` (`hst_counts` :71, `gaia_counts` :112, `build` :132, `main` :149). The likelihood is in `kinematics/counts.py` (`CountProfile`; schema 1/2 handling in `to_dict`/`from_dict`, :174–195).
+- **Builder.** `bin/build_count_profiles.py` (`hst_counts` :76, `gaia_counts` :117, `build` :137, `main` :154). The likelihood is in `kinematics/counts.py` (`CountProfile` :118, schema 1/2 handling in `to_dict`/`from_dict` :198–221; `CountTie` :225; `tied_compare` :272).
+- **Completeness and tie.** `bin/build_count_completeness.py` writes the `_c` copies with a per-bin `completeness` array and the tie file (see the Large Programme section below).
 
 **C1, HST (`ocen_counts_hst_f625w19`).**
 - **Input.** `raw/omegacat_vi_kinematics/catalog_and_selections.fits`.
-- **Selection.** All stars with measured F625W < 19 and **no quality flag** (139,498 stars).
+- **Selection.** All stars with measured F625W < 19 and **no quality flag**: 139,498 stars in the whole catalogue (`meta.n_selected`), of which 117,751 fall in the 2–250″ bins.
 - **Binning and coverage.** Centre pixel (15000, 15000) at 0.04″/px. 20 log bins from 2 to 250″. Coverage from the occupancy of 3″ cells, set to 1 inside 30″.
 - **Field term.** `fit_field=False`.
 - **Rationale** (metadata note). The hq flag is 12–15 % radially incomplete; N(<20)/N(<19) = 2.0–2.1 at all radii; the field is below 0.5 % at 250″.
 
 **C2, Gaia (`ocen_counts_gaia_g17`).**
 - **Input.** K6.
-- **Selection.** All stars with G < 17, members plus field (24,695 stars).
+- **Selection.** All stars with G < 17, members plus field: 24,695 stars in the whole catalogue (`meta.n_selected`), of which 18,289 fall in the 300–2400″ bins.
 - **Binning.** 12 full annuli from 300 to 2400″.
 - **Field term.** `fit_field=True` (a uniform field density is fitted).
 
@@ -240,12 +244,15 @@ All drawn from the current processed products (`bin/plot_data_products.py`, `oce
 | `ocen_counts_hst_f625w19.json` | 9,132 | schema 2, contains `node_weights` |
 | `ocen_counts_gaia_g17.ecsv` | 2,292 | schema 2 |
 | `ocen_counts_gaia_g17.json` | 5,368 | schema 2 |
-| `ocen_counts_*_schema1_20260923.{ecsv,json}` | — | used by the baseline (sha256 match) |
+| `ocen_counts_hst_f625w19_c.json` | 12,016 | schema 2 plus `completeness` per bin (0.961–0.995) |
+| `ocen_counts_gaia_g17_c.json` | 7,444 | schema 2 plus `completeness`: 0.906 in bin 1 (300–350″), 0.955 from 350″ out |
+| `ocen_counts_tie_c.json` | 304 | complete-sample ratio N(F625W<19)/N(G<17) = 11.4162 ± 0.2273 |
+| `ocen_counts_*_schema1_20260923.{ecsv,json}` | — | used by the 2026-09-23 runs (sha256 match); historical |
 
 - **ECSV columns.** `r_lower`, `r_upper`, `r_median`, `n_stars`, `coverage`, `area_arcsec2`, `density_per_arcmin2`, `poisson_err_per_arcmin2`.
-- **Consumers.** `run_compact_df_recovery.py` with `--counts` (baseline; `rho20scan_*`; `mpsscan_*`; mocks). Plots: `bin/plot_count_profiles.py:38`, `plot_halo_compensation.py`, `plot_mass_per_star_profile.py`, `plot_remnant_halo_degeneracy.py`, `plot_mock_mass_per_star.py`.
-- **Likelihood note** (`counts.py` docstring). Schema-1 products are "read for replay only" because their mean is star-weighted, biased high by about 3 % per bin for Σ ∝ R⁻². The baseline and all 2026-09-23 scans used schema 1.
-- **Status.** a.
+- **Consumers.** `run_compact_df_recovery.py` with `--counts`: schema 2 in the reference fit `dftwo_counts_area_20261013` and the black-hole fits; the `_c` products with `--count-tie ocen_counts_tie_c.json` in `dftie_*_20261016`; schema 1 in the historical `dftwo_counts_20260923`, `rho20scan_*`, `mpsscan_*` and mocks. `bin/fit_count_tracer_mge.py` fits the `_c` products and the tie for the J-counts tracer. Plots: `bin/plot_count_profiles.py:38`, `plot_halo_compensation.py`, `plot_mass_per_star_profile.py`, `plot_remnant_halo_degeneracy.py`, `plot_mock_mass_per_star.py`.
+- **Likelihood note** (`counts.py` docstring). Schema-1 products are "read for replay only" because their mean is star-weighted, biased high by about 3 % per bin for Σ ∝ R⁻². The 2026-09-23 baseline and all 2026-09-23 scans used schema 1.
+- **Status.** a (schema 2; `_c` and the tie in the tied variant); h (schema 1).
 
 ### Ratio of the two count products in the overlap (2026-10-16)
 
@@ -320,7 +327,7 @@ The fits give C1 and C2 separate free amplitudes, a<sub>HST</sub> and a<sub>Gaia
 - **Gaia completeness depends strongly on magnitude.**
     - At 250–300″ the G < 17 sample is 0.89 complete overall: 0.95 for F625W < 15.5, but only 0.77 just above the limit.
     - The bright-star value of 0.91–0.92 used above therefore overstated it.
-- **HST F625W < 19 is complete.** c<sub>H</sub> is 0.97–1.00 at every radius from 2 to 350″, with a count-weighted 0.990 over 2–250″.
+- **HST F625W < 19 is complete.** c<sub>H</sub> is 0.96–1.00 at every radius from 2 to 350″, with a count-weighted 0.990 over 2–250″.
     - The lower "F625W measured" fraction in the first plot (0.90 at 50–100″) comes from faint stars without F625W, not from stars brighter than F625W = 19.
     - So the HST count product does not carry the radial incompleteness suggested there.
 
@@ -339,7 +346,7 @@ The fits give C1 and C2 separate free amplitudes, a<sub>HST</sub> and a<sub>Gaia
     - c<sub>H,in</sub> = 0.990.
     - c<sub>G,out</sub> is Gaia's completeness over the fitted 300–2400″. It cannot be measured against HST, so it is taken between 0.886 (the 250–300″ value) and 1.
     - This gives **12.3–13.9** for the no-BH fit. The black-hole fits are lower by at most 0.2.
-- **Result.** Against the measured 11.42 ± 0.23, the fitted ratio is **8–22 % too high**. Even at the lower end of the band (Gaia completeness 0.886 beyond 300″) the difference is 3.7σ (Poisson errors only); see the floor below for the most likely value.
+- **Result.** Against the measured 11.42 ± 0.23, the fitted ratio is **8–22 % too high**. Even at the lower end of the band (Gaia completeness 0.886 beyond 300″) the difference is 3.7σ (Poisson errors only); the [Large Programme section](#gaia-completeness-from-the-hst-large-programme-fields-2026-10-16) below gives the most likely value.
 - **What it implies.**
     - With one stellar profile, the fits put 8–22 % too many G < 17 stars in the Gaia region compared with the HST region.
     - The free a<sub>Gaia</sub> hides this by scaling the Gaia counts down.
@@ -397,7 +404,7 @@ They are held in `$OCEN_CATALOGUES/omegacen_hst_lp`. These fields are uncrowded 
 
 **Change to the count likelihood (implemented 2026-10-16, commit 30bdcb3).** It is used in the [DF refit](../models/base_no_dm.md#refit-with-completeness-corrected-counts-and-tied-amplitudes-2026-10-16) and in the count-based tracer of the [Jeans twin](../models/jeans_comparison.md#twin-model-with-the-star-count-tracer-j-counts-2026-10-16). The code is `kinematics/counts.py` (`CountProfile.completeness`, `CountTie`, `tied_compare`), and the products are built by `bin/build_count_completeness.py`. The Gaia completeness beyond 350″ is 0.955, the Large Programme fields combined.
 
-1. Multiply the model Gaia counts in each bin by the measured c<sub>G</sub>: 0.906, 0.964 and 0.933 in bins 1–3, and 0.955 beyond 450″. Equivalently, divide the data by it.
+1. Multiply the model Gaia counts in each bin by the measured c<sub>G</sub>: 0.906 in bin 1 (300–350″) and 0.955 (the Large Programme fields combined) from 350″ out, as stored in `ocen_counts_gaia_g17_c.json`. Equivalently, divide the data by it.
 2. Tie the amplitude: a<sub>Gaia</sub> × c<sub>G</sub>(R) = a<sub>HST</sub> × 0.990 / 11.42, i.e. the ratio for complete samples, with its 2 % error carried as a Gaussian prior.
 3. a<sub>HST</sub> and the uniform field density b stay free. The field term counts the non-member Milky Way stars in the Gaia counts, and is unrelated to the cluster's luminosity function.
 

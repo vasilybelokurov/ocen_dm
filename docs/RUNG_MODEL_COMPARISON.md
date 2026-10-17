@@ -1,5 +1,9 @@
 # Data and best-fit no-DM / DM models across the ladder
 
+!!! note "Historical (2026-09)"
+    Superseded by [kb/models/jeans_comparison.md](kb/models/jeans_comparison.md)
+    and [kb/models/dm_fits.md](kb/models/dm_fits.md).
+
 ![Data, model predictions and residuals across all rungs](../plots/rung0_rung1_rung2_no_dm_vs_dm.png)
 
 [Open the full-resolution PNG](../plots/rung0_rung1_rung2_no_dm_vs_dm.png).

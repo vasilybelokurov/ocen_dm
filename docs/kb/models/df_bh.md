@@ -2,11 +2,16 @@
 
 The [base model](base_no_dm.md) with an exact central point mass added to the potential.
 The black-hole mass is **fixed** in each fit, at 8,200 M<sub>⊙</sub> or 4×10<sup>4</sup>
-M<sub>⊙</sub>. Every other parameter is refitted. Fitted 2026-10-15.
+M<sub>⊙</sub>. Every other parameter is refitted. Fitted 2026-10-15, with the count likelihood of the
+2026-10-13 base fit (free amplitudes, no completeness correction); **not yet refitted** with the
+tied, completeness-corrected counts of the
+[current reference DF fit](base_no_dm.md#refit-with-completeness-corrected-counts-and-tied-amplitudes-2026-10-16).
 
 - **Why these two masses.** 8,200 M<sub>⊙</sub> is the robust lower limit from the fast stars
-  (Häberle et al. 2024). 4×10<sup>4</sup> M<sub>⊙</sub> is close to the masses preferred by
-  that paper's acceleration and N-body analyses, and to our Jeans comparison model (4.3×10<sup>4</sup>).
+  (Häberle et al. 2024, Nature 631, 285; [arXiv:2405.06015](https://arxiv.org/abs/2405.06015)).
+  4×10<sup>4</sup> M<sub>⊙</sub> is close to the masses preferred by that paper's acceleration and
+  N-body analyses, and to our Jeans comparison models (posterior medians 4.25×10<sup>4</sup> with
+  the Trager tracer, 3.67×10<sup>4</sup> with the star-count tracer).
 - **Not a measurement.** The black-hole mass is not free, none of the three models passes the
   data-fit gate, and the objective differences are not yet calibrated with mocks.
 - **Next step, undecided.** The [cusp-depletion proposal](bh_cusp_depletion.md) records the
@@ -29,8 +34,8 @@ M<sub>⊙</sub>. Every other parameter is refitted. Fitted 2026-10-15.
 
 ## All parameters
 
-Free parameters are fitted; nuisance parameters are profiled analytically; M<sub>BH</sub> is
-fixed per fit. Ranges are as in the [base model](base_no_dm.md#all-parameters).
+Free parameters are fitted (best-fit, i.e. maximum-likelihood, values from the restarts); nuisance
+parameters are profiled analytically; M<sub>BH</sub> is fixed per fit. Ranges are as in the [base model](base_no_dm.md#all-parameters).
 
 | # | Parameter | Meaning | No BH (base) | M<sub>BH</sub> = 8,200 M<sub>⊙</sub> | M<sub>BH</sub> = 4×10⁴ M<sub>⊙</sub> |
 |---|---|---|---|---|---|
@@ -58,7 +63,7 @@ fixed per fit. Ranges are as in the [base model](base_no_dm.md#all-parameters).
 
 | Quantity | No BH | 8,200 | 4×10⁴ |
 |---|---|---|---|
-| Total mass (M<sub>★</sub> + M<sub>rem</sub> + M<sub>BH</sub>) | 3.27×10⁶ M<sub>⊙</sub> | 3.26×10⁶ M<sub>⊙</sub> | 3.21×10⁶ M<sub>⊙</sub> |
+| Total mass (M<sub>★</sub> + M<sub>rem</sub> + M<sub>BH</sub>, best fit) | 3.27×10⁶ M<sub>⊙</sub> | 3.26×10⁶ M<sub>⊙</sub> | 3.21×10⁶ M<sub>⊙</sub> |
 | Mass per F625W < 19 star | 10.48 M<sub>⊙</sub> | 10.35 M<sub>⊙</sub> | 9.33 M<sub>⊙</sub> |
 | M<sub>★</sub>/L<sub>V</sub>, M<sub>tot</sub>/L<sub>V</sub> | 2.6, 2.8 | 2.6, 2.8 | 2.3, 2.8 |
 | Half-mass radius: stars 3-D, stars projected, remnants | 10.4, 7.7, 2.8 pc | 10.4, 7.7, 3.2 pc | 10.4, 7.7, 5.3 pc |
@@ -68,10 +73,14 @@ fixed per fit. Ranges are as in the [base model](base_no_dm.md#all-parameters).
 - **M/L.** L<sub>V</sub> = 1.16×10⁶ L<sub>⊙</sub>, as in the base model, scaled to each fitted distance.
 - **Circular velocity.** With a black hole it rises again inwards (Keplerian) inside about
   1 pc. The outer maximum, about 27 km/s near 10 pc, is the same in all three models.
-- **Remnants in the 4×10⁴ fit.** Their mass is larger but much more extended: their central
-  density is 0.29 of the base value.
+- **Remnants in the 4×10⁴ fit.** Their mass is larger but much more extended: their density at
+  0.3 pc is 0.30 of the base value (1,791 against 6,005 M<sub>⊙</sub> pc⁻³).
 
 ## Fit quality
+
+The fit-quality numbers and the two figures below are from the seed fits
+(`results/df/dfbh{8200,40000}_seed_20261015`); the parameters above are from the restarts. The
+restarts changed the objective by less than 0.004.
 
 | Term | Gate | No BH | 8,200 | 4×10⁴ |
 |---|---|---|---|---|
@@ -99,7 +108,7 @@ fixed per fit. Ranges are as in the [base model](base_no_dm.md#all-parameters).
 
 ![Residual diagnostics](../../../plots/bh_fixed_20261015_diagnostics.png)
 
-The two count profiles do not join, by design: they are different selections in their own units. HST counts are oMEGACat stars with F625W < 19 at 2–250″; Gaia counts are stars with G < 17 at 300–2400″. The brighter Gaia limit counts about 14 times fewer stars per unit stellar mass, so each profile has its own fitted count amplitude (a<sub>HST</sub>, a<sub>Gaia</sub>), and the Gaia model also includes a uniform field of about 1.6 stars arcmin⁻². The model curves are the same stellar surface density scaled by each amplitude. The gap between 250″ and 300″ is a gap in coverage. Their ratio has been measured where the two catalogues overlap: see [the count-ratio check](../data/cluster.md#ratio-of-the-two-count-products-in-the-overlap-2026-10-16). Corrected for completeness, the fitted ratio is 13–15 % higher than expected (13.5–13.7 against 11.95 ± 0.3).
+The two count profiles do not join, by design: they are different selections in their own units. HST counts are oMEGACat stars with F625W < 19 at 2–250″; Gaia counts are stars with G < 17 at 300–2400″. The brighter Gaia limit counts fewer stars per unit stellar mass: the fitted amplitude ratio a<sub>HST</sub>/a<sub>Gaia</sub> is 13.5–13.7 in these fits (free amplitudes, raw counts), while the measured ratio is 11.42 ± 0.23 for complete samples, i.e. 11.95 ± 0.3 expected for the raw counts. Each profile has its own fitted count amplitude (a<sub>HST</sub>, a<sub>Gaia</sub>), and the Gaia model also includes a uniform field of about 1.6 stars arcmin⁻². The model curves are the same stellar surface density scaled by each amplitude. The gap between 250″ and 300″ is a gap in coverage. Measurement: [the count-ratio check](../data/cluster.md#ratio-of-the-two-count-products-in-the-overlap-2026-10-16). The fitted ratio is 13–15 % higher than expected.
 
 What the data comparison shows:
 
@@ -134,8 +143,13 @@ What the data comparison shows:
 
 ## Data, likelihood and settings
 
-- **As the base model.** Same 89 kinematic bins, HST and Gaia count profiles, and likelihood
-  ([base model: data and likelihood](base_no_dm.md#data-and-likelihood)).
+- **As the 2026-10-13 base fit.** Same 89 kinematic bins, HST and Gaia count profiles
+  (`ocen_counts_hst_f625w19`, `ocen_counts_gaia_g17`: raw counts, no completeness correction), free
+  count amplitudes, and likelihood ([base model: data and likelihood](base_no_dm.md#data-and-likelihood)).
+- **Not refitted with the tied counts.** The 8,200 and 4×10<sup>4</sup> M<sub>⊙</sub> fits have not been
+  redone with the completeness-corrected counts and the tied amplitude ratio of the
+  [reference DF refit](base_no_dm.md#refit-with-completeness-corrected-counts-and-tied-amplitudes-2026-10-16)
+  (objective 295.77 without a black hole); their objectives compare only with the base fit's 280.7.
 - **Fit settings.** Two-transition DF, no halo, free distance with the N(5.43, 0.05) kpc prior,
   `--fix matter.M_bh`, equilibrium tolerance 5×10⁻⁵.
 - **Runs:**

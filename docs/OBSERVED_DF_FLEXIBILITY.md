@@ -1,5 +1,9 @@
 # Can the compact regularized DF fit the Omega Cen data?
 
+!!! note "Historical (2026-09)"
+    First fits of the compact DF to the data (2026-09-23). Superseded by
+    [kb/models/base_no_dm.md](kb/models/base_no_dm.md).
+
 Status: 23 September 2026. Tested result; batches
 `results/df/observed_df_20260923/` (default bounds) and
 `results/df/observed_df_wide_20260923/` (wide bounds, multi-start).
@@ -211,7 +215,7 @@ Neither defect affects the converged minima above.
 
 ## What is needed
 
-Revised on 23 September after an external review, checked in `JOURNAL.md`.
+Revised on 23 September after an external review, checked in the project journal (local).
 Model changes (steps 2-6) await approval; steps 0-1 do not change the model.
 
 | Step | What | Question answered |

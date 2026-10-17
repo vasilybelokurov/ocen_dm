@@ -1,5 +1,10 @@
 # Long-term DM evolution subject to stellar-cluster survival
 
+!!! note "Historical (2026-09)"
+    The "active" queue mentioned below is stopped: the lifetime batch was paused
+    on 2026-09-22, never resumed, and its particle snapshots were deleted on
+    2026-10-08, so it cannot be resumed ([batch report](LIFETIME_BATCH_REPORT.md)).
+
 Research requirement recorded on 21 September 2026: measure density evolution
 over the cluster's exposure to the Milky Way, and use the observed survival of
 Omega Cen to constrain the allowed histories. This is the next-stage design;

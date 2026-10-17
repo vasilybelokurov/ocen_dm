@@ -1,5 +1,9 @@
 # Which measurements constrain the DM density at 20 pc?
 
+!!! note "Historical (2026-09)"
+    Superseded by [kb/models/jeans_comparison.md](kb/models/jeans_comparison.md)
+    and [kb/models/dm_fits.md](kb/models/dm_fits.md).
+
 In the present rung-2 fits, Gaia proper motions provide the strongest restraint
 on the upper DM-density tail. The useful radii are mainly 14–35 pc, and the
 balance between radial and tangential motions depends on the anisotropy model.

@@ -1,5 +1,12 @@
 # Dynamical experiments
 
+!!! note "Historical (2026-09)"
+    The particle snapshots of this batch were deleted on 2026-10-08 (list in
+    `results/maintenance/deleted_dynamics_snapshots_20261008.txt`); summaries,
+    diagnostics and logs are kept.
+    Reproducing or re-analysing the 2026-09-21/22 runs from snapshots needs the
+    batch to be rerun.
+
 The `ocen nbody` commands prepare and evolve two independent experiment families:
 
 * **Remnant survival:** a compact DM distribution around a rigid or live stellar nucleus.
@@ -76,7 +83,7 @@ integration does not read the original external potential files.
 
 Each evolution has its own manifest and source archive. Live runs also record executable
 paths and hashes, exact arguments, compilation and integration logs, `energy.log`, and
-the `snapshots.nemo` stream. Frozen snapshots are stored in `snapshots.h5`. Both produce
+the `snapshots.nemo` stream. Frozen snapshots are stored in `snapshots.h5`. (The 2026-09-21/22 snapshots were deleted on 2026-10-08; see the note at the top.) Both produce
 `diagnostics.ecsv`. Interrupted or failed runs retain their inputs and failure status.
 If integration finishes but analysis fails, `nbody analyse <evolution-directory>` can
 retry the analysis after the problem is corrected.

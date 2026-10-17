@@ -24,7 +24,10 @@
 The black-hole mass was fixed. Everything else was refitted: stellar mass, remnant mass and
 scale, distance, DF shape. Each fit used one start, seeded from the no-BH best fit, and was
 restarted from its own best point, changing the objective by less than 0.004. Otherwise the
-settings were those of the [base model](base_no_dm.md).
+settings were those of the 2026-10-13 [base fit](base_no_dm.md): free count amplitudes and raw
+counts without the completeness correction. These fits have **not** been redone with the tied,
+completeness-corrected counts of the
+[reference DF refit](base_no_dm.md#refit-with-completeness-corrected-counts-and-tied-amplitudes-2026-10-16).
 
 | Model | Objective | χ²<sub>kin</sub> (89 bins) | HST counts deviance (20 bins) | Gaia counts deviance (12 bins) | M<sub>★</sub> | M<sub>rem</sub> | a<sub>rem</sub> (pc) | Total mass |
 |---|---|---|---|---|---|---|---|---|
@@ -32,19 +35,20 @@ settings were those of the [base model](base_no_dm.md).
 | BH 8,200 M<sub>⊙</sub> | 275.2 | 152.7 | 95.9 | 24.5 | 2.96×10⁶ | 2.89×10⁵ | 2.43 | 3.26×10⁶ |
 | BH 4×10⁴ M<sub>⊙</sub> | 279.7 | 144.5 | 112.0 | 21.6 | 2.67×10⁶ | 5.04×10⁵ | 4.05 | 3.21×10⁶ |
 
-- **Columns.** The objective is χ²<sub>kin</sub> plus the two Poisson count deviances; lower is
-  better. Masses are in M<sub>⊙</sub>. The total mass is M<sub>★</sub> + M<sub>rem</sub> + M<sub>BH</sub>;
-  there is no dark-matter halo in these fits.
+- **Columns.** The objective is χ²<sub>kin</sub> plus the two Poisson count deviances plus the
+  distance-prior term (2.2, 2.3 and 1.7); for the base fit 156.4 + 96.9 + 25.2 + 2.2 = 280.7. Lower
+  is better. Masses are best-fit (maximum-likelihood) values in M<sub>⊙</sub>. The total mass is
+  M<sub>★</sub> + M<sub>rem</sub> + M<sub>BH</sub>; there is no dark-matter halo in these fits.
 - **Not a measurement.** None of the three passes the data-fit gate (χ² per bin ≈ 1.7), so the
   differences are not yet calibrated. That needs mocks with an injected black hole.
 - **How the 4×10⁴ fit compensates.** Less stellar mass, more remnant mass spread over a larger
-  scale (its central density is 0.29 of the base value), and a more radial inner DF.
+  scale (its density at 0.3 pc is 0.30 of the base value), and a more radial inner DF.
 
 ![Models vs data](../../../plots/bh_fixed_20261015_data.png)
 
 ![Diagnostics](../../../plots/bh_fixed_20261015_diagnostics.png)
 
-The two count profiles do not join, by design: they are different selections in their own units. HST counts are oMEGACat stars with F625W < 19 at 2–250″; Gaia counts are stars with G < 17 at 300–2400″. The brighter Gaia limit counts about 14 times fewer stars per unit stellar mass, so each profile has its own fitted count amplitude (a<sub>HST</sub>, a<sub>Gaia</sub>), and the Gaia model also includes a uniform field of about 1.6 stars arcmin⁻². The model curves are the same stellar surface density scaled by each amplitude. The gap between 250″ and 300″ is a gap in coverage.
+The two count profiles do not join, by design: they are different selections in their own units. HST counts are oMEGACat stars with F625W < 19 at 2–250″; Gaia counts are stars with G < 17 at 300–2400″. The brighter Gaia limit counts fewer stars per unit stellar mass: the fitted amplitude ratio a<sub>HST</sub>/a<sub>Gaia</sub> is 13.5–13.7 (free amplitudes, raw counts), against a measured 11.42 ± 0.23 for complete samples, i.e. 11.95 ± 0.3 expected for the raw counts ([count-ratio check](../data/cluster.md#ratio-of-the-two-count-products-in-the-overlap-2026-10-16)). So each profile has its own fitted count amplitude (a<sub>HST</sub>, a<sub>Gaia</sub>), and the Gaia model also includes a uniform field of about 1.6 stars arcmin⁻². The model curves are the same stellar surface density scaled by each amplitude. The gap between 250″ and 300″ is a gap in coverage.
 
 ### The central HST counts
 

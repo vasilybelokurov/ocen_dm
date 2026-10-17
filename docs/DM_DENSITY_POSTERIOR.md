@@ -1,5 +1,12 @@
 # Probability distribution of the local DM density at 20 pc
 
+!!! note "Historical (2026-09)"
+    Superseded by [kb/models/jeans_comparison.md](kb/models/jeans_comparison.md)
+    and [kb/models/dm_fits.md](kb/models/dm_fits.md).
+    The "modest preference for DM" and the 95% upper limit of 1.026 Msun/pc^3 below are
+    from the 2026-09 Jeans ladder. The current fits find no preference for dark
+    matter ([kb/models/dm_fits.md](kb/models/dm_fits.md)).
+
 The completed rung-2 fits give a posterior distribution for the local dark-matter
 density at 20 pc. Bayesian model averaging includes the no-DM alternative as a
 discrete probability at zero. With the model priors below, the flexible-anisotropy

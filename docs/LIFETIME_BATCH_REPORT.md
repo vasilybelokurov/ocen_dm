@@ -1,5 +1,11 @@
 # Lifetime evolution: implementation and running batch
 
+!!! note "Historical (2026-09)"
+    The batch was paused on 2026-09-22 (SIGSTOP) and never resumed. No process
+    remains, and its particle snapshots were deleted on 2026-10-08 (list in
+    `results/maintenance/deleted_dynamics_snapshots_20261008.txt`), so it cannot
+    be resumed. The paused, queued and pending stages below will not run.
+
 Updated 2026-09-22T23:19:43.885398+00:00.
 
 Batch: `lifetime_20260921T162000Z`. Queue state: **paused by user (SIGSTOP; see pause.json)**; active stage: **bridge**.

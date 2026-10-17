@@ -14,7 +14,7 @@ Each reference model is refitted with a dark-matter halo added, with all other i
 - **The halo the Jeans fits allow sits mostly outside the kinematic data.**
     - Inside the outermost kinematic bin (63 pc), the dark-matter share of the mass is below about 10 %.
     - Inside the data the total mass is the same with and without a halo; the models differ only beyond it.
-- **The small likelihood gain comes from two bins**, the outermost Gaia PM bins (beyond about 1,500″). These are the bins most exposed to tidal effects and escaping stars.
+- **The small likelihood gain is spread over several datasets.** For J-counts, Δχ² = −6.2 (NFW) and −7.0 (cored): the Gaia radial PMs give −2.5 and −2.6, almost all from the two outermost bins (beyond about 1,500″, the bins most exposed to tidal effects and escaping stars); the HST tangential PMs −3.2 and −2.3; MUSE −1.6 and −1.3 ([breakdown](#jeans-models-evidence-fit-and-halo-mass)).
 - **The halo mass is not measured.** M<sub>DM</sub>(<100 pc) spans more than a factor of 10 and trades against the stars and remnants.
 - **The black-hole mass is unchanged** by the halo: 3.6–3.7×10⁴ M<sub>⊙</sub> with the count tracer, 4.3×10⁴ M<sub>⊙</sub> with Trager.
 
@@ -71,7 +71,7 @@ Each reference model is refitted with a dark-matter halo added, with all other i
 
 ## DF model with a cored halo
 
-The tied, completeness-corrected count likelihood was used, with three starts (2 at a time, 3 probe workers each, about 25 min). Run: `results/df/dftie_halo_20261016`.
+The tied, completeness-corrected count likelihood was used, with three starts (2 at a time, 3 probe workers each, about 30 min). Run: `results/df/dftie_halo_20261016`.
 
 | Start | Initial halo | Final objective | ρ<sub>20</sub> [M<sub>⊙</sub> pc⁻³] | r<sub>s</sub> [pc] | χ²<sub>kin</sub> | Gaia count deviance |
 |---|---|---|---|---|---|---|
@@ -86,7 +86,7 @@ The tied, completeness-corrected count likelihood was used, with three starts (2
 ## Caveats
 
 - **Uncalibrated errors.** χ² per bin is about 1.6–2.1 in every model, so the published errors do not describe the scatter and Δln L is not calibrated. Mock fits with an injected halo are needed before an upper limit can be quoted.
-- **The gain relies on the outermost Gaia bins.** These sit near 40 pc, where stars escaping the cluster and the Galactic tide may raise the dispersion. A halo is one way to fit them, not the only one.
+- **Part of the gain relies on the outermost Gaia bins.** These sit near 40 pc, where stars escaping the cluster and the Galactic tide may raise the dispersion. A halo is one way to fit them, not the only one.
 - **Model differences.** The Jeans and DF models differ in more than the halo: the anisotropy family, the treatment of the stellar mass, and the black hole (free in the Jeans models, absent here in the DF).
 
 ## Reproduce

@@ -65,9 +65,9 @@ Assumptions adopted:
 1. **Infall mass M_inf** from the progenitor literature: the NSC–host relation gives
    M★ ≈ 10⁹ M☉ (Pfeffer et al. 2021, MNRAS 500, 2514,
    https://doi.org/10.1093/mnras/staa3407); oMEGACat X gives a "GE-like" dwarf mass
-   4.5 (−2.4, +5.7) × 10⁹ M☉ (Souza et al. 2026, arXiv:2603.23589) and favours Sequoia/Thamnos
+   4.5 (−2.4, +5.7) × 10⁹ M☉ (Souza et al. 2026, [arXiv:2603.23589](https://arxiv.org/abs/2603.23589)) and favours Sequoia/Thamnos
    over GSE as debris. Halo masses M₂₀₀ for M★ = 10⁸–10⁹ at z ~ 2 are 10¹⁰–10¹¹ M☉; GSE proper
-   is 2 × 10¹¹ M☉ (Naidu et al. 2021, arXiv:2103.03251). Scanned: 10¹⁰, 3 × 10¹⁰, 10¹¹, 2 × 10¹¹.
+   is 2 × 10¹¹ M☉ (Naidu et al. 2021, [arXiv:2103.03251](https://arxiv.org/abs/2103.03251)). Scanned: 10¹⁰, 3 × 10¹⁰, 10¹¹, 2 × 10¹¹.
 2. **Infall time** t_inf = 10 Gyr ago (z ≈ 2; GE merger 8–11 Gyr ago). Also scanned 8 Gyr.
 3. **Stripping**: bound mass M(t) = M_inf exp[−(t_inf − t_lb)/τ], floored at the nucleus mass
    3.55 × 10⁶ M☉; τ scanned 0.5–3 Gyr. Half-mass radius r_h = 1 kpc (M_inf/10¹⁰)^{1/3}, fixed.
@@ -115,10 +115,10 @@ additional constraint on any physical interpretation.
 
 ### Set-up reproduced
 
-Dillamore, Zhang & Belokurov 2026 (arXiv:2606.12516), following the authors' own pipeline in
+Dillamore, Zhang & Belokurov 2026 ([arXiv:2606.12516](https://arxiv.org/abs/2606.12516)), following the authors' own pipeline in
 `github.com/adllmr/oCen_bar` (local clone `$OCEN_BAR_DIR`, referenced not copied):
 
-* **Potential**: Hunter et al. 2024 (A&A 692, A216) Milky Way with the Sormani et al. 2022 bar
+* **Potential**: Hunter et al. 2024 (A&A 692, A216; [ADS](https://ui.adsabs.harvard.edu/abs/2024A%26A...692A.216H), [arXiv:2403.18000](https://arxiv.org/abs/2403.18000)) Milky Way with the Sormani et al. 2022 bar ([ADS](https://ui.adsabs.harvard.edu/abs/2022MNRAS.514L...1S), [arXiv:2204.13114](https://arxiv.org/abs/2204.13114))
   (M_bar = 1.83 × 10¹⁰ M☉), as AGAMA files. Split into the axisymmetric part plus the baryonic
   bar part, scaled and rotated, minus the axisymmetrised baryonic part (so the m = 0 mass is
   unchanged while the bar grows).
@@ -130,7 +130,7 @@ Dillamore, Zhang & Belokurov 2026 (arXiv:2606.12516), following the authors' own
 * **ω Cen**: 10³ samples of (D = 5.43 ± 0.05 kpc, μ = (−3.257, −6.730) ± 0.025 mas/yr,
   v_los = 232.7 ± 0.21 km/s), astropy default frame (R₀ = 8.122, v☉ = (12.9, 245.6, 7.78)),
   bar angle 28°, integrated from t_f back to 0 with `agama.orbit`.
-* **Test**: (E, L_z) at t = 0 in the axisymmetric potential against the Belokurov et al. 2023
+* **Test**: (E, L_z) at t = 0 in the axisymmetric potential against the Belokurov et al. 2023 ([arXiv:2208.11135](https://arxiv.org/abs/2208.11135))
   GSE contours (energy zero-point matched at R = 8.2 kpc). Success metric here: fraction of
   samples inside the outermost contour.
 

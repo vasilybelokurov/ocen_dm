@@ -11,17 +11,32 @@ the current results and the literature. Its sources are in
 **Literature:** public SciX library
 [omega Cen dark matter (oCen_dm)](https://scixplorer.org/public-libraries/RSXq3-NtTTCApvfPUbdwrg).
 
-## Status (2026-10-13)
+## Status (2026-10-17)
 
 - **Cluster mass model.** A two-transition action DF with Poisson star counts
   fits the 89 kinematic bins without dark matter (χ²_kin = 156) but fails its
   own data-fit gate. The data fix the total mass profile, not the split
-  between stars and dark mass. A count-likelihood bias was fixed on 2026-10-13
-  and the base model refitted; the DM scans are not yet rerun. [Base model](docs/kb/models/base_no_dm.md).
+  between stars and dark mass. [Base model](docs/kb/models/base_no_dm.md).
+  - Fixed central black holes of 8,200 and 4×10⁴ M☉ were fitted; neither
+    passes the gate and the mass is not measured. [DF + black hole](docs/kb/models/df_bh.md).
+  - A refit with completeness-corrected counts and a tied HST/Gaia amplitude
+    ratio changes the predictions by a few per cent (χ²_kin = 159).
+  - Dark matter: the DF with a free cored halo and tied counts drives the halo
+    to zero; Jeans fits with NFW or cored halos show no preference for dark
+    matter with either tracer. [DM fits](docs/kb/models/dm_fits.md).
+  - The ρ₂₀ profile, mass-per-star and mock scans still use the old
+    (schema-1) count products.
 - **DM survival and tails.** N-body tails of no-DM and DM models agree to 10%;
   the differences are not testable with published tail data.
-- **Stream 54.** A rotating bar and the LMC bend the stream part-way; the
-  proper-motion knee is not reproduced. [Current note](docs/STREAM_PM_REFINEMENT_2026-10-13.md).
+- **Stream 54.** A rotating bar is needed: barred models beat the best
+  axisymmetric model by about 3,300–4,100 in ln L, but none reproduces the
+  steep proper motions of the turn. The LMC shifts the distal proper motions
+  by a few tenths of a mas/yr but is absorbed by the cluster's PM. Fits to the
+  binned tracks disagree with the star-by-star likelihood. That likelihood did
+  not converge with particle number; it now uses fixed χ bins with a jackknife
+  bias correction, and a 9-D emulator training set is running.
+  [Stream status](docs/kb/stream_status.md),
+  [likelihood versions](docs/kb/models/stream_likelihood_versions.md).
 
 Details: [results](docs/kb/results.md).
 

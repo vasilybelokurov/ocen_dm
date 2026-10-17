@@ -1,5 +1,9 @@
 # Literature baselines for the Milestone 3 dynamical fits
 
+!!! note "Historical (2026-09)"
+    Superseded by [kb/models/jeans_comparison.md](kb/models/jeans_comparison.md)
+    and [kb/models/dm_fits.md](kb/models/dm_fits.md).
+
 > **Scope:** this is the literature comparison assembled for the early fits, not a current
 > pipeline-status document or a new literature review. See [the audit](CODE_ANALYSIS_AUDIT.md)
 > before treating a preset or its report as an exact reproduction.

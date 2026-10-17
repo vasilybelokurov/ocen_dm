@@ -1,15 +1,15 @@
 # Data products
 
-Every dataset the project uses: where it comes from, how it is processed, what consumes it and whether it enters the baseline fit.
+Every dataset the project uses: where it comes from, how it is processed, what consumes it and whether it enters the reference fit.
 
 !!! note "Provenance of this page"
-    Compiled on 2026-10-13 from the code, `provenance/`, `configs/data.yaml` and the project journal, with file sizes checked on disk. Paths to `data/` and `results/` are local (not committed). Anything without a recorded source is marked **UNVERIFIED**.
+    Compiled on 2026-10-13 and updated on 2026-10-17 from the code, `provenance/`, `configs/data.yaml` and the project journal, with file sizes checked on disk. Paths to `data/` and `results/` are local (not committed). Anything without a recorded source is marked **UNVERIFIED**.
 
 ## At a glance
 
 ![Kinematic profiles](../../../plots/data_kinematics.png)
 
-*The kinematic profiles of the baseline fit and the published profiles not fitted; details and the other figures on [Cluster kinematics, counts and light](cluster.md) and [Periphery, tails and streams](tails_streams.md).*
+*The kinematic profiles of the reference fit and the published profiles not fitted; details and the other figures on [Cluster kinematics, counts and light](cluster.md) and [Periphery, tails and streams](tails_streams.md).*
 
 ![Star counts](../../../plots/data_counts.png)
 
@@ -30,16 +30,17 @@ All sizes are from `ls` on 2026-10-13. Sources are quoted only as they appear in
 
 ## Key facts
 
-- **Baseline inputs.** The current baseline DF likelihood is `results/df/dftwo_counts_20260923`. It uses:
+- **Reference inputs.** The reference DF fit is `results/df/dftwo_counts_area_20261013` (best job `observed_no_halo_start3`; [base model](../models/base_no_dm.md)). It uses:
   - five kinematic profiles: `hst_pm_radial_ours`, `hst_pm_tangential_ours`, `muse_los_dispersion`, `gaia_edr3_ours_radial`, `gaia_edr3_ours_tangential` (89 bins in total);
-  - two Poisson count profiles: `ocen_counts_hst_f625w19` (20 bins) and `ocen_counts_gaia_g17` (12 bins).
+  - two Poisson count profiles, **schema 2** (area-weighted covered-area quadrature, commit 1af8c33): `ocen_counts_hst_f625w19` (20 bins) and `ocen_counts_gaia_g17` (12 bins).
 
   The kinematics are frozen in `observed/data_snapshot.json` (sha256 `570399f3…`). That snapshot was copied from `results/df/pilot_no_dm_20260922`, which took it from the Jeans run `results/fits/rung2_K1_turnover`. The rung-1 and rung-2 Jeans ladder runs carry the identical snapshot sha.
-- **Products reproduce the baseline.** I reloaded the five profiles today through `ocen_dm.kinematics.likelihood.load_profile`. Values and errors match the frozen snapshot exactly (max |Δ|/σ = 0). This holds even though `ocen_pm_dispersion_edr3_ours.ecsv` was rebuilt on 2026-10-11.
-- **Count products have moved on.** The baseline used **schema-1** count files (star-weighted quantile nodes). Their sha256 values match `proc/kinematics/ocen_counts_*_schema1_20260923.json`. The files `proc/kinematics/ocen_counts_*.json` now hold **schema 2** (area-weighted covered-area quadrature, commit 1af8c33). A rerun with the current products would therefore not reproduce the baseline count deviance.
-- **Indirect baseline inputs.** Several products feed the baseline without being likelihood terms themselves:
+- **Tied variant.** `results/df/dftie_restart_20261016` uses the same kinematic snapshot with the completeness-corrected counts `ocen_counts_hst_f625w19_c` and `ocen_counts_gaia_g17_c` and the amplitude tie `ocen_counts_tie_c.json` (driver option `--count-tie`). Its halo test is `results/df/dftie_halo_20261016`.
+- **Products reproduce the reference fits.** On 2026-10-13 I reloaded the five profiles through `ocen_dm.kinematics.likelihood.load_profile`. Values and errors match the frozen snapshot exactly (max |Δ|/σ = 0), although `ocen_pm_dispersion_edr3_ours.ecsv` was rebuilt on 2026-10-11. The sha256 of the current `proc/kinematics/ocen_counts_*.json` and `*_c.json` files match those recorded in the two runs' `problem.json` (checked 2026-10-17).
+- **Historical count products.** `results/df/dftwo_counts_20260923` (the previous baseline) and the `rho20scan_*`, `mpsscan_*` and mock runs of 2026-09-23 used **schema-1** count files (star-weighted quantile nodes, biased). Their sha256 values match `proc/kinematics/ocen_counts_*_schema1_20260923.json`. These runs have not been redone with schema 2.
+- **Indirect inputs.** Several products feed the reference fit without being likelihood terms themselves:
 
-  | Product | How it reaches the baseline |
+  | Product | How it reaches the reference fit |
   |---|---|
   | Vasiliev & Baumgardt (2021) PM profiles | PM rotation curve used for the tangential streaming subtraction and its error |
   | oMEGACat LOS rotation | MUSE streaming term |
@@ -50,6 +51,7 @@ All sizes are from `ls` on 2026-10-13. Sources are quoted only as they appear in
 
 - **Main gaps.** Detailed in Section 3:
   - The registry (`provenance/datasets.yaml`) covers only the September kinematics/tails datasets. All stream-project inputs are registered only in `configs/data.yaml` or the project journal, or not at all: STREAMFINDER 2021/2024, HST LP, the Tango Zenodo archive, Hunter+2024 potentials, `gc_catalog_full.fits` and Gaia XP pulls.
+  - One of them, the HST LP fields (S9), now sets the Gaia count completeness used in the tied DF and J-counts fits, so an unregistered input enters a likelihood.
   - Several WSDB caches that every stream fit depends on have no builder script.
   - `manifest.json` and `checksums.txt` contain stale entries.
 
@@ -70,7 +72,7 @@ All sizes are from `ls` on 2026-10-13. Sources are quoted only as they appear in
 
 | Code | Meaning |
 |---|---|
-| a | Enters the baseline DF likelihood (`dftwo_counts_20260923`). `a*` means it enters indirectly, through a builder or a streaming term. |
+| a | Enters the reference DF likelihood (`dftwo_counts_area_20261013`) or its tied variant (`dftie_restart_20261016`). `a*` means it enters indirectly, through a builder or a streaming term. |
 | b | Used in the Jeans ladder fits. |
 | c | Used by the stream/tails sub-project. |
 | d | Diagnostic or plots only. |
@@ -81,7 +83,7 @@ All sizes are from `ls` on 2026-10-13. Sources are quoted only as they appear in
 
 | id | Source | Builder | Product | Used by | Status |
 |---|---|---|---|---|---|
-| K1 hst_pm_*_ours | oMEGACat VI catalogue, Zenodo 14978551 | `kinematics/hst_profile.py:221 build_hst_profile` | `proc/kinematics/ocen_pm_dispersion_hst_ours.ecsv` | `likelihood.py:275 _hst_ours`, DF baseline, Jeans rung0–2 | a, b |
+| K1 hst_pm_*_ours | oMEGACat VI catalogue, Zenodo 14978551 | `kinematics/hst_profile.py:221 build_hst_profile` | `proc/kinematics/ocen_pm_dispersion_hst_ours.ecsv` | `likelihood.py:275 _hst_ours`, DF reference fit, Jeans rung0–2 | a, b |
 | K2 muse_los_dispersion | oMEGACat VI `los_profile.fits` | `data/omegacat.py:257 preprocess` | `proc/kinematics/omegacat_vi_los_dispersion.ecsv` | `likelihood.py:172 _omegacat` | a, b |
 | K3 MUSE LOS rotation | same file | same | `proc/kinematics/omegacat_vi_los_rotation.ecsv` | `likelihood.py:182` (streaming² = v_rot²/2) | a*, b |
 | K4 gaia_edr3_ours_{radial,tangential} | Vasiliev & Baumgardt 2021 members | `kinematics/outer_gaia.py:61 build_edr3_profile` | `proc/kinematics/ocen_pm_dispersion_edr3_ours.ecsv` | `likelihood.py:308 _edr3_ours_component` | a, b |
@@ -91,13 +93,14 @@ All sizes are from `ls` on 2026-10-13. Sources are quoted only as they appear in
 | K8 Gaia DR3 field template | WSDB `gaia_dr3.gaia_source` | `selection/field_template.py:66` (CLI `fetch-field-template`, `cli.py:417`) | `proc/kinematics/ocen_field_template_dr3.ecsv` (231,269 rows) | K1, K4, `pristine_profile`, plots | a* |
 | K9 Gaia DR2 PM profile (Baumgardt+2019) | VizieR J/MNRAS/482/5138/table4 | `data/baumgardt2019.py:71` | `proc/kinematics/baumgardt2019_ocen_pm_dispersion.ecsv` | Key `gaia_dr2_pm` | h, d |
 | K10 HST–Gaia PM match | K6 × oMEGACat catalogue | `selection/hst_gaia_match.py:36` | `proc/kinematics/hst_gaia_pm_match.ecsv` (8,064 rows) | `plotting/constraints.py:936,1014` | d |
-| C1 HST counts F625W<19 | oMEGACat catalogue | `bin/build_count_profiles.py:71,149` | `proc/kinematics/ocen_counts_hst_f625w19.{ecsv,json}` (schema 2); `*_schema1_20260923.*` | `bin/run_compact_df_recovery.py:249` (`--counts`) | a (schema 1) |
-| C2 Gaia counts G<17 | K6 | `bin/build_count_profiles.py:112,154` | `proc/kinematics/ocen_counts_gaia_g17.{ecsv,json}` (schema 2); `*_schema1_20260923.*` | same | a (schema 1) |
+| C1 HST counts F625W<19 | oMEGACat catalogue | `bin/build_count_profiles.py:76,156`; completeness `bin/build_count_completeness.py` | `proc/kinematics/ocen_counts_hst_f625w19.{ecsv,json}` (schema 2); `ocen_counts_hst_f625w19_c.json` (with completeness); `*_schema1_20260923.*` | `bin/run_compact_df_recovery.py:254` (`--counts`) | a (schema 2; `_c` in the tied variant); h (schema 1) |
+| C2 Gaia counts G<17 | K6; completeness from oMEGACat and S9 | `bin/build_count_profiles.py:117,160`; completeness `bin/build_count_completeness.py` | `proc/kinematics/ocen_counts_gaia_g17.{ecsv,json}` (schema 2); `ocen_counts_gaia_g17_c.json` (with completeness); `*_schema1_20260923.*` | same | a (schema 2; `_c` in the tied variant); h (schema 1) |
+| C3 HST/Gaia amplitude tie | C1, C2 in the overlap (`bin/check_count_ratio_corrected.py`) | `bin/build_count_completeness.py` | `proc/kinematics/ocen_counts_tie_c.json` (ratio 11.4162 ± 0.2273) | `--count-tie`; `bin/fit_count_tracer_mge.py` (J-counts tracer) | a (tied variant) |
 | L1 Trager+1995 SB profile | VizieR J/AJ/109/218/tables | `data/trager1995.py:87` | `proc/literature/trager1995_ocen_sbp.ecsv` (73 rows) | `light_model.py:85,165` (tracer `trager`/`composite`) | a*, b |
 | L2 Composite tracer profile | L1 + oMEGACat `selection_hq_f625w` counts | `light_model.py:98,131,165` (computed at run time, not stored) | none on disk; DF pilot `photometry.json` | Jeans tracer; `outer_gaia._composite_tracer`; DF runs without counts | a*, b |
 | L3 Baumgardt GC parameters | `CAT/gc_catalog_updated.fits` (H. Baumgardt online database, UNVERIFIED version) | `data/baumgardt_catalogue.py:76` | `proc/literature/baumgardt_ocen_parameters.ecsv` | `plotting/data_overview.py` only | d |
 | L4 Noyola & Gebhardt 2006 | VizieR J/AJ/132/447 | none | none (no NGC 5139 rows) | none | e (recorded negative check) |
-| M1 Mass function, M/N19 | oMEGACat catalogue + MIST v1.2 via minimint (`$OCEN_ISOCHRONES/minimint_hst`) | `bin/build_mass_function.py` | `results/mass_function/mass_function_{20260923,feh153_20260923}.json` | `bin/run_mass_per_star_scan.sh` (`--mass-per-star`), mpsscan/mpsmock runs, plots | external prior for scans; not baseline |
+| M1 Mass function, M/N19 | oMEGACat catalogue + MIST v1.2 via minimint (`$OCEN_ISOCHRONES/minimint_hst`) | `bin/build_mass_function.py` | `results/mass_function/mass_function_{20260923,feh153_20260923}.json` | `bin/run_mass_per_star_scan.sh` (`--mass-per-star`), mpsscan/mpsmock runs, plots | external prior for scans; not in the reference fit |
 | O1 oMEGACat alternative binnings and equipartition | Zenodo 14978551 | none (listed in `data/omegacat.py:55 PRODUCT_FILES`) | raw only | none | e |
 | S0 stale pre-centre-fix products | old builds | old code | `proc/kinematics/_stale_pre_centre_fix/*` | none; `plotting/constraints.py:437` would rewrite `ocen_outer_fit_quality.ecsv` at the non-stale path if called with `save=True` | d (quarantined) |
 
@@ -120,9 +123,9 @@ All sizes are from `ls` on 2026-10-13. Sources are quoted only as they appear in
 | S4 Stream-54 track, path and frames | S1 | `bin/streams/measure_track.py:39`, `build_stream_path.py:16`, `build_gc_frame.py:18` | `results/plot_data/stream54_{track,path,gc_frame,gc_frame_chord}.json` | stream fits and plots | c |
 | S5 Gaia XP [M/H] (Andrae+2023) | WSDB `koposov.andrae2023_v21_table1` | **none** | `results/plot_data/{stream_xp_metallicity_members,ocen_members_andrae}.npz` | `bin/streams/plot_stream_xp_metallicity.py` | d |
 | S6 Gaia DR3 rotation pull | WSDB | `bin/streams/measure_gaia_rotation.py:18` | `results/plot_data/gaia_dr3_ocen_rotation{_pull.npz,.json}` | `bin/streams/fit_spin.py:43` | c |
-| S7 Gaia DR3 knee box and stream-54 parallax | WSDB | `bin/streams/m5_independent_selection.py:33`, `parallax_check.py:22` | `results/streams/m5_gaia_knee.npz` (242 MB), `stream54_parallax.npz` | the same scripts | d |
+| S7 Gaia DR3 knee box and stream-54 parallax | WSDB | `bin/streams/m5_independent_selection.py:33`, `parallax_check.py:22` | `results/streams/m5_gaia_knee.npz` (deleted 2026-10-13; the script re-queries WSDB), `stream54_parallax.npz` | the same scripts | d |
 | S8 Baumgardt GC compilation (full) | "Baumgardt & Vasiliev 2021 compilation" (docstring) | none | `CAT/gc_catalog_full.fits` | `bin/streams/sgr_orbit.py:29`, `sgr_recent_passages.py:21` | c (unregistered) |
-| S9 HST Large Programme e-material | Bedin group web page (`configs/data.yaml:63`) | none | `CAT/omegacen_hst_lp/` | `bin/plot_hst_lp_cmds.py:38` | d |
+| S9 HST Large Programme e-material | Bedin group web page (`configs/data.yaml:63`) | none | `CAT/omegacen_hst_lp/` | `bin/check_gaia_completeness_lp.py:39` → `bin/build_count_completeness.py` (Gaia completeness in `ocen_counts_gaia_g17_c.json`); `bin/plot_hst_lp_cmds.py:41` | a* (tied variant, J-counts; unregistered), d |
 
 ### 1.4 Potentials and auxiliary inputs
 

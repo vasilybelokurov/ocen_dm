@@ -21,10 +21,15 @@ models are physically sensible.
     - **That budget is 8.7–11.8% of the total mass** for a Kroupa IMF with all
       black holes retained, against published omega Cen black-hole fractions of
       4.5–6% (up to ~8% in 2026 preprints).
-    - **The DF model passes** (8.4% of the total, M_rem/M★ = 0.09); **the Jeans
-      model does not** (18–26% including its black hole, M_rem/M★ ≈ 0.2): its
+    - **The DF model passes** (best fit 8.4% of the total, M_rem/M★ = 0.09;
+      tied, completeness-corrected refit 6.1%, 0.065); **the Jeans
+      model does not** (18–26% including its black hole, M_rem/M★ ≈ 0.2;
+      28–32% with the star-count tracer, J-counts): its
       component is too massive to be remnants and more plausibly absorbs a
       radial M/L variation.
+    - **M_rem is weakly constrained.** The tied refit lowers it from 2.73 to
+      2.00×10⁵ M☉ with predictions that change by a few per cent; J-counts
+      puts 8.4×10⁵ M☉ (posterior median) in remnants.
     - **Proposed priors** (not adopted; a model change needs a decision):
       M_rem/M★ ~ HalfNormal(0.10) truncated at 0.30, and a remnant scale below
       the stellar half-mass radius.
@@ -192,15 +197,24 @@ against population expectations, as our models do.
 
 ## Our models against these bounds
 
-| | DF base model | Jeans comparison model |
+| | DF base model (best fit) | Jeans comparison model (J-Trager) |
 |---|---|---|
-| Extra component | Plummer, 2.73×10⁵ M☉, a = 2.18 pc | Plummer 5.4×10⁵ M☉, a = 5.3 pc, + black hole 4.3×10⁴ M☉ |
-| q = M_rem/M★ | 0.09 | 0.20 (median) to 0.34 (maximum likelihood) |
+| Extra component | Plummer, 2.73×10⁵ M☉, a = 2.18 pc | Plummer 5.4×10⁵ M☉, a = 5.3 pc, + black hole 4.25×10⁴ M☉ (posterior medians) |
+| q = M_rem/M★ (Jeans: including the black hole) | 0.09 | 0.22 (median) to 0.34 (maximum likelihood) |
 | Fraction of the total | 8.4% | 17.9% (median), 25.5% (maximum likelihood) |
 | Remnant half-mass radius / stellar half-mass radius (10.4 pc) | 0.27 | 0.66 |
 | Against the IMF budget heavier than the tracers (8.7–11.8%) | inside, at high black-hole retention | 1.5–2.9× above |
 | Against published black-hole fractions (4.5–8.3%) | 1.0–1.9× (consistent once heavy white dwarfs and neutron stars, ~3–4%, are added) | 2–6× |
 | Verdict | physically sensible as black holes + neutron stars + heavy white dwarfs | not plausible as remnants alone; more likely absorbs a radial M/L trend of its fixed light profile |
+
+**The other fits.** The tied, completeness-corrected DF refit (best fit
+2.00×10⁵ M☉, a = 1.88 pc) has q = 0.065 and 6.1% of the total (3.28×10⁶ M☉),
+inside the IMF budget and the published black-hole fractions. The Jeans twin
+with the star-count tracer (J-counts) has 8.4×10⁵ M☉ in remnants plus a
+3.67×10⁴ M☉ black hole (posterior medians): 27.9% of the total, q = 0.39
+(32.2% and 0.47 at maximum likelihood), further above the budget than
+J-Trager. Across these four fits M_rem ranges from 2.0 to 8.4×10⁵ M☉ with
+χ²_kin between 152 and 190, so it is weakly constrained.
 
 The Jeans model's remnant mass would require strong preferential loss of
 low-mass stars on top of full black-hole retention. Its broad 5.3 pc scale

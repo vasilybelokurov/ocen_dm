@@ -1,5 +1,9 @@
 # Rung 0: analysis of the three isotropic fits
 
+!!! note "Historical (2026-09)"
+    Superseded by [kb/models/jeans_comparison.md](kb/models/jeans_comparison.md)
+    and [kb/models/dm_fits.md](kb/models/dm_fits.md).
+
 *2026-09-21. Runs `rung0_K1`, `rung0_K2_cored`, `rung0_K2_nfw` in `results/fits/`; comparison
 table `results/fits/comparison.md`; figures `plots/fit_posterior_profiles.png`,
 `plots/fit_rung0_*_posterior_profiles.png`. Plan: `docs/MODELLING_PLAN.md`; data:

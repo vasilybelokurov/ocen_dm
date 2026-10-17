@@ -1,5 +1,9 @@
 # Modelling plan: add freedom when the residuals justify it
 
+!!! note "Historical (2026-09)"
+    Superseded by [kb/models/jeans_comparison.md](kb/models/jeans_comparison.md)
+    and [kb/models/dm_fits.md](kb/models/dm_fits.md).
+
 *Adopted 2026-09-20; status and implementation checked 2026-09-21.*
 
 ## Current position

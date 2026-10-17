@@ -40,11 +40,11 @@ host dwarf is tidally disrupted, for each orbital class.
   potential with a time-dependent centre, NOT as a softened falcON particle: falcON's default
   kernel is P1 (not Plummer) and pair softening is (eps_i + eps_j)/2, so a 7 pc particle does not
   produce a 7 pc Plummer field (Codex). Optionally 1e4 massless tracers from the nucleus DF.
-  Literature: Meadows et al. 2020 (arXiv:1910.11887) use single softened point masses (eps = 13 pc)
-  for Fornax GCs; Boldrini, Mohayaee & Silk 2020 (arXiv:1909.07404) instead use live 1e4-particle
+  Literature: Meadows et al. 2020 ([arXiv:1910.11887](https://arxiv.org/abs/1910.11887)) use single softened point masses (eps = 13 pc)
+  for Fornax GCs; Boldrini, Mohayaee & Silk 2020 ([arXiv:1909.07404](https://arxiv.org/abs/1909.07404)) instead use live 1e4-particle
   GCs with equal particle masses -- the earlier draft cited them wrongly.
 * Dwarf stars: 1e5 equal-mass particles (1e3-1e4 Msun for M* = 1e8-1e9), eps ~ 20-50 pc.
-* Dark matter: radially graded particle masses (Zemp et al. 2008 multimass): ~1e3 Msun inside
+* Dark matter: radially graded particle masses ([Zemp et al. 2008](https://ui.adsabs.harvard.edu/abs/2008MNRAS.386.1543Z) multimass): ~1e3 Msun inside
   ~0.3 kpc rising to 1e5-1e6 Msun outside; ~1e6 particles total; softening graded with mass;
   implemented through a phase-space refinement scheme that protects low-pericentre
   orbits; radius-only thinning and reweighting by 1/p is insufficient. Keep mass ratios between species sharing a region <~ 10-30 and heavy-particle
@@ -75,7 +75,7 @@ host dwarf is tidally disrupted, for each orbital class.
 * Resolution target: >= 1e3 effective survivors (N_eff = (sum m)^2 / sum m^2) for an integrated
   bound mass, 1e4 for a profile; a 1e5 Msun remnant then needs inner DM particles of ~100 Msun.
   Radius-only thinning is insufficient (heavy particles near apocentre plunge through the centre;
-  Zemp et al. 2008 refine on pericentre with mass ratios ~2 per shell and a protection radius >> the
+  [Zemp et al. 2008](https://ui.adsabs.harvard.edu/abs/2008MNRAS.386.1543Z) refine on pericentre with mass ratios ~2 per shell and a protection radius >> the
   inner shell) -> refine on pericentre/energy and monitor heavy-particle contamination.
 * Alternatives not chosen: full live nucleus with equal masses (relaxation), two-stage resimulation
   with a live nucleus in the recorded tidal field (round two), pyfalcon/Python integrator for

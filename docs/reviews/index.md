@@ -5,6 +5,9 @@ These files moved from `docs/` to `docs/reviews/` on 2026-10-13. Links to `resul
 
 | Date | Review | Subject |
 |---|---|---|
+| 2026-10-17 | [codex_training_set_plan_2026-10-17](codex_training_set_plan_2026-10-17.md) | 9-D emulator training set: calibration tranche first, float64 sprays, per-star score components, provenance hashes |
+| 2026-10-17 | [codex_score_provenance_2026-10-17](codex_score_provenance_2026-10-17.md) | Stream-score version consistency, provenance and the pooled default (adopt S4 only after refitting) |
+| 2026-10-17 | [codex_unbiased_likelihood_2026-10-17](codex_unbiased_likelihood_2026-10-17.md) | Bias and noise of the conditional KDE stream likelihood: replicated randomized integration, delta method, power likelihood |
 | 2026-10-16 | [codex_stream_paper_plan_2026-10-16](codex_stream_paper_plan_2026-10-16.md) | Stream paper plan: rejects "impossible without a bar"; matched null-vs-bar fit and mocks needed; six-figure plan |
 | 2026-10-15 | [codex_cusp_depletion_2026-10-15](codex_cusp_depletion_2026-10-15.md) | Depletion term for the stellar cusp around a central BH: p, identifiability, remnants, numerics |
 | 2026-10-15 | [codex_central_counts_research_2026-10-15](codex_central_counts_research_2026-10-15.md) | Central HST counts: oMEGACat completeness, core vs cusp literature, IMBH cusp expectations (research pass) |

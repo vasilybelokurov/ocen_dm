@@ -1,5 +1,12 @@
 # What rules out densities above the quoted DM upper limit?
 
+!!! note "Historical (2026-09)"
+    Superseded by [kb/models/jeans_comparison.md](kb/models/jeans_comparison.md)
+    and [kb/models/dm_fits.md](kb/models/dm_fits.md).
+    The two posterior checks called "pending" below finished; their outputs are in
+    `results/fits/rung2_K2_cored_turnover_{freecheck,rho2}_densitycheck_20260922T065245Z/`
+    but were never written up.
+
 The quoted 95% upper limit, rho_DM(20 pc) = 1.026 solar masses per cubic
 parsec, is not a hard exclusion. Refitting the remaining parameters at fixed
 density gives a counterexample: twice that density can fit almost as well as

@@ -1,8 +1,11 @@
 # Base model: two-transition DF, no dark matter
 
-The reference model for the cluster mass distribution. Every dark-matter
-variant is compared with it.
-The same model with a fixed central black hole is on [DF + central black hole](df_bh.md).
+The DF model of the cluster mass distribution, in two fits: the 2026-10-13 base
+fit (free count amplitudes, below) and the
+[tied, completeness-corrected refit](#refit-with-completeness-corrected-counts-and-tied-amplitudes-2026-10-16)
+of 2026-10-16. The tied refit is the reference DF fit from 2026-10-16 on; the
+[dark-matter fits](dm_fits.md) are built on it. The base fit is the parent of
+the fixed-black-hole fits on [DF + central black hole](df_bh.md).
 
 !!! info "Status (2026-10-13)"
     Refitted on 2026-10-13 with the corrected (area-weighted) count
@@ -13,10 +16,18 @@ The same model with a fixed central black hole is on [DF + central black hole](d
     were biased; parameters moved by ≤ 4% and the mass per counted star by
     −1.8%.
 
+!!! info "Status (2026-10-16)"
+    Superseded as the reference DF fit by the
+    [tied, completeness-corrected refit](#refit-with-completeness-corrected-counts-and-tied-amplitudes-2026-10-16)
+    (`results/df/dftie_restart_20261016`, objective 295.77). Its predictions
+    differ from this fit by a few per cent; M_rem falls by 27 %. This fit stays
+    the parent of the [black-hole fits](df_bh.md), which have not been redone
+    with the tied counts.
+
 ## All parameters
 
 The fit is a multi-start optimisation (no posterior sampling), so best-fit
-values are given without uncertainties; mocks drawn from this model recover
+(maximum-likelihood, ML) values are given without uncertainties; mocks drawn from this model recover
 \(M_\star\) to ±6% and \(M_{\rm rem}\) to ±23% (see below).
 
 **Free parameters (10)**
@@ -58,7 +69,7 @@ The HST field term is fixed at zero (field < 0.5% at 250″).
 
 | Quantity | Value |
 |---|---|
-| Total mass | 3.26×10⁶ M☉ |
+| Total mass, M<sub>★</sub> + M<sub>rem</sub> (best fit) | 3.27×10⁶ M☉ (M(<100 pc) = 3.26×10⁶) |
 | Mass per F625W < 19 star | 10.48 M☉ |
 | \(M_\star/L_V\), \(M_{\rm tot}/L_V\) | 2.6, 2.8 |
 | Half-mass radius: stars (3D, projected), remnants | 10.4 pc, 7.7 pc; 2.8 pc |
@@ -77,7 +88,7 @@ The HST field term is fixed at zero (field < 0.5% at 250″).
 ### Stellar DF
 
 The regularized exponential action DF (contour construction of Binney 2026,
-MNRAS 549, stag854), rebuilt at every iteration and iterated to
+MNRAS 549, stag854, [doi:10.1093/mnras/stag854](https://doi.org/10.1093/mnras/stag854)), rebuilt at every iteration and iterated to
 self-consistency in the total potential (stars + remnants):
 
 \[
@@ -160,7 +171,7 @@ Objective \(=-2\ln L\) (up to a constant):
 |---|---|---|
 | Kinematics, 89 bins | HST PM radial and tangential (21 + 21), MUSE LOS (29), Gaia EDR3 PM radial and tangential (9 + 9) | split-normal with the published errors |
 | HST counts | oMEGACat, F625W < 19, 20 bins over 2–250″, 117 751 stars | Poisson, amplitude profiled |
-| Gaia counts | Vasiliev & Baumgardt 2021, G < 17, 12 bins over 300–2400″ | Poisson, amplitude and uniform field profiled |
+| Gaia counts | Vasiliev & Baumgardt 2021 ([2021MNRAS.505.5978V](https://ui.adsabs.harvard.edu/abs/2021MNRAS.505.5978V)), G < 17, 12 bins over 300–2400″ | Poisson, amplitude and uniform field profiled |
 | Distance prior | — | Gaussian |
 
 The count amplitude converts to a mass per counted star: the best fit has
@@ -196,18 +207,18 @@ with the earlier Jeans model (dashed). Bottom row: residuals; the count
 panel shows signed Poisson deviance residuals. Both fits are evaluated with
 the corrected count likelihood.*
 
-The two count profiles do not join, by design: they are different selections in their own units. HST counts are oMEGACat stars with F625W < 19 at 2–250″; Gaia counts are stars with G < 17 at 300–2400″. The brighter Gaia limit counts about 14 times fewer stars per unit stellar mass, so each profile has its own fitted count amplitude (a<sub>HST</sub>, a<sub>Gaia</sub>), and the Gaia model also includes a uniform field of about 1.6 stars arcmin⁻². The model curves are the same stellar surface density scaled by each amplitude. The gap between 250″ and 300″ is a gap in coverage. Their ratio has been measured where the two catalogues overlap: see [the count-ratio check](../data/cluster.md#ratio-of-the-two-count-products-in-the-overlap-2026-10-16). Corrected for completeness, the fitted ratio is 13–15 % higher than expected (13.5–13.7 against 11.95 ± 0.3).
+The two count profiles do not join, by design: they are different selections in their own units. HST counts are oMEGACat stars with F625W < 19 at 2–250″; Gaia counts are stars with G < 17 at 300–2400″. The brighter Gaia limit counts fewer stars per unit stellar mass: the fitted amplitude ratio a<sub>HST</sub>/a<sub>Gaia</sub> is 13.7 (free amplitudes, raw counts), while the measured ratio is 11.42 ± 0.23 for complete samples, i.e. 11.95 ± 0.3 expected for the raw counts once Gaia's completeness is folded in. Each profile has its own fitted count amplitude (a<sub>HST</sub>, a<sub>Gaia</sub>), and the Gaia model also includes a uniform field of about 1.6 stars arcmin⁻². The model curves are the same stellar surface density scaled by each amplitude. The gap between 250″ and 300″ is a gap in coverage. Measurement: [the count-ratio check](../data/cluster.md#ratio-of-the-two-count-products-in-the-overlap-2026-10-16). The fitted ratio is 13–15 % higher than expected (13.5–13.7 against 11.95 ± 0.3).
 
 ## Comparison with the Jeans model (dashed curves)
 
 Full description, figures and posterior: [Jeans comparison model](jeans_comparison.md).
 
 The dashed curves are the best rung-2 spherical Jeans fit without dark matter
-(`results/fits/rung2_K1_turnover`), the best model of the earlier
+(`results/fits/rung2_K1_turnover`, J-Trager), the best no-DM model of the earlier
 [Jeans ladder](index.md#earlier-spherical-jeans-ladder-historical).
 Both models are fitted to the same 89-bin kinematic snapshot, so their
 kinematic χ² compare directly; the Jeans fit uses a fixed light profile (an MGE
-of the Trager+1995 profile joined to HST star counts) instead of the Poisson
+of the Trager+1995 profile, [1995AJ....109..218T](https://ui.adsabs.harvard.edu/abs/1995AJ....109..218T), joined to HST star counts) instead of the Poisson
 star counts.
 
 | | Jeans (rung 2, no DM) | DF base model |
@@ -215,10 +226,10 @@ star counts.
 | Stellar tracer and mass | MGE light profile, mass-to-light free | self-consistent action DF |
 | Free stellar parameters | \(M_\star\) only (density shape fixed by the light) | \(M_\star\) and six DF parameters (shape fitted to the counts) |
 | Anisotropy | turnover β(r): β₀ = −0.50 (centre) → +0.20 → −0.98 (outside) | isotropic core → +0.15 near 8 pc → −0.53 at 100 pc |
-| Central black hole | 4.4×10⁴ M☉ (16–84%: 3.9–4.6×10⁴) | none |
-| \(M_\star\) | 2.37×10⁶ M☉ | 3.00×10⁶ M☉ |
-| Remnants (Plummer) | 7.7×10⁵ M☉, a = 5.7 pc | 2.7×10⁵ M☉, a = 2.2 pc |
-| Total mass | 3.18×10⁶ M☉ | 3.26×10⁶ M☉ |
+| Central black hole | 4.41×10⁴ M☉ (ML); 4.25 (3.92–4.58)×10⁴ (median, 16–84%) | none |
+| \(M_\star\) | 2.37×10⁶ M☉ (ML) | 3.00×10⁶ M☉ (best fit) |
+| Remnants (Plummer) | 7.7×10⁵ M☉, a = 5.7 pc (ML) | 2.7×10⁵ M☉, a = 2.2 pc (best fit) |
+| Total mass, M<sub>★</sub> + M<sub>rem</sub> + M<sub>BH</sub> | 3.18×10⁶ M☉ (ML); 3.24×10⁶ (median) | 3.27×10⁶ M☉ (best fit) |
 | \(M_\star/L_V\), \(M_{\rm tot}/L_V\) | 2.0, 2.7 (ML); 2.3, 2.8 (median) | 2.6, 2.8 |
 | Distance | 5.34 kpc | 5.36 kpc |
 
@@ -231,8 +242,10 @@ star counts.
 | Gaia PM tangential (9) | 23.0 (2.56) | 21.5 (2.39) |
 | **Total (89)** | **190.0** | **156.4** |
 
-- **The DF fits better overall** (Δχ² = 34) and in every dataset except the
-  HST tangential proper motions.
+- **The DF fits better than J-Trager overall** (Δχ² = 34) and in every dataset
+  except the HST tangential proper motions. The Jeans twin with the star-count
+  tracer ([J-counts](jeans_comparison.md#twin-model-with-the-star-count-tracer-j-counts-2026-10-16))
+  reaches χ² = 152.2, below the DF's 156.4 (and the tied refit's 159.4).
 - **The Jeans model follows the central rise** of the HST proper-motion
   dispersions inside 0.3 pc (~11″), which the DF, with an isotropic core and
   no black hole, stays below by 1.5–2.4σ in several bins: χ² = 7.3 (Jeans)
@@ -259,9 +272,12 @@ star counts.
   black hole and the imposed central anisotropy) take their share. The
   remnant mass is close to the total minus \(M_\star\), so with remnants at
   8–17% of the total, a 1% change in \(M_\star\) moves \(M_{\rm rem}\) by ~10%.
-- A central black hole was not supported by the DF fits on binned data
-  (September step 3); whether the inner rise needs one, or radially biased
-  central orbits, or mass segregation, is not settled.
+- **A central black hole in the DF** ([DF + central black hole](df_bh.md),
+  2026-10-15, fixed masses): 8,200 M☉ lowers the objective by 5.5; 4×10⁴ M☉
+  lowers χ²_kin by 12 but loses 15 in the HST counts (objective −1.0). The
+  differences are not calibrated with mocks. Whether the inner rise needs a
+  black hole, radially biased central orbits or mass segregation is not
+  settled.
 
 ## Refit with completeness-corrected counts and tied amplitudes (2026-10-16)
 
@@ -305,7 +321,7 @@ The fit was seeded from the base best fit and then restarted from its own best p
 | HST / Gaia count deviance per bin | 4.8 / 2.1 | 4.2 / 3.8 |
 | Tie prior term | — | 4.2 (2.1σ) |
 | Mass per F625W < 19 star | 10.48 M<sub>⊙</sub> | 11.20 M<sub>⊙</sub> (complete sample) |
-| Total mass | 3.26×10⁶ M<sub>⊙</sub> | 3.27×10⁶ M<sub>⊙</sub> |
+| Total mass, M<sub>★</sub> + M<sub>rem</sub> (best fit) | 3.27×10⁶ M<sub>⊙</sub> | 3.28×10⁶ M<sub>⊙</sub> |
 | Half-mass radius: stars 3-D, projected; remnants | 10.4, 7.7; 2.8 pc | 9.9, 7.3; 2.5 pc |
 | v<sub>c,max</sub>; central v<sub>esc</sub> | 27.0 km/s at 9.0 pc; 68.1 km/s | 27.4 km/s at 9.0 pc; 68.6 km/s |
 
@@ -313,7 +329,7 @@ The fit was seeded from the base best fit and then restarted from its own best p
 
 - **The predictions change by a few per cent at most.** The kinematic curves overlap. With the ratio tied, the Gaia counts at 15–30 pc lie 3–4σ above the model, i.e. 3–4 % in a bin of about 1,000 stars. The outermost HST bin improves.
 - **The parameters move much more.** M<sub>rem</sub> drops by 27 % and the anisotropy changes, while the total mass stays the same. These parameters are therefore only weakly fixed by the data: a few per cent in the predictions trades against tens of per cent in them.
-- **The DF's outer envelope is too rigid.** One smooth profile does fit both count sets with the measured ratio: the MGE of the [Jeans twin](jeans_comparison.md#twin-model-with-the-star-count-tracer-j-counts-2026-10-16) has Gaia deviance 13.5 over 12 bins. The DF's outer envelope cannot quite reproduce it.
+- **The DF's outer envelope may be too rigid (untested).** One smooth profile does fit both count sets with the measured ratio: the MGE of the [Jeans twin](jeans_comparison.md#twin-model-with-the-star-count-tracer-j-counts-2026-10-16) has Gaia deviance 13.5 over 12 bins, against 45.9 for the tied DF refit.
 
 **Properties of the tied model**
 
@@ -401,6 +417,7 @@ Code: `src/ocen_dm/kinematics/regularized_df.py` (DF, remnants, halo),
 
 ## Related results
 
+- Dark-matter fits of the reference models (2026-10-16): [Dark-matter fits](dm_fits.md).
 - Dark-matter variants and the \(\rho_{20}\) and mass-per-star scans:
   [DF observed fit write-up](../../df_observed_fit.pdf).
 - Review of next steps: [Codex review, 2026-10-13](../../reviews/codex_mass_model_next_2026-10-13.md).

@@ -1,8 +1,10 @@
 # Plan: closing the data gaps before Milestone 3
 
 > **Historical plan (September 2026).** Several selections, datasets and tasks below have
-> been superseded. Use [the README](../README.md), [data note](data_analysis.tex) and
-> [current audit](CODE_ANALYSIS_AUDIT.md) for the present state.
+> been superseded. For the present state see [Data products](kb/data/index.md),
+> [Known gaps](kb/data/gaps.md) and the [data note (PDF)](data_analysis.pdf).
+> WP3's `configs/ocen_phase_space.yaml` and its loader were never built; the systemic
+> phase space now lives in `src/ocen_dm/cluster.py`.
 
 *Written 2026-09-16 after inspecting the real VizieR table structures and confirming the
 Gaia join on WSDB. Nothing below is assumed from memory; unverified items are marked.*

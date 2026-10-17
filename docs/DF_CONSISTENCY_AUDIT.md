@@ -1,5 +1,9 @@
 # Spatial density and stellar DF consistency
 
+!!! note "Historical (2026-09)"
+    Superseded by [kb/models/jeans_comparison.md](kb/models/jeans_comparison.md)
+    and [kb/models/dm_fits.md](kb/models/dm_fits.md).
+
 This audit checks all archived Jeans runs and reruns, including interrupted
 attempts and the recent fixed-density optimizations. Its purpose is to separate
 positive spatial density, necessary conditions for a physical stellar model,

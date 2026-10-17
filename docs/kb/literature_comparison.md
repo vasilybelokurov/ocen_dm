@@ -9,10 +9,11 @@ otherwise; all papers are in the [SciX library](literature.md).
 !!! abstract "Summary"
     - **Total mass and M/L agree within the spread of published values.** Our
       total M/L_V of 2.8 is close to Watkins+2013 (2.71); our total mass,
-      3.26×10⁶ M☉, is 13–22% below the recent estimates of 3.7–4.2×10⁶ M☉
+      3.27×10⁶ M☉ (DF best fit, M★ + M_rem), is 13–22% below the recent estimates of 3.7–4.2×10⁶ M☉
       (D'Souza & Rix 2013 scaled to our distance; the Baumgardt database).
     - **The central dark mass is where the literature splits, and our two
-      models fall on the two sides.** The Jeans model's 4.3×10⁴ M☉ black hole
+      models fall on the two sides.** The Jeans model's black hole (posterior
+      median 4.25×10⁴ M☉; 3.67×10⁴ M☉ with the star-count tracer, J-counts)
       reproduces the classic IMBH claims (Noyola+2008/2010, Baumgardt 2017,
       Jalali+2012). The DF model's compact remnant component (2.7×10⁵ M☉,
       2.2 pc scale, 8% of the mass, no black hole) matches the "extended
@@ -20,15 +21,22 @@ otherwise; all papers are in the [SciX library](literature.md).
       timing (Bañares-Hernández+2025: 2.65×10⁵ M☉ in a Plummer of 1.88 pc,
       the same form, mass and nearly the same scale as ours) and ~5% of the
       mass in stellar-mass black holes (Zocchi+2019, Baumgardt+2019,
-      Dickson+2024).
+      Dickson+2024). The remnant mass is weakly constrained: the tied,
+      completeness-corrected DF refit gives 2.00×10⁵ M☉ (1.88 pc) with
+      predictions that differ by a few per cent, and J-counts puts
+      8.4×10⁵ M☉ in remnants (posterior median).
     - **Anisotropy:** the DF profile (isotropic core, mildly radial at
       intermediate radii, tangential outside) agrees with oMEGACat VI and
       van de Ven+2006; the Jeans model's tangential core does not.
     - **The fast-moving stars require a point mass of at least 8,200 M☉**
       (Häberle+2024, robust bound). Their model-dependent estimates go
       higher (≥ 21,100 M☉ with accelerations; 39,000–47,000 M☉ preferred by
-      an N-body comparison, which brackets our Jeans black hole). Whether
-      the DF model with such a point mass still fits is not yet tested.
+      an N-body comparison, which brackets our Jeans black hole). With a
+      fixed point mass the DF still fits ([DF + central black hole](models/df_bh.md)):
+      8,200 M☉ lowers the objective by 5.5; 4×10⁴ M☉ fits the central
+      kinematics better (χ²_kin −12) but over-predicts the central HST counts
+      (+15), so the objective falls by only 1.0. Neither difference is
+      calibrated.
 
 ## Total mass, mass-to-light ratio and distance
 
@@ -38,12 +46,12 @@ published values are given at their own distance, and scaled to ours
 
 | Study | Method | D [kpc] | Total mass [10⁶ M☉] | M/L_V |
 |---|---|---|---|---|
-| **This work, DF base model** | spherical action DF, HST+MUSE+Gaia kinematics, star counts | 5.356 (prior 5.43 ± 0.05) | **3.26** | **2.8** (stellar 2.6) |
-| **This work, Jeans model** | spherical Jeans, black hole, same kinematics | 5.34–5.36 | **3.18–3.24** | **2.7–2.8** (stellar 2.0–2.3) |
+| **This work, DF base model** | spherical action DF, HST+MUSE+Gaia kinematics, star counts | 5.356 (prior 5.43 ± 0.05) | **3.27** (best fit; tied refit 3.28) | **2.8** (stellar 2.6) |
+| **This work, Jeans model (J-Trager)** | spherical Jeans, black hole, same kinematics | 5.34 (ML), 5.36 (median) | **3.18** (ML), **3.24** (median) | **2.7** (ML), **2.8** (median) (stellar 2.0, 2.3) |
 | [van de Ven+2006](https://ui.adsabs.harvard.edu/abs/2006A%26A...445..513V) | axisymmetric Schwarzschild, ground-based PMs + LOS | 4.8 ± 0.3 (fitted) | 2.5 ± 0.3 | 2.5 ± 0.1 |
 | [Watkins+2013](https://ui.adsabs.harvard.edu/abs/2013MNRAS.436.2598W) | discrete axisymmetric Jeans | 4.59 ± 0.08 (fitted) | — | 2.71 ± 0.05 |
 | [D'Souza & Rix 2013](https://ui.adsabs.harvard.edu/abs/2013MNRAS.429.1887D) | discrete PM likelihood | scaled to 5.356 | 4.20 (spherical isotropic), 3.74 (flattened) | — |
-| Baumgardt GC database | N-body grid (catalogue value; version unrecorded, UNVERIFIED against the live database) | 5.43 | 3.94 | — |
+| [Baumgardt GC database](https://people.smp.uq.edu.au/HolgerBaumgardt/globular/) | N-body grid (catalogue value; version unrecorded, UNVERIFIED against the live database) | 5.43 | 3.94 | — |
 | [Merritt+1997](https://ui.adsabs.harvard.edu/abs/1997AJ....114.1074M) | non-parametric, 469 LOS velocities | — | — | mass "slightly more extended than" the light |
 
 D'Souza & Rix give \(4.55\times10^6\,(D/5.5\,{\rm kpc})^3\) M☉ (spherical) and
@@ -54,8 +62,10 @@ is 0.923.
   above Watkins (2.71) and van de Ven (2.5). Scaled to our distance with
   M/L ∝ D their values would be 3.2 and 2.8; their distances were fitted
   jointly, so this scaling is only indicative.
+Our total masses are M★ + M_rem (+ M_BH for Jeans).
+
 - **Our total mass is 13–22% below the recent estimates** at our distance
-  (3.26 against 3.74–4.20×10⁶ M☉ from D'Souza & Rix and 3.94×10⁶ M☉ from
+  (3.27 against 3.74–4.20×10⁶ M☉ from D'Souza & Rix and 3.94×10⁶ M☉ from
   the Baumgardt database). van de Ven+2006 found 2.5×10⁶ M☉ at 4.8 kpc. Possible reasons, not yet tested: our model
   is spherical (D'Souza & Rix find flattening lowers the mass by 10%, in the
   same direction, so it does not explain it); our kinematics reach ~60 pc and
@@ -71,8 +81,8 @@ is 0.923.
 
 | Study | Method | Central dark mass |
 |---|---|---|
-| **This work, Jeans model** | spherical Jeans, β₀ ≤ −½ imposed | **IMBH 4.3 (3.6–4.9) ×10⁴ M☉** (95%) |
-| **This work, DF base model** | self-consistent DF, isotropic core | **no IMBH; remnants 2.7×10⁵ M☉ in a 2.2 pc Plummer (8% of the mass)** |
+| **This work, Jeans model** | spherical Jeans, β₀ ≤ −½ imposed | **IMBH 4.25×10⁴ M☉** (posterior median; 95% interval 3.6–4.9×10⁴); 3.67 (3.30–4.02)×10⁴ M☉ with the star-count tracer (J-counts; median, 16–84%) |
+| **This work, DF base model** | self-consistent DF, isotropic core | **no IMBH; remnants 2.7×10⁵ M☉ in a 2.2 pc Plummer (8% of the mass)** (best fit; tied refit 2.00×10⁵ M☉, 1.88 pc). Fixed point masses of 8,200 and 4×10⁴ M☉ are compatible with the fit ([DF + central black hole](models/df_bh.md)) |
 | [Noyola+2008](https://ui.adsabs.harvard.edu/abs/2008ApJ...676.1008N) | isotropic spherical, Gemini + HST | IMBH 4.0 (+0.75/−1.0) ×10⁴ M☉ |
 | [Noyola+2010](https://ui.adsabs.harvard.edu/abs/2010ApJ...719L..60N) | VLT kinematics | IMBH (4.7 ± 1.0) ×10⁴ M☉ |
 | [Jalali+2012](https://ui.adsabs.harvard.edu/abs/2012A%26A...538A..19J) | N-body, isotropic multimass King ICs | IMBH 5×10⁴ M☉ (2% of the stellar mass) |
@@ -109,9 +119,13 @@ is 0.923.
   low number statistics limit that comparison. The 21,100 M☉ limit would
   also exceed the 3σ limit of van der Marel & Anderson 2010 (1.8×10⁴ M☉).
 - **Our two models map onto that tension.** The Jeans black hole
-  (4.3×10⁴ M☉) lies inside Häberle's preferred range; the DF model's
-  extended remnants match Bañares-Hernández. The DF model has no point mass;
-  refitting it with a black hole of 2–5×10⁴ M☉ is the natural next test.
+  (posterior median 4.25×10⁴ M☉; 3.67×10⁴ M☉ for J-counts) lies inside or
+  near Häberle's preferred range; the DF model's extended remnants match
+  Bañares-Hernández. The DF fitted with a fixed point mass
+  ([DF + central black hole](models/df_bh.md), 2026-10-15) gives objective
+  275.2 at 8,200 M☉ and 279.7 at 4×10⁴ M☉, against 280.7 without; the
+  4×10⁴ M☉ cusp over-predicts the central HST counts. These fits use the
+  2026-10-13 count likelihood and are not calibrated with mocks.
 
 ### Remnant mass and spatial scale
 
@@ -121,8 +135,10 @@ paper's numbers as shown.
 
 | Study | Component (definition) | Mass [M☉] | Fraction | Form and scale | Total mass, distance | Where |
 |---|---|---|---|---|---|---|
-| **This work, DF base model** | remnant Plummer: all mass not following the counted light | **2.73×10⁵** | 8.4% | Plummer, **a = 2.18 pc** (3D; half-mass 2.85 pc) | 3.26×10⁶, 5.356 kpc | [base model](models/base_no_dm.md) |
-| **This work, Jeans model** | remnant Plummer + black hole | **5.4×10⁵ + 4.3×10⁴** | 16.5% + 1.3% | Plummer, **a = 5.3 pc** (3D) | 3.24×10⁶, 5.36 kpc | [Jeans model](models/jeans_comparison.md) |
+| **This work, DF base model** (best fit) | remnant Plummer: all mass not following the counted light | **2.73×10⁵** | 8.4% | Plummer, **a = 2.18 pc** (3D; half-mass 2.85 pc) | 3.27×10⁶, 5.356 kpc | [base model](models/base_no_dm.md) |
+| **This work, tied DF refit** (best fit) | as above, completeness-corrected counts, tied amplitude ratio | **2.00×10⁵** | 6.1% | Plummer, **a = 1.88 pc** (3D; half-mass 2.5 pc) | 3.28×10⁶, 5.359 kpc | [tied refit](models/base_no_dm.md#refit-with-completeness-corrected-counts-and-tied-amplitudes-2026-10-16) |
+| **This work, Jeans model (J-Trager)** (posterior median) | remnant Plummer + black hole | **5.4×10⁵ + 4.25×10⁴** | 16.5% + 1.3% | Plummer, **a = 5.3 pc** (3D) | 3.24×10⁶, 5.36 kpc | [Jeans model](models/jeans_comparison.md) |
+| **This work, J-counts** (posterior median) | remnant Plummer + black hole | **8.4×10⁵ + 3.67×10⁴** | 26.7% + 1.2% | Plummer, **a = 5.1 pc** (3D) | 3.16×10⁶, 5.36 kpc | [J-counts](models/jeans_comparison.md#twin-model-with-the-star-count-tracer-j-counts-2026-10-16) |
 | [Bañares-Hernández+2025](https://ui.adsabs.harvard.edu/abs/2025A%26A...693A.104B) | "extended central mass" on top of a light-traced M★ (which includes remnants that follow the light); interpreted as stellar-mass black holes | **2.65 ± 0.19×10⁵**; 2.20×10⁵ without the pulsar accelerations; 2.1–3.1×10⁵ across centres and profile shapes | 9.0% (*computed*: 2.65/(26.8+2.65)) | Plummer, **r_cen = 1.88 ± 0.10 pc** (3D; 1.59 pc without pulsars); Gaussian alternative σ = 1.37 pc | M★ = 2.68 ± 0.05×10⁶; 5.2 kpc fixed | Fig. 2, Table 2, Secs. 6, 8–9, App. B–D |
 | [Baumgardt+2019](https://ui.adsabs.harvard.edu/abs/2019MNRAS.488.5340B) | stellar-mass black holes only | **1.65×10⁵** | 4.6 ± 0.5% | mass-segregated N-body; radius not given ("centrally concentrated") | 5.24 kpc adopted | Secs. 4–5 |
 | [Zocchi+2019](https://ui.adsabs.harvard.edu/abs/2019MNRAS.482.4713Z) | black holes as the dark component of two-component limepy models (white dwarfs and neutron stars in the visible component) | 1.35×10⁵ (*computed*: F₂ × M) | 4.5 (+4.0/−2.5)% anisotropic; 5.2% isotropic | not fully segregated, extending to about the half-mass radius (r_h = 8.57 pc); ~1.4×10³ M☉ within 0.2 pc | 3.01×10⁶, 5.14 kpc (fitted) | Table 2, Secs. 3–4 |
@@ -131,10 +147,10 @@ paper's numbers as shown.
 
 **Like-for-like with the closest model (Bañares-Hernández+2025, same Plummer form):**
 
-| | DF base model | Bañares-Hernández+2025 |
+| | DF base model (best fit) | Bañares-Hernández+2025 |
 |---|---|---|
-| Mass | 2.73×10⁵ M☉ | 2.65 ± 0.19×10⁵ M☉ |
-| Plummer scale | 2.18 pc | 1.88 ± 0.10 pc at 5.2 kpc; 1.94 pc scaled to 5.356 kpc (*computed*) |
+| Mass | 2.73×10⁵ M☉ (tied refit 2.00×10⁵) | 2.65 ± 0.19×10⁵ M☉ |
+| Plummer scale | 2.18 pc (tied refit 1.88) | 1.88 ± 0.10 pc at 5.2 kpc; 1.94 pc scaled to 5.356 kpc (*computed*) |
 | Mass fraction | 8.4% | 9.0% |
 | M(<1 pc), M(<3 pc) (*computed*) | 2.0×10⁴, 1.45×10⁵ M☉ | 2.7×10⁴, 1.61×10⁵ M☉ |
 | Data | HST, MUSE, Gaia kinematics; star counts | stellar kinematics, surface density, millisecond-pulsar positions and accelerations |
@@ -159,9 +175,14 @@ paper's numbers as shown.
 - **The Jeans model's remnant component** (5.4×10⁵ M☉ at 5.3 pc) is twice as
   massive and 2.5 times more extended than any of these; its central mass is
   carried by the black hole instead.
+- **The agreement depends on the fit.** The tied, completeness-corrected
+  refit gives 2.00×10⁵ M☉ in a 1.88 pc Plummer: 25% below the
+  Bañares-Hernández mass, with a scale 3% below theirs at our distance
+  (1.94 pc), while its predictions differ from the base fit by a few per cent.
 - **Our remnant mass is the least constrained of our numbers.** It trades
-  against the stellar mass (±23% on mocks), and pinning the mass per counted
-  star between 8 and 12 M☉ moves it from 1.6 to 4.4×10⁵ M☉.
+  against the stellar mass (±23% on mocks), pinning the mass per counted
+  star between 8 and 12 M☉ moves it from 1.6 to 4.4×10⁵ M☉, the tied refit
+  moves it by −27%, and J-counts puts 8.4×10⁵ M☉ in remnants.
 
 How these remnant masses relate to the stellar mass and the IMF, and which are physically allowed: [Remnant mass and the stellar population](remnant_mass.md).
 

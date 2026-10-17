@@ -9,6 +9,15 @@ The reference result of the project: the [base no-DM model](models/base_no_dm.md
 matter, no central black hole) fitted jointly to 89 kinematic bins and the HST
 and Gaia star counts.
 
+Since 2026-10-16 the reference DF fit is the
+[tied, completeness-corrected refit](models/base_no_dm.md#refit-with-completeness-corrected-counts-and-tied-amplitudes-2026-10-16)
+(`results/df/dftie_restart_20261016`; objective 295.77, χ²_kin 159.4; best fit
+M_★ 3.08×10⁶ M☉, M_rem 2.00×10⁵ M☉, a_rem 1.88 pc). Its predictions differ from
+the 2026-10-13 fit below by a few per cent, but M_rem falls by 27 %: the split
+between stars and remnants is weakly constrained. The black-hole fits
+([DF + central black hole](models/df_bh.md)) and the figures below use the
+2026-10-13 fit; the [dark-matter fits](models/dm_fits.md) use the tied refit.
+
 ### Current fit (2026-10-13)
 
 Batch `results/df/dftwo_counts_area_20261013`, refitted after the count-likelihood
@@ -20,7 +29,7 @@ correction. All four valid starts reach the same minimum (objectives within
 | \(\chi^2_{\rm kin}\) (89 bins) | 156.4 (1.76 per bin) | 158.1 (1.78) |
 | HST count deviance (20 bins) | 96.9 | 98.9 |
 | Gaia count deviance (12 bins) | 25.2 | 26.3 |
-| \(M_\star\) | 3.00×10⁶ M☉ | 3.00×10⁶ M☉ |
+| \(M_\star\) (best fit) | 3.00×10⁶ M☉ | 3.00×10⁶ M☉ |
 | \(M_{\rm rem}\), \(a_{\rm rem}\) | 2.73×10⁵ M☉, 2.18 pc | 2.62×10⁵ M☉, 2.15 pc |
 | Distance | 5.356 kpc | 5.356 kpc |
 | Mass per F625W < 19 star | 10.48 M☉ | 10.67 M☉ |
@@ -33,14 +42,14 @@ against the current (blue) and superseded (orange) fits; dashed: the earlier
 Jeans model. Bottom row: residuals (signed Poisson deviance residuals for the
 counts). Both fits are evaluated with the corrected count likelihood.*
 
-The two count profiles do not join, by design: they are different selections in their own units. HST counts are oMEGACat stars with F625W < 19 at 2–250″; Gaia counts are stars with G < 17 at 300–2400″. The brighter Gaia limit counts about 14 times fewer stars per unit stellar mass, so each profile has its own fitted count amplitude (a<sub>HST</sub>, a<sub>Gaia</sub>), and the Gaia model also includes a uniform field of about 1.6 stars arcmin⁻². The model curves are the same stellar surface density scaled by each amplitude. The gap between 250″ and 300″ is a gap in coverage.
+The two count profiles do not join, by design: they are different selections in their own units. HST counts are oMEGACat stars with F625W < 19 at 2–250″; Gaia counts are stars with G < 17 at 300–2400″. The brighter Gaia limit counts fewer stars per unit stellar mass (fitted amplitude ratio 13.7 with free amplitudes and raw counts; measured 11.42 ± 0.23 for complete samples, i.e. 11.95 ± 0.3 expected for the raw counts; [count-ratio check](data/cluster.md#ratio-of-the-two-count-products-in-the-overlap-2026-10-16)), so each profile has its own fitted count amplitude (a<sub>HST</sub>, a<sub>Gaia</sub>), and the Gaia model also includes a uniform field of about 1.6 stars arcmin⁻². The model curves are the same stellar surface density scaled by each amplitude. The gap between 250″ and 300″ is a gap in coverage.
 
 ### Comparison with the Jeans model (dashed curves)
 
 Full description, figures and posterior: [Jeans comparison model](models/jeans_comparison.md).
 
 The dashed curves are the best rung-2 spherical Jeans fit without dark matter
-(`results/fits/rung2_K1_turnover`), the best model of the earlier
+(`results/fits/rung2_K1_turnover`, J-Trager), the best no-DM model of the earlier
 [Jeans ladder](models/index.md#earlier-spherical-jeans-ladder-historical).
 Both models are fitted to the same 89-bin kinematic snapshot, so their
 kinematic χ² compare directly; the Jeans fit uses a fixed light profile (an MGE
@@ -52,10 +61,10 @@ star counts.
 | Stellar tracer and mass | MGE light profile, mass-to-light free | self-consistent action DF |
 | Free stellar parameters | \(M_\star\) only (density shape fixed by the light) | \(M_\star\) and six DF parameters (shape fitted to the counts) |
 | Anisotropy | turnover β(r): β₀ = −0.50 (centre) → +0.20 → −0.98 (outside) | isotropic core → +0.15 near 8 pc → −0.53 at 100 pc |
-| Central black hole | 4.4×10⁴ M☉ (16–84%: 3.9–4.6×10⁴) | none |
-| \(M_\star\) | 2.37×10⁶ M☉ | 3.00×10⁶ M☉ |
-| Remnants (Plummer) | 7.7×10⁵ M☉, a = 5.7 pc | 2.7×10⁵ M☉, a = 2.2 pc |
-| Total mass | 3.18×10⁶ M☉ | 3.26×10⁶ M☉ |
+| Central black hole | 4.41×10⁴ M☉ (ML); 4.25 (3.92–4.58)×10⁴ (median, 16–84%) | none |
+| \(M_\star\) | 2.37×10⁶ M☉ (ML) | 3.00×10⁶ M☉ (best fit) |
+| Remnants (Plummer) | 7.7×10⁵ M☉, a = 5.7 pc (ML) | 2.7×10⁵ M☉, a = 2.2 pc (best fit) |
+| Total mass, M<sub>★</sub> + M<sub>rem</sub> + M<sub>BH</sub> | 3.18×10⁶ M☉ (ML); 3.24×10⁶ (median) | 3.27×10⁶ M☉ (best fit) |
 | \(M_\star/L_V\), \(M_{\rm tot}/L_V\) | 2.0, 2.7 (ML); 2.3, 2.8 (median) | 2.6, 2.8 |
 | Distance | 5.34 kpc | 5.36 kpc |
 
@@ -68,8 +77,12 @@ star counts.
 | Gaia PM tangential (9) | 23.0 (2.56) | 21.5 (2.39) |
 | **Total (89)** | **190.0** | **156.4** |
 
-- **The DF fits better overall** (Δχ² = 34) and in every dataset except the
-  HST tangential proper motions.
+- **The DF fits better than J-Trager overall** (Δχ² = 34) and in every dataset
+  except the HST tangential proper motions. This holds for the light-profile
+  tracer only: the Jeans twin with the star-count tracer
+  ([J-counts](models/jeans_comparison.md#twin-model-with-the-star-count-tracer-j-counts-2026-10-16))
+  reaches χ² = 152.2 (ML), below the DF's 156.4, with M_BH = 3.67
+  (3.30–4.02)×10⁴ M☉ (posterior median) and M_rem = 8.4×10⁵ M☉.
 - **The Jeans model follows the central rise** of the HST proper-motion
   dispersions inside 0.3 pc (~11″), which the DF, with an isotropic core and
   no black hole, stays below by 1.5–2.4σ in several bins: χ² = 7.3 (Jeans)
@@ -96,9 +109,12 @@ star counts.
   black hole and the imposed central anisotropy) take their share. The
   remnant mass is close to the total minus \(M_\star\), so with remnants at
   8–17% of the total, a 1% change in \(M_\star\) moves \(M_{\rm rem}\) by ~10%.
-- A central black hole was not supported by the DF fits on binned data
-  (September step 3); whether the inner rise needs one, or radially biased
-  central orbits, or mass segregation, is not settled.
+- **A central black hole in the DF** ([DF + central black hole](models/df_bh.md),
+  2026-10-15, fixed masses, 2026-10-13 count likelihood): 8,200 M☉ lowers the
+  objective by 5.5; 4×10⁴ M☉ lowers χ²_kin by 12 but loses 15 in the HST
+  counts, because its cusp over-predicts the central counts. The differences
+  are not calibrated with mocks. Whether the inner rise needs a black hole,
+  radially biased central orbits or mass segregation is not settled.
 
 ### Mass components
 
@@ -133,7 +149,7 @@ kinematic data (0.1–63 pc).*
   at ~25 km/s near 10 pc, the remnants at ~14 km/s near 3 pc. The central
   escape speed is 68 km/s.
 - The total inside 10 pc differs from the superseded fit by −0.7%.
-- **The remnant component matches published fits.** Its mass and scale (2.73×10⁵ M☉, 2.18 pc) agree with the extended central mass of Bañares-Hernández+2025 (2.65×10⁵ M☉ in a 1.88 pc Plummer); black-hole-only estimates are 1.35–1.82×10⁵ M☉. See [Remnant mass and spatial scale](literature_comparison.md#remnant-mass-and-spatial-scale).
+- **The remnant component matches published fits.** Its best-fit mass and scale (2.73×10⁵ M☉, 2.18 pc; the tied refit gives 2.00×10⁵ M☉, 1.88 pc) agree with the extended central mass of Bañares-Hernández+2025 (2.65×10⁵ M☉ in a 1.88 pc Plummer); black-hole-only estimates are 1.35–1.82×10⁵ M☉. See [Remnant mass and spatial scale](literature_comparison.md#remnant-mass-and-spatial-scale).
 
 ### Internal kinematics
 
@@ -174,7 +190,9 @@ published rotation is subtracted in the likelihood.*
 ### What the base fits establish
 
 - **No dark matter is needed** to fit the kinematics and counts. A free cored
-  halo goes to \(\rho_{20}=0\) (2026-09-23, old count likelihood).
+  halo goes to \(\rho_{20}=0\), with the old count likelihood (2026-09-23) and
+  again with the tied, completeness-corrected counts (2026-10-16); the Jeans
+  fits show no preference for a halo either ([dark-matter fits](models/dm_fits.md)).
 - **The total mass profile is constrained; its split is not.** Mocks drawn
   from the base model recover the total mass to ±3% at 20 pc and ±5% over
   2–40 pc, but stars trade against remnants plus halo through the count
@@ -197,8 +215,9 @@ Total mass, M/L, central dark mass and anisotropy against the literature (van de
 
 ### Not yet rerun with the corrected count likelihood
 
-The free-halo fit, the \(\rho_{20}\) profile, the mass-per-star scan and the
-mocks (all 2026-09-23). See [Models](models/index.md) and the
+The \(\rho_{20}\) profile, the mass-per-star scan and the mocks (all
+2026-09-23). The free-halo fit has been rerun with the tied counts
+([dark-matter fits](models/dm_fits.md)). See [Models](models/index.md) and the
 [DF observed-fit write-up (PDF)](../df_observed_fit.pdf);
 [data analysis (PDF)](../data_analysis.pdf).
 
@@ -207,7 +226,10 @@ mocks (all 2026-09-23). See [Models](models/index.md) and the
 - Restricted and live N-body runs of a no-DM and a DM model on Omega Cen's
   orbit (static McMillan17, 1.96 Gyr) give tails whose kinematics agree to
   10%. The DM model loses 1.3–1.6× fewer stars. Neither difference is
-  testable with the published tail data (Kuzma+2021, Kuzma+2026, Ibata+2019).
+  testable with the published tail data (Kuzma+2021,
+  [2021MNRAS.507.1127K](https://ui.adsabs.harvard.edu/abs/2021MNRAS.507.1127K/abstract); Kuzma+2026,
+  [2026MNRAS.550g1147K](https://ui.adsabs.harvard.edu/abs/2026MNRAS.550g1147K/abstract); Ibata+2019,
+  [2019NatAs...3..667I](https://ui.adsabs.harvard.edu/abs/2019NatAs...3..667I/abstract)).
 - Fitted halos are compact (r_s at the 5 pc bound) and traded against stellar
   mass, so across the kinematically allowed range the Jacobi radius at
   pericentre changes by ≤ 6.5%. Dark matter that could affect the tails lies
@@ -227,19 +249,29 @@ Reports: [dynamical experiments](../DYNAMICAL_EXPERIMENTS.md),
 
 - Beyond φ1 ≈ 17° the stream bends in Gaia DR3 proper motion. No published
   model reproduces this, nor do sprays in static McMillan17 or DB98 hosts.
-- A rotating Hunter+2024 bar bends the arm part-way and steepens the pmdec
-  gradient. Bar angle 16° beats 28° by ~285 in ln L on held-out seeds (paired
-  seed sd 101); the distal PM residual remains.
+- A rotating Hunter+2024 bar ([2024A&A...692A.216H](https://ui.adsabs.harvard.edu/abs/2024A%26A...692A.216H/abstract))
+  bends the arm part-way and steepens the pmdec gradient. Barred models beat the
+  best axisymmetric model by about 3300–4100 in ln L; the distal PM residual
+  remains (pmdec too shallow by 1.2–1.8 mas/yr at φ1 = 23–27°).
+- The bar angle is not yet constrained. The 16° − 28° gap was +285 (score S2,
+  32,000 epochs, held-out seeds) but shrinks with particle number: +98 ± 18 at
+  512,000 epochs (pooled score), still falling.
+- The original likelihood did not converge with particle number. It is replaced
+  by fixed χ bins with a jackknife bias correction, and a 9-parameter emulator
+  training set is running. Details and versions:
+  [stream status (2026-10-17)](stream_status.md).
 - The LMC (rigid MW + LMC, reflex frame, benchmarked against the Tango
-  N-body runs) shifts distal pmra by 0.2–0.6 mas/yr, but a 0.03–0.05 mas/yr
+  N-body runs of [Vasiliev, Belokurov & Erkal 2021](https://ui.adsabs.harvard.edu/abs/2021MNRAS.501.2279V/abstract)) shifts distal pmra by 0.2–0.6 mas/yr, but a 0.03–0.05 mas/yr
   change in Omega Cen's PM absorbs it.
 - Spiral forcing, the conditional likelihood's density dependence, the
-  Chen+2024 escape law and both launch arms do not remove the mismatch.
+  Chen et al. 2025 escape law ([arXiv:2408.01496](https://arxiv.org/abs/2408.01496))
+  and both launch arms do not remove the mismatch (score S2).
 - Backtracked in the barred host, the 13 knee RV stars connect to the cluster
   much worse than model controls (1.9–2.0 against ~1.1). This is a mismatch in
   the recent (≤ 700 Myr) fixed-potential models tested, not yet an exclusion.
 
-Reports: [PM refinement](../STREAM_PM_REFINEMENT_2026-10-13.md) (current),
+Reports: [stream status](stream_status.md) (current),
+[PM refinement](../STREAM_PM_REFINEMENT_2026-10-13.md) (2026-10-13),
 [knee investigation](../STREAM_KNEE_INVESTIGATION.md),
 [diagnostic plan](../STREAM_DIAGNOSTIC_PLAN.md),
 [fit campaign plan](../STREAM_FIT_CAMPAIGN_PLAN.md),

@@ -1,5 +1,11 @@
 # DF model choice for a stellar cluster embedded in dark matter
 
+!!! note "Historical (2026-09)"
+    Mixture-DF experiment, superseded by the regularized compact DF
+    ([kb/models/base_no_dm.md](kb/models/base_no_dm.md)).
+    The "running recovery batch" mentioned below has since finished
+    ([status report](DF_MASS_RECOVERY_STATUS.md)).
+
 Literature review, 22 September 2026. This note reassesses the model family;
 it does not replace the saved fits or change the running recovery batch.
 

@@ -1,5 +1,12 @@
 # Why the compact DF fails, and the proposed anisotropy extension
 
+!!! note "Historical (2026-09)"
+    Record of the photometry-based fit of 2026-09-23. Superseded by the
+    [base model](kb/models/base_no_dm.md) and the
+    [DF + black-hole fits](kb/models/df_bh.md). The matched DF test with and
+    without a black hole asked for in "Central point mass" below was done on
+    2026-10-15 ([kb/models/df_bh.md](kb/models/df_bh.md)).
+
 Status: 23 September 2026. The diagnostics below are complete. The model
 adjustment in the final section was approved after external review and launched. This follows
 [OBSERVED_DF_FLEXIBILITY.md](OBSERVED_DF_FLEXIBILITY.md). That test showed
@@ -34,7 +41,7 @@ points). Photometry is always included. Each batch uses two hand-picked
 starts and wide search bounds (J0 30-800, J_a 5-3000 pc km/s). Fits use
 parallel base-seeded Jacobians, iteration tolerance 5e-5, an absolute stop
 of 0.01, and a 600-evaluation cap. Runner: `bin/run_df_step1_diagnostics.sh`.
-Batches: `results/df/dfdiag_*_20260923/`, frozen at commit `1e246bd` (the runner commit on top of `8a7e377`).
+Batches: `results/df/dfdiag_*_20260923/`, frozen at commit `1e246bd` (the runner commit on top of `8a7e377`; both pre-rewrite hashes, not in the current history).
 
 | Batch | Kinematic data | Change | Purpose |
 |---|---|---|---|
@@ -255,7 +262,7 @@ Jeans beta(r).
 
 ## Result of the two-transition, no-halo fit (23 September)
 
-Batch `results/df/dftwo_20260923/` (commit `f6ce414`), 6 starts, raw errors.
+Batch `results/df/dftwo_20260923/` (commit `f6ce414`, pre-rewrite hash; not in the current history), 6 starts, raw errors.
 Two Latin starts were infeasible at their initial point and recorded as such.
 The other four reached the same minimum (refined objective 378.3-378.4,
 Delta chi2_kin <= 0.6). Starts 0 and 1 terminated by the absolute rule after
@@ -365,6 +372,9 @@ binned profiles start at 0.1 pc, inside r_infl ~ 0.4 pc for 4e4 Msun, and
 contain none of the individual fast central stars behind the IMBH claim of
 Haeberle et al. 2024 ([arXiv:2405.06015](https://arxiv.org/abs/2405.06015)).
 The BH is therefore dropped from the objective-1 list.
+
+*Update (2026-10-15):* the matched DF test with and without a BH has since
+been done; see [kb/models/df_bh.md](kb/models/df_bh.md).
 
 ## Best-fit model performance (objective 1: fit the data)
 

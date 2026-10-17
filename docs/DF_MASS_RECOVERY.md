@@ -1,5 +1,11 @@
 # Free-potential DF mass recovery
 
+!!! note "Historical (2026-09)"
+    Mixture-DF experiment, superseded by the regularized compact DF
+    ([kb/models/base_no_dm.md](kb/models/base_no_dm.md)).
+    The batch described below as current and running has finished (23 jobs
+    completed; noiseless gate not passed; see the [status report](DF_MASS_RECOVERY_STATUS.md)).
+
 The [fixed-potential challenge](DF_CAPACITY_CHALLENGE.md) established that three
 positive action DFs can reproduce the light and velocity moments of the
 independent equilibrium mocks. The next experiment fits the gravitational

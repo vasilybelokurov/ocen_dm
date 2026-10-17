@@ -1,5 +1,9 @@
 # Positive stellar DF models with AGAMA
 
+!!! note "Historical (2026-09)"
+    Mixture-DF experiment, superseded by the regularized compact DF
+    ([kb/models/base_no_dm.md](kb/models/base_no_dm.md)).
+
 The [LaTeX methods note](agama_df_models.tex) and its [compiled PDF](agama_df_models.pdf)
 give the full construction, likelihood, numerical checks and pilot results,
 with four numbered figures. The PDF lives beside its source; all figure

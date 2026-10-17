@@ -1,11 +1,11 @@
 # Manual data retrieval
 
-Two of the four primary datasets are journal supplementary material and cannot
-be fetched programmatically (publisher sessions / anti-bot pages). Retrieve them
-by hand, put them where this page says, then run `ocen preprocess`. The loaders
+One of the four primary datasets, the Kuzma et al. (2026) star list, is journal
+supplementary material and cannot be fetched programmatically (publisher sessions /
+anti-bot pages). Retrieve it by hand, put them where this page says, then run `ocen preprocess`. The loaders
 verify the columns; nothing is filled in on your behalf.
 
-`ocen fetch-data` reports these as `manual` rather than failing.
+`ocen fetch-data` reports it as `manual` rather than failing.
 
 ---
 
@@ -33,9 +33,10 @@ Steps:
      vlos_error: {column: e_RV, unit: km / s}
    ```
 
-   Record in `JOURNAL.md` which table caption you took each unit from.
-3. Record the download date and the exact supplementary file name in
-   `JOURNAL.md`.
+   Record which table caption you took each unit from in the project journal
+   (local) or in `provenance/datasets.yaml`.
+3. Record the download date and the exact supplementary file name in the
+   project journal (local) or in `provenance/datasets.yaml`.
 4. Run:
 
    ```bash
@@ -77,7 +78,8 @@ Two provenance caveats are recorded in `provenance/datasets.yaml`:
 If you prefer the publisher's own file, download Supplementary Table 1 and save
 it as `data/raw/fimbulthul_ibata2019/fimbulthul_supp_table1.<ext>` (only one
 file may match that pattern), converting a PDF/xlsx to CSV **without editing
-values** and noting the conversion command in `JOURNAL.md`.
+values** and recording the conversion command in the project journal (local) or
+in `provenance/datasets.yaml`.
 
 **Likelihood rule.** STREAMFINDER selection is complex: use Fimbulthul as a
 stream-track constraint only, not as an absolute surface density.

@@ -52,7 +52,10 @@ python -m ocen_dm.cli preprocess    # standardised catalogues and published prof
 python -m ocen_dm.cli plot-data
 ```
 
-- Two journal supplements need [manual retrieval](../MANUAL_DOWNLOADS.md).
+- One journal supplement (Kuzma et al. 2026) needs [manual retrieval](../MANUAL_DOWNLOADS.md);
+  Fimbulthul is now fetched from VizieR.
+- `data/raw/omegacat_vi_kinematics` may be a local link to an external copy of
+  the oMEGACat VI data rather than a directory in the checkout.
 - Our own HST and Gaia PM profiles and the count products have separate
   builders (`kinematics/hst_profile.py`, `kinematics/outer_gaia.py`,
   `bin/build_count_profiles.py`). Loaders build missing products
@@ -79,8 +82,13 @@ python -m ocen_dm.cli plot-data
 python -m pytest tests -q
 ```
 
-The full suite includes local-data and optional-engine tests and takes tens
-of minutes; some tests skip without those inputs.
+The full suite includes local-data and optional-engine tests and takes about
+13-25 min; some tests skip without those inputs. `pytest-xdist` (in the `dev`
+extra of `pyproject.toml`) runs it in parallel:
+
+```bash
+python -m pytest tests -q -n 6
+```
 
 ## Conventions
 

@@ -1,5 +1,11 @@
 # Compact DF implementation and numerical tests
 
+!!! note "Historical (2026-09)"
+    Written before the central point mass was added. Since commit `9d600ae`
+    (2026-10-15) the DF supports an exact central point mass; see the dated update
+    after the alpha>1/2 paragraph below and [kb/models/df_bh.md](kb/models/df_bh.md).
+    Current fitted models: [kb/models/base_no_dm.md](kb/models/base_no_dm.md).
+
 The compact stellar model is implemented in
 [`regularized_df.py`](../src/ocen_dm/kinematics/regularized_df.py).
 The independent generalized lowered-isothermal control is implemented in
@@ -61,6 +67,14 @@ Lc is proportional to v^2, so f(v)-f(0) is proportional to |v|^(2 alpha).
 This bound makes its first velocity derivative tend to zero at the origin.
 Finite normalization alone would require only alpha>0. Central black holes
 are not supported by this finite-central-potential prescription.
+
+*Update (2026-10-15, commit `9d600ae`):* an exact central point mass is now
+supported (`PrescribedMatter.M_bh`, default 0, added to the potential as a
+zero-radius Plummer sphere). With a point mass the radial-orbit limit of
+f_Jr/f_L is 1 instead of 2 (the boundary statement above holds for a finite
+centre only), and eccentric orbits around it use exact apsidal-angle
+quadrature instead of AGAMA frequencies. M_bh = 0 reproduces the base fit
+exactly. Fits: [kb/models/df_bh.md](kb/models/df_bh.md).
 
 ## Prescribed dark densities
 

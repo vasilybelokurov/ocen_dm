@@ -1,5 +1,9 @@
 # Rung 1: all three models complete
 
+!!! note "Historical (2026-09)"
+    Superseded by [kb/models/jeans_comparison.md](kb/models/jeans_comparison.md)
+    and [kb/models/dm_fits.md](kb/models/dm_fits.md).
+
 The final cored-halo run completed successfully. Constant radial anisotropy
 improves the fit substantially in all three families. These are the next
 controlled baselines in the modelling ladder; the comparison remains

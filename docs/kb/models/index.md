@@ -4,16 +4,25 @@
 
 | Model | What it adds to the base model | Purpose | Status |
 |---|---|---|---|
-| [Base no-DM model](base_no_dm.md) | — | Reference fit | Refitted 2026-10-13 with the corrected count likelihood |
-| [Jeans comparison model](jeans_comparison.md) | spherical Jeans, MGE tracer, turnover anisotropy, black hole | Earlier best model; tests a central black hole | χ²_kin 190.0 (DF 156.4); M_BH 4.3×10⁴ M☉ |
-| [DF + central black hole](df_bh.md) | exact point mass M_BH = 8,200 or 4×10⁴ M☉ (fixed) in the DF potential | Is a central black hole compatible with the DF fit? | Objective 275.2 / 279.7 (base 280.7); 4×10⁴ over-predicts central counts. [Cusp-depletion term](bh_cusp_depletion.md) **proposed, not adopted** |
-| Free cored halo | gNFW halo with γ = 0, free \(\rho_{20}\) and \(r_s\) | Do the data want extended dark matter? | Free fit goes to \(\rho_{20}=0\) (2026-09-23, old counts) |
+| [Base no-DM model](base_no_dm.md) | — | Reference DF fit until 2026-10-16; parent of the black-hole fits | Refitted 2026-10-13 with the corrected count likelihood; free count amplitudes, no completeness. Objective 280.7, χ²_kin 156.4 |
+| [Tied, completeness-corrected DF refit](base_no_dm.md#refit-with-completeness-corrected-counts-and-tied-amplitudes-2026-10-16) | per-bin count completeness; HST/Gaia amplitude ratio tied to the measured 11.42 ± 0.23 | **Reference DF fit** (used for the dark-matter fits) | Fitted 2026-10-16. Objective 295.77, χ²_kin 159.4; best fit (ML) M_rem 2.00×10⁵ M☉ |
+| [Jeans comparison model, J-Trager](jeans_comparison.md) | spherical Jeans, fixed MGE light tracer (Trager+1995), turnover anisotropy, free black hole | Earlier best model; tests a central black hole | χ²_kin 190.0 (ML); M_BH 4.25 (3.92–4.58)×10⁴ M☉ (posterior median, 16–84 %) |
+| [Jeans twin, J-counts](jeans_comparison.md#twin-model-with-the-star-count-tracer-j-counts-2026-10-16) | as J-Trager, tracer an MGE of the completeness-corrected star counts (tied ratio) | Tests the tracer dependence | χ²_kin 152.2 (ML), below the DF's 156.4; M_BH 3.67 (3.30–4.02)×10⁴ M☉ (posterior median) |
+| [DF + central black hole](df_bh.md) | exact point mass M_BH = 8,200 or 4×10⁴ M☉ (fixed) in the DF potential | Is a central black hole compatible with the DF fit? | Objective 275.2 / 279.7 (base 280.7); 4×10⁴ over-predicts central counts. Free amplitudes, no completeness: not refitted with the tied counts. [Cusp-depletion term](bh_cusp_depletion.md) **proposed, not adopted** |
+| Free cored halo | gNFW halo with γ = 0, free \(\rho_{20}\) and \(r_s\) | Do the data want extended dark matter? | Free fit goes to \(\rho_{20}=0\): 2026-09-23 (old counts) and again with the tied counts (2026-10-16, `results/df/dftie_halo_20261016`; [dark-matter fits](dm_fits.md)) |
 | \(\rho_{20}\) profile | \(\rho_{20}\) fixed at 0.25, 0.5, 1, 2, 4 M☉ pc⁻³, all else refitted | How much DM is allowed at fixed fit quality | Δ objective +0.5 … +10.6; a sensitivity curve, not a limit (mocks scatter by ±0.7) |
 | Mass-per-star scan | HST count amplitude pinned at 8–12 M☉ per F625W < 19 star, free halo | How the star/dark split depends on the assumed stellar mass | \(\rho_{20}\) ≈ 2–4 at the photometric 8–9, 0 at the dynamical 10.7 |
 
 Main results, figures and mock tests: [DF observed-fit write-up](../../df_observed_fit.pdf)
-([LaTeX](../../df_observed_fit.tex)). The halo and scan numbers above use the
-count products from before the 2026-10-13 fix and have not been rerun.
+([LaTeX](../../df_observed_fit.tex)). The \(\rho_{20}\) profile and the
+mass-per-star scan above use the count products from before the 2026-10-13 fix
+and have not been rerun; the free cored halo has been rerun with the tied counts.
+
+Which DF fit is the reference: the tied, completeness-corrected refit
+(2026-10-16), on which the dark-matter fits are built; it changes the
+predictions of the 2026-10-13 base fit by a few per cent but moves M_rem by
+−27 %. The black-hole fits and most figures on the base-model page still use
+the 2026-10-13 fit.
 
 ### Parameters of each model
 

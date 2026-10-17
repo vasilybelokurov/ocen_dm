@@ -1,5 +1,9 @@
 # Code and analysis audit — 21 September 2026
 
+!!! note "Historical (2026-09)"
+    Superseded by [kb/models/jeans_comparison.md](kb/models/jeans_comparison.md)
+    and [kb/models/dm_fits.md](kb/models/dm_fits.md).
+
 ## Scope and status
 
 **Follow-up:** the reporting, mock-handling and run-preservation repairs described at
@@ -8,7 +12,7 @@ below record the state before that repair pass. Rung 0 completed its intended pu
 establish a baseline and identify the residuals that guide the next research step.
 The planned model extensions are separate from the software repairs.
 
-This audit starts from commit `6e41a86` and compares the current CLI, data loaders,
+This audit starts from commit `6e41a86` (pre-rewrite hash; not in the current history) and compares the current CLI, data loaders,
 light/mass models, Jeans likelihood, fit/report machinery and DM-survival calculations
 with saved products and the analysis notes. The WD literature compilation and bibliography
 were not re-audited in full; several bibliography entries remain incomplete. It updates

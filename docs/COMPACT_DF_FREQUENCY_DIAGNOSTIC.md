@@ -1,5 +1,9 @@
 # Frequency-mapper failure found during compact DF recovery
 
+!!! note "Historical (2026-09)"
+    Diagnostic record from the 2026-09 compact-DF recovery tests. The current
+    DF fits are in [kb/models/base_no_dm.md](kb/models/base_no_dm.md).
+
 The two refined mock truths passed their resolution checks, but a two-evaluation
 fitting smoke test failed when rebuilding its selected model at finer resolution.
 The original error was `integrateGL: order is too high (not implemented)` in
@@ -47,4 +51,4 @@ The exported potential has finite decimal precision. Exporting and reloading
 changes the old polar output to a finite point close to the axis; the standalone
 replay does not reproduce the original nonfinite values exactly. The action
 record preserves this distinction. The full-model probe supplies the original
-reproduction path with the original source revision `29b4694`.
+reproduction path with the original source revision `29b4694` (pre-rewrite hash; not in the current history).

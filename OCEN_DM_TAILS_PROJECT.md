@@ -4,6 +4,8 @@
 > immediate Milestone-1 task are historical targets. See [README.md](README.md),
 > [the current modelling plan](docs/MODELLING_PLAN.md) and
 > [the code/analysis audit](docs/CODE_ANALYSIS_AUDIT.md) for implemented behaviour and next work.
+> *Update, 2026-10-17:* the tidal-tail work now uses AGAMA particle sprays and centres on the Galactic bar
+> (galpy was the original plan); see the [stream results index](docs/kb/models/stream_results_index.md).
 
 > **For Codex CLI / Claude Code:** Treat this file as the project specification and implementation roadmap. Work incrementally, keep all scientific calculations in importable/testable modules, and do not replace missing data or metadata with invented values. Every external dataset must have a provenance record, URL/DOI, checksum when available, and a script that reproduces the local processed product from the raw download.
 

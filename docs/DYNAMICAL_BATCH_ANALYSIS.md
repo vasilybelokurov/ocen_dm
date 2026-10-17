@@ -1,5 +1,12 @@
 # Dynamical pilot batch: 21 September 2026
 
+!!! note "Historical (2026-09)"
+    The particle snapshots of this batch were deleted on 2026-10-08 (list in
+    `results/maintenance/deleted_dynamics_snapshots_20261008.txt`); summaries,
+    diagnostics and logs are kept.
+    The reproduction command below reads those snapshots, so rerunning it needs
+    the batch itself to be rerun.
+
 The detailed write-up is available as a [PDF](dynamical_batch.pdf),
 [LaTeX source](dynamical_batch.tex), and a
 [portable LaTeX archive with figures](../output/source/dynamical_batch_latex.zip).
@@ -265,7 +272,7 @@ evolution yet. No new evolution was launched during this analysis.
 
 **Reproduction and audit.** The analysis script is
 [`bin/analyse_dynamical_batch.py`](../bin/analyse_dynamical_batch.py). Run it from
-the project root in the existing environment, with a fresh output directory:
+the project root in the existing environment, with a fresh output directory (since 2026-10-08 this needs the batch to be rerun first: the snapshots it reads were deleted):
 
 ```bash
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 \

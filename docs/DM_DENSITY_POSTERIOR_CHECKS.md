@@ -1,5 +1,12 @@
 # Posterior checks of the high-density solutions
 
+!!! note "Historical (2026-09)"
+    Superseded by [kb/models/jeans_comparison.md](kb/models/jeans_comparison.md)
+    and [kb/models/dm_fits.md](kb/models/dm_fits.md).
+    Both runs described below finished; their outputs are in
+    `results/fits/rung2_K2_cored_turnover_{freecheck,rho2}_densitycheck_20260922T065245Z/`
+    but were never written up.
+
 Two production runs were launched on 22 September 2026 at 06:52:53 UTC
 (07:52:53 BST). Both use the flexible rung-2 cored halo and the original 89
 kinematic measurements. The purpose is to check whether the high-density

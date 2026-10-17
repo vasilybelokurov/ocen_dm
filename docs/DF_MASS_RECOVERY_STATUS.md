@@ -1,5 +1,9 @@
 # Free-potential DF recovery: current status
 
+!!! note "Historical (2026-09)"
+    Mixture-DF experiment, superseded by the regularized compact DF
+    ([kb/models/base_no_dm.md](kb/models/base_no_dm.md)).
+
 Snapshot: 2026-09-22T21:17:54.948862+00:00. Batch status: **noiseless_gate_not_passed**.
 
 The table reports the latest saved solution in each noiseless fit. Interim and unconverged solutions are not mass measurements.

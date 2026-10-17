@@ -18,13 +18,13 @@ The project has three connected strands:
 
 A joint kinematic-and-tail inference is the long-term goal and is not built.
 
-## Status (2026-10-13)
+## Status (2026-10-17)
 
 | Strand | Where it stands | Read |
 |---|---|---|
-| Cluster mass model | A two-transition DF with Poisson star counts fits the 89 kinematic bins without dark matter (χ²_kin = 156), but fails its own data-fit gate. The data fix the total mass profile (±3% at 20 pc) but not the split between stars and dark mass; that split depends on the assumed stellar mass per counted star. A bias in the count likelihood was fixed on 2026-10-13 and the base model refitted (mass per counted star 10.67 → 10.48 M☉); the dark-matter scans have not been rerun. | [Base model](kb/models/base_no_dm.md), [Models](kb/models/index.md), [write-up (PDF)](df_observed_fit.pdf) |
+| Cluster mass model | A two-transition DF with Poisson star counts fits the 89 kinematic bins without dark matter (χ²_kin = 156), but fails its own data-fit gate. The data fix the total mass profile (±3% at 20 pc) but not the split between stars and dark mass. Fits with a fixed central black hole (8,200 and 4×10⁴ M☉) also fail the gate and do not measure its mass. A refit with completeness-corrected counts and a tied HST/Gaia amplitude ratio changes the predictions by a few per cent (χ²_kin = 159). With those counts a free cored halo goes to zero; Jeans fits with NFW or cored halos show no preference for dark matter with either tracer. The ρ₂₀ profile, mass-per-star and mock scans still use the old (schema-1) counts. | [Base model](kb/models/base_no_dm.md), [DF + black hole](kb/models/df_bh.md), [DM fits](kb/models/dm_fits.md), [write-up (PDF)](df_observed_fit.pdf) |
 | DM survival and tails | N-body tails of a no-DM and a DM model on Omega Cen's orbit agree to 10% in kinematics; the DM model loses 1.3–1.6× fewer stars. Neither difference is testable with published tail data. | [Results](kb/results.md) |
-| Stream 54 | A rotating bar bends the stream part-way; the LMC shifts the distal proper motions by a few tenths of a mas/yr but is absorbed by the cluster's PM. The proper-motion "knee" stars do not connect to the cluster in the tested recent models. | [PM refinement](STREAM_PM_REFINEMENT_2026-10-13.md), [Results](kb/results.md) |
+| Stream 54 | Barred models beat the best axisymmetric model by about 3,300–4,100 in ln L, but none reproduces the steep proper motions of the turn. The LMC shifts the distal proper motions by a few tenths of a mas/yr but is absorbed by the cluster's PM. A paper draft compares the barred models with the axisymmetric null. Fits to the binned tracks disagree with the star-by-star likelihood. That likelihood (legacy score) did not converge with particle number; it now uses fixed χ bins with a jackknife bias correction, and a 9-D emulator training set is running. | [Stream status](kb/stream_status.md), [likelihood versions](kb/models/stream_likelihood_versions.md) |
 
 ## How to navigate
 
