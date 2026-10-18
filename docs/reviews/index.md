@@ -5,6 +5,8 @@ These files moved from `docs/` to `docs/reviews/` on 2026-10-13. Links to `resul
 
 | Date | Review | Subject |
 |---|---|---|
+| 2026-10-18 | [codex_emulator_conclusions_2026-10-18](codex_emulator_conclusions_2026-10-18.md) | Conclusions of the emulator campaign: what the evidence supports, over-claims, caveats |
+| 2026-10-18 | [codex_emulator_review_2026-10-18](codex_emulator_review_2026-10-18.md) | Stochastic-kriging emulator and refinement design: duplicate picks, loader provenance, fold-wise noise model, seeds |
 | 2026-10-17 | [codex_training_set_plan_2026-10-17](codex_training_set_plan_2026-10-17.md) | 9-D emulator training set: calibration tranche first, float64 sprays, per-star score components, provenance hashes |
 | 2026-10-17 | [codex_score_provenance_2026-10-17](codex_score_provenance_2026-10-17.md) | Stream-score version consistency, provenance and the pooled default (adopt S4 only after refitting) |
 | 2026-10-17 | [codex_unbiased_likelihood_2026-10-17](codex_unbiased_likelihood_2026-10-17.md) | Bias and noise of the conditional KDE stream likelihood: replicated randomized integration, delta method, power likelihood |
