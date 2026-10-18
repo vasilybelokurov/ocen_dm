@@ -113,3 +113,10 @@ mkdocs gh-deploy        # publish to GitHub Pages
 The build hook (`docs/hooks/kb.py`) serves `plots/`, generates the [registered sources](data/sources.md) and
 [literature](literature.md) pages from committed files, and points code links
 to GitHub.
+
+## Simulation outputs
+
+Spray, N-body and dynamics outputs are large (about 14 GB) and live outside the repository, in `$OCEN_SIMS` (set in
+`.env`). `results/streams`, `results/nbody` and `results/dynamics` are local links to `$OCEN_SIMS/streams`, `/nbody` and
+`/dynamics`, so the scripts' repository-relative paths still work. On a new machine, create the three links after
+copying the data.
