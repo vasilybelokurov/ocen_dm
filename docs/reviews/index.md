@@ -5,6 +5,7 @@ These files moved from `docs/` to `docs/reviews/` on 2026-10-13. Links to `resul
 
 | Date | Review | Subject |
 |---|---|---|
+| 2026-10-23 | [iteration_readiness_fable_codex_20261023](iteration_readiness_fable_codex_20261023.md) | dm estimator choice and the sky+PM <-> CMD iteration protocol |
 | 2026-10-23 | [mask_smoothing_fable_codex_20261023](mask_smoothing_fable_codex_20261023.md) | Mask track smoothing: spline gap overshoot, clip, orbit-start masks |
 | 2026-10-23 | [dm_iteration_fable_codex_20261023](dm_iteration_fable_codex_20261023.md) | dm(phi1) refit by iteration: background normalisation, null-gated dm estimator |
 | 2026-10-18 | [codex_emulator_conclusions_2026-10-18](codex_emulator_conclusions_2026-10-18.md) | Conclusions of the emulator campaign: what the evidence supports, over-claims, caveats |
