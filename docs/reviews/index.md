@@ -5,6 +5,7 @@ These files moved from `docs/` to `docs/reviews/` on 2026-10-13. Links to `resul
 
 | Date | Review | Subject |
 |---|---|---|
+| 2026-10-24 | [twocomp_modelling_fable_codex_20261024](twocomp_modelling_fable_codex_20261024.md) | Two-component measurement and the modelling likelihood (density likelihood, not knots) |
 | 2026-10-23 | [observable_format_fable_codex_20261023](observable_format_fable_codex_20261023.md) | Format of the observables for model comparison (joint Poisson count cube) |
 | 2026-10-23 | [iteration_readiness_fable_codex_20261023](iteration_readiness_fable_codex_20261023.md) | dm estimator choice and the sky+PM <-> CMD iteration protocol |
 | 2026-10-23 | [mask_smoothing_fable_codex_20261023](mask_smoothing_fable_codex_20261023.md) | Mask track smoothing: spline gap overshoot, clip, orbit-start masks |
