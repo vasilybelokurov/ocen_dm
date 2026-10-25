@@ -84,8 +84,6 @@ nav:
       - Jeans comparison model: kb/models/jeans_comparison.md
       - Dark-matter fits of the reference models: kb/models/dm_fits.md
       - Central black hole, cusp depletion (proposal): kb/models/bh_cusp_depletion.md
-      - Stream likelihood versions: kb/models/stream_likelihood_versions.md
-      - Stream results index: kb/models/stream_results_index.md
       - DF family:
           - Regularized DF implementation: REGULARIZED_DF_IMPLEMENTATION.md
           - Anisotropy diagnostics: DF_ANISOTROPY_DIAGNOSTICS.md
@@ -122,15 +120,7 @@ nav:
           - Lifetime batch report: LIFETIME_BATCH_REPORT.md
           - N-body code assessment: NBODY_CODE_ASSESSMENT.md
           - N-body ICs: NBODY_IC_PROPOSAL.md
-      - Stream 54:
-          - Status (2026-10-18): kb/stream_status.md
-          - PM refinement (2026-10-13): STREAM_PM_REFINEMENT_2026-10-13.md
-          - Knee investigation: STREAM_KNEE_INVESTIGATION.md
-          - Diagnostic plan: STREAM_DIAGNOSTIC_PLAN.md
-          - Fit campaign plan: STREAM_FIT_CAMPAIGN_PLAN.md
-          - Experiments plan: STREAM_EXPERIMENTS_PLAN.md
-          - Stream-fitting methods review: STREAM_FIT_METHODS_REVIEW.md
-          - Stream distances literature: literature/omega_cen_stream_distances_2026-10-10.md
+      - Stream 54 (oCen_stream): https://vasilybelokurov.github.io/ocen_stream/
   - Literature: kb/literature.md
   - Reviews: reviews/index.md
   - Specification: spec.md

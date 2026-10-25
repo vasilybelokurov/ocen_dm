@@ -59,23 +59,4 @@ Shorthands (`OB` = oCen_bar clone, `CAT`) are defined on the [Data products](ind
 
 ## Frames and host variants (stream models)
 
-These are fixed inputs of every stream spray, set in code rather than read from data files.
-
-- **Solar frames** (`src/ocen_dm/streams/frames.py`, `FRAMES`):
-
-  | Frame | R<sub>0</sub> (kpc) | z<sub>⊙</sub> (pc) | V<sub>⊙</sub> (km/s) | ω Cen distance (kpc) |
-  |---|---|---|---|---|
-  | `baumgardt` (default) | 8.178 | 0 | (11.1, 252.24, 7.25) | 5.43 (`cluster.OCEN_DISTANCE_KPC`) |
-  | `ibata19` (Ibata+2019 host) | 8.122 | 17 | (11.1, 232.24, 7.25) | 5.63 |
-
-  V<sub>⊙</sub> is astropy's `galcen_v_sun`. The model (AGAMA) frame flips the sign of x and v<sub>x</sub> relative to astropy's Galactocentric frame.
-- **Cluster reference state** (`src/ocen_dm/cluster.py`, since 2026-10-16): centre (201.69683333, −47.47956944) deg; systemic PM (−3.250, −6.746) ± 0.022 mas/yr; v<sub>los</sub> 232.7 ± 0.2 km/s; distance 5.43 ± 0.05 kpc. Sources are on the [cluster data](cluster.md) page (L3). Runs before 2026-10-16 started from the Baumgardt orbit-table state, which differs by 0.04″ in position, 10⁻⁴ mas/yr in PM and 0.08 km/s in v<sub>los</sub> (`frames.py` docstring).
-- **Axisymmetric host variants** (`src/ocen_dm/streams/mw_variants.py`, `axisymmetric_variant`). The Hunter+2024 axisymmetric baryons (`MWPotentialHunter24_baryon_axi.ini`) plus its dark halo, with:
-  - halo flattening q (`halo_q`, `axisRatioZ`);
-  - disc scale (`disc_scale`), which adds (scale − 1) × the thin and thick stellar discs;
-  - v<sub>c</sub>(R<sub>0</sub> = 8.178 kpc) set through the halo normalisation: kept at the original model's value by default, or set to `vc_target`.
-
-  The bar's non-axisymmetric part, A × (`baryon_full` − `baryon_axi`), is added unchanged.
-- **LMC** (`src/ocen_dm/streams/lmc.py`). Rigid MW and rigid LMC on their mutual orbit, following Vasiliev, Belokurov & Erkal 2021 (Sect. 3.1), without halo deformation. Particles are integrated in the MW-centred frame with the reflex acceleration, so only the tidal LMC field acts. The LMC is a truncated NFW with r<sub>s</sub> = 8.5 (M/10¹¹ M<sub>⊙</sub>)<sup>0.6</sup> kpc, cut off at 10 r<sub>s</sub>; default mass 1.5×10¹¹ M<sub>⊙</sub> (`with_lmc`). Dynamical friction acts on the LMC only. Present-day LMC: ICRS (81.0, −69.75) deg, PM (1.8, 0.35) mas/yr, d = 50 kpc, v<sub>los</sub> = 260 km/s.
-- **Bar size limit** (`bin/streams/training_set.py`). Size S scales the Hunter+2024 bar; at S = 1 its length is R<sub>bar</sub> = 4.25 kpc (the A2 half-peak length; `RBAR_KPC`). In the emulator design S runs from 0.8 to min(1.5, R<sub>CR</sub>/4.25 kpc), so the bar never extends beyond corotation R<sub>CR</sub> of that point's axisymmetric host.
-- **Stream background box.** The uniform background of the stream likelihood is normalised over an explicit box (Δφ<sub>2</sub> −10 to 23 deg) since score S3; see [stream likelihood versions](../models/stream_likelihood_versions.md).
+Moved with the stream code: see [potentials and frames in oCen_stream](https://vasilybelokurov.github.io/ocen_stream/kb/data/potentials/).

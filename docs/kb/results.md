@@ -245,36 +245,6 @@ Reports: [dynamical experiments](../DYNAMICAL_EXPERIMENTS.md),
 [N-body code assessment](../NBODY_CODE_ASSESSMENT.md),
 [N-body ICs](../NBODY_IC_PROPOSAL.md).
 
-## Stream 54 (Fimbulthul) and the proper-motion knee
+## Stream 54 (Fimbulthul) and the Milky Way bar
 
-- Beyond φ1 ≈ 17° the stream bends in Gaia DR3 proper motion. No published
-  model reproduces this, nor do sprays in static McMillan17 or DB98 hosts.
-- A rotating Hunter+2024 bar ([2024A&A...692A.216H](https://ui.adsabs.harvard.edu/abs/2024A%26A...692A.216H/abstract))
-  bends the arm part-way and steepens the pmdec gradient. Barred models beat the
-  best axisymmetric model by about 3300–4100 in ln L; the distal PM residual
-  remains (pmdec too shallow by 1.2–1.8 mas/yr at φ1 = 23–27°).
-- The bar angle is not yet constrained. The 16° − 28° gap was +285 (score S2,
-  32,000 epochs, held-out seeds) but shrinks with particle number: +98 ± 18 at
-  512,000 epochs (pooled score), still falling.
-- The original likelihood did not converge with particle number. It is replaced
-  by fixed χ bins with a jackknife bias correction, and a 9-parameter emulator
-  training set is running. Details and versions:
-  [stream status (2026-10-17)](stream_status.md).
-- The LMC (rigid MW + LMC, reflex frame, benchmarked against the Tango
-  N-body runs of [Vasiliev, Belokurov & Erkal 2021](https://ui.adsabs.harvard.edu/abs/2021MNRAS.501.2279V/abstract)) shifts distal pmra by 0.2–0.6 mas/yr, but a 0.03–0.05 mas/yr
-  change in Omega Cen's PM absorbs it.
-- Spiral forcing, the conditional likelihood's density dependence, the
-  Chen et al. 2025 escape law ([arXiv:2408.01496](https://arxiv.org/abs/2408.01496))
-  and both launch arms do not remove the mismatch (score S2).
-- Backtracked in the barred host, the 13 knee RV stars connect to the cluster
-  much worse than model controls (1.9–2.0 against ~1.1). This is a mismatch in
-  the recent (≤ 700 Myr) fixed-potential models tested, not yet an exclusion.
-
-Reports: [stream status](stream_status.md) (current),
-[PM refinement](../STREAM_PM_REFINEMENT_2026-10-13.md) (2026-10-13),
-[knee investigation](../STREAM_KNEE_INVESTIGATION.md),
-[diagnostic plan](../STREAM_DIAGNOSTIC_PLAN.md),
-[fit campaign plan](../STREAM_FIT_CAMPAIGN_PLAN.md),
-[experiments plan](../STREAM_EXPERIMENTS_PLAN.md),
-[stream-fitting methods review](../STREAM_FIT_METHODS_REVIEW.md),
-[stream distances literature](../literature/omega_cen_stream_distances_2026-10-10.md).
+Since 2026-10-25 the stream work has its own project and site, [oCen_stream](https://vasilybelokurov.github.io/ocen_stream/) (code: https://github.com/vasilybelokurov/ocen_stream). Its status, reports and reviews moved there.

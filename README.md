@@ -37,6 +37,9 @@ the current results and the literature. Its sources are in
   bias correction, and a 9-D emulator training set is running.
   [Stream status](docs/kb/stream_status.md),
   [likelihood versions](docs/kb/models/stream_likelihood_versions.md).
+  On 2026-10-25 the stream code (`ocen_dm.streams`, `bin/streams/`) and its
+  tests moved to a separate repository, oCen_stream (package `ocen_stream`);
+  the stream pages here describe the state up to that date.
 
 Details: [results](docs/kb/results.md).
 
@@ -66,8 +69,7 @@ src/ocen_dm/kinematics/  estimators, Jeans and DF engines, likelihoods, fits
 src/ocen_dm/mass_models/ stellar, remnant, point-mass and halo components
 src/ocen_dm/tails/       orbital histories and survival models
 src/ocen_dm/dynamics/    remnant/progenitor initial conditions and evolution
-src/ocen_dm/streams/     restricted N-body, particle spray, barred/LMC hosts, stream likelihoods
-bin/, bin/streams/       drivers, experiments and plotting scripts
+bin/                     drivers, experiments and plotting scripts
 results/                 fits and diagnostics (not committed)
 plots/                   PNG figures
 docs/                    knowledge base, reports, LaTeX write-ups, reviews

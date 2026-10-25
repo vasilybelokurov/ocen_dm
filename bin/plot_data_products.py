@@ -11,11 +11,9 @@ Figures (plots/data_<name>.png):
               rotation curve (median, 16-84 and 2-98 per cent) and the MUSE LOS rotation;
   counts      the Poisson star-count products (HST F625W<19, Gaia G<17): surface number
               density with Poisson errors, stars per bin and footprint coverage;
-  stream54    STREAMFINDER (Ibata+2024) stream 54 members: sky, proper motions and radial
-              velocities along the stream (chord great-circle frame phi1).
-Needs $OCEN_CATALOGUES for the stream figure.
+The stream-54 figure (plots/data_stream54.png) moved with the stream code to oCen_stream on 2026-10-25.
 
-Usage: python bin/plot_data_products.py [--only kinematics,rotation,counts,stream54]
+Usage: python bin/plot_data_products.py [--only kinematics,rotation,counts]
 """
 from __future__ import annotations
 
@@ -140,40 +138,9 @@ def counts():
     return fig
 
 
-def stream54():
-    from ocen_dm.streams.path import project_gc
-    import astropy.coordinates as coord
-    t = Table.read(os.path.expandvars("$OCEN_CATALOGUES/streamfinder_ibata2024_dr3.fits"))
-    t = t[np.asarray(t["Stream"]) == 54]
-    g = coord.SkyCoord(np.asarray(t["RAdeg"], float), np.asarray(t["DEdeg"], float), unit="deg").galactic
-    l = np.where(g.l.deg > 180, g.l.deg-360, g.l.deg)
-    b = g.b.deg
-    GC = json.loads((ROOT/"results/plot_data/stream54_gc_frame_chord.json").read_text())
-    phi1, phi2 = project_gc(l, b, GC)
-    rv = np.asarray(t["VHel"], float)
-    has_rv = np.asarray(t["e_VHel"], float) < 300
-    fig, axs = plt.subplots(2, 2, figsize=(14, 9), constrained_layout=True)
-    ax = axs[0, 0]
-    sc = ax.scatter(l, b, c=np.asarray(t["Gmag"], float), s=3, cmap="viridis_r")
-    ax.plot(309.10-360, 14.97, "r*", ms=12, label=r"$\omega$ Cen")
-    ax.set(xlabel="l [deg]", ylabel="b [deg]", title=f"Stream 54 members on the sky ({len(t)}; colour: G)")
-    ax.invert_xaxis()
-    fig.colorbar(sc, ax=ax, label="G [mag]")
-    ax.legend(fontsize=8)
-    for ax, col, lab in ((axs[0, 1], "pmRA", r"$\mu_{\alpha*}$"), (axs[1, 0], "pmDE", r"$\mu_\delta$")):
-        ax.scatter(phi1, np.asarray(t[col], float), s=3, color="k", alpha=0.5)
-        ax.set(xlabel=r"$\phi_1$ [deg] (chord great-circle frame)", ylabel=f"{lab} [mas/yr]",
-               title=f"{lab} along the stream")
-    ax = axs[1, 1]
-    ax.scatter(phi1[has_rv], rv[has_rv], s=14, color="C3")
-    ax.set(xlabel=r"$\phi_1$ [deg]", ylabel=r"$v_{\rm hel}$ [km/s]", title=f"Radial velocities ({int(has_rv.sum())} members)")
-    fig.suptitle("STREAMFINDER (Ibata+2024) stream 54 (Fimbulthul): the data the stream models are fitted to")
-    return fig
-
-
 def main():
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--only", default="kinematics,rotation,counts,stream54")
+    p.add_argument("--only", default="kinematics,rotation,counts")
     a = p.parse_args()
     for name in a.only.split(","):
         fig = globals()[name]()
