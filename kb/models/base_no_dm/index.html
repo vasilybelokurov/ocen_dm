@@ -2444,81 +2444,15 @@
   
   
   
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Stream 54
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_5">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Stream 54
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
     <li class="md-nav__item">
-      <a href="../../../STREAM_PM_REFINEMENT_2026-10-13/" class="md-nav__link">
+      <a href="https://vasilybelokurov.github.io/ocen_stream/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    PM refinement (current)
+    Stream 54 (oCen_stream)
   
 
     
@@ -2527,182 +2461,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../STREAM_KNEE_INVESTIGATION/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Knee investigation
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../STREAM_DIAGNOSTIC_PLAN/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Diagnostic plan
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../STREAM_FIT_CAMPAIGN_PLAN/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Fit campaign plan
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../STREAM_EXPERIMENTS_PLAN/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Experiments plan
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../STREAM_FIT_METHODS_REVIEW/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Stream-fitting methods review
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../literature/omega_cen_stream_distances_2026-10-10/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Stream distances literature
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -3014,9 +2772,12 @@
 
 
 <h1 id="base-model-two-transition-df-no-dark-matter">Base model: two-transition DF, no dark matter<a class="headerlink" href="#base-model-two-transition-df-no-dark-matter" title="Permanent link">&para;</a></h1>
-<p>The reference model for the cluster mass distribution. Every dark-matter
-variant is compared with it.
-The same model with a fixed central black hole is on <a href="../df_bh/">DF + central black hole</a>.</p>
+<p>The DF model of the cluster mass distribution, in two fits: the 2026-10-13 base
+fit (free count amplitudes, below) and the
+<a href="#refit-with-completeness-corrected-counts-and-tied-amplitudes-2026-10-16">tied, completeness-corrected refit</a>
+of 2026-10-16. The tied refit is the reference DF fit from 2026-10-16 on; the
+<a href="../dm_fits/">dark-matter fits</a> are built on it. The base fit is the parent of
+the fixed-black-hole fits on <a href="../df_bh/">DF + central black hole</a>.</p>
 <div class="admonition info">
 <p class="admonition-title">Status (2026-10-13)</p>
 <p>Refitted on 2026-10-13 with the corrected (area-weighted) count
@@ -3027,9 +2788,18 @@ its own data-fit gate</strong>. It supersedes the 2026-09-23 fit
 were biased; parameters moved by ≤ 4% and the mass per counted star by
 −1.8%.</p>
 </div>
+<div class="admonition info">
+<p class="admonition-title">Status (2026-10-16)</p>
+<p>Superseded as the reference DF fit by the
+<a href="#refit-with-completeness-corrected-counts-and-tied-amplitudes-2026-10-16">tied, completeness-corrected refit</a>
+(<code>results/df/dftie_restart_20261016</code>, objective 295.77). Its predictions
+differ from this fit by a few per cent; M_rem falls by 27 %. This fit stays
+the parent of the <a href="../df_bh/">black-hole fits</a>, which have not been redone
+with the tied counts.</p>
+</div>
 <h2 id="all-parameters">All parameters<a class="headerlink" href="#all-parameters" title="Permanent link">&para;</a></h2>
 <p>The fit is a multi-start optimisation (no posterior sampling), so best-fit
-values are given without uncertainties; mocks drawn from this model recover
+(maximum-likelihood, ML) values are given without uncertainties; mocks drawn from this model recover
 <span class="arithmatex">\(M_\star\)</span> to ±6% and <span class="arithmatex">\(M_{\rm rem}\)</span> to ±23% (see below).</p>
 <p><strong>Free parameters (10)</strong></p>
 <table>
@@ -3195,8 +2965,8 @@ values are given without uncertainties; mocks drawn from this model recover
 </thead>
 <tbody>
 <tr>
-<td>Total mass</td>
-<td>3.26×10⁶ M☉</td>
+<td>Total mass, M<sub>★</sub> + M<sub>rem</sub> (best fit)</td>
+<td>3.27×10⁶ M☉ (M(&lt;100 pc) = 3.26×10⁶)</td>
 </tr>
 <tr>
 <td>Mass per F625W &lt; 19 star</td>
@@ -3259,7 +3029,7 @@ values are given without uncertainties; mocks drawn from this model recover
 </table>
 <h3 id="stellar-df">Stellar DF<a class="headerlink" href="#stellar-df" title="Permanent link">&para;</a></h3>
 <p>The regularized exponential action DF (contour construction of Binney 2026,
-MNRAS 549, stag854), rebuilt at every iteration and iterated to
+MNRAS 549, stag854, <a href="https://doi.org/10.1093/mnras/stag854">doi:10.1093/mnras/stag854</a>), rebuilt at every iteration and iterated to
 self-consistency in the total potential (stars + remnants):</p>
 <div class="arithmatex">\[
 f(\mathbf J)=A\,\exp\!\left[-\left(L_c/J_0\right)^{\alpha}\right],
@@ -3386,7 +3156,7 @@ pc, and dominates the mass inside ~1.5 pc (60% inside 1 pc).</p>
 </tr>
 <tr>
 <td>Gaia counts</td>
-<td>Vasiliev &amp; Baumgardt 2021, G &lt; 17, 12 bins over 300–2400″</td>
+<td>Vasiliev &amp; Baumgardt 2021 (<a href="https://ui.adsabs.harvard.edu/abs/2021MNRAS.505.5978V">2021MNRAS.505.5978V</a>), G &lt; 17, 12 bins over 300–2400″</td>
 <td>Poisson, amplitude and uniform field profiled</td>
 </tr>
 <tr>
@@ -3488,15 +3258,15 @@ dispersions against the 2026-10-13 (blue) and 2026-09-23 (orange) fits,
 with the earlier Jeans model (dashed). Bottom row: residuals; the count
 panel shows signed Poisson deviance residuals. Both fits are evaluated with
 the corrected count likelihood.</em></p>
-<p>The two count profiles do not join, by design: they are different selections in their own units. HST counts are oMEGACat stars with F625W &lt; 19 at 2–250″; Gaia counts are stars with G &lt; 17 at 300–2400″. The brighter Gaia limit counts about 14 times fewer stars per unit stellar mass, so each profile has its own fitted count amplitude (a<sub>HST</sub>, a<sub>Gaia</sub>), and the Gaia model also includes a uniform field of about 1.6 stars arcmin⁻². The model curves are the same stellar surface density scaled by each amplitude. The gap between 250″ and 300″ is a gap in coverage. Their ratio has been measured where the two catalogues overlap: see <a href="../../data/cluster/#ratio-of-the-two-count-products-in-the-overlap-2026-10-16">the count-ratio check</a>. Corrected for completeness, the fitted ratio is 13–15 % higher than expected (13.5–13.7 against 11.95 ± 0.3).</p>
+<p>The two count profiles do not join, by design: they are different selections in their own units. HST counts are oMEGACat stars with F625W &lt; 19 at 2–250″; Gaia counts are stars with G &lt; 17 at 300–2400″. The brighter Gaia limit counts fewer stars per unit stellar mass: the fitted amplitude ratio a<sub>HST</sub>/a<sub>Gaia</sub> is 13.7 (free amplitudes, raw counts), while the measured ratio is 11.42 ± 0.23 for complete samples, i.e. 11.95 ± 0.3 expected for the raw counts once Gaia's completeness is folded in. Each profile has its own fitted count amplitude (a<sub>HST</sub>, a<sub>Gaia</sub>), and the Gaia model also includes a uniform field of about 1.6 stars arcmin⁻². The model curves are the same stellar surface density scaled by each amplitude. The gap between 250″ and 300″ is a gap in coverage. Measurement: <a href="../../data/cluster/#ratio-of-the-two-count-products-in-the-overlap-2026-10-16">the count-ratio check</a>. The fitted ratio is 13–15 % higher than expected (13.5–13.7 against 11.95 ± 0.3).</p>
 <h2 id="comparison-with-the-jeans-model-dashed-curves">Comparison with the Jeans model (dashed curves)<a class="headerlink" href="#comparison-with-the-jeans-model-dashed-curves" title="Permanent link">&para;</a></h2>
 <p>Full description, figures and posterior: <a href="../jeans_comparison/">Jeans comparison model</a>.</p>
 <p>The dashed curves are the best rung-2 spherical Jeans fit without dark matter
-(<code>results/fits/rung2_K1_turnover</code>), the best model of the earlier
+(<code>results/fits/rung2_K1_turnover</code>, J-Trager), the best no-DM model of the earlier
 <a href="../#earlier-spherical-jeans-ladder-historical">Jeans ladder</a>.
 Both models are fitted to the same 89-bin kinematic snapshot, so their
 kinematic χ² compare directly; the Jeans fit uses a fixed light profile (an MGE
-of the Trager+1995 profile joined to HST star counts) instead of the Poisson
+of the Trager+1995 profile, <a href="https://ui.adsabs.harvard.edu/abs/1995AJ....109..218T">1995AJ....109..218T</a>, joined to HST star counts) instead of the Poisson
 star counts.</p>
 <table>
 <thead>
@@ -3524,23 +3294,23 @@ star counts.</p>
 </tr>
 <tr>
 <td>Central black hole</td>
-<td>4.4×10⁴ M☉ (16–84%: 3.9–4.6×10⁴)</td>
+<td>4.41×10⁴ M☉ (ML); 4.25 (3.92–4.58)×10⁴ (median, 16–84%)</td>
 <td>none</td>
 </tr>
 <tr>
 <td><span class="arithmatex">\(M_\star\)</span></td>
-<td>2.37×10⁶ M☉</td>
-<td>3.00×10⁶ M☉</td>
+<td>2.37×10⁶ M☉ (ML)</td>
+<td>3.00×10⁶ M☉ (best fit)</td>
 </tr>
 <tr>
 <td>Remnants (Plummer)</td>
-<td>7.7×10⁵ M☉, a = 5.7 pc</td>
-<td>2.7×10⁵ M☉, a = 2.2 pc</td>
+<td>7.7×10⁵ M☉, a = 5.7 pc (ML)</td>
+<td>2.7×10⁵ M☉, a = 2.2 pc (best fit)</td>
 </tr>
 <tr>
-<td>Total mass</td>
-<td>3.18×10⁶ M☉</td>
-<td>3.26×10⁶ M☉</td>
+<td>Total mass, M<sub>★</sub> + M<sub>rem</sub> + M<sub>BH</sub></td>
+<td>3.18×10⁶ M☉ (ML); 3.24×10⁶ (median)</td>
+<td>3.27×10⁶ M☉ (best fit)</td>
 </tr>
 <tr>
 <td><span class="arithmatex">\(M_\star/L_V\)</span>, <span class="arithmatex">\(M_{\rm tot}/L_V\)</span></td>
@@ -3596,8 +3366,10 @@ star counts.</p>
 </tbody>
 </table>
 <ul>
-<li><strong>The DF fits better overall</strong> (Δχ² = 34) and in every dataset except the
-  HST tangential proper motions.</li>
+<li><strong>The DF fits better than J-Trager overall</strong> (Δχ² = 34) and in every dataset
+  except the HST tangential proper motions. The Jeans twin with the star-count
+  tracer (<a href="../jeans_comparison/#twin-model-with-the-star-count-tracer-j-counts-2026-10-16">J-counts</a>)
+  reaches χ² = 152.2, below the DF's 156.4 (and the tied refit's 159.4).</li>
 <li><strong>The Jeans model follows the central rise</strong> of the HST proper-motion
   dispersions inside 0.3 pc (~11″), which the DF, with an isotropic core and
   no black hole, stays below by 1.5–2.4σ in several bins: χ² = 7.3 (Jeans)
@@ -3624,9 +3396,12 @@ star counts.</p>
   black hole and the imposed central anisotropy) take their share. The
   remnant mass is close to the total minus <span class="arithmatex">\(M_\star\)</span>, so with remnants at
   8–17% of the total, a 1% change in <span class="arithmatex">\(M_\star\)</span> moves <span class="arithmatex">\(M_{\rm rem}\)</span> by ~10%.</li>
-<li>A central black hole was not supported by the DF fits on binned data
-  (September step 3); whether the inner rise needs one, or radially biased
-  central orbits, or mass segregation, is not settled.</li>
+<li><strong>A central black hole in the DF</strong> (<a href="../df_bh/">DF + central black hole</a>,
+  2026-10-15, fixed masses): 8,200 M☉ lowers the objective by 5.5; 4×10⁴ M☉
+  lowers χ²_kin by 12 but loses 15 in the HST counts (objective −1.0). The
+  differences are not calibrated with mocks. Whether the inner rise needs a
+  black hole, radially biased central orbits or mass segregation is not
+  settled.</li>
 </ul>
 <h2 id="refit-with-completeness-corrected-counts-and-tied-amplitudes-2026-10-16">Refit with completeness-corrected counts and tied amplitudes (2026-10-16)<a class="headerlink" href="#refit-with-completeness-corrected-counts-and-tied-amplitudes-2026-10-16" title="Permanent link">&para;</a></h2>
 <p>This refit uses the same model, data and settings, with two changes to the count likelihood:</p>
@@ -3765,9 +3540,9 @@ star counts.</p>
 <td>11.20 M<sub>⊙</sub> (complete sample)</td>
 </tr>
 <tr>
-<td>Total mass</td>
-<td>3.26×10⁶ M<sub>⊙</sub></td>
+<td>Total mass, M<sub>★</sub> + M<sub>rem</sub> (best fit)</td>
 <td>3.27×10⁶ M<sub>⊙</sub></td>
+<td>3.28×10⁶ M<sub>⊙</sub></td>
 </tr>
 <tr>
 <td>Half-mass radius: stars 3-D, projected; remnants</td>
@@ -3785,7 +3560,7 @@ star counts.</p>
 <ul>
 <li><strong>The predictions change by a few per cent at most.</strong> The kinematic curves overlap. With the ratio tied, the Gaia counts at 15–30 pc lie 3–4σ above the model, i.e. 3–4 % in a bin of about 1,000 stars. The outermost HST bin improves.</li>
 <li><strong>The parameters move much more.</strong> M<sub>rem</sub> drops by 27 % and the anisotropy changes, while the total mass stays the same. These parameters are therefore only weakly fixed by the data: a few per cent in the predictions trades against tens of per cent in them.</li>
-<li><strong>The DF's outer envelope is too rigid.</strong> One smooth profile does fit both count sets with the measured ratio: the MGE of the <a href="../jeans_comparison/#twin-model-with-the-star-count-tracer-j-counts-2026-10-16">Jeans twin</a> has Gaia deviance 13.5 over 12 bins. The DF's outer envelope cannot quite reproduce it.</li>
+<li><strong>The DF's outer envelope may be too rigid (untested).</strong> One smooth profile does fit both count sets with the measured ratio: the MGE of the <a href="../jeans_comparison/#twin-model-with-the-star-count-tracer-j-counts-2026-10-16">Jeans twin</a> has Gaia deviance 13.5 over 12 bins, against 45.9 for the tied DF refit.</li>
 </ul>
 <p><strong>Properties of the tied model</strong></p>
 <p><img alt="Components, tied refit" src="../../../plots/dftie_model_20261016_components.png" /></p>
@@ -3854,6 +3629,7 @@ directory is never reused.</p>
 (driver).</p>
 <h2 id="related-results">Related results<a class="headerlink" href="#related-results" title="Permanent link">&para;</a></h2>
 <ul>
+<li>Dark-matter fits of the reference models (2026-10-16): <a href="../dm_fits/">Dark-matter fits</a>.</li>
 <li>Dark-matter variants and the <span class="arithmatex">\(\rho_{20}\)</span> and mass-per-star scans:
   <a href="../../../df_observed_fit.pdf">DF observed fit write-up</a>.</li>
 <li>Review of next steps: <a href="../../../reviews/codex_mass_model_next_2026-10-13/">Codex review, 2026-10-13</a>.</li>

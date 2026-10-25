@@ -2236,81 +2236,15 @@
   
   
   
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Stream 54
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_5">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Stream 54
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
     <li class="md-nav__item">
-      <a href="../../../STREAM_PM_REFINEMENT_2026-10-13/" class="md-nav__link">
+      <a href="https://vasilybelokurov.github.io/ocen_stream/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    PM refinement (current)
+    Stream 54 (oCen_stream)
   
 
     
@@ -2319,182 +2253,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../STREAM_KNEE_INVESTIGATION/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Knee investigation
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../STREAM_DIAGNOSTIC_PLAN/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Diagnostic plan
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../STREAM_FIT_CAMPAIGN_PLAN/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Fit campaign plan
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../STREAM_EXPERIMENTS_PLAN/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Experiments plan
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../STREAM_FIT_METHODS_REVIEW/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Stream-fitting methods review
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../literature/omega_cen_stream_distances_2026-10-10/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Stream distances literature
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -2627,17 +2385,18 @@
 
 
 <h1 id="known-gaps-and-inconsistencies">Known gaps and inconsistencies<a class="headerlink" href="#known-gaps-and-inconsistencies" title="Permanent link">&para;</a></h1>
-<p>Found in the 2026-10-13 audit. Each item is open unless marked otherwise.</p>
+<p>Found in the 2026-10-13 audit and updated on 2026-10-17. Each item is open unless marked otherwise.</p>
 <ol>
-<li><strong>Baseline counts use the old (schema-1) products.</strong> <em>In progress.</em></li>
-<li><code>dftwo_counts_20260923</code>, <code>rho20scan_*</code> and <code>mpsscan_*</code> used schema-1 counts (star-weighted bin average, biased; see <code>counts.py</code>). Their frozen inputs still replay exactly; the old products are kept as <code>*_schema1_20260923.*</code>.</li>
-<li>The canonical <code>ocen_counts_*.json</code> are schema 2 since commit <code>1af8c33</code>. The base model was refitted with them on 2026-10-13 (<code>results/df/dftwo_counts_area_20261013</code>); the scans have not been rerun.</li>
+<li><strong>Scans still on the old (schema-1) count products.</strong> <em>In progress.</em></li>
+<li><code>dftwo_counts_20260923</code>, <code>rho20scan_*</code>, <code>mpsscan_*</code> and the 2026-09-23 mocks used schema-1 counts (star-weighted bin average, biased; see <code>counts.py</code>). Their frozen inputs still replay exactly; the old products are kept as <code>*_schema1_20260923.*</code>.</li>
+<li>The canonical <code>ocen_counts_*.json</code> are schema 2 since commit <code>1af8c33</code>. The base model was refitted with them on 2026-10-13 (<code>results/df/dftwo_counts_area_20261013</code>, the reference fit), and again with completeness-corrected, tied counts on 2026-10-16 (<code>results/df/dftie_restart_20261016</code>).</li>
+<li>The halo test was redone with the tied counts (<code>results/df/dftie_halo_20261016</code>: the halo goes to zero). The <code>rho20scan_*</code> profile, the <code>mpsscan_*</code> mass-per-star scan and the mocks have not been rerun.</li>
 <li><strong>Docstring and metadata drift.</strong></li>
 <li><em>Fixed 2026-10-13:</em> the <code>bin/build_count_profiles.py</code> docstring described the old quantile nodes.</li>
 <li><code>selection/field_template.py:107</code> writes <code>"parallax_over_error_max": 5</code> into the product's <code>cuts</code> metadata, but no parallax cut is applied (<code>parallax_cut: none</code>). The metadata is misleading.</li>
 <li><code>likelihood.py:251 _edr3_ours</code> admits that its note string describes an obsolete construction.</li>
 <li><strong>Stale provenance records.</strong></li>
-<li><code>provenance/manifest.json</code> and <code>checksums.txt</code> list <code>vasiliev2021_gc_members/clusters.zip</code> at <code>data/raw/vasiliev2021_gc_members/clusters.zip</code>. That directory is empty, and the copy actually used is the external <code>&lt;code&gt;/apogee_halo_rotation/.../vasiliev_baumgardt_2021_clusters.zip</code>.</li>
+<li>The VB21 zip is read from <code>$OCEN_CATALOGUES/vasiliev_baumgardt_2021_clusters.zip</code> (manifest message "canonical store"). <code>provenance/manifest.json</code> and <code>checksums.txt</code> still keep a stale row for <code>vasiliev2021_gc_members/clusters.zip</code> at <code>data/raw/vasiliev2021_gc_members/</code>, which is empty.</li>
 <li>The manifest also keeps an obsolete <code>kuzma2026_members.*</code> row with status <code>manual</code> and <code>exists=false</code>, next to the real <code>kuzma2026_members.txt</code> entry.</li>
 <li><code>data/raw/baumgardt_gc_catalogue/</code> is empty because the file is referenced from <code>CAT</code>, which is intended.</li>
 <li>The T3 product's <code>ocen_raw.manifest</code> says <code>unregistered</code>, because it was built before the manifest entry existed.</li>
@@ -2656,26 +2415,25 @@
 <li>S5 XP pulls.</li>
 <li>The S1 MRT→FITS conversion, which has no checksum for the FITS.</li>
 <li><strong>External path dependencies outside the repository and CAT.</strong></li>
-<li>The VB21 zip under <code>&lt;code&gt;/apogee_halo_rotation</code>.</li>
-<li>The oCen_bar potentials and GSE contours under <code>OB</code>, reached through two different path conventions.</li>
+<li><em>Fixed:</em> the VB21 zip is now in <code>CAT</code>.</li>
+<li><em>Fixed:</em> the oCen_bar potentials and GSE contours under <code>OB</code> are reached through one convention, <code>$OCEN_BAR_DIR</code> (<code>streams/restricted.py:37</code>, <code>tails/bar_migration.py:25</code>).</li>
 <li>McMillan17 from the installed AGAMA package, so results depend on the AGAMA version.</li>
 <li><strong>Inconsistent systemic values across modules.</strong> <em>Resolved 2026-10-16.</em></li>
 <li><code>cluster.py</code> is now the single reference for centre, systemic PM, v_los and distance, with published sources (see <a href="../cluster/">cluster data</a>); about 110 typed-in copies in 47 files import it, and <code>tests/test_cluster_reference.py</code> bans new ones.</li>
 <li>Products built before that date keep the values they were built with (e.g. the K8 template frame, (−3.2514, −6.7444) from K6, v_los 232.6).</li>
 <li><strong>Selection inconsistencies within the light and tracer chain.</strong></li>
 <li>L2 (Jeans tracer and K4 depth term) uses oMEGACat <code>selection_hq_f625w</code> star counts inside 25″.</li>
-<li>C1 (DF baseline) deliberately avoids that flag as 12–15 % radially incomplete.</li>
+<li>C1 (DF reference fit) deliberately avoids that flag as 12–15 % radially incomplete.</li>
 <li>K10 <code>hst_quality</code> uses a flag that contains a CMD cut (project journal, 2026-10-08; flagged and not changed).</li>
 <li><strong>Unverified references</strong> (per <code>datasets.yaml</code> or the project journal):</li>
 <li>Trager 1995 ADS link (<code>verified: false</code>).</li>
 <li>Baumgardt+2019 DOI (<code>verified: false</code>).</li>
 <li>Baumgardt GC database version.</li>
 <li>Kuzma+2021 (registered, no data, <code>verified: false</code>).</li>
-<li>Hunter+2024 paper.</li>
 <li>Origins of the Portail17 and MWPotential2014_mod .ini files.</li>
 <li>GSE contours.</li>
-<li>Andrae+2023 reference.</li>
 <li>The meaning of the VB21 profile <code>undocumented_col12</code>.</li>
+<li><em>Resolved 2026-10-17:</em> Hunter+2024 (2024A&amp;A...692A.216H) and Andrae+2023 (2023ApJS..267....8A), from <code>docs/kb/literature.json</code>.</li>
 <li><strong>Registered or present but unused.</strong><ul>
 <li>The O1 oMEGACat files: alternative binnings, equipartition, <code>.dat</code> twins, notebook.</li>
 <li>S3 STREAMFINDER 2021.</li>
@@ -2695,9 +2453,13 @@
 <li>Run directories freeze their inputs (<code>data_snapshot.json</code>, count JSON with sha256), which protects the recorded runs.</li>
 </ul>
 </li>
-<li><strong>Heavy and uncommitted items.</strong><ul>
-<li><code>results/streams/m5_gaia_knee.npz</code> (242 MB) is a one-off diagnostic cache.</li>
-<li><code>bin/streams/fit_bar_ocen.py</code> has uncommitted edits, and <code>check_stream_coordinate.py</code> (a consumer of S4) is untracked.</li>
+<li><strong>Untracked items.</strong><ul>
+<li><code>bin/streams/check_stream_coordinate.py</code> (a consumer of S4) is untracked.</li>
+</ul>
+</li>
+<li><strong>Unregistered input in a likelihood.</strong><ul>
+<li>The HST Large Programme fields (S9, <code>CAT/omegacen_hst_lp/</code>) are registered in <code>configs/data.yaml</code> only, not in <code>provenance/datasets.yaml</code>.</li>
+<li>Since 2026-10-16 they set the Gaia count completeness (0.955 from 350″ out) in <code>ocen_counts_gaia_g17_c.json</code>, which enters the tied DF fits and the J-counts Jeans fits. Their sha256 values are only in <code>README_provenance.txt</code> next to the files.</li>
 </ul>
 </li>
 </ol>

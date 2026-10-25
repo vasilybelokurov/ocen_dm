@@ -2238,81 +2238,15 @@
   
   
   
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Stream 54
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_5">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Stream 54
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
     <li class="md-nav__item">
-      <a href="../STREAM_PM_REFINEMENT_2026-10-13/" class="md-nav__link">
+      <a href="https://vasilybelokurov.github.io/ocen_stream/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    PM refinement (current)
+    Stream 54 (oCen_stream)
   
 
     
@@ -2321,182 +2255,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../STREAM_KNEE_INVESTIGATION/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Knee investigation
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../STREAM_DIAGNOSTIC_PLAN/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Diagnostic plan
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../STREAM_FIT_CAMPAIGN_PLAN/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Fit campaign plan
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../STREAM_EXPERIMENTS_PLAN/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Experiments plan
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../STREAM_FIT_METHODS_REVIEW/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Stream-fitting methods review
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../literature/omega_cen_stream_distances_2026-10-10/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Stream distances literature
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -2629,6 +2387,14 @@
 
 
 <h1 id="dynamical-pilot-batch-21-september-2026">Dynamical pilot batch: 21 September 2026<a class="headerlink" href="#dynamical-pilot-batch-21-september-2026" title="Permanent link">&para;</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Historical (2026-09)</p>
+<p>The particle snapshots of this batch were deleted on 2026-10-08 (list in
+<code>results/maintenance/deleted_dynamics_snapshots_20261008.txt</code>); summaries,
+diagnostics and logs are kept.
+The reproduction command below reads those snapshots, so rerunning it needs
+the batch itself to be rerun.</p>
+</div>
 <p>The detailed write-up is available as a <a href="../dynamical_batch.pdf">PDF</a>,
 <a href="../dynamical_batch.tex">LaTeX source</a>, and a
 <a href="https://github.com/vasilybelokurov/ocen_dm/blob/main/output/source/dynamical_batch_latex.zip">portable LaTeX archive with figures</a>.
@@ -2953,7 +2719,7 @@ apocentre, without prior tidal relaxation. The progenitor batch contains no tida
 evolution yet. No new evolution was launched during this analysis.</p>
 <p><strong>Reproduction and audit.</strong> The analysis script is
 <a href="https://github.com/vasilybelokurov/ocen_dm/blob/main/bin/analyse_dynamical_batch.py"><code>bin/analyse_dynamical_batch.py</code></a>. Run it from
-the project root in the existing environment, with a fresh output directory:</p>
+the project root in the existing environment, with a fresh output directory (since 2026-10-08 this needs the batch to be rerun first: the snapshots it reads were deleted):</p>
 <div class="highlight"><pre><span></span><code><span class="nv">PYTHONDONTWRITEBYTECODE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span>src<span class="w"> </span><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">OPENBLAS_NUM_THREADS</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span><span class="nv">MPLCONFIGDIR</span><span class="o">=</span>/tmp/ocen-nbody-mpl<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>python<span class="w"> </span>bin/analyse_dynamical_batch.py<span class="w"> </span><span class="se">\</span>

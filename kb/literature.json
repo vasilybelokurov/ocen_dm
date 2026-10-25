@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-13",
+ "generated": "2026-10-17",
  "note": "Curated from repository citations; identifiers checked in ADS/SciX. Tangential and erroneous entries are listed but not in the SciX library.",
  "papers": [
   {
@@ -1756,6 +1756,20 @@
    "needs_resolution": false
   },
   {
+   "arxiv": "1701.08515",
+   "doi": "10.1093/biomet/asx010",
+   "bibcode": "2017arXiv170108515H",
+   "cite": "Holmes & Walker 2017",
+   "title": "Assigning a value to a power likelihood in a general Bayesian model",
+   "topic": "stream-fitting-methods",
+   "relevance": "context",
+   "files": [
+    "docs/reviews/codex_unbiased_likelihood_2026-10-17.md:104"
+   ],
+   "note": "Likelihood calibration / tempering (power likelihood). Biometrika 104, 497; ADS has only the arXiv record; DOI resolves to Biometrika.",
+   "needs_resolution": false
+  },
+  {
    "arxiv": "1812.08172",
    "doi": "10.1093/mnras/stz457",
    "bibcode": "2019MNRAS.485.4726K",
@@ -2142,61 +2156,61 @@
    "needs_resolution": false
   },
   {
-   "arxiv": "",
-   "doi": "",
-   "bibcode": "",
+   "arxiv": "1802.03578",
+   "doi": "10.3847/1538-3881/aaadab",
+   "bibcode": "2018AJ....155..137B",
    "cite": "Braga et al. 2018",
-   "title": "",
+   "title": "On the RR Lyrae Stars in Globulars. V. The Complete Near-infrared (JHKs) Census of omega Centauri RR Lyrae Variables",
    "topic": "data-source",
    "relevance": "tangential",
    "files": [
     "docs/literature/omega_cen_stream_distances_2026-10-10.md:12"
    ],
-   "note": "omega Cen distance 5630 pc quoted via Ibata+2019",
-   "needs_resolution": true
+   "note": "omega Cen distance 5630 pc quoted via Ibata+2019; Resolved 2026-10-17: the only Braga+2018 omega Cen paper in ADS, and in the reference list of Ibata et al. 2019 (2019NatAs...3..667I).",
+   "needs_resolution": false
   },
   {
-   "arxiv": "",
-   "doi": "",
-   "bibcode": "",
+   "arxiv": "astro-ph/0604251",
+   "doi": "10.1086/505390",
+   "bibcode": "2006AJ....132..447N",
    "cite": "Noyola & Gebhardt 2006",
-   "title": "",
+   "title": "Surface Brightness Profiles of Galactic Globular Clusters from Hubble Space Telescope Images",
    "topic": "data-source",
    "relevance": "tangential",
    "files": [
     "docs/DATA_GAPS_PLAN.md:40",
     "provenance/datasets.yaml:238"
    ],
-   "note": "HST SB profiles, VizieR J/AJ/132/447; checked, omega Cen absent",
-   "needs_resolution": true
+   "note": "HST SB profiles, VizieR J/AJ/132/447; checked, omega Cen absent; Resolved 2026-10-17: AJ 132, 447 matches VizieR J/AJ/132/447.",
+   "needs_resolution": false
   },
   {
-   "arxiv": "",
-   "doi": "",
-   "bibcode": "",
+   "arxiv": "1012.4804",
+   "doi": "10.1088/0004-637X/737/2/103",
+   "bibcode": "2011ApJ...737..103S",
    "cite": "Schlafly & Finkbeiner 2011",
-   "title": "",
+   "title": "Measuring Reddening with Sloan Digital Sky Survey Stellar Spectra and Recalibrating SFD",
    "topic": "data-source",
    "relevance": "tangential",
    "files": [
     "docs/literature/omega_cen_stream_distances_2026-10-10.md:14"
    ],
-   "note": "extinction, quoted from Ibata, Malhan & Martin 2019",
-   "needs_resolution": true
+   "note": "extinction, quoted from Ibata, Malhan & Martin 2019; Resolved 2026-10-17: in the reference list of Ibata, Malhan & Martin 2019 (2019ApJ...872..152I).",
+   "needs_resolution": false
   },
   {
-   "arxiv": "",
+   "arxiv": "1907.08564",
    "doi": "",
-   "bibcode": "",
+   "bibcode": "2019arXiv190708564B",
    "cite": "Brown et al. 2019 (omega Cen DM / indirect detection)",
-   "title": "",
+   "title": "The glow of annihilating dark matter in Omega Centauri",
    "topic": "omega-cen-mass-imbh",
    "relevance": "context",
    "files": [
     "docs/dm_capture_constraints.tex:51"
    ],
-   "note": "no title/journal given",
-   "needs_resolution": true
+   "note": "no title/journal given; Resolved 2026-10-17: Brown, Massey, Lacroix, Strigari, Fattahi & Boehm; arXiv preprint only in ADS (no journal version).",
+   "needs_resolution": false
   },
   {
    "arxiv": "",
@@ -2396,32 +2410,32 @@
    "needs_resolution": false
   },
   {
-   "arxiv": "",
-   "doi": "",
-   "bibcode": "",
+   "arxiv": "2404.16272",
+   "doi": "10.1088/1475-7516/2024/07/051",
+   "bibcode": "2024JCAP...07..051B",
    "cite": "Bell et al. 2024",
-   "title": "",
+   "title": "Heavy dark matter in white dwarfs: multiple-scattering capture and thermalization",
    "topic": "other",
    "relevance": "context",
    "files": [
     "docs/dm_capture_constraints.tex:110"
    ],
-   "note": "heavy DM capture/thermalisation in WDs",
-   "needs_resolution": true
+   "note": "heavy DM capture/thermalisation in WDs; Resolved 2026-10-17: Bell, Busoni, Robles & Virgato, JCAP 07, 051.",
+   "needs_resolution": false
   },
   {
-   "arxiv": "",
-   "doi": "",
-   "bibcode": "",
+   "arxiv": "2307.14435",
+   "doi": "10.1016/j.physrep.2023.12.001",
+   "bibcode": "2024PhR..1052....1B",
    "cite": "Bramante & Raj 2024 (Phys. Rep.)",
-   "title": "",
+   "title": "Dark matter in compact stars",
    "topic": "other",
    "relevance": "context",
    "files": [
     "docs/dm_capture_constraints.tex:108"
    ],
-   "note": "review of DM in compact stars",
-   "needs_resolution": true
+   "note": "review of DM in compact stars; Resolved 2026-10-17: Phys. Rep. 1052, 1.",
+   "needs_resolution": false
   },
   {
    "arxiv": "",
@@ -2438,18 +2452,18 @@
    "needs_resolution": false
   },
   {
-   "arxiv": "",
-   "doi": "",
-   "bibcode": "",
+   "arxiv": "1405.4995",
+   "doi": "10.1214/13-STS417",
+   "bibcode": "2014arXiv1405.4995W",
    "cite": "Wallis 2014",
-   "title": "",
+   "title": "The Two-Piece Normal, Binormal, or Double Gaussian Distribution: Its Origin and Rediscoveries",
    "topic": "other",
    "relevance": "tangential",
    "files": [
     "src/ocen_dm/kinematics/likelihood.py:511"
    ],
-   "note": "statistics reference in likelihood.py comment (two-sided normalisation)",
-   "needs_resolution": true
+   "note": "statistics reference in likelihood.py comment (two-sided normalisation); Resolved 2026-10-17: Statist. Sci. 29, 106 (DOI via Crossref); ADS holds only the arXiv record.",
+   "needs_resolution": false
   },
   {
    "arxiv": "2408.00939",

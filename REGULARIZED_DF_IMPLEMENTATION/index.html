@@ -2330,81 +2330,15 @@
   
   
   
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Stream 54
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_5">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Stream 54
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
     <li class="md-nav__item">
-      <a href="../STREAM_PM_REFINEMENT_2026-10-13/" class="md-nav__link">
+      <a href="https://vasilybelokurov.github.io/ocen_stream/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    PM refinement (current)
+    Stream 54 (oCen_stream)
   
 
     
@@ -2413,182 +2347,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../STREAM_KNEE_INVESTIGATION/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Knee investigation
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../STREAM_DIAGNOSTIC_PLAN/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Diagnostic plan
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../STREAM_FIT_CAMPAIGN_PLAN/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Fit campaign plan
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../STREAM_EXPERIMENTS_PLAN/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Experiments plan
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../STREAM_FIT_METHODS_REVIEW/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Stream-fitting methods review
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../literature/omega_cen_stream_distances_2026-10-10/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Stream distances literature
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -2784,6 +2542,13 @@
 
 
 <h1 id="compact-df-implementation-and-numerical-tests">Compact DF implementation and numerical tests<a class="headerlink" href="#compact-df-implementation-and-numerical-tests" title="Permanent link">&para;</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Historical (2026-09)</p>
+<p>Written before the central point mass was added. Since commit <code>9d600ae</code>
+(2026-10-15) the DF supports an exact central point mass; see the dated update
+after the alpha&gt;1/2 paragraph below and <a href="../kb/models/df_bh/">kb/models/df_bh.md</a>.
+Current fitted models: <a href="../kb/models/base_no_dm/">kb/models/base_no_dm.md</a>.</p>
+</div>
 <p>The compact stellar model is implemented in
 <a href="https://github.com/vasilybelokurov/ocen_dm/blob/main/src/ocen_dm/kinematics/regularized_df.py"><code>regularized_df.py</code></a>.
 The independent generalized lowered-isothermal control is implemented in
@@ -2836,6 +2601,13 @@ Lc is proportional to v^2, so f(v)-f(0) is proportional to |v|^(2 alpha).
 This bound makes its first velocity derivative tend to zero at the origin.
 Finite normalization alone would require only alpha&gt;0. Central black holes
 are not supported by this finite-central-potential prescription.</p>
+<p><em>Update (2026-10-15, commit <code>9d600ae</code>):</em> an exact central point mass is now
+supported (<code>PrescribedMatter.M_bh</code>, default 0, added to the potential as a
+zero-radius Plummer sphere). With a point mass the radial-orbit limit of
+f_Jr/f_L is 1 instead of 2 (the boundary statement above holds for a finite
+centre only), and eccentric orbits around it use exact apsidal-angle
+quadrature instead of AGAMA frequencies. M_bh = 0 reproduces the base fit
+exactly. Fits: <a href="../kb/models/df_bh/">kb/models/df_bh.md</a>.</p>
 <h2 id="prescribed-dark-densities">Prescribed dark densities<a class="headerlink" href="#prescribed-dark-densities" title="Permanent link">&para;</a></h2>
 <p>The halo uses the exact coordinate rho20=rho_DM(20 pc), a scale radius, and
 either gamma=0 or gamma=1 as separate families. Its outer taper is

@@ -700,6 +700,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#frames-and-host-variants-stream-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Frames and host variants (stream models)
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2284,81 +2295,15 @@
   
   
   
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Stream 54
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_5">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Stream 54
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
     <li class="md-nav__item">
-      <a href="../../../STREAM_PM_REFINEMENT_2026-10-13/" class="md-nav__link">
+      <a href="https://vasilybelokurov.github.io/ocen_stream/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    PM refinement (current)
+    Stream 54 (oCen_stream)
   
 
     
@@ -2367,182 +2312,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../STREAM_KNEE_INVESTIGATION/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Knee investigation
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../STREAM_DIAGNOSTIC_PLAN/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Diagnostic plan
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../STREAM_FIT_CAMPAIGN_PLAN/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Fit campaign plan
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../STREAM_EXPERIMENTS_PLAN/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Experiments plan
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../STREAM_FIT_METHODS_REVIEW/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Stream-fitting methods review
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../literature/omega_cen_stream_distances_2026-10-10/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Stream distances literature
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -2673,6 +2442,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#frames-and-host-variants-stream-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Frames and host variants (stream models)
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2698,14 +2478,14 @@
 <h2 id="p1p7-potentials-and-auxiliary-model-inputs">P1–P7. Potentials and auxiliary model inputs<a class="headerlink" href="#p1p7-potentials-and-auxiliary-model-inputs" title="Permanent link">&para;</a></h2>
 <p><strong>P1. Hunter+2024 MW potentials.</strong>
 - <strong>Location.</strong> <code>OB/agama_potentials/MWPotentialHunter24_*.ini</code>, from the oCen_bar clone (github.com/adllmr/oCen_bar per the project journal).
-- <strong>Path conventions.</strong> <code>streams/restricted.py:37 HUNTER24_DIR</code> is a relative path; <code>tails/bar_migration.py:25</code> uses the <code>OCEN_BAR_DIR</code> env variable with default <code>$OCEN_BAR_DIR</code>.
+- <strong>Path convention.</strong> Both <code>streams/restricted.py:37 HUNTER24_DIR</code> and <code>tails/bar_migration.py:25</code> build the path from the <code>OCEN_BAR_DIR</code> env variable (<code>$OCEN_BAR_DIR/agama_potentials</code>).
 - <strong>Files used:</strong>
   - <code>axi</code> (73,032 B): <code>restricted.py</code>, <code>lmc.py:63</code>, <code>mw_variants.py:45</code>, <code>bar_migration.py:100</code> and others.
   - <code>full</code> (227,828 B): <code>restricted.py:92</code>.
   - <code>baryon_full</code> and <code>baryon_axi</code>: bar = A × (baryon_full − baryon_axi).
   - <code>spiral</code> (735,071 B): <code>streams/spiral.py:82</code>.
 - <strong>Unused:</strong> <code>nonaxi</code>, <code>rotating</code>, <code>rotspiral</code>, <code>pot_bar_mod</code>, <code>PriceWhelan19/22</code>, <code>MWPotential2014.ini</code>.
-- <strong>Citation.</strong> arXiv:2403.18000 (the project journal). the project journal says the paper itself was not retrieved: <strong>UNVERIFIED</strong>.</p>
+- <strong>Citation.</strong> Hunter et al. 2024, A&amp;A 692, A216, arXiv:2403.18000: <a href="https://ui.adsabs.harvard.edu/abs/2024A%26A...692A.216H/abstract">2024A&amp;A...692A.216H</a> (<code>docs/kb/literature.json</code>).</p>
 <p><strong>P2. Portail17.ini and Portail17_axi.ini</strong> (241,764 B and 47,001 B).
 - Used through opt-in <code>bar_model='portail17'</code> (<code>restricted.py:72,98</code>).
 - Paper: Portail+2017, arXiv:1608.07954 (project journal). The provenance of the .ini files is <strong>UNVERIFIED</strong>.</p>
@@ -2717,7 +2497,7 @@
 <p><strong>P5. DB98_Model1.ini.</strong>
 - File: <code>configs/potentials/DB98_Model1.ini</code> (1,284 B). This is the only file in <code>configs/potentials</code>.
 - Model: Dehnen &amp; Binney 1998, MNRAS 294, 429, arXiv:astro-ph/9612059, Model 1 (the Ibata+2019 host), built from DB98 Tables 1 and 3.
-- Checks at the project journal: v_c(R0) = 222.0 km/s; Σ(|z| &lt; 1.1 kpc) = 67.7 M☉ pc⁻².
+- Checks in the project journal: v_c(R0) = 222.0 km/s; Σ(|z| &lt; 1.1 kpc) = 67.7 M☉ pc⁻².
 - Consumers: <code>restricted.py</code>, <code>backtrack_fimbulthul.py:34</code>, <code>sgr_*</code>, <code>run_db98_ibata_frame.sh</code>, <code>run_rotation_tests.sh</code>.</p>
 <p><strong>P6. Vasiliev, Belokurov &amp; Erkal 2021 "Tango for three" archive.</strong>
 - <strong>Location.</strong> <code>CAT/vasiliev21_tango_zenodo4300977/</code>.
@@ -2741,6 +2521,8 @@
 - <code>results/tails/{progenitor_orbits_summary.ecsv, progenitor_orbit_tracks.npz}</code>, from <code>tails/products.py:48</code>.
 - <code>bar_migration_*</code>, <code>friction_test.ecsv</code>, <code>class2_barred.ecsv</code>, <code>resonances.ecsv</code>, <code>dm_density_grid.ecsv</code>, <code>po_*.ecsv</code>.
 - The N-body scripts read only <code>results/nbody/&lt;model&gt;/{ics.npz, orbit/snap_today.npz}</code>.</p>
+<h2 id="frames-and-host-variants-stream-models">Frames and host variants (stream models)<a class="headerlink" href="#frames-and-host-variants-stream-models" title="Permanent link">&para;</a></h2>
+<p>Moved with the stream code: see <a href="https://vasilybelokurov.github.io/ocen_stream/kb/data/potentials/">potentials and frames in oCen_stream</a>.</p>
 
 
 

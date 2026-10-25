@@ -597,6 +597,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#simulation-outputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simulation outputs
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2345,81 +2356,15 @@
   
   
   
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Stream 54
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_5">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Stream 54
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
     <li class="md-nav__item">
-      <a href="../../STREAM_PM_REFINEMENT_2026-10-13/" class="md-nav__link">
+      <a href="https://vasilybelokurov.github.io/ocen_stream/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    PM refinement (current)
+    Stream 54 (oCen_stream)
   
 
     
@@ -2428,182 +2373,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../STREAM_KNEE_INVESTIGATION/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Knee investigation
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../STREAM_DIAGNOSTIC_PLAN/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Diagnostic plan
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../STREAM_FIT_CAMPAIGN_PLAN/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Fit campaign plan
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../STREAM_EXPERIMENTS_PLAN/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Experiments plan
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../STREAM_FIT_METHODS_REVIEW/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Stream-fitting methods review
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../literature/omega_cen_stream_distances_2026-10-10/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Stream distances literature
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -2800,6 +2569,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#simulation-outputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simulation outputs
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2888,7 +2668,10 @@ python<span class="w"> </span>-m<span class="w"> </span>ocen_dm.cli<span class="
 python<span class="w"> </span>-m<span class="w"> </span>ocen_dm.cli<span class="w"> </span>plot-data
 </code></pre></div>
 <ul>
-<li>Two journal supplements need <a href="../../MANUAL_DOWNLOADS/">manual retrieval</a>.</li>
+<li>One journal supplement (Kuzma et al. 2026) needs <a href="../../MANUAL_DOWNLOADS/">manual retrieval</a>;
+  Fimbulthul is now fetched from VizieR.</li>
+<li><code>data/raw/omegacat_vi_kinematics</code> may be a local link to an external copy of
+  the oMEGACat VI data rather than a directory in the checkout.</li>
 <li>Our own HST and Gaia PM profiles and the count products have separate
   builders (<code>kinematics/hst_profile.py</code>, <code>kinematics/outer_gaia.py</code>,
   <code>bin/build_count_profiles.py</code>). Loaders build missing products
@@ -2912,8 +2695,11 @@ python<span class="w"> </span>-m<span class="w"> </span>ocen_dm.cli<span class="
 <h2 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>tests<span class="w"> </span>-q
 </code></pre></div>
-<p>The full suite includes local-data and optional-engine tests and takes tens
-of minutes; some tests skip without those inputs.</p>
+<p>The full suite includes local-data and optional-engine tests and takes about
+13-25 min; some tests skip without those inputs. <code>pytest-xdist</code> (in the <code>dev</code>
+extra of <code>pyproject.toml</code>) runs it in parallel:</p>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>tests<span class="w"> </span>-q<span class="w"> </span>-n<span class="w"> </span><span class="m">6</span>
+</code></pre></div>
 <h2 id="conventions">Conventions<a class="headerlink" href="#conventions" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Units: internal dynamics in pc, M☉ and km/s; Galactic-orbit modules carry
@@ -2934,6 +2720,11 @@ mkdocs<span class="w"> </span>gh-deploy<span class="w">        </span><span clas
 <p>The build hook (<code>docs/hooks/kb.py</code>) serves <code>plots/</code>, generates the registered sources and
 literature pages from committed files, and points code links
 to GitHub.</p>
+<h2 id="simulation-outputs">Simulation outputs<a class="headerlink" href="#simulation-outputs" title="Permanent link">&para;</a></h2>
+<p>Spray, N-body and dynamics outputs are large (about 14 GB) and live outside the repository, in <code>$OCEN_SIMS</code> (set in
+<code>.env</code>). <code>results/streams</code>, <code>results/nbody</code> and <code>results/dynamics</code> are local links to <code>$OCEN_SIMS/streams</code>, <code>/nbody</code> and
+<code>/dynamics</code>, so the scripts' repository-relative paths still work. On a new machine, create the three links after
+copying the data.</p>
 
 
 

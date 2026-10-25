@@ -2497,81 +2497,15 @@
   
   
   
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Stream 54
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_5">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Stream 54
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
     <li class="md-nav__item">
-      <a href="../STREAM_PM_REFINEMENT_2026-10-13/" class="md-nav__link">
+      <a href="https://vasilybelokurov.github.io/ocen_stream/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    PM refinement (current)
+    Stream 54 (oCen_stream)
   
 
     
@@ -2580,182 +2514,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../STREAM_KNEE_INVESTIGATION/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Knee investigation
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../STREAM_DIAGNOSTIC_PLAN/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Diagnostic plan
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../STREAM_FIT_CAMPAIGN_PLAN/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Fit campaign plan
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../STREAM_EXPERIMENTS_PLAN/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Experiments plan
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../STREAM_FIT_METHODS_REVIEW/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Stream-fitting methods review
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../literature/omega_cen_stream_distances_2026-10-10/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Stream distances literature
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -3118,6 +2876,14 @@
 
 
 <h1 id="why-the-compact-df-fails-and-the-proposed-anisotropy-extension">Why the compact DF fails, and the proposed anisotropy extension<a class="headerlink" href="#why-the-compact-df-fails-and-the-proposed-anisotropy-extension" title="Permanent link">&para;</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Historical (2026-09)</p>
+<p>Record of the photometry-based fit of 2026-09-23. Superseded by the
+<a href="../kb/models/base_no_dm/">base model</a> and the
+<a href="../kb/models/df_bh/">DF + black-hole fits</a>. The matched DF test with and
+without a black hole asked for in "Central point mass" below was done on
+2026-10-15 (<a href="../kb/models/df_bh/">kb/models/df_bh.md</a>).</p>
+</div>
 <p>Status: 23 September 2026. The diagnostics below are complete. The model
 adjustment in the final section was approved after external review and launched. This follows
 <a href="../OBSERVED_DF_FLEXIBILITY/">OBSERVED_DF_FLEXIBILITY.md</a>. That test showed
@@ -3150,7 +2916,7 @@ points). Photometry is always included. Each batch uses two hand-picked
 starts and wide search bounds (J0 30-800, J_a 5-3000 pc km/s). Fits use
 parallel base-seeded Jacobians, iteration tolerance 5e-5, an absolute stop
 of 0.01, and a 600-evaluation cap. Runner: <code>bin/run_df_step1_diagnostics.sh</code>.
-Batches: <code>results/df/dfdiag_*_20260923/</code>, frozen at commit <code>1e246bd</code> (the runner commit on top of <code>8a7e377</code>).</p>
+Batches: <code>results/df/dfdiag_*_20260923/</code>, frozen at commit <code>1e246bd</code> (the runner commit on top of <code>8a7e377</code>; both pre-rewrite hashes, not in the current history).</p>
 <table>
 <thead>
 <tr>
@@ -3635,7 +3401,7 @@ Jeans beta(r).</p>
   is the last resort (step 6).</li>
 </ul>
 <h2 id="result-of-the-two-transition-no-halo-fit-23-september">Result of the two-transition, no-halo fit (23 September)<a class="headerlink" href="#result-of-the-two-transition-no-halo-fit-23-september" title="Permanent link">&para;</a></h2>
-<p>Batch <code>results/df/dftwo_20260923/</code> (commit <code>f6ce414</code>), 6 starts, raw errors.
+<p>Batch <code>results/df/dftwo_20260923/</code> (commit <code>f6ce414</code>, pre-rewrite hash; not in the current history), 6 starts, raw errors.
 Two Latin starts were infeasible at their initial point and recorded as such.
 The other four reached the same minimum (refined objective 378.3-378.4,
 Delta chi2_kin &lt;= 0.6). Starts 0 and 1 terminated by the absolute rule after
@@ -3790,6 +3556,8 @@ binned profiles start at 0.1 pc, inside r_infl ~ 0.4 pc for 4e4 Msun, and
 contain none of the individual fast central stars behind the IMBH claim of
 Haeberle et al. 2024 (<a href="https://arxiv.org/abs/2405.06015">arXiv:2405.06015</a>).
 The BH is therefore dropped from the objective-1 list.</p>
+<p><em>Update (2026-10-15):</em> the matched DF test with and without a BH has since
+been done; see <a href="../kb/models/df_bh/">kb/models/df_bh.md</a>.</p>
 <h2 id="best-fit-model-performance-objective-1-fit-the-data">Best-fit model performance (objective 1: fit the data)<a class="headerlink" href="#best-fit-model-performance-objective-1-fit-the-data" title="Permanent link">&para;</a></h2>
 <p>Figures: <code>plots/best_fit_performance_20260923_data.png</code> (all data, both
 two-transition fits and the rung-2 Jeans turnover fit, residuals
