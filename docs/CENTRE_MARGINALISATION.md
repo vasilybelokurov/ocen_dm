@@ -64,4 +64,43 @@ count deficit survive marginalisation over the centre?
 
 ## Results
 
-(filled in after the run)
+Run 2026-11-03 (`bin/centre_marginal.py`, 1 core, 49 min; 209 centres; models fixed at their
+saved fits, not refitted). Numbers: `results/plot_data/centre_marginal_20261103.json`. Figures:
+`plots/centre_marginal_20261103.png`, `plots/centre_marginal_20261103_data.png`.
+
+**Tests**
+
+| # | Result | Pass |
+|---|---|---|
+| T1 | counts, areas, nodes, weights and kinematic values identical; HST PM errors to 5e-10 rel. | yes |
+| T2, T3 | 7.6e-10 | yes |
+| T4 | BH 8200: −0.14; **BH 4e4: +3.9** | **no** (BH 4e4) |
+| T5, T6 | pytest | yes |
+| T7 | HST PM bins 13.8–58.8″ move by up to **1.85σ** at 4″ offsets | **no**: re-centring must extend beyond 15″ |
+| T8 | counts-only window, BH 4e4 − no BH: unbinned +8.6…+9.6, binned +4.8…+8.9 (all σ_c, n) | same sign, yes |
+| T9 | our MUSE ML σ is 0.45–0.62σ below published in the 3 inner bins | marginal (only differences used) |
+
+**−2Δ ln L relative to no BH (full likelihood; marginal; s.d. over centres)**
+
+| | AvdM10 only | σ_c = 1″ | 2″ (n = 6) | 2″ (n = 10) | 3″ |
+|---|---|---|---|---|---|
+| BH 8,200 | −5.5 | −6.0 (0.3) | −5.6 (0.7) | −5.8 (0.7) | −5.7 (0.5) |
+| BH 4×10⁴ | −0.5 | −4.4 (2.0) | −5.1 (5.6) | −1.2 (5.4) | +2.1 (3.5) |
+| BH 4×10⁴, counts 2–59″ only (unbinned) | — | +9.5 (1.4) | +9.4 (2.8) | +9.6 (2.7) | +8.6 (3.8) |
+
+**Reading**
+
+- **BH 8,200 is stable.** Its gain over no BH (−2Δ ln L ≈ −5.7) does not depend on the centre;
+  it comes from the kinematics (counts-only change −0.5 to −0.9).
+- **BH 4×10⁴ is ambiguous by the decision rule.** Overall it is neither favoured nor
+  disfavoured (−5 to +2), the per-centre scatter (3.5–5.6) exceeds half of any value, and the
+  quadrature is not converged (T4). Its count penalty alone is robust (+8.6 to +9.6, unbinned),
+  but the inner PM dispersions, which move by 1–3σ when the centre moves 2″, pull the other way:
+  off AvdM10 the innermost radial bin rises (AvdM10 0.760 mas/yr; prior-weighted mean 0.81),
+  towards the 4×10⁴ model.
+- **The central count deficit is not significant once the centre is marginalised.** Two innermost
+  bins: P(N ≤ n_obs | no BH) = 0.027 at AvdM10, 0.30–0.37 marginalised (σ_c = 1–3″). For the
+  4×10⁴ model 0.001 at AvdM10, 0.05–0.10 marginalised.
+- **Not yet valid as a final answer:** T7 shows that the kinematic bins at 15–60″ also resample by
+  up to ~2σ, so the re-centred region is too small, and T4 shows the 4×10⁴ marginal is not
+  converged. Both must be fixed before a refit decision.
