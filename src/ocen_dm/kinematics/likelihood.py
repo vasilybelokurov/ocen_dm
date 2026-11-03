@@ -272,7 +272,7 @@ def _edr3_ours() -> BinnedProfile:
     )
 
 
-def _hst_ours(component: str) -> BinnedProfile:
+def _hst_ours(component: str, table: Table | None = None) -> BinnedProfile:
     """Our own HST measurement, flagged stars only, reaching 360 arcsec.
 
     Replaces the published oMEGACat profile, which stops at 300 arcsec and so never
@@ -282,7 +282,7 @@ def _hst_ours(component: str) -> BinnedProfile:
     is about a rotation-free mean while the Jeans model predicts the full second moment.
     """
     from .hst_profile import load_hst_product
-    t = load_hst_product()
+    t = load_hst_product() if table is None else table
     col = "sigma_pmr" if component == "pmr" else "sigma_pmt"
     r = np.asarray(t["r_median"], float)
     err = np.asarray(t[col + "_err"], float)

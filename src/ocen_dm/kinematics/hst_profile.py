@@ -69,6 +69,7 @@ from __future__ import annotations
 import numpy as np
 from astropy.table import Table
 
+from functools import lru_cache
 from pathlib import Path
 
 from ..paths import raw_dir
@@ -107,8 +108,9 @@ UNFLAGGED_BIAS = (1.077, 0.011)
 HST_R_MAX_ARCSEC = 466.0
 
 
-def load_hst_sample(require_flag: bool = False) -> MemberSample:
-    """oMEGACat proper motions as a :class:`MemberSample` in the cluster's relative frame."""
+@lru_cache(maxsize=2)
+def _hst_raw(require_flag: bool):
+    """Catalogue columns behind :func:`load_hst_sample` (read once per session)."""
     t = Table.read(raw_dir() / "omegacat_vi_kinematics" / "catalog_and_selections.fits")
     ra = np.asarray(t["RA"], float); dec = np.asarray(t["DEC"], float)
     a = np.asarray(t["pmra_corrected"], float); d = np.asarray(t["pmdec_corrected"], float)
@@ -121,9 +123,20 @@ def load_hst_sample(require_flag: bool = False) -> MemberSample:
     gcol = next((c for c in ("f625w", "F625W", "f814w", "mag_F625W") if c in t.colnames), None)
     g = np.asarray(t[gcol], float)[keep] if gcol else np.full(int(keep.sum()), np.nan)
     flag = (np.asarray(t["selection_hq_astrometry"], float)[keep] > 0).astype(int) * 2
+    return ra, dec, a, d, ea, ed, g, flag
 
+
+def load_hst_sample(require_flag: bool = False, offset: tuple[float, float] = (0.0, 0.0)) -> MemberSample:
+    """oMEGACat proper motions as a :class:`MemberSample` in the cluster's relative frame.
+
+    ``offset`` = (dRA*, dDec) in arcsec moves the centre from (OCEN_RA, OCEN_DEC); radii and the
+    radial/tangential projections are taken about the moved centre (centre marginalisation).
+    """
+    ra, dec, a, d, ea, ed, g, flag = _hst_raw(bool(require_flag))
     x = (ra - OCEN_RA) * np.cos(np.radians(OCEN_DEC)) * 3600.0
     y = (dec - OCEN_DEC) * 3600.0
+    if offset[0] != 0.0 or offset[1] != 0.0:
+        x = x - float(offset[0]); y = y - float(offset[1])
     r = np.hypot(x, y); safe = np.maximum(r, 1e-9)
     cos_p, sin_p = x / safe, y / safe
     # the catalogue's proper motions are already relative to the cluster; re-centre on the
@@ -167,7 +180,7 @@ def unflagged_bias(edges_arcsec=(150.0, 200.0, 250.0, 300.0, 340.0)) -> tuple[fl
 
 def hst_profile(edges_arcsec=(300.0, 340.0), require_flag: bool = True,
                 distance_kpc: float = OCEN_DISTANCE_KPC, min_stars: int = 100,
-                correct_unflagged: bool = False) -> Table:
+                correct_unflagged: bool = False, sample: MemberSample | None = None) -> Table:
     """Cluster dispersion per annulus from the mixture fit, with no proper-motion window.
 
     **The default is flagged stars only.** If a star's astrometry is not trusted, the answer
@@ -181,7 +194,7 @@ def hst_profile(edges_arcsec=(300.0, 340.0), require_flag: bool = True,
     cross-check, never a measurement, and never enter a fit.
     """
     from ..selection.field_template import field_density_2d
-    s = load_hst_sample(require_flag=require_flag)
+    s = load_hst_sample(require_flag=require_flag) if sample is None else sample
     dens = field_density_2d()
     k = KMS_PER_MASYR_KPC * distance_kpc
     edges = np.asarray(edges_arcsec, float)
