@@ -114,3 +114,31 @@ which no BH and 8,200 M☉ follow and 4×10⁴ M☉ over-predicts by ~1σ in eve
 the inner PM dispersions become a smooth decline from ~0.82 to ~0.775 mas/yr over 4–12″, which
 4×10⁴ M☉ follows and no BH / 8,200 M☉ under-predict by ~1σ per bin. The large-BH question is a
 counts-versus-kinematics tension of the DF family, not a centre artefact.
+
+## Revision: model-side marginalisation (2026-11-03)
+
+After the Codex and Fable reviews (`docs/reviews/{codex,fable}_recentre_plan_20261103.md`) the data-side
+construction above is replaced. Re-binning the stars about every trial centre averages likelihoods of
+*different* data summaries; on the first run the centre contributions had an effective sample size of
+1.3-3.3 of 36-100 nodes for every model, i.e. each "marginal" was its luckiest re-binning (this is the T4
+failure). Now every product stays frozen about AvdM10 and the **model** centre moves
+(`src/ocen_dm/centre_model.py`, `DFJointProblem.evaluate(factors=...)`): counts = model surface density
+averaged over each bin's covered sky; HST PM = per-star mean of the model variance projected on the data's
+(AvdM10) radial/tangential axes; MUSE = per-star mean of the LOS variance; streaming terms fixed (they belong
+to the fixed data); Gaia PM bins not moved (checked). c = 0 reproduces the frozen likelihood exactly.
+
+**Mock test** (`bin/centre_model_mock.py`; real star positions and errors, analytic velocity profile steeper
+than our DF models, true centre at c, our estimators run in the fixed AvdM10 bins, common random numbers;
+`plots/centre_model_mock_20261103_inner.png`, 32 seeds, bins 3.2-17.6"; `..._20261103.png`, 4 seeds, to 36"):
+
+| true centre | HST PM: max |estimated - predicted change| / bin error | MUSE |
+|---|---|---|
+| (+2, 0)" | 0.06 (s.e. 0.03-0.11) | 0.01 |
+| (-1.5, +1.5)" | 0.06 | 0.09 |
+| (0, -4)" | 0.48 in the two innermost bins (3.2-5.2"), predicted signal 1.2-1.7; <= 0.17 elsewhere | 0.01 |
+
+Reading: the prediction is right to < 0.1 bin error for offsets up to ~2" (1 sigma_c) in every bin. At 4"
+(2 sigma_c) our mixture estimator responds ~30 % less than predicted in the two innermost PM bins (stars at
+r_c < 1" with very large model variance are partly absorbed by the field component / down-weighted by the
+single-Gaussian fit). At c = 0 the same estimator reads 0.2-0.5 bin errors low in the innermost bins of this
+steep mock profile (baseline bias, not centre-specific).

@@ -138,11 +138,22 @@ class DFJointProblem:
         return (self.data.n_points+(len(self.photometry.mu) if self.photometry is not None else 0)
                 +sum(c.n for c in self.counts)+(1 if self.count_tie is not None else 0))
 
-    def evaluate(self, config: DFModelConfig, model=None):
+    def evaluate(self, config: DFModelConfig, model=None, factors=None):
+        """Score ``config``. ``factors`` (optional) maps a kinematic profile or count product
+        name to per-bin multipliers of the model's bin-averaged second moment (kinematics,
+        applied before the streaming term) or surface density (counts); used to move the model
+        centre with the data fixed (ocen_dm.centre_model). ``None`` leaves everything unchanged."""
         model = model or build_df_model(config)
         if model.config != config:
             raise ValueError("supplied model/config mismatch")
+        factors = factors or {}
         pred = self.likelihood.predict(model, config.distance_kpc)
+        unknown = set(factors)-set(pred)-{c.name for c in self.counts}
+        if unknown:
+            raise ValueError(f"factors for unknown products {sorted(unknown)}")
+        for name, f in factors.items():
+            if name in pred:
+                pred[name] = pred[name]*np.sqrt(np.asarray(f, float))
         terms = {}
         for p in self.data.profiles:
             if p.streaming2 is not None:
@@ -162,6 +173,9 @@ class DFJointProblem:
         count_terms, sigmas = {}, {}
         for c in self.counts:
             sigmas[c.name] = model.projected_moments(np.asarray(c.r_nodes).ravel()*pc_per_arcsec)["Sigma"]
+            if c.name in factors:
+                k = np.asarray(c.r_nodes).shape[1]
+                sigmas[c.name] = (sigmas[c.name].reshape(-1, k)*np.asarray(factors[c.name], float)[:, None]).ravel()
         tie_term = None
         if self.count_tie is not None:
             t = self.count_tie
