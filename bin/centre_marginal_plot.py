@@ -132,3 +132,65 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def marginalised_data(label="20261103", sigma=2., n=10):
+    """plots/centre_marginal_<label>_mdata.png: prior-weighted mean of each re-centred bin over the centre grid,
+    error^2 = <err_k^2> + Var_k(d_k) (law of total variance). Per-centre errors: Poisson sqrt(N_k) for counts;
+    for the PM/MUSE bins the AvdM10 error is used for every centre (per-centre errors were not stored)."""
+    import sys
+    sys.path.insert(0, str(ROOT/"src"))
+    from ocen_dm.centre_marg import centre_grid
+    from ocen_dm.kinematics.run_io import read_data_snapshot
+    J = json.loads((ROOT/f"results/plot_data/centre_marginal_{label}.json").read_text())
+    idx = {tuple(r["c"]): r for r in J["rows"]}
+    C, W = centre_grid(sigma, n)
+    R = [idx[tuple(np.round(c, 12))] for c in C]
+    r0 = idx[(0., 0.)]
+    od = ROOT/"results/df/dftwo_counts_area_20261013/observed"
+    rec = json.loads((od/"problem.json").read_text())
+    prof = {p.name: p for p in read_data_snapshot(od, rec["data_snapshot"]).profiles}
+    cnt = json.loads((od/"ocen_counts_hst_f625w19.json").read_text())
+    lo, hi = np.array(cnt["r_lower"])[:14], np.array(cnt["r_upper"])[:14]
+    rc, area = np.sqrt(lo*hi), np.array(cnt["area_arcsec2"])[:14]
+    fig, ax = plt.subplots(2, 4, figsize=(20, 7.5), sharex="col", gridspec_kw=dict(height_ratios=(2.2, 1)),
+                           constrained_layout=True)
+    N = np.array([r["counts_hst"][:14] for r in R], float)
+    m = W@N
+    e = np.sqrt(W@N+W@(N-m)**2)
+    e_poi = np.sqrt(W@N)
+    panels = [(rc, N[0]*0+np.array(r0["counts_hst"][:14]), np.sqrt(np.array(r0["counts_hst"][:14])), m, e, e_poi,
+               {k: np.array(r0["models"][k]["mu_hst"]) for k in COL}, area, "HST F625W<19 counts", "stars per arcsec$^2$")]
+    for name, key, nb in (("hst_pm_radial_ours", "hst_pmr", 6), ("hst_pm_tangential_ours", "hst_pmt", 6),
+                          ("muse_los_dispersion", "muse", 3)):
+        p = prof[name]
+        V = np.array([r[key] for r in R])
+        mv = W@V
+        err0 = p.err_lo[:nb]
+        panels.append((p.r[:nb], p.value[:nb], err0, mv, np.sqrt(err0**2+W@(V-mv)**2), err0,
+                       {k: np.array(r0["models"][k][f"pred:{name}"])[:nb] for k in COL}, np.ones(nb),
+                       name, "km/s" if name.startswith("muse") else "mas/yr"))
+    for j, (r, d0, e0, dm, em, ein, mod, norm, title, unit) in enumerate(panels):
+        a, b = ax[0, j], ax[1, j]
+        a.errorbar(r*0.98, d0/norm, e0/norm, fmt="o", color="0.55", ms=3, capsize=2, label="AvdM10 only")
+        a.errorbar(r*1.02, dm/norm, em/norm, fmt="ks", ms=4, capsize=2, label="centre-marginalised (sigma_c = 2\")")
+        a.errorbar(r*1.02, dm/norm, ein/norm, fmt="none", ecolor="k", elinewidth=3, alpha=.4,
+                   label="  measurement part of the error")
+        for k, c in COL.items():
+            a.plot(r, mod[k]/norm, color=c, label=k)
+            b.plot(r, (dm-mod[k])/em, "o-", color=c, ms=3)
+        b.axhline(0, color="k", lw=.8)
+        a.set(title=title, ylabel=unit, xscale="log" if j == 0 else "linear")
+        if j == 0:
+            a.set_yscale("log")
+        b.set(xlabel="R [arcsec]", ylabel="(marg. data - model)/err")
+        a.legend(fontsize=6)
+    fig.suptitle("Centre-marginalised data (mean over 100 centres, prior sigma_c = 2\" about AvdM10; error = measurement "
+                 "+ centre scatter in quadrature) vs the saved fits. Bins beyond 15\" (PM) are not re-centred in this run.")
+    fig.savefig(ROOT/f"plots/centre_marginal_{label}_mdata.png", dpi=130)
+    chi = {k: float(np.sum(((p[3]-p[6][k])/p[4])**2)) for k in COL for p in panels[:1]}
+    print("written mdata plot")
+
+
+if __name__ == "__main__" and os.environ.get("MDATA"):
+    marginalised_data()

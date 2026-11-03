@@ -104,3 +104,13 @@ saved fits, not refitted). Numbers: `results/plot_data/centre_marginal_20261103.
 - **Not yet valid as a final answer:** T7 shows that the kinematic bins at 15–60″ also resample by
   up to ~2σ, so the re-centred region is too small, and T4 shows the 4×10⁴ marginal is not
   converged. Both must be fixed before a refit decision.
+
+**Centre-marginalised data** (`MDATA=1 python bin/centre_marginal_plot.py` →
+`plots/centre_marginal_20261103_mdata.png`). Per bin: prior-weighted mean over the 100 centres
+(σ_c = 2″); error² = mean measurement error² + centre scatter² (law of total variance). For
+display only: neighbouring bins are correlated through the shared centre, and the PM/MUSE
+measurement errors are the AvdM10 ones. Reading: the inner counts become a smooth flat core,
+which no BH and 8,200 M☉ follow and 4×10⁴ M☉ over-predicts by ~1σ in every bin from 2″ to 20″;
+the inner PM dispersions become a smooth decline from ~0.82 to ~0.775 mas/yr over 4–12″, which
+4×10⁴ M☉ follows and no BH / 8,200 M☉ under-predict by ~1σ per bin. The large-BH question is a
+counts-versus-kinematics tension of the DF family, not a centre artefact.
