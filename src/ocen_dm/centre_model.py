@@ -55,12 +55,23 @@ class ModelMoments:
         pc = distance_kpc*1e3/ARCSEC_PER_RAD
         R = np.geomspace(r_min_arcsec, r_max_arcsec, n)
         m = model.projected_moments(R*pc)
+        self._set(R, m)
+
+    def _set(self, R, m):
+        self.table = dict(R=np.asarray(R, float), **{k: np.asarray(m[k], float) for k in ("Sigma", "pmr", "pmt", "los")})
         self._lo = np.log(R[0])
         x = np.log(R)
         self._f = {"Sigma": PchipInterpolator(x, np.log(m["Sigma"])),
                    "s2r": PchipInterpolator(x, np.log(m["pmr"]/m["Sigma"])),
                    "s2t": PchipInterpolator(x, np.log(m["pmt"]/m["Sigma"])),
                    "s2los": PchipInterpolator(x, np.log(m["los"]/m["Sigma"]))}
+
+    @classmethod
+    def from_table(cls, table):
+        """Rebuild from ``self.table`` (cached projected moments: R [arcsec], Sigma, pmr, pmt, los)."""
+        self = cls.__new__(cls)
+        self._set(table["R"], table)
+        return self
 
     @classmethod
     def from_functions(cls, **funcs):
@@ -123,6 +134,73 @@ class PointSet:
         return cls(np.concatenate(xs), np.concatenate(ys), np.concatenate(ks), np.concatenate(ws), len(r_lower))
 
 
+class ContinuousSet:
+    """Bins with full azimuthal coverage, the selected stars replaced by a smooth density.
+
+    Averaging the model over the *discrete* stars fails near a central point mass: the model
+    variance grows as 1/r_c, and a trial centre landing within ~0.03" of one star lets that star
+    dominate its bin (ln L jumps by 20-40 between neighbouring centres for the 4e4 Msun model).
+    The expectation over a smooth star density is finite (the 1/r cusp is integrable in 2-D), and
+    our estimator does not respond to such stars anyway (mock test). Here the star surface density
+    is a power law n(R0) ~ R0^-gamma (one ML slope for all these bins' stars), and the bin mean
+    <f>_k(c) = int n f dA / int n dA is computed in polar coordinates (rho, theta) about c, where
+    dA = rho drho dtheta removes the singularity. Composite Gauss-Legendre in rho, uniform theta.
+    """
+
+    def __init__(self, r_lower, r_upper, radii, n_panel=48, n_gl=4, n_theta=192):
+        self.lo, self.hi = np.asarray(r_lower, float), np.asarray(r_upper, float)
+        # one slope over all the bins (per-bin fits to 50-100 stars are noisy and hit the bounds)
+        g = self._fit_gamma(np.concatenate(radii), self.lo.min(), self.hi.max())
+        self.gamma = np.full(len(self.lo), g)
+        self.n_panel, self.n_theta = n_panel, n_theta
+        self._u, self._wu = np.polynomial.legendre.leggauss(n_gl)
+        self.n_bins = len(self.lo)
+
+    @staticmethod
+    def _fit_gamma(r, lo, hi):
+        """ML power-law slope of the surface density in [lo, hi): p(R) ~ R^(1-gamma)."""
+        from scipy.optimize import minimize_scalar
+        r = np.asarray(r, float)
+        lo_ = max(lo, 1e-3*hi)
+        lr = np.log(r).sum()
+
+        def nll(g):
+            a = 2.-g
+            norm = np.log(hi/lo_) if abs(a) < 1e-8 else np.log(abs((hi**a-lo_**a)/a))
+            return -((1-g)*lr-len(r)*norm)
+        return float(minimize_scalar(nll, bounds=(-3., 1.9), method="bounded").x)
+
+    def _points(self, k, c):
+        """Quadrature points (x, y) about AvdM10 and weights n(R0) rho drho dtheta for bin k, centre c."""
+        lo, hi = max(self.lo[k], 1e-3*self.hi[k]), self.hi[k]
+        cr = float(np.hypot(*c))
+        r1, r2 = max(0., lo-cr), hi+cr
+        # panels: uniform in rho, plus refinement near rho = 0 (where the model cusp sits)
+        e = np.unique(np.r_[np.linspace(r1, r2, self.n_panel+1), np.geomspace(max(r1, 1e-4), r2, self.n_panel+1)]) \
+            if r1 == 0. else np.linspace(r1, r2, self.n_panel+1)
+        if r1 == 0. and e[0] > 0:
+            e = np.r_[0., e]
+        a, b = e[:-1], e[1:]
+        rho = (a[:, None]+(self._u[None, :]+1)/2*(b-a)[:, None]).ravel()
+        wr = ((b-a)[:, None]/2*self._wu[None, :]).ravel()*rho
+        th = (np.arange(self.n_theta)+.5)/self.n_theta*2*np.pi
+        x = c[0]+(rho[:, None]*np.sin(th)[None, :]).ravel()
+        y = c[1]+(rho[:, None]*np.cos(th)[None, :]).ravel()
+        R0 = np.hypot(x, y)
+        w = np.repeat(wr, self.n_theta)*(2*np.pi/self.n_theta)
+        inside = (R0 >= self.lo[k]) & (R0 < hi)
+        w = np.where(inside, w*np.maximum(R0, 1e-12)**(-self.gamma[k]), 0.)
+        return x[inside], y[inside], w[inside]
+
+    def mean(self, func, c):
+        """Per-bin mean of func(x, y, c) (vectorised over points) under the smooth star density."""
+        out = np.empty(self.n_bins)
+        for k in range(self.n_bins):
+            x, y, w = self._points(k, c)
+            out[k] = np.sum(w*func(x, y, c))/np.sum(w)
+        return out
+
+
 def projected_variance(mom, x, y, c, component):
     """Model variance of each star along the data's axes (about AvdM10), model centred at c.
 
@@ -144,9 +222,9 @@ def projected_variance(mom, x, y, c, component):
 class CentreGeometry:
     """Fixed point sets of the frozen products and the per-bin model factors for a centre c."""
 
-    def __init__(self, data, counts, hst_stars=None, muse_stars=None):
+    def __init__(self, data, counts, hst_stars=None, muse_stars=None, r_cont=15.):
         prof = {p.name: p for p in data.profiles}
-        self.sets, self.kind = {}, {}
+        self.sets, self.kind, self.cont = {}, {}, {}
         if hst_stars is None:
             from .kinematics.hst_profile import load_hst_sample
             s = load_hst_sample(require_flag=True)
@@ -174,6 +252,13 @@ class CentreGeometry:
         for name, ps in self.sets.items():
             if np.any(np.bincount(ps.idx, minlength=ps.n_bins) == 0):
                 raise ValueError(f"{name}: a bin has no points")
+        # kinematic bins starting inside r_cont: smooth density (see ContinuousSet)
+        for name in [n for n, k in self.kind.items() if k != "Sigma"]:
+            p, ps = prof[name], self.sets[name]
+            m = int(np.count_nonzero(p.r_lower < r_cont))
+            if m:
+                radii = [np.hypot(ps.x, ps.y)[ps.idx == k] for k in range(m)]
+                self.cont[name] = ContinuousSet(p.r_lower[:m], p.r_upper[:m], radii)
 
     @staticmethod
     def _hst_count_points(cp, full_inside=30.):
@@ -192,9 +277,12 @@ class CentreGeometry:
         ps, kind = self.sets[name], self.kind[name]
         if kind == "Sigma":
             v = mom(np.hypot(ps.x-c[0], ps.y-c[1]), ("Sigma",))["Sigma"]
-        else:
-            v = projected_variance(mom, ps.x, ps.y, c, kind)
-        return ps.mean(v)
+            return ps.mean(v)
+        out = ps.mean(projected_variance(mom, ps.x, ps.y, c, kind))
+        if name in self.cont:
+            cs = self.cont[name]
+            out[:cs.n_bins] = cs.mean(lambda x, y, cc: projected_variance(mom, x, y, cc, kind), c)
+        return out
 
     def reference(self, mom):
         """Per-bin means at c = 0 (cache once per model)."""

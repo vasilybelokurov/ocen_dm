@@ -22,6 +22,7 @@ import json
 import os
 import sys
 import time
+from multiprocessing import get_context
 from pathlib import Path
 
 for key in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "VECLIB_MAXIMUM_THREADS"):
@@ -38,7 +39,15 @@ from centre_marginal import RUNS, load_run, scores
 from ocen_dm import centre_marg as cm
 from ocen_dm.centre_model import CentreGeometry, ModelMoments, PointSet, effective_sample_size, projected_variance
 from ocen_dm.kinematics.df_fit import DFJointProblem, build_df_model
-from ocen_dm.kinematics.likelihood import ARCSEC_PER_RAD
+from ocen_dm.kinematics.likelihood import ARCSEC_PER_RAD, ProfileLikelihood
+
+DROP = ("hst_pm_radial_ours", "hst_pm_tangential_ours")   # sensitivity: without their 2 innermost bins
+
+
+def lnl_drop2(ev, data):
+    prof = {p.name: p for p in data.profiles}
+    return ev["loglike_profiled"]-sum(float(ProfileLikelihood._split_normal_lnlike(ev["predictions"][n], prof[n])[:2].sum())
+                                      for n in DROP)
 
 GRIDS = {"s1_n6": (1., 6), "s2_n6": (2., 6), "s3_n6": (3., 6), "s2_n10": (2., 10), "s2_n14": (2., 14)}
 
@@ -59,6 +68,35 @@ def gaia_pm_check(data, mom, c=(6., 0.)):
     return out
 
 
+def score_model(args):
+    """One saved fit: build, T2, Gaia PM check, and its scores at every centre (runs in a worker)."""
+    k, centres, n_obs2 = args
+    t0 = time.time()
+    cfg, d, cps, _ = load_run(RUNS[k])
+    geom = CentreGeometry(d, cps)
+    model = build_df_model(cfg)
+    prob = DFJointProblem(d, None, cps)
+    ev0 = prob.evaluate(cfg, model)
+    pc = cfg.distance_kpc*1e3/ARCSEC_PER_RAD
+    mom = ModelMoments(model, cfg.distance_kpc, r_min_arcsec=max(cfg.numerics.r_min*1.0001/pc, 1e-3),
+                       r_max_arcsec=min(4000., 0.999*cfg.numerics.r_max/100/pc))
+    ref = geom.reference(mom)
+    t2 = abs(prob.evaluate(cfg, model, factors=geom.factors(mom, (0., 0.), ref))["loglike_profiled"]
+             - ev0["loglike_profiled"])
+    gpm = gaia_pm_check(d, mom)
+    print(f"{k}: built in {time.time()-t0:.0f}s; T2 {t2:.2e}", flush=True)
+    t1 = time.time()
+    out = []
+    for c in centres:
+        ev = prob.evaluate(cfg, model, factors=geom.factors(mom, c, ref))
+        s = scores(ev)
+        s["P_inner2"] = float(poisson.cdf(n_obs2, s["mu_inner2"]))
+        s["lnl_drop2"] = lnl_drop2(ev, d)
+        out.append(s)
+    print(f"{k}: {len(centres)} centres in {time.time()-t1:.0f}s", flush=True)
+    return k, scores(ev0), t2, gpm, out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--label", default="20261103")
@@ -69,8 +107,6 @@ def main():
     if len(shas) != 1:
         raise SystemExit("the three runs do not share the same frozen data")
     _, data, counts, _ = runs["no BH"]
-    geom = CentreGeometry(data, counts)
-    print("point sets:", {k: int(len(v.x)) for k, v in geom.sets.items()}, flush=True)
     hst = next(c for c in counts if c.name.startswith(cm.HST_NAME))
     n_obs2 = int(np.sum(hst.counts[:2]))
 
@@ -78,26 +114,11 @@ def main():
     centres = sorted({(0., 0.)} | {tuple(np.round(x, 12)) for C, _ in grids.values() for x in C})
     rows = {c: {} for c in centres}
     frozen, tests = {}, {"T2": {}, "gaia_pm_shift6_over_err": {}}
-    for k, (cfg, d, cps, _) in runs.items():
-        t0 = time.time()
-        model = build_df_model(cfg)
-        prob = DFJointProblem(d, None, cps)
-        ev0 = prob.evaluate(cfg, model)
-        frozen[k] = scores(ev0)
-        pc = cfg.distance_kpc*1e3/ARCSEC_PER_RAD
-        mom = ModelMoments(model, cfg.distance_kpc, r_min_arcsec=max(cfg.numerics.r_min*1.0001/pc, 1e-3))
-        ref = geom.reference(mom)
-        f0 = geom.factors(mom, (0., 0.), ref)
-        tests["T2"][k] = abs(prob.evaluate(cfg, model, factors=f0)["loglike_profiled"]-ev0["loglike_profiled"])
-        tests["gaia_pm_shift6_over_err"][k] = gaia_pm_check(d, mom)
-        print(f"{k}: built in {time.time()-t0:.0f}s; T2 {tests['T2'][k]:.2e}", flush=True)
-        t1 = time.time()
-        for c in centres:
-            ev = prob.evaluate(cfg, model, factors=geom.factors(mom, c, ref))
-            s = scores(ev)
-            s["P_inner2"] = float(poisson.cdf(n_obs2, s["mu_inner2"]))
-            rows[c][k] = s
-        print(f"{k}: {len(centres)} centres in {time.time()-t1:.0f}s", flush=True)
+    with get_context("spawn").Pool(len(runs)) as pool:
+        for k, fz, t2, gpm, rk in pool.imap(score_model, [(k, centres, n_obs2) for k in runs]):
+            frozen[k] = fz; tests["T2"][k] = t2; tests["gaia_pm_shift6_over_err"][k] = gpm
+            for c, v in zip(centres, rk):
+                rows[c][k] = v
 
     out = dict(runs=RUNS, frozen=frozen, tests=tests, n_obs_inner2=n_obs2, grids={})
     names = list(runs)
@@ -105,6 +126,12 @@ def main():
         L = np.array([[rows[tuple(np.round(x, 12))][k]["lnl"] for x in C] for k in names])
         Lm = cm.marginal_loglike(L, W)
         res = {"lnl_m": dict(zip(names, map(float, Lm)))}
+        L2 = np.array([[rows[tuple(np.round(x, 12))][k]["lnl_drop2"] for x in C] for k in names])
+        L2m = cm.marginal_loglike(L2, W)
+        res["dm2_drop2"] = {k: float(-2*(L2m[j]-L2m[0])) for j, k in enumerate(names)}
+        res["dm2_drop2_at_avdm10"] = {k: float(-2*(rows[(0., 0.)][k]["lnl_drop2"]-rows[(0., 0.)][names[0]]["lnl_drop2"]))
+                                      for k in names}
+        res["dm2_at_avdm10"] = {k: float(-2*(rows[(0., 0.)][k]["lnl"]-rows[(0., 0.)][names[0]]["lnl"])) for k in names}
         res["dm2"] = {k: float(-2*(Lm[j]-Lm[0])) for j, k in enumerate(names)}
         dd = L-L[0]
         res["per_centre_dm2"] = {k: dict(mean=float(-2*W@dd[j]), sd=float(2*np.sqrt(W@(dd[j]-W@dd[j])**2)),

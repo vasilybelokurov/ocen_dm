@@ -142,3 +142,38 @@ Reading: the prediction is right to < 0.1 bin error for offsets up to ~2" (1 sig
 r_c < 1" with very large model variance are partly absorbed by the field component / down-weighted by the
 single-Gaussian fit). At c = 0 the same estimator reads 0.2-0.5 bin errors low in the innermost bins of this
 steep mock profile (baseline bias, not centre-specific).
+
+### Model-side marginal results (`bin/centre_model_marginal.py`, 3 cores, 45 min; `plots/centre_model_marginal_20261103.png`)
+
+Saved fits, not refitted. Inner kinematic bins (r_lower < 15") use a smooth star density
+(`ContinuousSet`, one power-law slope: HST 0.15, MUSE 0.09) instead of the discrete stars: with the stars,
+a trial centre within ~0.03" of one star let that star's 1/r model variance dominate its bin (4e4 Msun:
+ln L jumps of 20-40; first run discarded).
+
+| test | result | pass |
+|---|---|---|
+| T2 (c = 0, unit factors) | 0 exactly | yes |
+| T4 (n = 10, 14 vs 6, -2 Delta ln L_m) | BH 8200: -0.001, -0.011; BH 4e4: -0.024, +0.126 | yes (4e4 n14 at the 0.1 limit) |
+| ESS of centre contributions (n = 10 / 14) | no BH 13.7 / 19.0; 8200 16.3 / 22.9; 4e4 8.3 / 10.0 | ~ (4e4 n10 just below 10) |
+| Gaia PM bins at a 6" shift | < 0.005 bin error | yes |
+
+**-2 Delta ln L vs no BH**
+
+| | AvdM10 fixed | sigma_c 1" | 2" (n14) | 3" | 2", without the 2 innermost PM bins |
+|---|---|---|---|---|---|
+| BH 8,200 | -5.51 | -5.52 | -5.81 | -5.97 | -4.35 |
+| BH 4e4 | -0.52 | +0.12 | +0.99 | -0.64 | +3.01 |
+
+- Likelihood-weighted centre (sigma_c = 2"): (0.2, 0.1)" no BH, (0.25, 0.27)" 8200, (0.2, 0.7)" 4e4.
+- Central deficit, prior-predictive P(N_inner2 <= 18): no BH 0.028, 8200 0.017, 4e4 0.001 (AvdM10: 0.027, 0.016,
+  0.001). The data-side "0.30-0.37" was an artefact of re-binning the observed count.
+- The 4e4 map has structure on ~1" scales, not noise: predictions are smooth and symmetric; the penalty rises
+  when the offset BH sits inside one of the inner PM rings (that ring's predicted sigma jumps, e.g. 0.85 -> 0.96
+  mas/yr). The mock shows our estimator responds ~30 % less than the mean-variance prediction to such stars,
+  so the off-centre 4e4 penalty is if anything overstated; its marginal lies between -0.6 and +1.0 either way.
+
+**Reading.** Marginalising over the centre changes nothing material: BH 8,200 stays preferred over no BH by
+-2 Delta ln L ~ 5.5-6 (4.2-4.7 without the two innermost PM bins); BH 4e4 stays neither preferred nor
+disfavoured overall (counts against, inner PMs for; +3 to +4 against without the two innermost PM bins); the
+central count deficit is unchanged. The data do not pull the centre away from AvdM10 (< 1"). No refit needed
+for the centre; a free-BH-mass fit remains the clean way to settle the mass.
