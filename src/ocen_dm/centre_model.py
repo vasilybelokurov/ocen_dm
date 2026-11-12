@@ -222,7 +222,16 @@ def projected_variance(mom, x, y, c, component):
 class CentreGeometry:
     """Fixed point sets of the frozen products and the per-bin model factors for a centre c."""
 
-    def __init__(self, data, counts, hst_stars=None, muse_stars=None, r_cont=15.):
+    def __init__(self, data, counts, hst_stars=None, muse_stars=None, r_cont=15.,
+                 cells=None, cont_kwargs=None):
+        """``cells = (n_r, n_phi)`` (kinematic star sets only; default: every star) replaces the
+        stars of each discrete bin by an (R, phi) grid of n_r x n_phi cells about AvdM10, each cell
+        represented by its stars' centroid with weight = their number. The bin mean is then exact
+        to second order in the cell size, and the azimuthal cancellation of the first-order centre
+        term is kept (a random subsample breaks it). A speed option for samplers that need the
+        factors at every call (Jeans centre sampling; accuracy: JOURNAL 2026-11-12).
+        ``cont_kwargs`` overrides the ContinuousSet quadrature. The defaults reproduce the DF
+        marginalisation exactly."""
         prof = {p.name: p for p in data.profiles}
         self.sets, self.kind, self.cont = {}, {}, {}
         if hst_stars is None:
@@ -258,7 +267,36 @@ class CentreGeometry:
             m = int(np.count_nonzero(p.r_lower < r_cont))
             if m:
                 radii = [np.hypot(ps.x, ps.y)[ps.idx == k] for k in range(m)]
-                self.cont[name] = ContinuousSet(p.r_lower[:m], p.r_upper[:m], radii)
+                self.cont[name] = ContinuousSet(p.r_lower[:m], p.r_upper[:m], radii, **(cont_kwargs or {}))
+        # points actually evaluated: kinematic bins handled by ContinuousSet are dropped (their
+        # discrete means were overwritten anyway), optionally compressed into cells
+        self.cells = None if cells is None else (int(cells[0]), int(cells[1]))
+        self._eval = {}
+        for name, ps in self.sets.items():
+            if self.kind[name] == "Sigma":
+                self._eval[name] = ps
+                continue
+            m = self.cont[name].n_bins if name in self.cont else 0
+            j = ps.idx >= m
+            sub = PointSet(ps.x[j], ps.y[j], ps.idx[j], ps.w[j], ps.n_bins)
+            if self.cells is not None:
+                p = prof[name]
+                sub = self._compress(sub, p.r_lower, p.r_upper, *self.cells)
+            self._eval[name] = sub
+
+    @staticmethod
+    def _compress(ps, r_lower, r_upper, n_r, n_phi):
+        """Weighted centroids of the points in (bin, R sub-ring, phi sector) cells."""
+        R = np.hypot(ps.x, ps.y)
+        lo, hi = np.asarray(r_lower, float)[ps.idx], np.asarray(r_upper, float)[ps.idx]
+        ir = np.clip(((R-lo)/(hi-lo)*n_r).astype(np.int64), 0, n_r-1)
+        ip = np.clip(((np.arctan2(ps.x, ps.y) % (2*np.pi))/(2*np.pi)*n_phi).astype(np.int64), 0, n_phi-1)
+        key = (ps.idx.astype(np.int64)*n_r+ir)*n_phi+ip
+        u, inv = np.unique(key, return_inverse=True)
+        w = np.bincount(inv, ps.w)
+        x = np.bincount(inv, ps.w*ps.x)/w
+        y = np.bincount(inv, ps.w*ps.y)/w
+        return PointSet(x, y, (u//(n_r*n_phi)).astype(ps.idx.dtype), w, ps.n_bins)
 
     @staticmethod
     def _hst_count_points(cp, full_inside=30.):
@@ -274,11 +312,12 @@ class CentreGeometry:
                         np.r_[ann.w, cells.w], cp.n)
 
     def _means(self, mom, name, c):
-        ps, kind = self.sets[name], self.kind[name]
+        ps, kind = self._eval[name], self.kind[name]
         if kind == "Sigma":
             v = mom(np.hypot(ps.x-c[0], ps.y-c[1]), ("Sigma",))["Sigma"]
             return ps.mean(v)
-        out = ps.mean(projected_variance(mom, ps.x, ps.y, c, kind))
+        with np.errstate(invalid="ignore", divide="ignore"):     # empty (continuous) bins: set below
+            out = ps.mean(projected_variance(mom, ps.x, ps.y, c, kind))
         if name in self.cont:
             cs = self.cont[name]
             out[:cs.n_bins] = cs.mean(lambda x, y, cc: projected_variance(mom, x, y, cc, kind), c)

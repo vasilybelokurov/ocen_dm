@@ -456,8 +456,12 @@ class ProfileLikelihood:
         return m[kind] / m["Sigma"]
 
     def _reduce(self, profile: BinnedProfile, m: dict[str, np.ndarray], R: np.ndarray,
-                w: np.ndarray | None, distance_kpc: float) -> np.ndarray:
-        """Bin-average ``sigma^2`` with tracer weight ``Sigma R`` and convert units."""
+                w: np.ndarray | None, distance_kpc: float, factor: np.ndarray | None = None) -> np.ndarray:
+        """Bin-average ``sigma^2`` with tracer weight ``Sigma R`` and convert units.
+
+        ``factor`` (per bin) multiplies the bin-averaged second moment before the streaming
+        term is removed: the change of the prediction when the model centre moves with the
+        data fixed (:mod:`ocen_dm.centre_model`). ``None`` leaves it unchanged."""
         if w is not None and profile.r_nodes is not None:
             k = profile.r_nodes.shape[1]
             value2 = self._sigma2(m, profile.kind).reshape(profile.n, k).mean(axis=1)
@@ -468,6 +472,8 @@ class ProfileLikelihood:
             weight = (m["Sigma"] * R * w).reshape(shape)
             s2 = self._sigma2(m, profile.kind).reshape(shape)
             value2 = np.sum(weight * s2, axis=1) / np.sum(weight, axis=1)
+        if factor is not None:
+            value2 = value2 * np.asarray(factor, float)
         if profile.kind != "los":
             value2 = value2 / (KMS_PER_MASYR_KPC * distance_kpc) ** 2  # -> (mas/yr)^2
         if profile.streaming2 is not None:
@@ -482,12 +488,18 @@ class ProfileLikelihood:
         return self._reduce(profile, jeans.projected_moments(R), R, w, distance_kpc)
 
     def predict(self, jeans: SphericalJeans, distance_kpc: float,
-                scales: dict[str, float] | None = None) -> dict[str, np.ndarray]:
+                scales: dict[str, float] | None = None,
+                factors: dict[str, np.ndarray] | None = None) -> dict[str, np.ndarray]:
         """Model dispersions for every profile, with instrument scales applied.
 
         All profiles' radii go through one call to the solver's projection.
+        ``factors`` maps profile names to per-bin second-moment multipliers (see ``_reduce``).
         """
         scales = scales or {}
+        factors = factors or {}
+        unknown = set(factors) - {p.name for p in self.data.profiles}
+        if unknown:
+            raise ValueError(f"factors for unknown profiles {sorted(unknown)}")
         pc_per_arcsec = distance_kpc * 1e3 / ARCSEC_PER_RAD
         nodes = [self._nodes(p, pc_per_arcsec) for p in self.data.profiles]
         R_all = np.concatenate([R for R, _ in nodes])
@@ -497,7 +509,7 @@ class ProfileLikelihood:
         for p, (R, w) in zip(self.data.profiles, nodes):
             sl = slice(start, start + len(R)); start += len(R)
             m = {k: v[sl] for k, v in m_all.items()}
-            out[p.name] = self._reduce(p, m, R, w, distance_kpc) * scales.get(p.instrument, 1.0)
+            out[p.name] = self._reduce(p, m, R, w, distance_kpc, factors.get(p.name)) * scales.get(p.instrument, 1.0)
         return out
 
     # ---- likelihood ----------------------------------------------------------
@@ -516,23 +528,26 @@ class ProfileLikelihood:
         return -0.5 * ((model - p.value) / err) ** 2 + np.log(norm)
 
     def lnlike_terms(self, jeans: SphericalJeans, distance_kpc: float,
-                     scales: dict[str, float] | None = None) -> dict[str, float]:
+                     scales: dict[str, float] | None = None,
+                     factors: dict[str, np.ndarray] | None = None) -> dict[str, float]:
         """Per-dataset log-likelihoods."""
-        pred = self.predict(jeans, distance_kpc, scales)
+        pred = self.predict(jeans, distance_kpc, scales, factors)
         return {p.name: float(np.sum(self._split_normal_lnlike(pred[p.name], p))) for p in self.data.profiles}
 
     def lnlike(self, jeans: SphericalJeans, distance_kpc: float,
-               scales: dict[str, float] | None = None) -> float:
+               scales: dict[str, float] | None = None,
+               factors: dict[str, np.ndarray] | None = None) -> float:
         """Total log-likelihood; ``-inf`` if the model cannot be evaluated."""
         try:
-            return float(sum(self.lnlike_terms(jeans, distance_kpc, scales).values()))
+            return float(sum(self.lnlike_terms(jeans, distance_kpc, scales, factors).values()))
         except (ValueError, FloatingPointError):
             return -np.inf
 
     def chi2_terms(self, jeans: SphericalJeans, distance_kpc: float,
-                   scales: dict[str, float] | None = None) -> dict[str, tuple[float, int]]:
+                   scales: dict[str, float] | None = None,
+                   factors: dict[str, np.ndarray] | None = None) -> dict[str, tuple[float, int]]:
         """``(chi^2, n_points)`` per dataset, for goodness-of-fit reporting."""
-        pred = self.predict(jeans, distance_kpc, scales)
+        pred = self.predict(jeans, distance_kpc, scales, factors)
         out = {}
         for p in self.data.profiles:
             err = np.where(pred[p.name] > p.value, p.err_hi, p.err_lo)

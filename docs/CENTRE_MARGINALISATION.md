@@ -177,3 +177,33 @@ ln L jumps of 20-40; first run discarded).
 disfavoured overall (counts against, inner PMs for; +3 to +4 against without the two innermost PM bins); the
 central count deficit is unchanged. The data do not pull the centre away from AvdM10 (< 1"). No refit needed
 for the centre; a free-BH-mass fit remains the clean way to settle the mass.
+
+## Jeans: sampled model centre (2026-11-12)
+
+The Jeans fits get the same model-side centre treatment, but **sampled** instead of averaged on a
+grid: `NoDarkMatterModel(..., centre_sigma_arcsec=S)` (also `DarkMatterModel`) adds `centre_x`
+(dRA*) and `centre_y` (dDec) [arcsec] about AvdM10, each with a normal(0, S) prior. Data stay
+binned about AvdM10. At every call `FitProblem` tabulates the Jeans projected moments
+(`ModelMoments`, 200-point log grid) and multiplies the HST PM and MUSE bin second moments by
+`CentreGeometry.factors` before the streaming term is removed (`ProfileLikelihood(..., factors=)`).
+Gaia bins are not moved. Without the option the parameter vector, config and likelihood are the
+legacy ones. Sensitivity to S (1", 3") is by importance reweighting of the S = 2" samples.
+
+Speed options (`DEFAULT_CENTRE_OPTIONS` in `kinematics/fit.py`; the DF path keeps the exact
+defaults, verified bit-identical to the previous code on the 4e4 DF fit):
+
+| option | meaning | value |
+|---|---|---|
+| `cells` | discrete bins: stars replaced by centroids of (R, phi) cells per bin, weight = count | 8 x 128 |
+| `n_moments` | log-grid points of the tabulated moments | 200 |
+| `cont_kwargs` | ContinuousSet quadrature of the bins inside 15" | n_panel 24, n_theta 96 |
+
+Accuracy against every star, 900-point grid and default quadrature (8 J-counts K1 posterior
+models incl. the 4 highest M_BH; centres on rings |c| = 1, 2, 4, 6"): max |Delta ln L| 0.008,
+max prediction change 0.003 bin errors (centre signal up to 0.53 bin errors, ln L range over the
+centres 14.2). A random subsample of 1000-2000 stars per bin was rejected: errors 0.08-0.14 bin
+errors, |Delta ln L| up to 0.9 (it breaks the azimuthal cancellation of the first-order term).
+Cost: 19-20 ms per likelihood call vs 4.9 ms with the centre fixed.
+
+Launch: `bin/run_jeans_counts_tracer.py BATCH --source rung2_K{1,2_nfw,2_cored}_turnover
+--centre-sigma 2` -> `results/fits/jeans_*_counts_c_centre2`. Tests: `tests/test_jeans_centre.py`.

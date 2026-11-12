@@ -55,6 +55,10 @@ MGE_SIGMA_RANGE_ARCSEC = (10.5, 3000.0)
 NUISANCE_INSTRUMENTS = ("MUSE", "GaiaDR2", "GaiaEDR3")
 NUISANCE_RANGE = {"MUSE": (0.85, 1.15), "GaiaDR2": (0.7, 1.3), "GaiaEDR3": (0.7, 1.3)}
 PROFILE_GRID_PC = np.geomspace(0.1, 500.0, 60)
+#: settings of the sampled-centre option (``centre_sigma_arcsec``): CentreGeometry speed options
+#: and the log-grid size of the tabulated model moments. Accuracy against the full star sets and
+#: the 900-point grid: tests/test_jeans_centre.py and JOURNAL 2026-11-12.
+DEFAULT_CENTRE_OPTIONS = {"cells": [8, 128], "n_moments": 200, "cont_kwargs": {"n_panel": 24, "n_theta": 96}}
 
 
 # ------------------------------------------------------------------ priors ---
@@ -144,7 +148,8 @@ class NoDarkMatterModel:
                  distance_prior: Prior | None = "default", fix_distance: bool = False,
                  tracer: str = "trager", backend: str = "jeans", fixed: dict[str, float] | None = None,
                  constant_beta: bool = False, beta0_max: float = BETA0_MAX_CORED_TRACER_WITH_BH,
-                 distance_kpc: float | None = None, anisotropy_profile: str = "monotonic") -> None:
+                 distance_kpc: float | None = None, anisotropy_profile: str = "monotonic",
+                 centre_sigma_arcsec: float | None = None, centre_options: dict | None = None) -> None:
         """
         Parameters
         ----------
@@ -165,7 +170,26 @@ class NoDarkMatterModel:
             ``monotonic`` preserves the legacy single transition. ``turnover``
             uses three beta levels and two ordered transition radii, with
             either sign of curvature; available only for the Jeans backend.
+        centre_sigma_arcsec : float, optional
+            Sample the model centre: two parameters ``centre_x`` (dRA*) and ``centre_y``
+            (dDec) [arcsec] about AvdM10, each with a normal(0, sigma) prior. The data stay
+            binned about AvdM10; the predictions of the HST PM and MUSE bins change with the
+            centre through :class:`ocen_dm.centre_model.CentreGeometry` (Gaia bins are not
+            moved). ``None`` (default) keeps the centre fixed and the legacy parameter vector.
+        centre_options : dict, optional
+            Overrides of :data:`DEFAULT_CENTRE_OPTIONS`.
         """
+        if centre_sigma_arcsec is not None:
+            if not centre_sigma_arcsec > 0:
+                raise ValueError("centre_sigma_arcsec must be positive")
+            if backend != "jeans":
+                raise ValueError("the sampled centre needs the jeans backend")
+        unknown = set(centre_options or {}) - set(DEFAULT_CENTRE_OPTIONS)
+        if unknown:
+            raise ValueError(f"unknown centre options {sorted(unknown)}")
+        self.centre_sigma_arcsec = None if centre_sigma_arcsec is None else float(centre_sigma_arcsec)
+        self.centre_options = {**DEFAULT_CENTRE_OPTIONS, **(centre_options or {})} \
+            if centre_sigma_arcsec is not None else None
         if backend not in ("jeans", "jam", "agama"):
             raise ValueError("backend must be 'jeans', 'jam' or 'agama'")
         if anisotropy_profile not in ("monotonic", "turnover"):
@@ -190,6 +214,8 @@ class NoDarkMatterModel:
             self.label = f"{self.label}_{tracer}"
         if backend != "jeans" and not hasattr(self, "gamma"):
             self.label = f"{self.label}_{backend}"
+        if self.centre_sigma_arcsec is not None and not hasattr(self, "gamma"):
+            self.label = f"{self.label}_centre{self.centre_sigma_arcsec:g}"
         self.nuisance_instruments = tuple(instruments)
         if fix_distance:
             distance_prior = None                      # fixed at OCEN_DISTANCE_KPC (tests, comparisons)
@@ -240,7 +266,17 @@ class NoDarkMatterModel:
             params.append(Parameter(f"s_{inst}", Prior("uniform", lo, hi), "", rf"s_{{\rm {inst}}}"))
         if self.distance_prior is not None:
             params.append(Parameter("distance", self.distance_prior, "kpc", "D"))
+        if getattr(self, "centre_sigma_arcsec", None) is not None:
+            prior = Prior("normal", mu=0.0, sigma=self.centre_sigma_arcsec)
+            params += [Parameter("centre_x", prior, "arcsec", r"\Delta\alpha_*"),
+                       Parameter("centre_y", prior, "arcsec", r"\Delta\delta")]
         return tuple(params)
+
+    def centre(self, theta: dict[str, float]) -> tuple[float, float] | None:
+        """Model centre (dRA*, dDec) [arcsec] about AvdM10, or ``None`` when it is fixed."""
+        if self.centre_sigma_arcsec is None:
+            return None
+        return float(theta["centre_x"]), float(theta["centre_y"])
 
     # -- construction ---------------------------------------------------------
     def distance(self, theta: dict[str, float]) -> float:
@@ -316,6 +352,8 @@ class DarkMatterModel(NoDarkMatterModel):
             self.label += f"_{self.tracer}"
         if self.backend != "jeans":
             self.label += f"_{self.backend}"
+        if self.centre_sigma_arcsec is not None:
+            self.label += f"_centre{self.centre_sigma_arcsec:g}"
 
     def _physical_parameters(self) -> list[Parameter]:
         return super()._physical_parameters() + [
@@ -337,18 +375,48 @@ class DarkMatterModel(NoDarkMatterModel):
 class FitProblem:
     """A model family bound to data: the callable the samplers need."""
 
-    def __init__(self, family: NoDarkMatterModel, data: KinematicData) -> None:
+    def __init__(self, family: NoDarkMatterModel, data: KinematicData, geometry: Any = None) -> None:
         self.family = family
         self.data = data
         self.likelihood = ProfileLikelihood(data)
         self.n_calls = 0
+        self._geometry = geometry
+
+    @property
+    def geometry(self):
+        """CentreGeometry of the frozen HST PM / MUSE bins (built on first use; sampled centre only)."""
+        if self._geometry is None and getattr(self.family, "centre_sigma_arcsec", None) is not None:
+            from ..centre_model import CentreGeometry
+            o = self.family.centre_options
+            self._geometry = CentreGeometry(self.data, (), cells=o["cells"], cont_kwargs=o["cont_kwargs"])
+        return self._geometry
+
+    def factors(self, jeans: Any, distance_kpc: float, theta: dict[str, float]) -> dict[str, np.ndarray] | None:
+        """Per-bin second-moment multipliers for the model centre in ``theta``.
+
+        ``None`` for a fixed centre or c = (0, 0), so the frozen likelihood is reproduced exactly.
+        """
+        c = self.family.centre(theta) if hasattr(self.family, "centre") else None
+        if c is None or (c[0] == 0.0 and c[1] == 0.0):
+            return None
+        from ..centre_model import ModelMoments
+        from .likelihood import ARCSEC_PER_RAD
+        pc = distance_kpc * 1e3 / ARCSEC_PER_RAD
+        mom = ModelMoments(jeans, distance_kpc, r_max_arcsec=min(4000.0, 0.999 * jeans.r_cut / pc),
+                           n=int(self.family.centre_options["n_moments"]))
+        geom = self.geometry
+        return geom.factors(mom, c, geom.reference(mom))
+
+    def _evaluate(self, x: np.ndarray):
+        theta = self.family.to_dict(x)
+        jeans, D, scales = self.family.build(theta)
+        return jeans, D, scales, self.factors(jeans, D, theta)
 
     def loglike_vector(self, x: np.ndarray) -> float:
         self.n_calls += 1
-        theta = self.family.to_dict(x)
         try:
-            jeans, D, scales = self.family.build(theta)
-            ln = self.likelihood.lnlike(jeans, D, scales)
+            jeans, D, scales, factors = self._evaluate(x)
+            ln = self.likelihood.lnlike(jeans, D, scales, factors)
         except (ValueError, FloatingPointError, ZeroDivisionError):
             return -1e100
         return ln if np.isfinite(ln) else -1e100
@@ -357,12 +425,12 @@ class FitProblem:
         return self.loglike_vector(self.family.transform(u))
 
     def predict(self, x: np.ndarray) -> dict[str, np.ndarray]:
-        jeans, D, scales = self.family.build(self.family.to_dict(x))
-        return self.likelihood.predict(jeans, D, scales)
+        jeans, D, scales, factors = self._evaluate(x)
+        return self.likelihood.predict(jeans, D, scales, factors)
 
     def chi2(self, x: np.ndarray) -> dict[str, tuple[float, int]]:
-        jeans, D, scales = self.family.build(self.family.to_dict(x))
-        return self.likelihood.chi2_terms(jeans, D, scales)
+        jeans, D, scales, factors = self._evaluate(x)
+        return self.likelihood.chi2_terms(jeans, D, scales, factors)
 
     def radial_profile(self, x: np.ndarray, grid: np.ndarray = PROFILE_GRID_PC) -> dict[str, np.ndarray]:
         model, _, _ = self.family.build(self.family.to_dict(x))

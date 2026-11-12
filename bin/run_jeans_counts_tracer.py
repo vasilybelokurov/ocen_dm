@@ -11,8 +11,12 @@ points, dlogz 0.5, seed 42, slice steps, one thread) -- and replaces only the MG
 completeness-corrected HST + Gaia counts with the tied amplitude ratio (bin/fit_count_tracer_mge.py,
 data/processed/kinematics/tracer_mge_counts_c.json).
 
+``--centre-sigma S`` (arcsec) also samples the model centre: two extra parameters centre_x (dRA*), centre_y (dDec)
+about AvdM10 with normal(0, S) priors, data fixed about AvdM10 (NoDarkMatterModel(centre_sigma_arcsec=...),
+ocen_dm.centre_model). The output label gets the suffix _centre<S>, e.g. jeans_K1_turnover_counts_c_centre2.
+
 The worker is bin/run_rung2_fits.py `worker`, run from a frozen copy of the code in the batch directory.
-Usage: PYTHONPATH=src python bin/run_jeans_counts_tracer.py BATCH_DIR [--source LABEL] [--dry-run]
+Usage: PYTHONPATH=src python bin/run_jeans_counts_tracer.py BATCH_DIR [--source LABEL] [--centre-sigma S] [--dry-run]
 """
 from __future__ import annotations
 
@@ -47,9 +51,13 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("batch", type=Path)
     p.add_argument("--source", choices=sorted(SOURCES), default="rung2_K1_turnover")
+    p.add_argument("--centre-sigma", type=float, default=None,
+                   help="sample the model centre with a normal(0, S) prior per axis [arcsec]")
     p.add_argument("--dry-run", action="store_true")
     args = p.parse_args()
     SOURCE_LABEL, LABEL = args.source, SOURCES[args.source]
+    if args.centre_sigma is not None:
+        LABEL = f"{LABEL}_centre{args.centre_sigma:g}"
     batch = args.batch.resolve()
     if batch.exists() or (ROOT/"results/fits"/LABEL).exists():
         raise FileExistsError("batch or fit directory already exists")
@@ -59,10 +67,19 @@ def main():
     tracer = json.loads(TRACER.read_text())
     model = dict(source["model"], tracer="counts_c",
                  mge_fit={k: tracer[k] for k in ("sigmas_arcsec", "fractions", "rms_mag", "max_abs_resid_mag", "n_grid")})
+    if args.centre_sigma is not None:
+        from ocen_dm.kinematics.fit import DEFAULT_CENTRE_OPTIONS
+        prior = {"kind": "normal", "mu": 0.0, "sigma": float(args.centre_sigma)}
+        model.update(centre_sigma_arcsec=float(args.centre_sigma), centre_options=dict(DEFAULT_CENTRE_OPTIONS),
+                     parameters=model["parameters"]+[
+                         {"name": "centre_x", "prior": prior, "unit": "arcsec", "latex": r"\Delta\alpha_*"},
+                         {"name": "centre_y", "prior": prior, "unit": "arcsec", "latex": r"\Delta\delta"}])
     family = family_from_config(model)
     assert family_config(family_from_config(family_config(family))) == family_config(family)
     reference = family_from_config(source["model"])
-    assert [(q.name, q.prior) for q in family.parameters] == [(q.name, q.prior) for q in reference.parameters]
+    n_ref = len(reference.parameters)
+    assert [(q.name, q.prior) for q in family.parameters[:n_ref]] == [(q.name, q.prior) for q in reference.parameters]
+    assert family.names[n_ref:] == (() if args.centre_sigma is None else ("centre_x", "centre_y"))
     problem = FitProblem(family, data)
     rng = np.random.default_rng(123)
     cubes = rng.uniform(.001, .999, size=(256, len(family.names)))
@@ -71,10 +88,17 @@ def main():
     assert np.all(np.isfinite(loglike)) and loglike.min() > -1e50
     # the J-Trager maximum-likelihood point evaluated with the count tracer (diagnostic only)
     ml = json.loads((ROOT/"results/fits"/SOURCE_LABEL/"summary.json").read_text())["parameters"]
-    theta = np.array([ml[n]["ml"] for n in family.names])
-    ll_ref, ll_new = float(FitProblem(reference, data).loglike_vector(theta)), float(problem.loglike_vector(theta))
+    theta = np.array([ml[n]["ml"] for n in reference.names])
+    ll_ref = float(FitProblem(reference, data).loglike_vector(theta))
+    ll_new = float(problem.loglike_vector(np.r_[theta, np.zeros(len(family.names)-n_ref)]))
     print(f"{LABEL}: {len(family.names)} parameters, {len(cubes)} finite prior checks; at the J-Trager ML point "
-          f"lnL {ll_ref:.2f} (Trager tracer) -> {ll_new:.2f} (count tracer)", flush=True)
+          f"lnL {ll_ref:.2f} (Trager tracer) -> {ll_new:.2f} (count tracer"
+          f"{'' if args.centre_sigma is None else ', centre at AvdM10'})", flush=True)
+    if args.centre_sigma is not None:
+        import time
+        u = cubes[:20]
+        t0 = time.perf_counter(); [problem.loglike_unit(v) for v in u]
+        print(f"centre sampling: {1e3*(time.perf_counter()-t0)/len(u):.1f} ms per likelihood call", flush=True)
     if args.dry_run:
         return
     batch.mkdir(parents=True)
@@ -87,7 +111,9 @@ def main():
         shutil.copyfile(path, dest)
     config = dict(model=family_config(family), parent_rung1=source["parent_rung1"], twin_of=SOURCE_LABEL,
                   tracer_file=TRACER.name, tracer_sha256=sha256(TRACER), data_snapshot=source["data_snapshot"],
-                  data_fingerprint=source["data_fingerprint"], dataset_options=dict(source["dataset_options"], tracer="counts_c"),
+                  data_fingerprint=source["data_fingerprint"],
+                  dataset_options=dict(source["dataset_options"], tracer="counts_c",
+                                       **({} if args.centre_sigma is None else {"centre_sigma_arcsec": float(args.centre_sigma)})),
                   output=str(ROOT/"results/fits"/LABEL),
                   preflight=dict(prior_points=len(cubes), all_finite=True, loglike_min=float(loglike.min()),
                                  loglike_max=float(loglike.max()), loglike_at_jtrager_ml=dict(trager=ll_ref, counts=ll_new)))
