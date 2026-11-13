@@ -55,7 +55,9 @@ INC = 44.0
 
 
 def star_positions(data, rng, per_bin=250):
-    """Per dataset: arrays (x_east, y_north) of sample points, and the bin index of each."""
+    """Per dataset: (x_east, y_north, bin index, node id) of sample points. HST/MUSE: real star positions (node -1,
+    equal weights). Gaia: 64 azimuths at each radial node (equal-count quantiles of the stars); these are weighted by
+    the flattened tracer surface density within each node (mock weights), as stars of a flattened cluster are."""
     hst = load_hst_sample(require_flag=True)
     hx, hy = hst.r_arcsec*np.sin(hst.phi), hst.r_arcsec*np.cos(hst.phi)
     cat = Table.read(raw_dir()/"omegacat_vi_kinematics"/"catalog_and_selections.fits")
@@ -64,7 +66,7 @@ def star_positions(data, rng, per_bin=250):
     mx = (np.asarray(cat["RA"], float)[s]-OCEN_RA)*cosd*3600; my = (np.asarray(cat["DEC"], float)[s]-OCEN_DEC)*3600
     out = {}
     for p in data.profiles:
-        xs, ys, bins = [], [], []
+        xs, ys, bins, nodes = [], [], [], []
         if p.instrument in ("HST", "MUSE"):
             X, Y = (hx, hy) if p.instrument == "HST" else (mx, my)
             R = np.hypot(X, Y)
@@ -72,35 +74,57 @@ def star_positions(data, rng, per_bin=250):
                 idx = np.flatnonzero((R >= lo) & (R < hi))
                 if len(idx) > per_bin:
                     idx = rng.choice(idx, per_bin, replace=False)
-                xs.append(X[idx]); ys.append(Y[idx]); bins.append(np.full(len(idx), k))
+                xs.append(X[idx]); ys.append(Y[idx]); bins.append(np.full(len(idx), k)); nodes.append(np.full(len(idx), -1))
         else:                                   # Gaia: complete rings at the bin's radial nodes
             ph = (np.arange(64)+.5)/64*2*np.pi
             for k in range(p.n):
                 rr = np.asarray(p.r_nodes[k]) if p.r_nodes is not None else np.array([p.r[k]])
                 xs.append((rr[:, None]*np.sin(ph)).ravel()); ys.append((rr[:, None]*np.cos(ph)).ravel())
-                bins.append(np.full(xs[-1].size, k))
-        out[p.name] = (np.concatenate(xs), np.concatenate(ys), np.concatenate(bins))
+                bins.append(np.full(xs[-1].size, k)); nodes.append(np.repeat(1000*k+np.arange(len(rr)), len(ph)))
+        out[p.name] = (np.concatenate(xs), np.concatenate(ys), np.concatenate(bins), np.concatenate(nodes))
     return out
 
 
+def flatten(m, s_pc, q, pc):
+    """Flattened MGE for JamPy from a circular one: masses m [Msun or L], circular sigmas s_pc [pc], observed q'
+    (scalar or per Gaussian). sigma_major = sigma/sqrt(q') keeps each Gaussian's total (2 pi surf q' sigma_maj^2 =
+    2 pi surf sigma^2) and its circularised profile; surf is unchanged. (Fixed 2026-11-13: the first version kept
+    sigma_major = sigma, which removed a fraction 1-q' of every Gaussian's mass and shrank the profile by sqrt(q').)"""
+    q = np.broadcast_to(np.asarray(q, float), np.shape(s_pc)).copy()
+    return m/(2*np.pi*s_pc**2), s_pc/np.sqrt(q)/pc, q
+
+
+def mge_total(surf, sig_as, q, pc):
+    return float(np.sum(2*np.pi*surf*q*(sig_as*pc)**2))
+
+
 def jam_models(jeans, D, qobs, qrem):
+    """(lum, pot, mbh) for JamPy. qobs: tracer/stellar q' (scalar or one per stellar Gaussian); qrem: remnant q'."""
     pc = D*1e3/ARCSEC_PER_RAD
     gaussians, mbh, other = _split_mass_model(jeans.mass)
     stars = gaussians[0]
     rem = [mge_from_component(c, np.geomspace(0.05, 500., 40)) for c in other]
     ms, ss = np.asarray(stars.masses)*stars.mass_to_light, np.asarray(stars.sigmas)
-    surf, sig, q = [ms/(2*np.pi*ss**2)], [ss/pc], [np.full(len(ss), qobs)]
+    parts = [flatten(ms, ss, qobs, pc)]
     for g in rem:
-        m, s_ = np.asarray(g.masses)*g.mass_to_light, np.asarray(g.sigmas)
-        surf.append(m/(2*np.pi*s_**2)); sig.append(s_/pc); q.append(np.full(len(s_), qrem))
-    pot = (np.concatenate(surf), np.concatenate(sig), np.concatenate(q))
+        parts.append(flatten(np.asarray(g.masses)*g.mass_to_light, np.asarray(g.sigmas), qrem, pc))
+    pot = tuple(np.concatenate([pp[i] for pp in parts]) for i in range(3))
+    want = float(np.sum(ms))+sum(float(np.sum(np.asarray(g.masses)*g.mass_to_light)) for g in rem)
+    got = mge_total(*pot, pc)
+    assert abs(got/want-1) < 1e-10, (got, want)
     # JamPy 9 limits its LOS quadrature and intrinsic grid to the largest tracer sigma (jam_axi_proj.vmom_proj:
     # rmax = max(sigma_lum)); beyond it the moments are wrong (tested 2026-11-13 against an exact Gaussian-tracer /
     # point-mass case: flat 14.7 km/s instead of 7.7 -> 4.4). A negligible tracer Gaussian at 5x the largest sigma,
     # 1e-10 of the peak, extends the grid; with it JAM matches the exact case to 0.001 km/s at 300-2150".
-    sl = ms/(2*np.pi*ss**2)
-    lum = (np.r_[sl, 1e-10*sl.max()], np.r_[ss, 5*ss.max()]/pc, np.full(len(ss)+1, qobs))
+    sl, sg, qq = parts[0]
+    lum = (np.r_[sl, 1e-10*sl.max()], np.r_[sg, 5*sg.max()], np.r_[qq, qq[-1]])
     return lum, pot, mbh
+
+
+def surface_density(lum, xp, yp):
+    """Projected tracer density of a flattened MGE at (x' major, y' minor) [arcsec]."""
+    surf, sig, q = lum
+    return np.sum(surf[:, None]*np.exp(-0.5*(xp[None, :]**2+(yp[None, :]/q[:, None])**2)/sig[:, None]**2), axis=0)
 
 
 class MeanField:
@@ -138,8 +162,20 @@ def run_jam(lum, pot, mbh, D, anis, x, y, gamma, kappa, inc):
 MEAN = None
 
 
-def estimator(p, xp, yp, bins, vel, vel2, D):
-    """Binned mock dispersion and streaming2 for one dataset, in the dataset's units."""
+def weights(lum, xp, yp, nodes):
+    w = np.ones(len(xp))
+    g = nodes >= 0
+    if np.any(g):
+        sd = surface_density(lum, xp[g], yp[g])
+        u, inv = np.unique(nodes[g], return_inverse=True)
+        w[g] = sd/np.bincount(inv, sd)[inv]*np.bincount(inv)[inv]
+    return w
+
+
+def estimator(p, xp, yp, bins, vel, vel2, D, w=None):
+    """Binned mock dispersion and streaming2 for one dataset, in the dataset's units (weighted means; w = None: equal).
+    HST (local mean removed): sigma^2 = <<v^2> - vbar^2>, streaming2 = <vbar^2> for BOTH components (the radial local
+    mean is small but removed too). MUSE: ring sinusoid removed. Gaia: one mean per ring removed."""
     conv = 1.0 if p.kind == "los" else 1/(4.74047*D)
     R = np.hypot(xp, yp)
     eR = np.array([xp/R, yp/R]); eT = np.array([-yp/R, xp/R])
@@ -149,22 +185,25 @@ def estimator(p, xp, yp, bins, vel, vel2, D):
         e = eR if p.kind == "pmr" else eT
         m1 = e[0]*vel[0]+e[1]*vel[1]
         m2 = e[0]**2*vel2[0, 0]+2*e[0]*e[1]*vel2[0, 1]+e[1]**2*vel2[1, 1]
+    w = np.ones(len(xp)) if w is None else w
     sig2, st2 = np.empty(p.n), np.zeros(p.n)
     for k in range(p.n):
         j = bins == k
+        mean = lambda a: np.sum(w[j]*a)/np.sum(w[j])
         if p.instrument == "HST":
-            sig2[k] = np.mean(m2[j]-m1[j]**2); st2[k] = np.mean(m1[j]**2)
+            sig2[k] = mean(m2[j]-m1[j]**2); st2[k] = mean(m1[j]**2)
         elif p.kind == "los":
             ph = np.arctan2(yp[j], xp[j])
             A = np.column_stack([np.cos(ph), np.sin(ph)])
-            c, *_ = np.linalg.lstsq(A, m1[j], rcond=None)
+            sw = np.sqrt(w[j])
+            c, *_ = np.linalg.lstsq(A*sw[:, None], m1[j]*sw, rcond=None)
             s = A @ c
-            sig2[k] = np.mean(m2[j]-m1[j]**2)+np.mean((m1[j]-s)**2); st2[k] = np.mean(s**2)
+            sig2[k] = mean(m2[j]-m1[j]**2)+mean((m1[j]-s)**2); st2[k] = mean(s**2)
         else:
-            sig2[k] = np.mean(m2[j])-np.mean(m1[j])**2; st2[k] = np.mean(m1[j])**2
+            sig2[k] = mean(m2[j])-mean(m1[j])**2; st2[k] = mean(m1[j])**2
     sig = np.sqrt(sig2)*conv
     st2 = st2*conv**2
-    keep_streaming = p.kind in ("pmt", "los")
+    keep_streaming = p.kind in ("pmt", "los") or p.instrument == "HST"
     return sig, (st2 if keep_streaming else None)
 
 
@@ -190,6 +229,7 @@ def main():
     ap.add_argument("--rot-scale", type=float, default=1.0, help="scale the measured rotation (sensitivity test)")
     ap.add_argument("--tag", default="default")
     ap.add_argument("--tune-only", action="store_true")
+    ap.add_argument("--mock-only", action="store_true", help="build and compare the mock, no spherical refits")
     args = ap.parse_args()
     rng = np.random.default_rng(1)
     run = load_run_metadata(ROOT/"results/fits/jeans_K1_turnover_counts_c")
@@ -208,14 +248,14 @@ def main():
     def mock(gamma, kappa):
         res = {}
         for p in pb0.data.profiles:
-            x, y, b = pos[p.name]
+            x, y, b, nd = pos[p.name]
             xp, yp, vel, vel2 = run_jam(lum, pot, mbh, D, jeans.anisotropy, x, y, gamma, kappa, inc)
-            res[p.name] = (p, xp, yp, b, vel, vel2)
+            res[p.name] = (p, xp, yp, b, vel, vel2, weights(lum, xp, yp, nd))
         return res
 
     def rotation_curves(res):
         """MUSE ring LOS amplitude and ring-mean |PM_T| (km/s) at the radii of the rotation-field data."""
-        p, xp, yp, b, vel, _ = res["muse_los_dispersion"]
+        p, xp, yp, b, vel, _, _ = res["muse_los_dispersion"]
         A = []
         for k in range(p.n):
             j = b == k; ph = np.arctan2(yp[j], xp[j])
@@ -223,7 +263,7 @@ def main():
             A.append(np.hypot(*c))
         ring_r = np.array(rot["pm_r"])
         ph = (np.arange(64)+.5)/64*2*np.pi
-        xx = (ring_r[:, None]*np.sin(ph)).ravel(); yy = (ring_r[:, None]*np.cos(ph)).ravel()
+        xx = (ring_r[:, None]*np.sin(ph)).ravel(); yy = (ring_r[:, None]*np.cos(ph)).ravel()   # (diagnostic only)
         xp2, yp2, v, _ = run_jam(lum, pot, mbh, D, jeans.anisotropy, xx, yy, gam, kap, inc)
         R = np.hypot(xp2, yp2)
         vt = (-yp2*v[0]+xp2*v[1])/R
@@ -248,12 +288,21 @@ def main():
 
     profiles = []
     for p in pb0.data.profiles:
-        _, xp, yp, b, vel, vel2 = res[p.name]
-        sig, st2 = estimator(p, xp, yp, b, vel, vel2, D)
+        _, xp, yp, b, vel, vel2, w = res[p.name]
+        sig, st2 = estimator(p, xp, yp, b, vel, vel2, D, w)
         profiles.append(replace(p, value=sig, streaming2=st2))
+        tot = sig**2+(0 if st2 is None else st2); real = p.value**2+(0 if p.streaming2 is None else p.streaming2)
+        d = (np.sqrt(tot)-np.sqrt(real))/p.err_lo
+        print(f"  mock vs real data {p.name:26s} (mock-data)/err mean {d.mean():+6.2f} rms {np.sqrt(np.mean(d**2)):5.2f}")
     mdata = KinematicData(tuple(profiles))
-    out = dict(tag=args.tag, qobs=qobs, qrem=qrem, inc=inc, rot_scale=None if MEAN is None else args.rot_scale, distance=D,
-               truth=dict(zip(fam.names, map(float, x_true))), fits={})
+    out = dict(tag=args.tag, created=time.strftime("%Y-%m-%dT%H:%M:%S"), qobs=qobs, qrem=qrem, inc=inc,
+               rot_scale=None if MEAN is None else args.rot_scale, distance=D,
+               truth=dict(zip(fam.names, map(float, x_true))), fits={},
+               mock={p.name: dict(value=p.value.tolist(), streaming2=None if p.streaming2 is None else
+                                  np.asarray(p.streaming2).tolist()) for p in profiles})
+    if args.mock_only:
+        (ROOT/f"results/rotation/jam_mock_{args.tag}.json").write_text(json.dumps(out, indent=1))
+        return
     for label, cfg_run in (("K1", "jeans_K1_turnover_counts_c"), ("NFW", "jeans_K2_nfw_turnover_counts_c")):
         r = load_run_metadata(ROOT/"results/fits"/cfg_run)
         family = family_from_config(family_config(problem_for(r).family))
