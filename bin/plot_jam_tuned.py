@@ -2,7 +2,7 @@
 """Plot the tuned flattened JAM models (bin/tune_jam_to_data.py) against omega Cen's 89 binned data.
 
 Data: the snapshot with the corrected HST rotation terms (Setup._corrected_data). Models: saved best-fit
-predictions in results/rotation/jam_tuned_<tag>.json. Output: plots/jam_tuned_20261113.png.
+predictions in results/rotation/jam_tuned_<tag>.json. Output: plots/jam_tuned_redo_20261113.png.
 Usage: PYTHONPATH=src:bin python bin/plot_jam_tuned.py
 """
 import json
@@ -16,9 +16,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tune_jam_to_data import Setup
 
-TAGS = [("q1.00_r1.00_i90", "round (q'=1)", "k", "-"), ("q0.95_r0.95_i44", "q'=0.95, i=44", "C0", "--"),
-        ("q0.90_r0.90_i44", "q'=0.90, i=44", "C3", "-"), ("q0.85_r0.85_i44", "q'=0.85, i=44", "C2", ":")]
-S = Setup(per_bin=10)          # only the data are used; positions are irrelevant here
+TAGS = [("q1.00_r1.00_i90_from_q1.00_r1.00_i90_v1", "round (q'=1)", "k", "-"),
+        ("q0.95_r0.95_i44_from_q0.90_r0.90_i44_v1", "q'=0.95, i=44 (unstable)", "C0", "--"),
+        ("q0.90_r0.90_i44_from_q0.85_r0.85_i44_v1", "q'=0.90, i=44", "C3", "-"),
+        ("q0.85_r0.85_i44_from_q0.90_r0.90_i44_v1", "q'=0.85, i=44", "C2", ":")]     # best of the 2026-11-13 redo
+S = Setup(per_bin=10)          # only the data (corrected terms and errors) are used here
 prof = {p.name: p for p in S.data.profiles}
 res = {t: json.loads((ROOT/f"results/rotation/jam_tuned_{t}.json").read_text()) for t, *_ in TAGS}
 fig = plt.figure(figsize=(13, 7.2))
@@ -45,4 +47,4 @@ for t, lab, col, ls in TAGS:
     chi2 = sum(v["chi2"] for v in res[t]["stats"].values())
     axes[0][0].plot([], [], ls, color=col, label=f"{lab}: χ²={chi2:.0f}")
 axes[0][0].legend(fontsize=8, title="tuned JAM, no DM (89 bins)", title_fontsize=8)
-out = ROOT/"plots/jam_tuned_20261113.png"; fig.savefig(out, dpi=130, bbox_inches="tight"); print(out)
+out = ROOT/"plots/jam_tuned_redo_20261113.png"; fig.savefig(out, dpi=130, bbox_inches="tight"); print(out)
