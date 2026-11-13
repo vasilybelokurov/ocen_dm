@@ -129,10 +129,11 @@ def surface_density(lum, xp, yp):
 
 class MeanField:
     """Projected mean velocity (v_x', v_y', v_z) [km/s] from the fitted rotation field, in the (x', y') frame."""
-    def __init__(self, scale=1.0):
+    def __init__(self, scale=1.0, params=None):
+        """params: a rotation-field parameter vector (nodes, incl, pa, vsys); default the fit's MAP."""
         import fit_rotation_field as F
         rot = json.loads((ROOT/"results/rotation/rotation_field_cylindrical_20261113.json").read_text())
-        p = np.array(rot["map"]); nn = len(F.NODES)
+        p = np.array(rot["map"] if params is None else params); nn = len(F.NODES)
         mlos, vt, vr = F.Field("cylindrical").project(scale*p[:nn], p[-3])
         self.F = F
         g = lambda a: np.c_[a, a[:, :1]]

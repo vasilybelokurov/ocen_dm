@@ -67,19 +67,44 @@ class Setup:
             self.pts[p.name] = (xp, yp, b, nd)
         self.data = self._corrected_data()
 
-    def _corrected_data(self):
-        """Real data with the corrected rotation terms (HST R and T from the measured rotation field)."""
+    def _ring_terms(self, p, mf):
+        """Per-bin ring mean of the field's PM component and its mean square [mas/yr, (mas/yr)^2]."""
+        xp, yp, b, _ = self.pts[p.name]
+        v = mf(xp, yp)
+        R = np.hypot(xp, yp)
+        e = (np.array([xp/R, yp/R]) if p.kind == "pmr" else np.array([-yp/R, xp/R]))
+        m1 = (e[0]*v[0]+e[1]*v[1])/(4.74047*D_MEAS)
+        return (np.array([np.mean(m1[b == k]) for k in range(p.n)]),
+                np.array([np.mean(m1[b == k]**2) for k in range(p.n)]))
+
+    def _corrected_data(self, ndraw=40):
+        """Real data with the corrected rotation terms (HST R and T from the measured rotation field).
+
+        Errors (fixed 2026-11-13): the snapshot's HST-T errors include the uncertainty of the OLD (VB21) rotation curve
+        (likelihood._hst_ours, streaming_error_on_sigma). They are replaced by the measurement error (hst_profile
+        product) combined in quadrature with the same first-order term for the NEW field, |vbar| dv / sigma, dv = s.d.
+        of the ring-mean PM over `ndraw` draws of the rotation-field chain (same convention as production: independent
+        between bins). HST-R had no rotation error term and gets none (its ring-mean component is ~0).
+        """
+        from ocen_dm.kinematics.hst_profile import load_hst_product
+        from ocen_dm.kinematics.likelihood import streaming_error_on_sigma
         mf = J.MeanField(1.0)
+        chain = np.load(ROOT/"results/rotation/rotation_field_cylindrical_chain_20261113.npy")
+        draws = chain[np.random.default_rng(7).choice(len(chain), ndraw, replace=False)]
+        mfs = [J.MeanField(1.0, params=d) for d in draws]
+        prod = load_hst_product()
         out = []
         for p in self.pb0.data.profiles:
             if p.instrument == "HST":
-                xp, yp, b, _ = self.pts[p.name]
-                v = mf(xp, yp)
-                R = np.hypot(xp, yp)
-                e = (np.array([xp/R, yp/R]) if p.kind == "pmr" else np.array([-yp/R, xp/R]))
-                m1 = (e[0]*v[0]+e[1]*v[1])/(4.74047*D_MEAS)
-                st2 = np.array([np.mean(m1[b == k]**2) for k in range(p.n)])
-                out.append(replace(p, streaming2=st2))
+                vbar, st2 = self._ring_terms(p, mf)
+                if p.kind == "pmt":
+                    assert np.allclose(np.asarray(prod["r_median"], float), p.r)
+                    e_meas = np.asarray(prod["sigma_pmt_err"], float)
+                    dv = np.std([self._ring_terms(p, m)[0] for m in mfs], axis=0)
+                    err = np.hypot(e_meas, streaming_error_on_sigma(p.value, vbar, dv))
+                    out.append(replace(p, streaming2=st2, err_lo=err, err_hi=err))
+                else:
+                    out.append(replace(p, streaming2=st2))
             else:
                 out.append(p)
         return KinematicData(tuple(out))

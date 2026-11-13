@@ -61,7 +61,10 @@ class Field:
     def __init__(self, law="cylindrical"):
         mge = json.loads((processed_dir()/"kinematics"/"tracer_mge_counts_c.json").read_text())
         keep = np.asarray(mge["fractions"]) > 1e-6
-        self.sig = np.asarray(mge["sigmas_arcsec"])[keep]
+        # circular sigmas -> major-axis sigmas of the flattened projection: sigma_major = sigma/sqrt(q'), which keeps each
+        # Gaussian's total and its circularised profile (same convention as jam_mock_rotation_test.flatten; fixed
+        # 2026-11-13 -- the first version used the circular sigma as the major-axis sigma)
+        self.sig = np.asarray(mge["sigmas_arcsec"])[keep]/np.sqrt(QPROJ)
         self.frac = np.asarray(mge["fractions"])[keep]
         self.law = law
 
