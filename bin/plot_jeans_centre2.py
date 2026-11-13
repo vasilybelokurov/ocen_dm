@@ -3,9 +3,12 @@
 
 Fixed centre: jeans_K1_turnover_counts_c, jeans_K2_{nfw,cored}_turnover_counts_c (2026-10-16).
 Free centre:  the same labels with suffix _centre2 (bin/run_jeans_counts_tracer.py --centre-sigma 2).
-Left: kinematic data with the maximum-likelihood predictions of K1 (fixed centre), K1 and NFW (free centre), with
-residuals. The free-centre curves include the model-centre factors (FitProblem.predict); replayed chi2 is checked
-against the saved value. Right top: posterior of the model centre offset (dRA*, dDec) about AvdM10 for the three
+Left: kinematic data with the maximum-a-posteriori (MAP) predictions of K1 (fixed centre), K1 and NFW (free centre),
+with residuals. MAP = the sampled point (ultranest/chains/weighted_post.txt) maximising ln L + ln prior, the prior
+density taken in the sampled coordinates (flat in log10 for loguniform, flat for uniform, Gaussian for normal), so
+only the normal priors (distance, centre) enter. Not the maximum-likelihood point: with a free centre that lies
+7.6-9.1" south, outside the validated range of the centre model. The free-centre curves include the model-centre
+factors (FitProblem.predict); the replayed ln L is checked against the stored value. Right top: posterior of the model centre offset (dRA*, dDec) about AvdM10 for the three
 free-centre fits, with the 1- and 2-sigma prior circles. Right bottom: M_bh posteriors.
 Output: plots/jeans_centre2_20261113.png, results/plot_data/jeans_centre2_20261113.json.
 Usage: PYTHONPATH=src python bin/plot_jeans_centre2.py
@@ -35,16 +38,33 @@ FREE = [("jeans_K1_turnover_counts_c_centre2", "no DM", "C3"),
 SIGMA = 2.0
 
 
+def map_point(label, family):
+    """Sampled point maximising ln L + ln prior (sampled coordinates); returns (x, lnL, lnprior)."""
+    d = ROOT/"results/fits"/label/"ultranest/chains/weighted_post.txt"
+    names = open(d).readline().split()
+    rows = np.loadtxt(d, skiprows=1)
+    cols = {n: rows[:, i] for i, n in enumerate(names)}
+    lnprior = np.zeros(len(rows))
+    for p in family.parameters:
+        if p.prior.kind in ("normal", "truncnormal"):
+            lnprior += -0.5*((cols[p.name]-p.prior.mu)/p.prior.sigma)**2
+    k = int(np.argmax(cols["logl"]+lnprior))
+    return np.array([cols[n][k] for n in family.names]), float(cols["logl"][k]), float(lnprior[k])
+
+
 def main():
     runs = {}
     for label, *_ in CURVES:
         run = load_run_metadata(ROOT/"results/fits"/label)
         problem = problem_for(run)                          # replays ln L at the ML point
         s = run["summary"]
-        x = np.array([s["parameters"][n]["ml"] for n in problem.family.names])
+        x, lnl, lnp = map_point(label, problem.family)
+        assert np.isclose(problem.loglike_vector(x), lnl, atol=1e-6), label
         chi2 = problem.chi2(x)
-        assert np.isclose(sum(v[0] for v in chi2.values()), s["chi2_ml_total"], atol=.011)
-        runs[label] = dict(problem=problem, pred=problem.predict(x), chi2=chi2, summary=s)
+        runs[label] = dict(problem=problem, pred=problem.predict(x), chi2=chi2, summary=s, x=x, lnl=lnl,
+                           chi2_total=sum(v[0] for v in chi2.values()),
+                           centre={n: float(x[problem.family.names.index(n)]) for n in ("centre_x", "centre_y")
+                                   if n in problem.family.names})
     data = runs[CURVES[0][0]]["problem"].data
     profiles = {p.name: p for p in data.profiles}
     fig = plt.figure(figsize=(13, 7.2))
@@ -73,8 +93,8 @@ def main():
     axes[2][0].set_ylabel(r"$\sigma_{\rm T}$ [mas/yr] (HST ●, Gaia □)")
     axes[0][1].set_ylabel("(data − model)/err")
     for label, name, col, ls in CURVES:
-        s = runs[label]["summary"]
-        axes[0][0].plot([], [], ls, color=col, label=f"{name}: χ² {s['chi2_ml_total']:.1f}/89, ln Z {s['logz']:.1f}")
+        m = runs[label]
+        axes[0][0].plot([], [], ls, color=col, label=f"{name}: MAP χ² {m['chi2_total']:.1f}/89, ln Z {m['summary']['logz']:.1f}")
     fig.legend(loc="upper center", bbox_to_anchor=(0.42, 0.96), ncol=3, fontsize=8, frameon=False)
 
     out = dict(prior_sigma_arcsec=SIGMA, models={})
@@ -107,8 +127,12 @@ def main():
     fig.savefig(ROOT/"plots/jeans_centre2_20261113.png", dpi=140, bbox_inches="tight")
     (ROOT/"results/plot_data").mkdir(exist_ok=True)
     (ROOT/"results/plot_data/jeans_centre2_20261113.json").write_text(json.dumps(out, indent=1))
-    for label in runs:
-        print(label, {k: round(v[0], 2) for k, v in runs[label]["chi2"].items()})
+    for label, m in runs.items():
+        out["models"].setdefault(label, {})["map"] = dict(lnL=m["lnl"], chi2_total=m["chi2_total"], centre=m["centre"],
+                                                         chi2={k: v[0] for k, v in m["chi2"].items()})
+        print(label, "MAP lnL %.2f chi2 %.2f" % (m["lnl"], m["chi2_total"]), m["centre"],
+              {k: round(v[0], 2) for k, v in m["chi2"].items()})
+    (ROOT/"results/plot_data/jeans_centre2_20261113.json").write_text(json.dumps(out, indent=1))
 
 
 if __name__ == "__main__":
