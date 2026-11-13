@@ -4,7 +4,7 @@
 Panels: (a) LOS rotation amplitude per annulus: MUSE per-star velocities binned in rings (ML fit of v_sys + A cos(phi')
 with phi' measured from the fitted PA, intrinsic sigma from the published profile, per-star errors) vs the model's
 amplitude in the same rings (posterior draws); (b) ring-averaged tangential PM rotation (oMEGACat II Table 10 and our
-Gaia EDR3) vs the model; (c) intrinsic v_phi(R) with 68% band; inset text: i, PA, v_sys.
+Gaia EDR3) vs the model; (c) intrinsic v_phi(R) with 68% band; panel (b) also shows the VB21 PM curve (median, 16-84%); inset text: i, PA, v_sys.
 Usage: PYTHONPATH=src:bin python bin/plot_rotation_field.py [--law cylindrical|spherical]
 Output: plots/rotation_field_<law>_20261113.png
 """
@@ -70,6 +70,14 @@ def main():
     ax[1].errorbar(src[t10], pv[t10], pe[t10], fmt="s", color="k", ms=4, label="oMEGACat II Table 10 (Gaia FPR − HST)")
     ax[1].errorbar(src[~t10], pv[~t10], pe[~t10], fmt="o", color="C2", ms=4, label="our Gaia EDR3 mixture fit")
     ax[1].plot(rr, qr[1], color="k"); ax[1].fill_between(rr, qr[0], qr[2], color="k", alpha=.2, lw=0, label="model")
+    from astropy.table import Table
+    from ocen_dm.paths import processed_dir
+    vb = Table.read(processed_dir()/"kinematics"/"vasiliev2021_ocen_pm_profiles.ecsv")
+    k = np.asarray(vb["r"]) > 0
+    ax[1].fill_between(np.asarray(vb["r"])[k], np.asarray(vb["vrot_pm_p16"])[k]*F.KMS, np.asarray(vb["vrot_pm_p84"])[k]*F.KMS,
+                       color="C0", alpha=.25, lw=0)
+    ax[1].plot(np.asarray(vb["r"])[k], np.asarray(vb["vrot_pm"])[k]*F.KMS, color="C0", lw=1.5, ls="--",
+               label="Vasiliev & Baumgardt 2021 (current HST/Gaia term)")
     ax[1].set_xscale("log"); ax[1].set_xlabel("R [arcsec]"); ax[1].set_ylabel("ring-mean tangential PM rotation [km/s]")
     ax[1].legend(fontsize=7.5, frameon=False)
     ax[2].plot(rr, qv[1], color="C0"); ax[2].fill_between(rr, qv[0], qv[2], color="C0", alpha=.25, lw=0)
