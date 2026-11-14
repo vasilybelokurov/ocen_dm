@@ -57,9 +57,12 @@ class Problem:
             if a.inject_mdm is None:
                 pred = {k: np.array(v) for k, v in T["pred"].items()}
             else:
-                SN = S if a.family == "NFW" else Setup(run=RUNS["NFW"], models=H.jam_models)
                 self.truth.update(M_dm_100=a.inject_mdm, r_s=a.inject_rs)
-                pred, _ = SN.predict({n: self.truth[n] for n in SN.fam.names}, T["qobs"], T["qrem"], T["inc"])
+                pred = getattr(a, "inject_pred", None)            # computed once in the parent (workers reuse it)
+                if pred is None:
+                    SN = S if a.family == "NFW" else Setup(run=RUNS["NFW"], models=H.jam_models)
+                    pred, _ = SN.predict({n: self.truth[n] for n in SN.fam.names}, T["qobs"], T["qrem"], T["inc"])
+                    a.inject_pred = pred
                 self.tag += f"_injM{a.inject_mdm:.3g}_rs{a.inject_rs:g}"
             S.data = KinematicData(tuple(replace(p, value=pred[p.name]) for p in S.data.profiles))
         self.qfree = a.qobs is None
@@ -92,6 +95,27 @@ class Problem:
             return 1e30
         ln = sum(self.S.lnlike(pred).values())-0.5*((D-self.dprior.mu)/self.dprior.sigma)**2
         return -ln+np.sum(np.clip(x-self.hi, 0, None)**2+np.clip(self.lo-x, 0, None)**2)*1e6
+
+    def residuals(self, u):
+        """Whitened residuals: (model - data)/err (split-normal side) for the 89 bins, plus the distance-prior term.
+        0.5 sum(r^2) = -lnpost + const (the split-normal normalisation is shared by both sides). u inside the box
+        (bounded solvers); failed models return large finite residuals."""
+        th, q = self.unpack(self.from_u(u))
+        try:
+            pred, D = self.S.predict(th, q, q, self.a.inc)
+        except (ValueError, FloatingPointError, ZeroDivisionError, AssertionError):
+            return np.full(self.nres, 1e3)
+        r = [(pred[p.name]-p.value)/np.where(pred[p.name] > p.value, p.err_hi, p.err_lo) for p in self.S.data.profiles]
+        return np.r_[np.concatenate(r), (D-self.dprior.mu)/self.dprior.sigma]
+
+    @property
+    def nres(self):
+        return sum(p.n for p in self.S.data.profiles)+1
+
+    @property
+    def lnnorm(self):
+        """Constant: -lnpost = 0.5 sum(r^2) - lnnorm."""
+        return float(sum(np.sum(np.log(np.sqrt(2/np.pi)/(p.err_lo+p.err_hi))) for p in self.S.data.profiles))
 
     def starts(self):
         """Spherical MAP of the family; q' 0.90 and 0.97 if free; halo 1e5 (with q' 0.90) and 1e6 (with 0.97)."""
@@ -164,6 +188,77 @@ def _run_de(a, P):
                  popsize=a.popsize, seed=a.seed)]
 
 
+def _screen(u):
+    return _P.objective(u)
+
+
+def _lsq_start(job):
+    """One bounded least-squares run (capfit or scipy TRF) from u0, in the optimiser coordinates."""
+    k, u0 = job
+    P, a, t0 = _P, _P.a, time.perf_counter()
+    lo, hi = P.to_u(P.lo), P.to_u(P.hi)
+    u0 = np.clip(u0, lo+1e-6*(hi-lo), hi-1e-6*(hi-lo))
+    step = np.full(len(u0), a.lsq_step)
+    if a.lsq_solver == "capfit":
+        from capfit.capfit import capfit
+        r = capfit(P.residuals, u0, bounds=(lo, hi), abs_step=step, x_scale="jac", ftol=a.lsq_ftol, xtol=1e-8,
+                   max_nfev=a.lsq_maxfev)
+        u, nf, status = r.x, int(r.nfev), int(r.status)
+    else:
+        from scipy.optimize import least_squares
+        r = least_squares(P.residuals, u0, bounds=(lo, hi), method="trf", x_scale="jac", diff_step=None,
+                          ftol=a.lsq_ftol, xtol=1e-8, gtol=1e-10, max_nfev=a.lsq_maxfev,
+                          jac=lambda u: _fd_jac(P.residuals, u, step, lo, hi))
+        u, nf, status = r.x, int(r.nfev), int(r.status)
+    f = P.objective(u)
+    print(f"   start {k}: -lnpost {P.objective(u0):.2f} -> {f:.3f} ({nf} calls + jacobians, status {status}, "
+          f"{time.perf_counter()-t0:.0f} s)", flush=True)
+    return dict(method=f"lsq_{a.lsq_solver}", start=P.from_u(u0).tolist(), x=P.from_u(u).tolist(), f=float(f),
+                status=status, nfev=nf, seconds=round(time.perf_counter()-t0, 1))
+
+
+def _fd_jac(fun, u, step, lo, hi):
+    """Forward differences, stepping inwards at the upper bound."""
+    f0, cols = fun(u), []
+    for i in range(len(u)):
+        h = step[i] if u[i]+step[i] <= hi[i] else -step[i]
+        v = u.copy(); v[i] += h
+        cols.append((fun(v)-f0)/h)
+    return np.array(cols).T
+
+
+def _run_lsq(a, P):
+    """Screen a Sobol design over the box (plus the family's standard starts), then run bounded least squares from
+    the --lsq-starts best valid points, in parallel on a.workers processes."""
+    from concurrent.futures import ProcessPoolExecutor
+    from multiprocessing import get_context
+    from scipy.stats import qmc
+    t0 = time.perf_counter()
+    lo, hi = P.to_u(P.lo), P.to_u(P.hi)
+    design = qmc.scale(qmc.Sobol(len(lo), seed=a.seed).random(a.screen), lo, hi) if a.screen else np.empty((0, len(lo)))
+    std = np.array([P.to_u(s) for s in P.starts()])
+    extra = [P.to_u(np.array([dict(zip(*_xs(j)))[n] for n in P.pars])) for j in (a.start_from or [])]
+    cand = np.vstack([std, *([np.array(extra)] if extra else []), design])
+    with ProcessPoolExecutor(a.workers, mp_context=get_context("spawn"), initializer=_init, initargs=(a,)) as ex:
+        f = np.array(list(ex.map(_screen, cand, chunksize=4)))
+        print(f"   screened {len(cand)} points: {np.sum(f < 1e29)} valid, best -lnpost {f.min():.2f} "
+              f"({time.perf_counter()-t0:.0f} s)", flush=True)
+        keep = list(range(len(std)+len(extra)))                     # always keep standard and given starts
+        keep += [i for i in np.argsort(f) if i not in keep and f[i] < 1e29][:max(0, a.lsq_starts-len(keep))]
+        runs = list(ex.map(_lsq_start, [(k, cand[i]) for k, i in enumerate(keep)]))
+    fs = sorted(r["f"] for r in runs)
+    print(f"   least squares done: best -lnpost {fs[0]:.3f}; all {[round(v, 2) for v in fs]} "
+          f"({time.perf_counter()-t0:.0f} s)", flush=True)
+    return runs
+
+
+def _xs(path):
+    """(names, values) of a previous jamfit JSON's best point (theta plus qobs)."""
+    d = json.loads(Path(path).read_text())
+    th = dict(d["theta"], qobs=d["qobs"])
+    return list(th), list(th.values())
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--data", required=True)
@@ -175,7 +270,15 @@ def main():
     ap.add_argument("--inject-rs", type=float, default=300.)
     ap.add_argument("--maxfev", type=int, default=3000)
     ap.add_argument("--max-rounds", type=int, default=5)
-    ap.add_argument("--method", choices=("de", "powell"), default="de")
+    ap.add_argument("--method", choices=("lsq", "de", "powell"), default="lsq")
+    ap.add_argument("--lsq-solver", choices=("capfit", "trf"), default="capfit")
+    ap.add_argument("--lsq-starts", type=int, default=6, help="number of least-squares starts (incl. standard ones)")
+    ap.add_argument("--screen", type=int, default=128, help="Sobol points screened to pick starts")
+    ap.add_argument("--start-from", nargs="*", default=None, help="previous jamfit JSONs used as extra starts")
+    ap.add_argument("--lsq-step", type=float, default=1e-3, help="finite-difference step in optimiser coordinates")
+    ap.add_argument("--lsq-ftol", type=float, default=1e-6)
+    ap.add_argument("--lsq-maxfev", type=int, default=None)
+    ap.add_argument("--label", default="", help="suffix for the output file name")
     ap.add_argument("--workers", type=int, default=14)
     ap.add_argument("--popsize", type=int, default=15, help="DE population = popsize x n_parameters")
     ap.add_argument("--maxiter", type=int, default=400, help="DE generations")
@@ -186,7 +289,9 @@ def main():
     from concurrent.futures import ProcessPoolExecutor
     from multiprocessing import get_context
     P = Problem(a)
-    if a.method == "de":
+    if a.method == "lsq":
+        runs = _run_lsq(a, P)
+    elif a.method == "de":
         runs = _run_de(a, P)
     else:
         with ProcessPoolExecutor(2, mp_context=get_context("spawn"), initializer=_init, initargs=(a,)) as ex:
@@ -195,7 +300,8 @@ def main():
     th, q = P.unpack(np.array(best["x"]))
     pred, D = P.S.predict(th, q, q, a.inc)
     st, lnL = P.S.stats(pred), P.S.lnlike(pred)
-    suffix = (f"_q{a.qobs:.2f}" if not P.qfree else "")+(f"_mdm{a.fix_mdm:.3g}" if a.fix_mdm is not None else "")
+    suffix = (f"_q{a.qobs:.2f}" if not P.qfree else "")+(f"_mdm{a.fix_mdm:.3g}" if a.fix_mdm is not None else "") \
+        + ("_lsq" if a.method == "lsq" else "")+(f"_{a.label}" if a.label else "")
     out = dict(data=P.tag, family=a.family, inc=a.inc, q_free=P.qfree, fix_mdm=a.fix_mdm, theta=th, qobs=q, D=D,
                neg_lnpost=best["f"], lnL_total=float(sum(lnL.values())), lnL=lnL, stats=st,
                chi2_total=float(sum(v["chi2"] for v in st.values())), pred={k: v.tolist() for k, v in pred.items()},
