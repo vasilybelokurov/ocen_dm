@@ -25,9 +25,10 @@ import numpy as np
 from astropy.table import Table
 
 from ocen_dm.kinematics.outer_gaia import load_edr3_profile
+from ocen_dm.cluster import OCEN_DISTANCE_KPC
 from ocen_dm.paths import processed_dir
 
-KMS = 4.74047*5.43          # km/s per mas/yr
+KMS = 4.74047*OCEN_DISTANCE_KPC          # km/s per mas/yr
 
 
 def main():

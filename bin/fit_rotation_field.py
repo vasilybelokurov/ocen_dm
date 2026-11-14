@@ -38,10 +38,10 @@ from astropy.table import Table
 from scipy.interpolate import PchipInterpolator, RegularGridInterpolator
 from scipy.optimize import minimize
 
-from ocen_dm.cluster import OCEN_DEC, OCEN_RA
+from ocen_dm.cluster import OCEN_DEC, OCEN_DISTANCE_KPC, OCEN_RA
 from ocen_dm.paths import processed_dir, raw_dir
 
-KMS = 4.74047*5.43
+KMS = 4.74047*OCEN_DISTANCE_KPC
 QPROJ = 0.90
 NODES = np.array([30., 90., 200., 450., 1000., 2200.])
 T10 = np.array([[20.66, .0548, .0324], [47.6, .086, .0181], [76.65, .1478, .0131], [105.91, .2088, .0105],

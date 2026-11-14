@@ -40,6 +40,7 @@ from scipy.optimize import minimize
 
 import jampy as jam
 import jam_mock_rotation_test as J
+from ocen_dm.cluster import OCEN_DISTANCE_KPC
 from ocen_dm.kinematics import FitProblem, KinematicData
 from ocen_dm.kinematics.likelihood import ProfileLikelihood
 from ocen_dm.kinematics.report import load_run_metadata, problem_for
@@ -47,7 +48,7 @@ from plot_jeans_centre2 import map_point
 
 GR = np.geomspace(2., 2600., 36)
 GPHI = (np.arange(24)+.5)/24*np.pi
-D_MEAS = 5.43            # distance at which the PM rotation field was converted to km/s
+D_MEAS = OCEN_DISTANCE_KPC           # distance at which the PM rotation field was converted to km/s
 
 
 def _bilinear(xp, yp):
@@ -64,13 +65,15 @@ def _bilinear(xp, yp):
 
 
 class Setup:
-    def __init__(self, nang=31, nlos=150, per_bin=None):
-        """per_bin: max stars per HST/MUSE bin (None = all stars; 2026-11-13 redo uses all)."""
+    def __init__(self, nang=31, nlos=150, per_bin=None, run="jeans_K1_turnover_counts_c", models=None):
+        """per_bin: max stars per HST/MUSE bin (None = all stars; 2026-11-13 redo uses all).
+        run: production run whose family (parameters, priors) and data are used (K1, or the NFW run for a halo).
+        models: (jeans, D, qobs, qrem) -> (lum, pot, mbh); default jam_mock_rotation_test.jam_models."""
         per_bin = 10**9 if per_bin is None else per_bin
-        run = load_run_metadata(ROOT/"results/fits/jeans_K1_turnover_counts_c")
-        self.pb0 = problem_for(run)
+        self.pb0 = problem_for(load_run_metadata(ROOT/"results/fits"/run))
         self.fam = self.pb0.family
-        self.x_map, _, _ = map_point("jeans_K1_turnover_counts_c", self.fam)
+        self.x_map, _, _ = map_point(run, self.fam)
+        self.models = J.jam_models if models is None else models
         self.nang, self.nlos = nang, nlos
         rng = np.random.default_rng(1)
         pos = J.star_positions(self.pb0.data, rng, per_bin=per_bin)
@@ -168,7 +171,7 @@ class Setup:
 
     def predict(self, theta, qobs, qrem, inc, direct=False):
         jeans, D, _ = self.fam.build(theta)
-        lum, pot, mbh = J.jam_models(jeans, D, qobs, qrem)
+        lum, pot, mbh = self.models(jeans, D, qobs, qrem)
         comps = None if direct else self.grid_moments(lum, pot, mbh, D, jeans.anisotropy, inc)
         pred = {}
         for p in self.data.profiles:

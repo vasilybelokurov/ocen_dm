@@ -32,10 +32,10 @@ from astropy.table import Table
 from scipy.optimize import minimize
 from scipy.spatial import cKDTree
 
-from ocen_dm.cluster import OCEN_DEC, OCEN_RA
+from ocen_dm.cluster import OCEN_DEC, OCEN_DISTANCE_KPC, OCEN_RA
 from ocen_dm.paths import processed_dir, raw_dir
 
-KMS = 4.74047*5.43
+KMS = 4.74047*OCEN_DISTANCE_KPC
 # oMEGACat II Table 10 (Haeberle et al. 2024): ring edges ["], median radius ["], <mu_T> [mas/yr] and error
 T10 = np.array([[0, 30, 20.66, .0548, .0324], [30, 60, 47.6, .086, .0181], [60, 90, 76.65, .1478, .0131],
                 [90, 120, 105.91, .2088, .0105], [120, 150, 135.99, .2556, .0093], [150, 180, 165.6, .2562, .0083],

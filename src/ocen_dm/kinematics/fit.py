@@ -479,6 +479,16 @@ def maximum_likelihood(problem: FitProblem, n_starts: int = 8, seed: int = 0,
 
 
 # ------------------------------------------------------------------ driver ---
+def _mpi_rank():
+    """(rank, comm) under mpiexec with more than one process, else (0, None)."""
+    try:
+        from mpi4py import MPI
+    except ImportError:
+        return 0, None
+    comm = MPI.COMM_WORLD
+    return (comm.Get_rank(), comm) if comm.Get_size() > 1 else (0, None)
+
+
 def run_nested(problem: FitProblem, out_dir: Path, *, n_live: int = 400, dlogz: float = 0.5,
                max_ncalls: int | None = None, seed: int = 42, n_profile_samples: int = 300,
                resume: str = "resume", verbose: bool = False, step_sampler: bool = False,
@@ -506,14 +516,34 @@ def run_nested(problem: FitProblem, out_dir: Path, *, n_live: int = 400, dlogz: 
         raise ValueError("slice_nsteps requires the slice sampler and a positive integer")
     actual_nsteps = (slice_nsteps or 2*len(problem.family.names)) if step_sampler else None
 
+    # MPI (2026-11-14): launched as `mpiexec -n N python ...`, UltraNest spreads the sampling over the N
+    # processes; only rank 0 creates the run directory and writes files. Without mpi4py or with N = 1
+    # this is the serial code path unchanged.
+    rank, comm = _mpi_rank()
     out_dir = Path(out_dir)
-    try:
-        out_dir.mkdir(parents=True, exist_ok=False)
-    except FileExistsError as exc:
-        raise FileExistsError(f"run directory already exists: {out_dir}; choose a new label") from exc
+    if rank == 0:
+        try:
+            out_dir.mkdir(parents=True, exist_ok=False)
+        except FileExistsError as exc:
+            if comm is not None:
+                comm.Abort(1)
+            raise FileExistsError(f"run directory already exists: {out_dir}; choose a new label") from exc
+    if comm is not None:
+        comm.Barrier()
     fam = problem.family
     t0 = time.time()
     model = family_config(fam)
+    if rank != 0:
+        np.random.seed(seed + rank)
+        sampler = ultranest.ReactiveNestedSampler(list(fam.names), problem.loglike_vector, fam.transform,
+                                                  log_dir=str(out_dir / "ultranest"), resume=resume)
+        if step_sampler:
+            import ultranest.stepsampler as uss
+            sampler.stepsampler = uss.SliceSampler(
+                nsteps=actual_nsteps, generate_direction=uss.generate_mixture_random_direction)
+        sampler.run(min_num_live_points=n_live, dlogz=dlogz, max_ncalls=max_ncalls,
+                    viz_callback=None, show_status=False)
+        return {}
     snapshot = write_data_snapshot(problem.data, out_dir)
     code = code_state()
     run = {
@@ -525,7 +555,8 @@ def run_nested(problem: FitProblem, out_dir: Path, *, n_live: int = 400, dlogz: 
                     "n_live": n_live, "dlogz": dlogz, "seed": seed, "max_ncalls": max_ncalls,
                     "step_sampler": step_sampler, "resume": resume,
                     "slice_nsteps": actual_nsteps,
-                    "n_profile_samples": n_profile_samples},
+                    "n_profile_samples": n_profile_samples,
+                    "mpi_processes": 1 if comm is None else comm.Get_size()},
         "data": data_provenance or {"kind": "real"},
         "dataset_options": dataset_options or {},
         "priors": {p.name: p.prior.describe() for p in fam.parameters},
