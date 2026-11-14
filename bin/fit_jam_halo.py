@@ -6,6 +6,8 @@ jam_halo_models.jam_models (fast remnant MGE; round truncated-NFW halo). Familie
 K2_nfw parameters M_dm_100, r_s with their priors). q' (stars = remnants) is free in [0.75, 1.0] unless --qobs is
 given; inclination fixed (--inc, default 44). Objective: ln L + distance prior (as the tuner); Powell from several
 starts (2, run in parallel: 2 cores per fit), each restarted until the gain is < 0.05; the best is kept.
+Default --method de (2026-11-14, Powell got stuck far from the known truth on the mocks): differential evolution over
+the prior box, population evaluated on --workers processes, then a Powell polish.
 --fix-mdm M fixes M_dm_100 = M (profile likelihood point; r_s stays free).
 
 Data: --data real (the corrected real data) or --data <jam_tuned tag> (noiseless mock: the saved tuned prediction),
@@ -129,6 +131,39 @@ def _run_start(k):
     return dict(start=s.tolist(), x=P.from_u(u).tolist(), f=float(r.fun), rounds=hist, nfev=nf)
 
 
+def _obj(u):
+    return _P.objective(u)
+
+
+def _run_de(a, P):
+    """Differential evolution in the optimiser coordinates (log10 for scale parameters) over the prior box, the
+    population evaluated in parallel on a.workers processes; then a serial Powell polish of the best member."""
+    from concurrent.futures import ProcessPoolExecutor
+    from multiprocessing import get_context
+    from scipy.optimize import differential_evolution
+    t0 = time.perf_counter()
+    bounds = list(zip(P.to_u(P.lo), P.to_u(P.hi)))
+    hist = []
+
+    def cb(intermediate_result):
+        hist.append(float(intermediate_result.fun))
+        if len(hist) % 10 == 0:
+            print(f"   DE gen {len(hist)}: best -lnpost {hist[-1]:.3f} ({time.perf_counter()-t0:.0f} s)", flush=True)
+
+    with ProcessPoolExecutor(a.workers, mp_context=get_context("spawn"), initializer=_init, initargs=(a,)) as ex:
+        r = differential_evolution(_obj, bounds, popsize=a.popsize, maxiter=a.maxiter, tol=1e-8, atol=a.de_atol,
+                                   mutation=(0.5, 1.0), recombination=0.7, seed=a.seed, init="sobol",
+                                   updating="deferred", workers=ex.map, polish=False, callback=cb)
+    print(f"   DE done: -lnpost {r.fun:.3f} after {r.nit} generations, {r.nfev} calls "
+          f"({time.perf_counter()-t0:.0f} s); {r.message}", flush=True)
+    p = minimize(P.objective, r.x, method="Powell", options=dict(maxfev=a.maxfev, xtol=1e-4, ftol=1e-8))
+    print(f"   Powell polish: -lnpost {p.fun:.3f} ({p.nfev} calls, {time.perf_counter()-t0:.0f} s)", flush=True)
+    best = p if p.fun < r.fun else r
+    return [dict(method="differential_evolution", x=P.from_u(best.x).tolist(), f=float(best.fun), de_f=float(r.fun),
+                 polish_f=float(p.fun), generations=int(r.nit), nfev=int(r.nfev+p.nfev), history=hist,
+                 popsize=a.popsize, seed=a.seed)]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--data", required=True)
@@ -140,13 +175,22 @@ def main():
     ap.add_argument("--inject-rs", type=float, default=300.)
     ap.add_argument("--maxfev", type=int, default=3000)
     ap.add_argument("--max-rounds", type=int, default=5)
+    ap.add_argument("--method", choices=("de", "powell"), default="de")
+    ap.add_argument("--workers", type=int, default=14)
+    ap.add_argument("--popsize", type=int, default=15, help="DE population = popsize x n_parameters")
+    ap.add_argument("--maxiter", type=int, default=400, help="DE generations")
+    ap.add_argument("--de-atol", type=float, default=0.02, help="DE stops when the population's -lnpost s.d. < this")
+    ap.add_argument("--seed", type=int, default=1)
     a = ap.parse_args()
     t0 = time.perf_counter()
     from concurrent.futures import ProcessPoolExecutor
     from multiprocessing import get_context
-    with ProcessPoolExecutor(2, mp_context=get_context("spawn"), initializer=_init, initargs=(a,)) as ex:
-        runs = list(ex.map(_run_start, range(2)))           # the two starts run in parallel (2 cores)
     P = Problem(a)
+    if a.method == "de":
+        runs = _run_de(a, P)
+    else:
+        with ProcessPoolExecutor(2, mp_context=get_context("spawn"), initializer=_init, initargs=(a,)) as ex:
+            runs = list(ex.map(_run_start, range(2)))           # the two starts run in parallel (2 cores)
     best = min(runs, key=lambda r: r["f"])
     th, q = P.unpack(np.array(best["x"]))
     pred, D = P.S.predict(th, q, q, a.inc)
