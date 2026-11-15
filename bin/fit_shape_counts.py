@@ -107,7 +107,7 @@ class Fit:
         b = []
         for k in self.names:
             b.append((-5., 15.) if k.startswith("lw") else (0.3, 1.5) if k.startswith("q") else (40., 170.) if k == "pa"
-                     else (-5., 5.) if k == "lnA_hst" else (-15., 15.) if k[0] == "d" else (-12., 2.) if k == "lnF"
+                     else (-5., 5.) if k == "lnA_hst" else (-15., 15.) if k[0] == "d" else (-25., 2.) if k == "lnF"
                      else (-2., 2.))
         return b
 
@@ -158,6 +158,24 @@ def isophote_q(lw, qn, pa, R):
     return np.array(out)
 
 
+def isophote_with_errors(F, best, cov, Rq):
+    """Isophotal q'(Rq) of the best fit with delta-method errors: J = d q_iso / d p by central differences with steps
+    0.1 sigma_p, then J C J^T (random draws from an ill-conditioned covariance are not reliable). Returns q, err, pa, pa_err."""
+    err = np.sqrt(np.clip(np.diag(cov), 0, None))
+    d, lw, qn, pa = F.unpack(jnp.asarray(best.x))
+    qiso = isophote_q(lw, qn, float(pa), Rq)
+    J = np.zeros((len(Rq), F.n))
+    for i in range(F.n):
+        h = 0.1*err[i] if err[i] > 0 else 1e-4
+        for sgn in (1, -1):
+            x = best.x.copy(); x[i] += sgn*h
+            dd, l2, q2, p2 = F.unpack(jnp.asarray(x))
+            J[:, i] += sgn*isophote_q(l2, q2, float(p2), Rq)/(2*h)
+    qerr = np.sqrt(np.clip(np.einsum("ri,ij,rj->r", J, cov, J), 0, None))
+    pae = float(err[F.names.index("pa")]) if "pa" in F.names else 0.
+    return qiso, qerr, float(pa), pae
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--pa", choices=("free", "fixed"), default="free")
@@ -177,19 +195,8 @@ def main():
     best, cov = F.fit(a.nstart)
     err = np.sqrt(np.clip(np.diag(cov), 0, None))
     d, lw, qn, pa = F.unpack(jnp.asarray(best.x))
-    pa = float(pa)
     Rq = np.geomspace(70, 2300, 40)
-    qiso = isophote_q(lw, qn, pa, Rq)
-    # isophote errors: linear propagation (delta method) of the inverse-Hessian covariance, J = d q_iso / d p by
-    # central differences with steps 0.1 sigma_p (random draws from an ill-conditioned covariance are not reliable)
-    J = np.zeros((len(Rq), F.n))
-    for i in range(F.n):
-        h = 0.1*err[i] if err[i] > 0 else 1e-4
-        for sgn in (1, -1):
-            x = best.x.copy(); x[i] += sgn*h
-            dd, l2, q2, p2 = F.unpack(jnp.asarray(x))
-            J[:, i] += sgn*isophote_q(l2, q2, float(p2), Rq)/(2*h)
-    qerr = np.sqrt(np.clip(np.einsum("ri,ij,rj->r", J, cov, J), 0, None))
+    qiso, qerr, pa, _ = isophote_with_errors(F, best, cov, Rq)
     qk = np.asarray(q_of(qn, jnp.asarray(SIG)))
     # JAM export (van de Ven et al. 2006 prescription): q'_k = isophotal axis ratio at R = s_k; smooth, unlike the
     # per-Gaussian node values, which trade off between overlapping Gaussians
