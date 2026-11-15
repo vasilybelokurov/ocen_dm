@@ -453,7 +453,8 @@ def main():
     pred, D = P.predict(th, q, qr)
     qprof = None
     if P.qprof is not None:
-        jeans, D0, _ = P.S.fam.build(th); pcs = D0*1e3/H.J.ARCSEC_PER_RAD
+        jeans, D0, _ = P.S.fam.build({k: v for k, v in th.items() if k not in BNAMES} | {k: P.base[k] for k in TURN})
+        pcs = D0*1e3/H.J.ARCSEC_PER_RAD
         st_ = H._split_mass_model(jeans.mass)[0][0]
         ss_as = np.asarray(st_.sigmas)/pcs
         qprof = dict(q.describe(), q_rem=a.q_rem, star_sigma_arcsec=ss_as.tolist(), star_q=H.qvals(q, ss_as).tolist(),
