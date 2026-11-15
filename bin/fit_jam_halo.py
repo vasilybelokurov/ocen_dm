@@ -12,6 +12,9 @@ must give a valid model. Each run is restarted from its end point (fresh Jacobia
 (at most --lsq-rounds). Other methods: --method de (differential evolution + Powell polish), --method powell.
 --fix-mdm M fixes M_dm_100 = M (profile likelihood point; r_s stays free).
 --rmax R fits only the bins with radius <= R arcsec (the model is still evaluated on all bins; 2026-11-15).
+--qmatched Q_JSON (2026-11-15, supersedes --qprofile): per-Gaussian q'_k fitted to the measured isophotes
+(bin/match_q_isophotes.py -> results/shape/q_matched_r1300.json); no free q'; remnants --q-rem stars (q' interpolated in
+log sigma) or round. --qprofile does NOT reproduce the measured isophotes (adversarial review 2026-11-15); kept for record.
 --qprofile SHAPE_JSON (2026-11-15, plan step 5): the stars take the MEASURED q'(R) of the star-count shape fit per
 Gaussian (jam_halo_models.QProfile: measured at --q-rin..--q-rout arcsec, outer zone --q-outer hold|round|measured);
 the free parameter "qobs" is then the inner q' (R < --q-rin, no shape constraint there). Remnants: --q-rem stars (same
@@ -86,6 +89,9 @@ class Problem:
                 S.data = KinematicData(tuple(replace(p, value=pred[p.name]) for p in S.data.profiles))
                 self.truth["qrem"] = "profile" if a.q_rem == "stars" else 1.0
                 self.tag += "_qprofmock"
+        if getattr(a, "qmatched", None):                     # matched per-Gaussian q'_k: no free q' (2026-11-15)
+            self.qprof = H.QMatched.from_json(a.qmatched)
+            a.qobs = 1.0                                      # placeholder; unused (QMatched.with_qin ignores it)
         self.qfree = a.qobs is None
         free = [n for n in names if not (n == "M_dm_100" and a.fix_mdm is not None)]
         lo = {n: prior[n].transform(1e-6) for n in names}; hi = {n: prior[n].transform(1-1e-6) for n in names}
@@ -360,6 +366,7 @@ def main():
     ap.add_argument("--family", choices=sorted(RUNS), required=True)
     ap.add_argument("--qobs", type=float, default=None, help="fix q' (default: free)")
     ap.add_argument("--inc", type=float, default=44.0)
+    ap.add_argument("--qmatched", default=None, help="q_matched JSON (bin/match_q_isophotes.py): per-Gaussian q'_k, no free q'")
     ap.add_argument("--qprofile", default=None, help="shape-fit JSON: measured q'(R) for the stars (qobs = inner q')")
     ap.add_argument("--q-rin", type=float, default=60.)
     ap.add_argument("--q-rout", type=float, default=1300.)
@@ -396,9 +403,10 @@ def main():
     from concurrent.futures import ProcessPoolExecutor
     from multiprocessing import get_context
     P = Problem(a)
-    suffix = (f"_q{a.qobs:.2f}" if not P.qfree else "")+(f"_mdm{a.fix_mdm:.3g}" if a.fix_mdm is not None else "") \
+    suffix = (f"_q{a.qobs:.2f}" if not (P.qfree or a.qmatched) else "")+(f"_mdm{a.fix_mdm:.3g}" if a.fix_mdm is not None else "") \
         + (f"_rmax{a.rmax:g}" if a.rmax is not None else "")+("_lsq" if a.method == "lsq" else "") \
         + (f"_qprof{a.q_outer}_rem{a.q_rem}" + (f"_i{a.inc:g}" if a.inc != 44 else "") if a.qprofile else "") \
+        + (f"_qmatch_rem{a.q_rem}" + (f"_i{a.inc:g}" if a.inc != 44 else "") if a.qmatched else "") \
         + (f"_{a.label}" if a.label else "")
     path = ROOT/f"results/rotation/jamfit_{P.tag}_{a.family}{suffix}.json"
     if path.exists() and not a.overwrite:

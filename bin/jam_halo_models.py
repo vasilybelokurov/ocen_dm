@@ -42,7 +42,8 @@ _XG, _WG = np.polynomial.legendre.leggauss(256)
 
 
 class QProfile:
-    """Measured q'(R) for JAM (docs/JAM_FIT_PLAN.md step 4f/5). Each Gaussian of circular width s [arcsec] gets the
+    """SUPERSEDED by QMatched (2026-11-15): this rule does not reproduce the measured isophotes of the blended MGE.
+    Measured q'(R) for JAM (docs/JAM_FIT_PLAN.md step 4f/5). Each Gaussian of circular width s [arcsec] gets the
     isophotal q' of the star-count fit at major-axis radius R = s/sqrt(q') (= its sigma_major; van de Ven et al. 2006
     prescription: q'_j = observed flattening at R = sigma'_j), solved by fixed-point iteration. Zones:
       R < r_in            : qin (free in the JAM fit; no shape constraint in the centre)
@@ -82,6 +83,32 @@ class QProfile:
 
     def describe(self):
         return dict(src=self.src, qin=self.qin, r_in=self.r_in, r_out=self.r_out, outer=self.outer)
+
+
+class QMatched:
+    """Per-Gaussian q'_k fitted so that the isophotes of the stellar MGE match the measured q'(R) (2026-11-15; replaces
+    QProfile, whose 'q' at R = sigma_major' rule does not reproduce the isophotes of a blended MGE: bin/match_q_isophotes.py).
+    The stellar Gaussians get their matched q'_k exactly; any other width s (remnants) gets q' interpolated linearly in
+    log s between the stellar widths, held constant beyond the ends. No free parameter (qin is None)."""
+    qin = None
+
+    def __init__(self, sig_arcsec, q, src=""):
+        self.sig, self.q, self.src = np.asarray(sig_arcsec, float), np.asarray(q, float), src
+
+    @classmethod
+    def from_json(cls, path, **kw):
+        import json
+        d = json.loads(Path(path).read_text())
+        return cls(d["sigma_arcsec"], d["q_k"], src=Path(path).name)
+
+    def with_qin(self, qin):
+        return self
+
+    def __call__(self, s_arcsec):
+        return np.interp(np.log(np.asarray(s_arcsec, float)), np.log(self.sig), self.q)
+
+    def describe(self):
+        return dict(src=self.src, matched=True, sigma_arcsec=self.sig.tolist(), q_k=self.q.tolist())
 
 
 def qvals(q, s_arcsec):

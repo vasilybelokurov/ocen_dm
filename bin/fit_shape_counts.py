@@ -50,6 +50,7 @@ from ocen_dm.paths import processed_dir
 
 SIG = np.array([75., 105., 150., 210., 300., 420., 590., 830., 1160., 1620.])      # circularised widths (arcsec)
 NODES = np.log(np.array([100., 250., 600., 1400.]))                                 # q' nodes in log width
+PA_NODES = np.log(np.array([250., 600., 1400.]))                                  # PA nodes (--pa twist) in log width
 NR, NPHI = 320, 256
 WS = 1000.                                                                          # weight scale: w_k = WS v_k
 
@@ -59,13 +60,13 @@ def q_of(qn, s):
 
 
 def sigma_xy(x, y, w, qn, pa):
-    """Model surface density (stars/arcsec^2) at (x, y); w = Gaussian totals (linear)."""
+    """Model surface density (stars/arcsec^2) at (x, y); w = Gaussian totals (linear); pa scalar or one per Gaussian."""
     a = jnp.radians(pa)
-    xp = x*jnp.sin(a)+y*jnp.cos(a)                 # along the major axis (PA east of north)
-    yp = -x*jnp.cos(a)+y*jnp.sin(a)
+    xp = x[..., None]*jnp.sin(a)+y[..., None]*jnp.cos(a)     # along the major axis (PA east of north)
+    yp = -x[..., None]*jnp.cos(a)+y[..., None]*jnp.sin(a)
     q = q_of(qn, jnp.asarray(SIG))
     smaj2 = SIG**2/q
-    return jnp.sum(w/(2*jnp.pi*SIG**2)*jnp.exp(-(xp[..., None]**2+(yp[..., None]/q)**2)/(2*smaj2)), axis=-1)
+    return jnp.sum(w/(2*jnp.pi*SIG**2)*jnp.exp(-(xp**2+(yp/q)**2)/(2*smaj2)), axis=-1)
 
 
 def polar_grid(rmin, rmax):
@@ -109,16 +110,17 @@ def measure_field(gaia_mag=17., rmax=2400., rmin=1000.):
 
 
 class Fit:
-    def __init__(self, hst, gaia, pa_fixed=None, field=None):
-        """field: (lnF, gx, gy) fixed field (per arcsec^2, per 1000"), or None = free (diagnostic)."""
-        self.hst, self.gaia, self.pa_fixed = hst, gaia, pa_fixed
+    def __init__(self, hst, gaia, pa_fixed=None, field=None, pa_twist=False):
+        """field: (lnF, gx, gy) fixed field (per arcsec^2, per 1000"), or None = free (diagnostic).
+        pa_twist: PA per Gaussian, linear in log width between PA_NODES (isophote twist test, 2026-11-15)."""
+        self.hst, self.gaia, self.pa_fixed, self.pa_twist = hst, gaia, pa_fixed, pa_twist
         self.field_fixed = None if field is None else tuple(float(v) for v in field)
         self.gh = polar_grid(hst["rmin"], hst["rmax"]); self.gg = polar_grid(gaia["rmin"], gaia["rmax"])
         c = json.loads((processed_dir()/"kinematics"/"ocen_counts_gaia_g17_c.json").read_text())
         rc = np.sqrt(np.array(c["r_lower"])*np.array(c["r_upper"]))
         self.cg = lambda R: jnp.interp(R, jnp.asarray(rc), jnp.asarray(c["completeness"]))
         self.names = [f"w{int(s)}" for s in SIG]+[f"q{int(round(np.exp(n)))}" for n in NODES]+\
-            (["pa"] if pa_fixed is None else [])+["lnA_hst", "dxh", "dyh", "dxg", "dyg"]+\
+            ([f"pa{int(round(np.exp(n)))}" for n in PA_NODES] if pa_twist else ["pa"] if pa_fixed is None else [])+["lnA_hst", "dxh", "dyh", "dxg", "dyg"]+\
             (["lnF", "gx", "gy"] if field is None else [])
         self.n = len(self.names)
         self._f = jax.jit(self.neglnl); self._g = jax.jit(jax.grad(self.neglnl))
@@ -131,7 +133,11 @@ class Fit:
     def unpack(self, p):
         d = dict(zip(self.names, [p[i] for i in range(self.n)]))
         lw = WS*jnp.stack([d[f"w{int(s)}"] for s in SIG]); qn = jnp.stack([d[k] for k in self.names if k.startswith("q")])
-        pa = d.get("pa", self.pa_fixed)
+        if self.pa_twist:
+            pn = jnp.stack([d[k] for k in self.names if k.startswith("pa")])
+            pa = jnp.interp(jnp.log(jnp.asarray(SIG)), jnp.asarray(PA_NODES), pn)
+        else:
+            pa = d.get("pa", self.pa_fixed)
         return d, lw, qn, pa
 
     def field(self, d, x, y):
@@ -153,7 +159,7 @@ class Fit:
     def bounds(self):
         b = []
         for k in self.names:
-            b.append((0., 100.) if k.startswith("w") else (0.3, 1.5) if k.startswith("q") else (40., 170.) if k == "pa"
+            b.append((0., 100.) if k.startswith("w") else (0.3, 1.5) if k.startswith("q") else (40., 170.) if k.startswith("pa")
                      else (-5., 5.) if k == "lnA_hst" else (-15., 15.) if k[0] == "d" else (-25., 2.) if k == "lnF"
                      else (-2., 2.))                    # gx, gy (free field only)
         return b
@@ -166,11 +172,14 @@ class Fit:
         for k in self.names:
             if k.startswith("q"):
                 p[k] = 0.88
-        p["pa"] = 104.2; p["lnA_hst"] = np.log(10.); p["lnF"] = np.log(max(np.sum(R > 2000), 1)/(np.pi*(2400**2-2000**2))*0.5)
+        for k in self.names:
+            if k.startswith("pa"):
+                p[k] = 104.2
+        p["lnA_hst"] = np.log(10.); p["lnF"] = np.log(max(np.sum(R > 2000), 1)/(np.pi*(2400**2-2000**2))*0.5)
         x = np.array([p[k] for k in self.names])
         if rng is not None:
             x = x*np.exp(rng.normal(0, 0.3, self.n)*np.array([k.startswith("w") for k in self.names]))+\
-                rng.normal(0, 0.3, self.n)*np.array([0.1 if k.startswith("q") else 10 if k == "pa" else 0 for k in self.names])
+                rng.normal(0, 0.3, self.n)*np.array([0.1 if k.startswith("q") else 10 if k.startswith("pa") else 0 for k in self.names])
         lo, hi = np.array(self.bounds()).T
         return np.clip(x, lo+1e-6, hi-1e-6)
 
@@ -253,6 +262,24 @@ def isophote_q(w, qn, pa, R):
     return np.array(out)
 
 
+def isophote_contour(w, qn, pa, R, nang=180):
+    """Twisted model (pa per Gaussian): the isophote at the mean density of the circle of radius R is traced in nang
+    directions (bisection); returns (major-axis radius, axis ratio min/max radius, PA of the major axis in deg E of N)."""
+    ph = np.radians(np.arange(nang)*180./nang)                     # point symmetry: 0-180 deg suffices
+    ux, uy = np.sin(ph), np.cos(ph)                                # direction of PA ph (x east, y north)
+    f = jax.jit(lambda x, y: sigma_xy(x, y, w, qn, pa))
+    out = []
+    for r in R:
+        lev = float(jnp.mean(f(jnp.asarray(r*ux), jnp.asarray(r*uy))))
+        lo, hi = np.full(nang, 0.2*r), np.full(nang, 3.*r)
+        for _ in range(50):
+            m = .5*(lo+hi); v = np.asarray(f(jnp.asarray(m*ux), jnp.asarray(m*uy)))
+            lo, hi = np.where(v > lev, m, lo), np.where(v > lev, hi, m)
+        rr = .5*(lo+hi)
+        out.append((rr.max(), rr.min()/rr.max(), float(np.degrees(ph[np.argmax(rr)]))))
+    return np.array(out)
+
+
 def isophote_with_errors(F, best, cov, Rq):
     """Isophotal q'(Rq) with delta-method errors from EXACT derivatives (implicit function theorem; JAX): the minor-axis
     radius b of the isophote through major-axis radius R solves S(b e_min; p) = S(R e_maj; p), so
@@ -279,7 +306,7 @@ def isophote_with_errors(F, best, cov, Rq):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--pa", choices=("free", "fixed"), default="free")
+    ap.add_argument("--pa", choices=("free", "fixed", "twist"), default="free")
     ap.add_argument("--hst-mag", type=float, default=19.)
     ap.add_argument("--gaia-mag", type=float, default=17.)
     ap.add_argument("--gaia", choices=("members", "all"), default="members")
@@ -299,12 +326,19 @@ def main():
     print(f"field ({a.gaia}): lnF {fld[0]:.3f} /arcsec^2, gx {fld[1]:+.3f} gy {fld[2]:+.3f} per 1000\" "
           f"(rejected stars {fm['n_rej']}, PM-shell stars {fm['n_shell']})" + ("; FREE in the fit" if a.field == "free" else ""),
           flush=True)
-    F = Fit(hst, gaia, pa_fixed=None if a.pa == "free" else SC.PA_KIN, field=None if a.field == "free" else fld)
+    F = Fit(hst, gaia, pa_fixed=SC.PA_KIN if a.pa == "fixed" else None, field=None if a.field == "free" else fld,
+            pa_twist=a.pa == "twist")
     best, cov = F.fit(a.nstart)
     err = np.sqrt(np.clip(np.diag(cov), 0, None))
     d, lw, qn, pa = F.unpack(jnp.asarray(best.x))
     Rq = np.geomspace(70, 2300, 40)
-    qiso, qerr, pa, _ = isophote_with_errors(F, best, cov, Rq)
+    if a.pa == "twist":                                  # no delta-method errors for the twisted isophotes (diagnostic)
+        ic = isophote_contour(lw, qn, pa, Rq)
+        Rq, qiso, qerr = ic[:, 0], ic[:, 1], np.full(len(Rq), np.nan)
+        pa_iso = ic[:, 2].tolist()
+        pa = [float(v) for v in np.asarray(best.x)[[F.names.index(k) for k in F.names if k.startswith("pa")]]]
+    else:
+        qiso, qerr, pa, _ = isophote_with_errors(F, best, cov, Rq); pa_iso = None
     qk = np.asarray(q_of(qn, jnp.asarray(SIG)))
     # JAM export (van de Ven et al. 2006 prescription): q'_k = isophotal axis ratio at R = s_k; smooth, unlike the
     # per-Gaussian node values, which trade off between overlapping Gaussians
@@ -315,14 +349,17 @@ def main():
                q_nodes=np.asarray(qn).tolist(), q_nodes_err=[float(err[F.names.index(k)]) for k in F.names if k.startswith("q")],
                weights=np.asarray(lw).tolist(), field=dict(fixed=a.field == "fixed", lnF_gx_gy=list(fld), measurement=fm),
                conv=F.conv, hess_pd=F.hess_pd, at_bound=F.at_bound, R_iso=Rq.tolist(), q_iso=qiso.tolist(), q_iso_err=qerr.tolist(),
+               pa_iso=pa_iso,
+               pa_nodes_width=np.exp(PA_NODES).tolist() if a.pa == "twist" else None,
+               pa_nodes_err=[float(err[F.names.index(k)]) for k in F.names if k.startswith("pa")],
                elapsed_s=round(time.perf_counter()-t0, 1))
     (ROOT/"results/shape").mkdir(parents=True, exist_ok=True)
     (ROOT/f"results/shape/shape_fit_{tag}.json").write_text(json.dumps(out, indent=1))
-    print(f"{tag}: -lnL {best.fun:.2f}; PA {pa:.1f}+-{out['pa_err']:.1f}; q nodes "
+    print(f"{tag}: -lnL {best.fun:.2f}; PA {np.round(pa, 1)}+-{np.round(out['pa_nodes_err'], 1)}; q nodes "
           + ", ".join(f"{w:.0f}\": {q:.3f}+-{e:.3f}" for w, q, e in zip(out['q_nodes_width'], out['q_nodes'], out['q_nodes_err']))
           + f"; ({out['elapsed_s']:.0f} s)")
-    for r, q, e in zip(Rq[::4], qiso[::4], qerr[::4]):
-        print(f"   R {r:6.0f}\"  q_iso {q:.3f} +- {e:.3f}")
+    for i in range(0, len(Rq), 4):
+        print(f"   R {Rq[i]:6.0f}\"  q_iso {qiso[i]:.3f} +- {qerr[i]:.3f}" + (f"  PA {pa_iso[i]:.0f}" if pa_iso else ""))
 
 
 if __name__ == "__main__":
