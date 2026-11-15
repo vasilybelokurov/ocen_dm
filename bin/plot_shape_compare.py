@@ -38,7 +38,8 @@ def main():
         ax[0].plot(R, q, "-", lw=2 if j == 0 else 1, label=lab, c=f"C{j}")
         if j == 0:
             ax[0].fill_between(R, q-e, q+e, color="C0", alpha=.2)
-        ax[1].errorbar([1+0.02*j], [d["pa"]], [d.get("pa_err", 0)], fmt="o", c=f"C{j}")
+        if d.get("pa_err", 0) > 0:                              # global PA of the fit, drawn as a band (free-PA fits)
+            ax[1].axhspan(d["pa"]-d["pa_err"], d["pa"]+d["pa_err"], color=f"C{j}", alpha=.15, label=f"{lab}: global PA")
         rows.append((lab, d))
     tab = json.loads((ROOT/"results/shape/ring_table_20261115.json").read_text())
     for name, mk in (("HST F625W<19", "s"), ("Gaia G<17 PM members (s_int 0.5)", "D")):
@@ -51,7 +52,8 @@ def main():
     ax[0].axhline(np.cos(np.radians(44)), c="r", ls=":", lw=1, label="cos 44 deg (oblate limit at i = 44)")
     ax[0].axhline(1, c="k", lw=.5); ax[0].set_ylim(0.6, 1.2); ax[0].set_ylabel("projected axis ratio q'")
     ax[0].legend(fontsize=7, loc="lower left"); ax[0].grid(alpha=.3)
-    ax[1].axhline(104.2, c="k", ls="--", lw=.8); ax[1].set_ylim(0, 180); ax[1].set_ylabel("PA (deg E of N)")
+    ax[1].axhline(104.2, c="k", ls="--", lw=.8, label="kinematic axis 104.2"); ax[1].set_ylim(0, 180)
+    ax[1].legend(fontsize=6, loc="lower left"); ax[1].set_ylabel("PA (deg E of N)")
     ax[1].set_xscale("log"); ax[1].set_xlabel("R (arcsec; fits: major-axis radius of the isophote)"); ax[1].grid(alpha=.3)
     ax[1].set_xlim(50, 3000)
     plt.tight_layout(); p = ROOT/"plots/shape_compare_20261115.png"; plt.savefig(p, dpi=100); print(p)
