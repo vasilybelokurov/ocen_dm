@@ -17,11 +17,25 @@ test; the two outermost Gaia radial bins (field fractions 0.85, 0.95) drive the 
 3. Base fits on identical data, one global q' (no shape constraint): JAM K1, JAM NFW, spherical K1, spherical NFW
    (all stars per bin for the rotation terms); plus JAM K1/NFW fitted to R <= 1100" only (like-for-like base for the
    shape-constrained fits). Report: data/model/residual plots, per-bin halo gain radial vs tangential per dataset.
-4. In parallel: shape measurement from star counts -- per-Gaussian q' (completeness, field background, trusted radii).
-   Method to be agreed with the user before running. Known first pass (2026-11-13): eps 0.12-0.15 at 114-250",
-   0.15-0.17 at 300-850", 0.10 at 850-1100", 0.03-0.06 beyond (uncertain: tides, field, crowding).
-5. JAM with the measured shape: q' per Gaussian fixed inside ~1100"; outer Gaussians bracketed (inner value vs round);
-   fit R <= 1100" (main) and all bins (check only). Quote dark mass inside the fitted radius (~30 pc).
+4. In parallel: shape measurement from star counts (method agreed with the user 2026-11-15).
+   Known first pass (2026-11-13): eps 0.12-0.15 at 114-250", 0.15-0.17 at 300-850", 0.10 at 850-1100", 0.03-0.06
+   beyond (uncertain: tides, field, crowding). Method:
+   - unbinned Poisson likelihood of the star positions over each survey's footprint; count-MGE Gaussian widths fixed,
+     one q'_k per Gaussian free (q'_k > cos i = 0.72 for i = 44 deg); no mge_fit_sectors (fails on count images);
+   - PA: both variants -- fixed at the kinematic 104.2 deg, and free;
+   - data: HST F625W < 19 at 60-250", Gaia G < 17 at 300-1300", no quality-flag or membership cuts; Gaia field =
+     uniform + linear gradient;
+   - centre (< ~60"): excluded, no shape constraint (no m=2 information there; centroid/crowding problems) -- the
+     inner Gaussians' q' is left free in the JAM fit (one shared value), not measured;
+   - outer Gaussians (> ~1100"): not trusted (tides, field) -- bracketed: inner value vs round;
+   - crowding check: bright cuts (F625W < 18, G < 16) must give the same q'; else adopt the bright cuts;
+   - tests: round mocks through the real footprints/field/completeness return round; flattened mocks recover q' to
+     0.01-0.02; literature cross-check (van de Ven et al. 2006, https://ui.adsabs.harvard.edu/abs/2006A&A...445..513V;
+     values read from the paper).
+5. JAM with the measured shape: measured q'_k at 60-1100"; inner q' free; outer Gaussians bracketed (inner value vs
+   round); remnants: both variants -- same q' as the stars, and round; PA variant as in step 4 (JAM's axis is the
+   kinematic one; a different photometric PA is a consistency check). Fit R <= 1100" (main) and all bins (check only).
+   Quote dark mass inside the fitted radius (~30 pc).
 6. Later, if still needed: halo-mass profile; null mocks (K1 truth; no-DM N-body snapshot for the outer bins);
    power test with injected halos (CSD3 for large batches; needs approval).
 Dropped: Gaia mean radial motion subtraction (double counting); dropping outer bins as a halo test (superseded).
