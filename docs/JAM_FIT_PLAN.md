@@ -21,7 +21,14 @@ test; the two outermost Gaia radial bins (field fractions 0.85, 0.95) drive the 
    Test: short run on the q'0.90 + halo mock; must reach the truth score.
 2. Gaia mean radial motion check: our mixture fit's mean_pmr in the outer rings; if non-zero, remove it like rotation.
 3. Refit JAM K1 and NFW on the corrected data (~40 min); refit spherical K1/NFW on the same data (all stars per bin).
-4. Drop the Gaia bins beyond 1500" (K1 and NFW, ~40 min): does the halo gain survive?
+4. Where does the halo gain come from? (revised 2026-11-15) The outer bins are where a halo's share of the mass is
+   largest (r_s 1000 pc halo: ~10% of M(<56 pc), ~1% of M(<20 pc)), so dropping them weakens any halo by construction;
+   they are also where the alternatives are strongest (field fractions 0.85/0.95, ~0.75 r_t, escapers/tidal heating,
+   anisotropy and shape least constrained).
+   a. Free: per-bin Delta chi2 (K1 - NFW), radial vs tangential. A halo raises BOTH outer radial and tangential
+      dispersions; anisotropy/shape trades one against the other. JAM K1 already fits the outer tangential bins.
+   b. If the gain comes only from the two outermost radial bins: refit K1 and NFW without the Gaia bins beyond 1500"
+      (~40 min) to measure how much the halo gain rests on the least reliable points.
 5. Halo-mass profile: ~8 fits with M_dm_100 fixed, incl. exactly zero (~2-3 h) -> upper limit.
 6. Null distribution: ~30 noisy no-halo mocks (truth = K1 best fit, noise from the data errors), each fitted with K1 and
    NFW; Delta chi2 distribution. Real gain beyond the 95th percentile = hint, beyond the 99th = detection.
