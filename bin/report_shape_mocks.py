@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
-TESTS = ("fit", "round", "step", "steep", "offset", "m1", "curved")
+TESTS = ("fit", "round", "step", "steep", "offset", "m1", "field0", "field2x", "crowdflat")
 RS = (100, 205, 420, 600, 860, 1230, 1760)
 
 
