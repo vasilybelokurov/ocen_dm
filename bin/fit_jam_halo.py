@@ -278,7 +278,10 @@ def _run_lsq(a, P):
     lo, hi = P.to_u(P.lo), P.to_u(P.hi)
     design = qmc.scale(qmc.Sobol(len(lo), seed=a.seed).random(a.screen), lo, hi) if a.screen else np.empty((0, len(lo)))
     std = np.array([P.to_u(s) for s in P.starts()])
-    extra = [P.to_u(np.array([dict(zip(*_xs(j)))[n] for n in P.pars])) for j in (a.start_from or [])]
+    extra = []                                      # given fits; parameters they lack (e.g. the halo for a K1 fit
+    for j in (a.start_from or []):                  # used as an NFW start) come from the first standard start
+        d = dict(zip(*_xs(j)))
+        extra.append(P.to_u(np.array([d.get(n, s0) for n, s0 in zip(P.pars, P.starts()[0])])))
     cand = np.vstack([std, *([np.array(extra)] if extra else []), design])
     with ProcessPoolExecutor(a.workers, mp_context=get_context("spawn"), initializer=_init, initargs=(a,)) as ex:
         f = np.array(list(ex.map(_screen, cand, chunksize=4)))

@@ -57,7 +57,7 @@ def main():
     prod = ROOT/"results/fits"/FAMILIES[args.family]
     fam = family_from_config(family_config(problem_for(load_run_metadata(prod)).family))
     smp = yaml.safe_load((prod/"run.yaml").read_text())["sampler"]
-    out = ROOT/f"results/fits/recover_{args.truth}_{args.family}"+(f"_{args.label}" if args.label else "")
+    out = ROOT/"results/fits"/(f"recover_{args.truth}_{args.family}"+(f"_{args.label}" if args.label else ""))
     if out.exists():
         sys.exit(f"{out} exists; use --label")
     s = run_nested(FitProblem(fam, mdata), out, n_live=smp["n_live"], dlogz=smp["dlogz"], seed=smp["seed"],
