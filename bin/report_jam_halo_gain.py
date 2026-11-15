@@ -5,6 +5,7 @@ docs/JAM_FIT_PLAN.md step 3 and 5).
 Sets:
   base : JAM K1/NFW with one global q' (all bins; R <= 1100"), spherical Jeans K1/NFW (UltraNest ML, results/fits/
          recover_real_{K1,NFW}_base) -- identical data (one rotation field, all stars per bin).
+  qpvar: q'(R) variants on R <= 1100" (remnants round, outer round, i = 48).
   qp   : JAM K1/NFW with the measured q'(R) profile (all bins; R <= 1100"), with the base JAM fits for comparison.
 Per-bin halo gain: dlnL_i = lnL_i(NFW) - lnL_i(K1) (split-normal per bin, as the fit), summed per dataset and for
 R <= 1100" / R > 1100". Radii, values and errors from tune_jam_to_data.Setup (checked against each fit's data_used).
@@ -44,6 +45,14 @@ SETS = {
                                  "jamfit_real_NFW_rmax1100_lsq_qprofhold_remstars_qp.json"),
            "JAM global q' all": ("jamfit_real_K1_lsq_base.json", "jamfit_real_NFW_lsq_base.json"),
            "JAM global q' R<=1100": ("jamfit_real_K1_rmax1100_lsq_base.json", "jamfit_real_NFW_rmax1100_lsq_base.json")},
+    "qpvar": {"q'(R) i44": ("jamfit_real_K1_rmax1100_lsq_qprofhold_remstars_qp.json",
+                            "jamfit_real_NFW_rmax1100_lsq_qprofhold_remstars_qp.json"),
+              "q'(R) remnants round": ("jamfit_real_K1_rmax1100_lsq_qprofhold_remround_qp.json",
+                                       "jamfit_real_NFW_rmax1100_lsq_qprofhold_remround_qp.json"),
+              "q'(R) outer round": ("jamfit_real_K1_rmax1100_lsq_qprofround_remstars_qp.json",
+                                    "jamfit_real_NFW_rmax1100_lsq_qprofround_remstars_qp.json"),
+              "q'(R) i48": ("jamfit_real_K1_rmax1100_lsq_qprofhold_remstars_i48_qp.json",
+                            "jamfit_real_NFW_rmax1100_lsq_qprofhold_remstars_i48_qp.json")},
 }
 SPH = {"K1": ("jeans_K1_turnover_counts_c", "recover_real_K1_base"), "NFW": ("jeans_K2_nfw_turnover_counts_c", "recover_real_NFW_base")}
 
