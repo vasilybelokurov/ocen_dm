@@ -23,11 +23,17 @@ test; the two outermost Gaia radial bins (field fractions 0.85, 0.95) drive the 
    - unbinned Poisson likelihood of the star positions over each survey's footprint; count-MGE Gaussian widths fixed,
      one q'_k per Gaussian free (q'_k > cos i = 0.72 for i = 44 deg); no mge_fit_sectors (fails on count images);
    - PA: both variants -- fixed at the kinematic 104.2 deg, and free;
-   - data: HST F625W < 19 at 60-250", Gaia G < 17 at 300-1300", no quality-flag or membership cuts; Gaia field =
-     uniform + linear gradient;
+   - data: HST F625W < 19 at 60-250", Gaia G < 17 from 300" out to the edge of the member sample (catalogue reaches
+     ~2400"), no quality-flag or membership cuts; Gaia field = uniform + linear gradient. Beyond ~2400": Gaia DR3 from
+     WSDB in a wider field (PM + CMD selected, selection must not depend on position angle) and/or the Kuzma et al.
+     2025 Pristine periphery members (data/processed/tails/kuzma2025_periphery.ecsv, to 5.1 deg; check that its
+     membership has no circular spatial prior). Measure as far out as the
+     members go; decide AFTER seeing the results (null/recovery mocks, bright cuts, field-model variants, PA(R))
+     out to which radius the shape is reliable and equilibrium-like (tides) (user, 2026-11-15);
    - centre (< ~60"): excluded, no shape constraint (no m=2 information there; centroid/crowding problems) -- the
      inner Gaussians' q' is left free in the JAM fit (one shared value), not measured;
-   - outer Gaussians (> ~1100"): not trusted (tides, field) -- bracketed: inner value vs round;
+   - outer Gaussians: beyond the radius judged reliable (to be set from the measurement; first-pass guess ~1100") --
+     bracketed: last reliable value vs round;
    - crowding check: bright cuts (F625W < 18, G < 16) must give the same q'; else adopt the bright cuts;
    - tests: round mocks through the real footprints/field/completeness return round; flattened mocks recover q' to
      0.01-0.02; literature cross-check (van de Ven et al. 2006, https://ui.adsabs.harvard.edu/abs/2006A&A...445..513V;
