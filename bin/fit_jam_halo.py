@@ -12,6 +12,11 @@ must give a valid model. Each run is restarted from its end point (fresh Jacobia
 (at most --lsq-rounds). Other methods: --method de (differential evolution + Powell polish), --method powell.
 --fix-mdm M fixes M_dm_100 = M (profile likelihood point; r_s stays free).
 --rmax R fits only the bins with radius <= R arcsec (the model is still evaluated on all bins; 2026-11-15).
+--qprofile SHAPE_JSON (2026-11-15, plan step 5): the stars take the MEASURED q'(R) of the star-count shape fit per
+Gaussian (jam_halo_models.QProfile: measured at --q-rin..--q-rout arcsec, outer zone --q-outer hold|round|measured);
+the free parameter "qobs" is then the inner q' (R < --q-rin, no shape constraint there). Remnants: --q-rem stars (same
+profile) or round. --mock-qprofile (with --data <tuned tag>): the mock data are re-predicted from the tuned truth with
+the same profile (inner q' = the truth's q'), to test recovery.
 
 Data: --data real (the corrected real data) or --data <jam_tuned tag> (noiseless mock: the saved tuned prediction),
 or --data <tag> with --inject-mdm M --inject-rs R: the tuned truth plus an NFW halo, predicted with this model
@@ -71,6 +76,16 @@ class Problem:
                     a.inject_pred = pred
                 self.tag += f"_injM{a.inject_mdm:.3g}_rs{a.inject_rs:g}"
             S.data = KinematicData(tuple(replace(p, value=pred[p.name]) for p in S.data.profiles))
+        self.qprof = None
+        if getattr(a, "qprofile", None):
+            self.qprof = H.QProfile.from_json(a.qprofile, r_in=a.q_rin, r_out=a.q_rout, outer=a.q_outer)
+            if a.data != "real" and a.mock_qprofile:
+                qt = self.qprof.with_qin(self.truth["qobs"])
+                pred, _ = S.predict({n: self.truth[n] for n in names}, qt, qt if a.q_rem == "stars" else 1.0,
+                                    self.truth["inc"])
+                S.data = KinematicData(tuple(replace(p, value=pred[p.name]) for p in S.data.profiles))
+                self.truth["qrem"] = "profile" if a.q_rem == "stars" else 1.0
+                self.tag += "_qprofmock"
         self.qfree = a.qobs is None
         free = [n for n in names if not (n == "M_dm_100" and a.fix_mdm is not None)]
         lo = {n: prior[n].transform(1e-6) for n in names}; hi = {n: prior[n].transform(1-1e-6) for n in names}
@@ -103,17 +118,21 @@ class Problem:
         return np.array([10**v if n in LOGP else v for n, v in zip(self.pars, u)])
 
     def unpack(self, x):
+        """(theta, q' of the stars, q' of the remnants); with --qprofile, QProfile objects (qobs = inner q')."""
         d = dict(zip(self.pars, np.clip(x, self.lo, self.hi)))
         q = d.pop("qobs", self.a.qobs)
         if self.a.fix_mdm is not None:
             d["M_dm_100"] = self.a.fix_mdm
-        return d, q
+        if self.qprof is None:
+            return d, q, q
+        qq = self.qprof.with_qin(q)
+        return d, qq, (qq if self.a.q_rem == "stars" else 1.0)
 
     def objective(self, u):
         x = self.from_u(u)
-        th, q = self.unpack(x)
+        th, q, qr = self.unpack(x)
         try:
-            pred, D = self.S.predict(th, q, q, self.a.inc)
+            pred, D = self.S.predict(th, q, qr, self.a.inc)
         except (ValueError, FloatingPointError, ZeroDivisionError, AssertionError):
             self.nfail += 1
             return 1e30
@@ -124,9 +143,9 @@ class Problem:
         """Whitened residuals: (model - data)/err (split-normal side) for the 89 bins, plus the distance-prior term.
         0.5 sum(r^2) = -lnpost + const (the split-normal normalisation is shared by both sides). u inside the box
         (bounded solvers); failed models return large finite residuals."""
-        th, q = self.unpack(self.from_u(u))
+        th, q, qr = self.unpack(self.from_u(u))
         try:
-            pred, D = self.S.predict(th, q, q, self.a.inc)
+            pred, D = self.S.predict(th, q, qr, self.a.inc)
         except (ValueError, FloatingPointError, ZeroDivisionError, AssertionError):
             self.nfail += 1
             return np.full(self.nres, 1e3)
@@ -341,6 +360,12 @@ def main():
     ap.add_argument("--family", choices=sorted(RUNS), required=True)
     ap.add_argument("--qobs", type=float, default=None, help="fix q' (default: free)")
     ap.add_argument("--inc", type=float, default=44.0)
+    ap.add_argument("--qprofile", default=None, help="shape-fit JSON: measured q'(R) for the stars (qobs = inner q')")
+    ap.add_argument("--q-rin", type=float, default=60.)
+    ap.add_argument("--q-rout", type=float, default=1300.)
+    ap.add_argument("--q-outer", choices=("hold", "round", "measured"), default="hold")
+    ap.add_argument("--q-rem", choices=("stars", "round"), default="stars")
+    ap.add_argument("--mock-qprofile", action="store_true", help="re-predict tuned mock data with the q' profile")
     ap.add_argument("--fix-mdm", type=float, default=None)
     ap.add_argument("--rmax", type=float, default=None, help="fit only bins with R <= rmax (arcsec)")
     ap.add_argument("--inject-mdm", type=float, default=None)
@@ -373,6 +398,7 @@ def main():
     P = Problem(a)
     suffix = (f"_q{a.qobs:.2f}" if not P.qfree else "")+(f"_mdm{a.fix_mdm:.3g}" if a.fix_mdm is not None else "") \
         + (f"_rmax{a.rmax:g}" if a.rmax is not None else "")+("_lsq" if a.method == "lsq" else "") \
+        + (f"_qprof{a.q_outer}_rem{a.q_rem}" + (f"_i{a.inc:g}" if a.inc != 44 else "") if a.qprofile else "") \
         + (f"_{a.label}" if a.label else "")
     path = ROOT/f"results/rotation/jamfit_{P.tag}_{a.family}{suffix}.json"
     if path.exists() and not a.overwrite:
@@ -385,8 +411,16 @@ def main():
         with ProcessPoolExecutor(2, mp_context=get_context("spawn"), initializer=_init, initargs=(a,)) as ex:
             runs = list(ex.map(_run_start, range(2)))           # the two starts run in parallel (2 cores)
     best = min(runs, key=lambda r: r["f"])
-    th, q = P.unpack(np.array(best["x"]))
-    pred, D = P.S.predict(th, q, q, a.inc)
+    th, q, qr = P.unpack(np.array(best["x"]))
+    pred, D = P.S.predict(th, q, qr, a.inc)
+    qprof = None
+    if P.qprof is not None:
+        jeans, D0, _ = P.S.fam.build(th); pcs = D0*1e3/H.J.ARCSEC_PER_RAD
+        st_ = H._split_mass_model(jeans.mass)[0][0]
+        ss_as = np.asarray(st_.sigmas)/pcs
+        qprof = dict(q.describe(), q_rem=a.q_rem, star_sigma_arcsec=ss_as.tolist(), star_q=H.qvals(q, ss_as).tolist(),
+                     rem_sigma_arcsec=(H.REM_SIG/pcs).tolist(), rem_q=H.qvals(qr, H.REM_SIG/pcs).tolist())
+        q = q.qin
     st, lnL = P.stats(pred), P.lnlike(pred)
     out = dict(data=P.tag, family=a.family, inc=a.inc, q_free=P.qfree, fix_mdm=a.fix_mdm, theta=th, qobs=q, D=D,
                neg_lnpost=best["f"], lnL_total=float(sum(lnL.values())), lnL=lnL, stats=st,
@@ -396,6 +430,7 @@ def main():
                                   err_hi=np.asarray(p.err_hi).tolist(),
                                   streaming2=None if p.streaming2 is None else np.asarray(p.streaming2).tolist())
                      for p in P.S.data.profiles},
+               q_profile=qprof,
                rotation_terms="one field (fit_rotation_field cylindrical MAP) for HST, MUSE, Gaia (2026-11-15)",
                args=args, git=_git_commit(), lnnorm=P.lnnorm,
                created=time.strftime("%Y-%m-%dT%H:%M:%S"), elapsed_s=round(time.perf_counter()-t0, 1))

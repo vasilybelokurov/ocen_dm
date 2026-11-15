@@ -10,6 +10,8 @@ non-point component of the mass model becomes a projected NNLS MGE as before, bu
     radius, on wider grids (fit radii 0.005-5000 pc, sigmas 0.005-4000 pc, 56 Gaussians: r_s reaches 1000 pc and the NFW cusp needs small sigmas);
     it is ROUND by default (qdm = 1), a choice, not a measurement.
 Remnants take qrem, stars qobs (sigma_major = sigma/sqrt(q'), mass preserved), as in the tuned models.
+qobs / qrem may be a number, an array (one per Gaussian) or a QProfile (2026-11-15): the measured projected-shape
+profile q'(R) from the star counts (bin/fit_shape_counts.py), evaluated per Gaussian.
 
 Self-test: PYTHONPATH=src:bin python bin/jam_halo_models.py
   1. remnant MGE (analytic) vs backends.mge_from_component (quadrature): max relative difference of enclosed mass
@@ -37,6 +39,54 @@ REM_FIT = np.geomspace(0.05, 2000., 100)        # as backends.mge_from_component
 DM_SIG = np.geomspace(0.005, 4000., 56)
 DM_FIT = np.geomspace(0.005, 5000., 140)
 _XG, _WG = np.polynomial.legendre.leggauss(256)
+
+
+class QProfile:
+    """Measured q'(R) for JAM (docs/JAM_FIT_PLAN.md step 4f/5). Each Gaussian of circular width s [arcsec] gets the
+    isophotal q' of the star-count fit at major-axis radius R = s/sqrt(q') (= its sigma_major; van de Ven et al. 2006
+    prescription: q'_j = observed flattening at R = sigma'_j), solved by fixed-point iteration. Zones:
+      R < r_in            : qin (free in the JAM fit; no shape constraint in the centre)
+      r_in <= R <= r_out  : measured (linear interpolation in log R)
+      R > r_out           : outer = 'hold' (q'(r_out)), 'round' (1.0) or 'measured' (measured to 2000", then held)
+    Picklable (plain arrays), so it travels to worker processes."""
+
+    def __init__(self, R, q, qin, r_in=60., r_out=1300., outer="hold", src=""):
+        self.R, self.q = np.asarray(R, float), np.asarray(q, float)
+        self.qin, self.r_in, self.r_out, self.outer, self.src = float(qin), float(r_in), float(r_out), outer, src
+
+    @classmethod
+    def from_json(cls, path, qin=0.9, **kw):
+        import json
+        d = json.loads(Path(path).read_text())
+        return cls(d["R_iso"], d["q_iso"], qin, src=Path(path).name, **kw)
+
+    def with_qin(self, qin):
+        return QProfile(self.R, self.q, qin, self.r_in, self.r_out, self.outer, self.src)
+
+    def at_R(self, R):
+        R = np.asarray(R, float)
+        qm = np.interp(np.log(R), np.log(self.R), self.q)
+        if self.outer == "hold":
+            qo = np.interp(np.log(self.r_out), np.log(self.R), self.q)
+        elif self.outer == "round":
+            qo = 1.0
+        else:
+            qo = np.interp(np.log(np.minimum(R, 2000.)), np.log(self.R), self.q)
+        return np.where(R < self.r_in, self.qin, np.where(R > self.r_out, qo, qm))
+
+    def __call__(self, s_arcsec):
+        s = np.asarray(s_arcsec, float); q = np.full(s.shape, 0.9)
+        for _ in range(30):
+            q = self.at_R(s/np.sqrt(q))
+        return q
+
+    def describe(self):
+        return dict(src=self.src, qin=self.qin, r_in=self.r_in, r_out=self.r_out, outer=self.outer)
+
+
+def qvals(q, s_arcsec):
+    """q' per Gaussian: q may be a number, an array or a QProfile (callable of the circular width in arcsec)."""
+    return q(s_arcsec) if callable(q) else np.broadcast_to(np.asarray(q, float), np.shape(s_arcsec))
 
 
 def projected(component, R, r_max):
@@ -69,7 +119,7 @@ def jam_models(jeans, D, qobs, qrem, qdm=1.0):
     gaussians, mbh, other = _split_mass_model(jeans.mass)
     stars = gaussians[0]
     ms, ss = np.asarray(stars.masses)*stars.mass_to_light, np.asarray(stars.sigmas)
-    parts = [J.flatten(ms, ss, qobs, pc)]
+    parts = [J.flatten(ms, ss, qvals(qobs, ss/pc), pc)]
     want = float(np.sum(ms))
     for c in other:
         if isinstance(c, TruncatedGNFW):
@@ -77,7 +127,7 @@ def jam_models(jeans, D, qobs, qrem, qdm=1.0):
         else:
             m = mge_masses(c, REM_SIG, REM_FIT); q, sg = qrem, REM_SIG
         k = m > 0
-        parts.append(J.flatten(m[k], sg[k], q, pc))
+        parts.append(J.flatten(m[k], sg[k], qvals(q, sg[k]/pc), pc))
         want += float(np.sum(m[k]))
     pot = tuple(np.concatenate([pp[i] for pp in parts]) for i in range(3))
     got = J.mge_total(*pot, pc)
@@ -101,23 +151,29 @@ def _oblate_enclosed(m, sig, q, r):
     return np.sum(m*(erf(x)-tail), axis=1)
 
 
-def enclosed_flat(jeans, qobs, qrem, inc, r, qdm=1.0):
+def enclosed_flat(jeans, qobs, qrem, inc, r, qdm=1.0, D=None):
     """Spherical enclosed mass M(<r) [Msun] per component of the flattened JAM model built by jam_models: each
     Gaussian deprojected at inclination inc (deg), intrinsic q = sqrt(q'^2 - cos^2 i)/sin i, major sigma
-    s/sqrt(q') (J.flatten). r in pc. Returns {component class name: array}; the BH is 'BH'."""
+    s/sqrt(q') (J.flatten). r in pc. Returns {component class name: array}; the BH is 'BH'. D [kpc] is needed only
+    when qobs/qrem is a QProfile (widths converted to arcsec)."""
+    pc = None if D is None else D*1e3/J.ARCSEC_PER_RAD
+    if pc is None and (callable(qobs) or callable(qrem)):
+        raise ValueError("enclosed_flat: D is required with a QProfile")
     ci, si = np.cos(np.radians(inc)), np.sin(np.radians(inc))
     qint = lambda qp: np.sqrt(np.clip(qp**2-ci**2, 1e-12, None))/si
     gaussians, mbh, other = _split_mass_model(jeans.mass)
     stars = gaussians[0]
     ms, ss = np.asarray(stars.masses)*stars.mass_to_light, np.asarray(stars.sigmas)
-    out = {"stars": _oblate_enclosed(ms, ss/np.sqrt(qobs), qint(qobs), r)}
+    qs = qvals(qobs, ss/pc if pc else ss)
+    out = {"stars": _oblate_enclosed(ms, ss/np.sqrt(qs), qint(qs), r)}
     for c in other:
         if isinstance(c, TruncatedGNFW):
             m, q, sg = mge_masses(c, DM_SIG, DM_FIT), qdm, DM_SIG
         else:
             m, q, sg = mge_masses(c, REM_SIG, REM_FIT), qrem, REM_SIG
         k = m > 0
-        out[type(c).__name__] = out.get(type(c).__name__, 0)+_oblate_enclosed(m[k], sg[k]/np.sqrt(q), qint(q), r)
+        qk = qvals(q, sg[k]/pc if pc else sg[k])
+        out[type(c).__name__] = out.get(type(c).__name__, 0)+_oblate_enclosed(m[k], sg[k]/np.sqrt(qk), qint(qk), r)
     out["BH"] = np.full(len(np.atleast_1d(r)), float(mbh))
     return out
 
