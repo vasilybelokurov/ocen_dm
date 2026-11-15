@@ -87,6 +87,41 @@ def jam_models(jeans, D, qobs, qrem, qdm=1.0):
     return lum, pot, mbh
 
 
+def _oblate_enclosed(m, sig, q, r):
+    """Mass within spheres of radius r of oblate 3D Gaussians rho ~ exp(-(R^2 + z^2/q^2)/(2 sig^2)), total masses m,
+    major-axis sigmas sig, intrinsic axis ratios q (< 1, or 1):
+    M(<r) = m [erf(r/(sqrt2 sig q)) - exp(-r^2/(2 sig^2)) erf(r e/(sqrt2 sig q))/e], e = sqrt(1-q^2);
+    the e -> 0 limit is the spherical Gaussian."""
+    from scipy.special import erf
+    r = np.asarray(r, float)[:, None]; m, sig, q = (np.broadcast_to(np.asarray(v, float), np.shape(m)) for v in (m, sig, q))
+    e = np.sqrt(np.clip(1-q**2, 0, None))
+    x = r/(np.sqrt(2)*sig*q)
+    sph = np.sqrt(2/np.pi)*(r/sig)*np.exp(-0.5*(r/sig)**2)
+    tail = np.where(e > 1e-6, np.exp(-0.5*(r/sig)**2)*erf(x*np.where(e > 1e-6, e, 1.))/np.where(e > 1e-6, e, 1.), sph)
+    return np.sum(m*(erf(x)-tail), axis=1)
+
+
+def enclosed_flat(jeans, qobs, qrem, inc, r, qdm=1.0):
+    """Spherical enclosed mass M(<r) [Msun] per component of the flattened JAM model built by jam_models: each
+    Gaussian deprojected at inclination inc (deg), intrinsic q = sqrt(q'^2 - cos^2 i)/sin i, major sigma
+    s/sqrt(q') (J.flatten). r in pc. Returns {component class name: array}; the BH is 'BH'."""
+    ci, si = np.cos(np.radians(inc)), np.sin(np.radians(inc))
+    qint = lambda qp: np.sqrt(np.clip(qp**2-ci**2, 1e-12, None))/si
+    gaussians, mbh, other = _split_mass_model(jeans.mass)
+    stars = gaussians[0]
+    ms, ss = np.asarray(stars.masses)*stars.mass_to_light, np.asarray(stars.sigmas)
+    out = {"stars": _oblate_enclosed(ms, ss/np.sqrt(qobs), qint(qobs), r)}
+    for c in other:
+        if isinstance(c, TruncatedGNFW):
+            m, q, sg = mge_masses(c, DM_SIG, DM_FIT), qdm, DM_SIG
+        else:
+            m, q, sg = mge_masses(c, REM_SIG, REM_FIT), qrem, REM_SIG
+        k = m > 0
+        out[type(c).__name__] = out.get(type(c).__name__, 0)+_oblate_enclosed(m[k], sg[k]/np.sqrt(q), qint(q), r)
+    out["BH"] = np.full(len(np.atleast_1d(r)), float(mbh))
+    return out
+
+
 def _mge_enclosed(m, sig, r):
     from scipy.special import erf
     x = r[:, None]/sig[None, :]

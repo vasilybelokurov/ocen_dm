@@ -13,8 +13,8 @@ prior ranges; D has its Gaussian prior).
 Prediction per bin: the estimator rules recombine to the bin's weighted mean TOTAL second moment of the component
 (HST: local mean removed + <vbar^2> added back; MUSE: ring sinusoid; Gaia: ring mean), independent of how rotation
 splits <v_phi^2>. So predicted sigma = sqrt(<m2>_bin - streaming2), with streaming2 the per-estimator rotation term of
-the REAL data, corrected (2026-11-13): HST R and T = ring <vbar^2> of the measured rotation field (MeanField, mas/yr at
-the measurement distance), MUSE = published v_rot^2/2, Gaia = <mu_T>^2 (VB21, as in the snapshot). JAM second moments
+the REAL data, all from ONE measured rotation field (MeanField; HST 2026-11-13, MUSE and Gaia 2026-11-15): HST
+<vbar^2>, MUSE <vbar_los^2> over the bin's stars, Gaia <vbar>^2 over the ring (see _corrected_data). JAM second moments
 are computed on a polar grid in (x', y') (36 log radii 2-2600" x 24 angles in [0, pi), point symmetry) and
 interpolated to the sample points (real HST/MUSE star positions; Sigma-weighted Gaia rings). Likelihood: the
 pipeline's split normal; objective = lnL + distance prior. Negative/NaN second moments -> rejected.
@@ -102,45 +102,61 @@ class Setup:
             self._ops[p.name] = {k: (Bm.multiply(c[None, :]).tocsr() @ Wp) for k, c in coef.items()}
 
     def _ring_terms(self, p, mf):
-        """Per-bin ring mean of the field's PM component and its mean square [mas/yr, (mas/yr)^2]."""
+        """Per-bin mean of the field's component at the bin's sample points, and its mean square.
+
+        PM components in mas/yr (field converted at the measurement distance), LOS in km/s. HST/MUSE: the real star
+        positions (equal weights); Gaia: the complete rings at the bin's radial nodes (equal weights)."""
         xp, yp, b, _ = self.pts[p.name]
         v = mf(xp, yp)
-        R = np.hypot(xp, yp)
-        e = (np.array([xp/R, yp/R]) if p.kind == "pmr" else np.array([-yp/R, xp/R]))
-        m1 = (e[0]*v[0]+e[1]*v[1])/(4.74047*D_MEAS)
+        if p.kind == "los":
+            m1 = v[2]
+        else:
+            R = np.hypot(xp, yp)
+            e = (np.array([xp/R, yp/R]) if p.kind == "pmr" else np.array([-yp/R, xp/R]))
+            m1 = (e[0]*v[0]+e[1]*v[1])/(4.74047*D_MEAS)
         return (np.array([np.mean(m1[b == k]) for k in range(p.n)]),
                 np.array([np.mean(m1[b == k]**2) for k in range(p.n)]))
 
     def _corrected_data(self, ndraw=40):
-        """Real data with the corrected rotation terms (HST R and T from the measured rotation field).
+        """Real data with every rotation term from ONE rotation field: the fitted field (fit_rotation_field.py,
+        cylindrical law, MAP; the grey model of plots/rotation_field_*_20261113.png). 2026-11-15: MUSE and Gaia
+        moved to the field too (before: MUSE published v_rot^2/2, Gaia-T the VB21 curve, Gaia-R 0).
 
-        Errors (fixed 2026-11-13): the snapshot's HST-T errors include the uncertainty of the OLD (VB21) rotation curve
-        (likelihood._hst_ours, streaming_error_on_sigma). They are replaced by the measurement error (hst_profile
-        product) combined in quadrature with the same first-order term for the NEW field, |vbar| dv / sigma, dv = s.d.
-        of the ring-mean PM over `ndraw` draws of the rotation-field chain (same convention as production: independent
-        between bins). HST-R had no rotation error term and gets none (its ring-mean component is ~0).
+        Term per estimator (what the published dispersion is measured about):
+          HST R, T (local mean removed): <vbar^2> over the bin's stars;
+          MUSE LOS (sinusoid fitted per annulus): <vbar_los^2> over the bin's stars (= v_rot^2/2 for a pure sinusoid);
+          Gaia R, T (one mean motion per annulus): <vbar>^2 over the ring.
+        Errors: measurement error (+) |vbar| dv / sigma in quadrature (likelihood.streaming_error_on_sigma), dv = s.d.
+        of the bin's mean field component over `ndraw` draws of the field chain (independent between bins, as in
+        production). Measurement errors: HST-T from the hst_profile product (the snapshot's include the old VB21 term);
+        Gaia from the edr3 profile (raw catalogue errors; the snapshot's include the VB21 term); HST-R, MUSE as given.
         """
         from ocen_dm.kinematics.hst_profile import load_hst_product
         from ocen_dm.kinematics.likelihood import streaming_error_on_sigma
+        from ocen_dm.kinematics.outer_gaia import load_edr3_profile
         mf = J.MeanField(1.0)
         chain = np.load(ROOT/"results/rotation/rotation_field_cylindrical_chain_20261113.npy")
         draws = chain[np.random.default_rng(7).choice(len(chain), ndraw, replace=False)]
         mfs = [J.MeanField(1.0, params=d) for d in draws]
-        prod = load_hst_product()
+        prod, g = load_hst_product(), load_edr3_profile()
         out = []
         for p in self.pb0.data.profiles:
-            if p.instrument == "HST":
-                vbar, st2 = self._ring_terms(p, mf)
-                if p.kind == "pmt":
-                    assert np.allclose(np.asarray(prod["r_median"], float), p.r)
-                    e_meas = np.asarray(prod["sigma_pmt_err"], float)
-                    dv = np.std([self._ring_terms(p, m)[0] for m in mfs], axis=0)
-                    err = np.hypot(e_meas, streaming_error_on_sigma(p.value, vbar, dv))
-                    out.append(replace(p, streaming2=st2, err_lo=err, err_hi=err))
-                else:
-                    out.append(replace(p, streaming2=st2))
+            vbar, m2 = self._ring_terms(p, mf)
+            dv = np.std([self._ring_terms(p, m)[0] for m in mfs], axis=0)
+            if p.instrument == "GaiaEDR3":
+                st2 = vbar**2
+                col = "sigma_pmr" if p.kind == "pmr" else "sigma_pmt"
+                assert np.allclose(np.asarray(g["r_median"], float), p.r) and np.allclose(np.asarray(g[col], float), p.value)
+                e_lo = e_hi = np.asarray(g[col+"_err"], float)
             else:
-                out.append(p)
+                st2 = m2
+                if p.instrument == "HST" and p.kind == "pmt":
+                    assert np.allclose(np.asarray(prod["r_median"], float), p.r)
+                    e_lo = e_hi = np.asarray(prod["sigma_pmt_err"], float)
+                else:
+                    e_lo, e_hi = p.err_lo, p.err_hi
+            de = streaming_error_on_sigma(p.value, np.sqrt(st2), dv)
+            out.append(replace(p, streaming2=st2, err_lo=np.hypot(e_lo, de), err_hi=np.hypot(e_hi, de)))
         return KinematicData(tuple(out))
 
     def grid_moments(self, lum, pot, mbh, D, anis, inc):

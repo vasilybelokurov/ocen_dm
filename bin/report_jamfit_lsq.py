@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Report of the least-squares JAM mock tests (bin/fit_jam_halo.py --method lsq), 2026-11-14.
 
-For each fit JSON: best -lnpost vs the truth's, the spread of the multi-start results, parameter offsets, and the
-enclosed mass M(<r) of fit vs truth (total and per component; spherical enclosed mass of each component, evaluated the
-same way for fit and truth -- a proxy, since the flattened JAM model is not spherical), plus residuals (model-data)/err.
+For each fit JSON: best -lnpost vs the truth's, the spread of the multi-start results ("n at or below truth + 0.1":
+starts scoring <= truth + 0.1, which includes fits that beat the truth, as noisy-free fits with free parameters can),
+parameter offsets, and the enclosed mass M(<r) of fit vs truth (total and per component), within spheres, of the
+flattened JAM model (jam_halo_models.enclosed_flat: each Gaussian deprojected at the inclination; 2026-11-15, before:
+a spherical proxy), plus residuals (model-data)/data.
 Truth -lnpost values are computed by fit_jam_halo.Problem.objective at the truth (see JOURNAL 2026-11-14).
 
 Usage: PYTHONPATH=src:bin python bin/report_jamfit_lsq.py
@@ -22,6 +24,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
+import jam_halo_models as H
 from ocen_dm.kinematics.report import load_run_metadata, problem_for
 
 Q85, Q90 = "q0.85_r0.85_i44_from_q0.90_r0.90_i44_v1", "q0.90_r0.90_i44_from_q0.85_r0.85_i44_v1_injM1.35e+06_rs300"
@@ -36,15 +39,11 @@ FAM = {k: problem_for(load_run_metadata(ROOT/"results/fits"/r)).family
 R = np.geomspace(0.5, 70., 60)          # pc; data reach ~67 pc
 
 
-def enclosed(theta):
+def enclosed(theta, qobs, qrem, inc):
+    """Per-component M(<r) [Msun] of the flattened model within spheres of radius R."""
     fam = FAM["NFW"] if "M_dm_100" in theta else FAM["K1"]
     jeans, _, _ = fam.build({n: theta[n] for n in fam.names})
-    comps = jeans.mass.components if hasattr(jeans.mass, "components") else [jeans.mass]
-    parts = {}
-    for c in comps:
-        k = type(c).__name__
-        parts[k] = parts.get(k, 0)+np.ravel(c.enclosed_mass(R))
-    return parts
+    return H.enclosed_flat(jeans, qobs, qrem, inc, R)
 
 
 def main():
@@ -62,7 +61,8 @@ def main():
         a.barh(range(len(keys)), [100*off[k] for k in keys]); a.set_yticks(range(len(keys)))
         a.set_yticklabels(["q'" if k == "qobs" else k for k in keys], fontsize=8); a.axvline(0, c="k", lw=.5)
         a.set_xlim(-60, 60); a.set_xlabel("fit/truth - 1 (%)"); a.set_title(lab, fontsize=10)
-        ef, et = enclosed(th), enclosed(tr)
+        ef = enclosed(th, d["qobs"], d["qobs"], d["inc"])
+        et = enclosed(tr, tr["qobs"], tr["qrem"], tr["inc"])
         tf, tt = sum(ef.values()), sum(et.values())
         a = ax[i, 1]
         a.plot(R, 100*(tf/tt-1), "k-", lw=2, label="total")
@@ -78,7 +78,7 @@ def main():
         a = ax[i, 2]
         a.plot(fs, "o"); a.axhline(ftrue, c="r", label=f"truth {ftrue:.2f}"); a.set_ylim(ftrue-3, ftrue+15)
         a.set_xlabel("start (sorted)"); a.set_ylabel("-lnpost"); a.legend(fontsize=8)
-        a.set_title(f"best {fs[0]:.3f}; {np.sum(fs < ftrue+0.1)}/{len(fs)} within 0.1 of truth", fontsize=9)
+        a.set_title(f"best {fs[0]:.3f}; {np.sum(fs <= ftrue+0.1)}/{len(fs)} at or below truth + 0.1", fontsize=9)
         a = ax[i, 3]
         x0 = 0
         for name, p in d["pred"].items():
@@ -91,10 +91,10 @@ def main():
         a.legend(fontsize=6)
         m5, m20, m50 = (float(np.interp(r, R, tf/tt-1)) for r in (5, 20, 50))
         summary[lab] = dict(json=fn, best=float(fs[0]), truth=ftrue, starts=fs.tolist(),
-                            n_within_0p1=int(np.sum(fs < ftrue+0.1)), chi2=d["chi2_total"], qobs=d["qobs"],
+                            n_at_or_below_truth_plus_0p1=int(np.sum(fs <= ftrue+0.1)), chi2=d["chi2_total"], qobs=d["qobs"],
                             q_truth=tr.get("qobs"), offsets=off, M_lt_5_20_50_frac=[m5, m20, m50],
                             M_dm_100=th.get("M_dm_100"), r_s=th.get("r_s"))
-        print(f"{lab}: best {fs[0]:.3f} (truth {ftrue:.3f}), {np.sum(fs < ftrue+0.1)}/{len(fs)} starts within 0.1; "
+        print(f"{lab}: best {fs[0]:.3f} (truth {ftrue:.3f}), {np.sum(fs <= ftrue+0.1)}/{len(fs)} starts at or below truth + 0.1; "
               f"chi2 {d['chi2_total']:.2f}; q' {d['qobs']:.3f}; M(<5,20,50 pc) {100*m5:+.1f} {100*m20:+.1f} "
               f"{100*m50:+.1f}%; M_dm_100 {th.get('M_dm_100', 0):.3g}; r_s {th.get('r_s', 0):.0f}")
     plt.tight_layout()
