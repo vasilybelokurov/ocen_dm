@@ -11,6 +11,7 @@ Sobol screen of the prior box, picked best-first with a minimum separation (--mi
 must give a valid model. Each run is restarted from its end point (fresh Jacobian) until the gain is < --lsq-gain
 (at most --lsq-rounds). Other methods: --method de (differential evolution + Powell polish), --method powell.
 --fix-mdm M fixes M_dm_100 = M (profile likelihood point; r_s stays free).
+--rmax R fits only the bins with radius <= R arcsec (the model is still evaluated on all bins; 2026-11-15).
 
 Data: --data real (the corrected real data) or --data <jam_tuned tag> (noiseless mock: the saved tuned prediction),
 or --data <tag> with --inject-mdm M --inject-rs R: the tuned truth plus an NFW halo, predicted with this model
@@ -38,6 +39,7 @@ from scipy.optimize import minimize
 
 import jam_halo_models as H
 from ocen_dm.kinematics import KinematicData
+from ocen_dm.kinematics.likelihood import ProfileLikelihood
 from tune_jam_to_data import Setup
 
 RUNS = {"K1": "jeans_K1_turnover_counts_c", "NFW": "jeans_K2_nfw_turnover_counts_c"}
@@ -77,6 +79,22 @@ class Problem:
         self.lo = np.array([lo[n] for n in self.pars]); self.hi = np.array([hi[n] for n in self.pars])
         self.base = dict(zip(names, S.x_map))
         self.nfail = 0                                            # failed model evaluations (this process)
+        rmax = np.inf if getattr(a, "rmax", None) is None else a.rmax
+        self.keep = {p.name: np.asarray(p.r) <= rmax for p in S.data.profiles}   # bins entering the fit
+
+    def lnlike(self, pred):
+        """Split-normal lnL per dataset over the fitted bins."""
+        return {p.name: float(np.sum(ProfileLikelihood._split_normal_lnlike(pred[p.name], p)[self.keep[p.name]]))
+                for p in self.S.data.profiles}
+
+    def stats(self, pred):
+        out = {}
+        for p in self.S.data.profiles:
+            k = self.keep[p.name]
+            d = ((pred[p.name]-p.value)/np.where(pred[p.name] > p.value, p.err_hi, p.err_lo))[k]
+            out[p.name] = dict(mean=float(d.mean()), rms=float(np.sqrt(np.mean(d**2))), chi2=float(np.sum(d**2)),
+                               n=int(k.sum()))
+        return out
 
     def to_u(self, x):
         return np.array([np.log10(v) if n in LOGP else v for n, v in zip(self.pars, x)])
@@ -99,7 +117,7 @@ class Problem:
         except (ValueError, FloatingPointError, ZeroDivisionError, AssertionError):
             self.nfail += 1
             return 1e30
-        ln = sum(self.S.lnlike(pred).values())-0.5*((D-self.dprior.mu)/self.dprior.sigma)**2
+        ln = sum(self.lnlike(pred).values())-0.5*((D-self.dprior.mu)/self.dprior.sigma)**2
         return -ln+np.sum(np.clip(x-self.hi, 0, None)**2+np.clip(self.lo-x, 0, None)**2)*1e6
 
     def residuals(self, u):
@@ -112,17 +130,19 @@ class Problem:
         except (ValueError, FloatingPointError, ZeroDivisionError, AssertionError):
             self.nfail += 1
             return np.full(self.nres, 1e3)
-        r = [(pred[p.name]-p.value)/np.where(pred[p.name] > p.value, p.err_hi, p.err_lo) for p in self.S.data.profiles]
+        r = [((pred[p.name]-p.value)/np.where(pred[p.name] > p.value, p.err_hi, p.err_lo))[self.keep[p.name]]
+             for p in self.S.data.profiles]
         return np.r_[np.concatenate(r), (D-self.dprior.mu)/self.dprior.sigma]
 
     @property
     def nres(self):
-        return sum(p.n for p in self.S.data.profiles)+1
+        return sum(int(k.sum()) for k in self.keep.values())+1
 
     @property
     def lnnorm(self):
         """Constant: -lnpost = 0.5 sum(r^2) - lnnorm."""
-        return float(sum(np.sum(np.log(np.sqrt(2/np.pi)/(p.err_lo+p.err_hi))) for p in self.S.data.profiles))
+        return float(sum(np.sum(np.log(np.sqrt(2/np.pi)/(p.err_lo+p.err_hi))[self.keep[p.name]])
+                         for p in self.S.data.profiles))
 
     def starts(self):
         """Spherical MAP of the family; q' 0.90 and 0.97 if free; halo 1e5 (with q' 0.90) and 1e6 (with 0.97)."""
@@ -319,6 +339,7 @@ def main():
     ap.add_argument("--qobs", type=float, default=None, help="fix q' (default: free)")
     ap.add_argument("--inc", type=float, default=44.0)
     ap.add_argument("--fix-mdm", type=float, default=None)
+    ap.add_argument("--rmax", type=float, default=None, help="fit only bins with R <= rmax (arcsec)")
     ap.add_argument("--inject-mdm", type=float, default=None)
     ap.add_argument("--inject-rs", type=float, default=300.)
     ap.add_argument("--maxfev", type=int, default=3000)
@@ -348,7 +369,8 @@ def main():
     from multiprocessing import get_context
     P = Problem(a)
     suffix = (f"_q{a.qobs:.2f}" if not P.qfree else "")+(f"_mdm{a.fix_mdm:.3g}" if a.fix_mdm is not None else "") \
-        + ("_lsq" if a.method == "lsq" else "")+(f"_{a.label}" if a.label else "")
+        + (f"_rmax{a.rmax:g}" if a.rmax is not None else "")+("_lsq" if a.method == "lsq" else "") \
+        + (f"_{a.label}" if a.label else "")
     path = ROOT/f"results/rotation/jamfit_{P.tag}_{a.family}{suffix}.json"
     if path.exists() and not a.overwrite:
         sys.exit(f"{path.name} exists; use --label or --overwrite")
@@ -362,7 +384,7 @@ def main():
     best = min(runs, key=lambda r: r["f"])
     th, q = P.unpack(np.array(best["x"]))
     pred, D = P.S.predict(th, q, q, a.inc)
-    st, lnL = P.S.stats(pred), P.S.lnlike(pred)
+    st, lnL = P.stats(pred), P.lnlike(pred)
     out = dict(data=P.tag, family=a.family, inc=a.inc, q_free=P.qfree, fix_mdm=a.fix_mdm, theta=th, qobs=q, D=D,
                neg_lnpost=best["f"], lnL_total=float(sum(lnL.values())), lnL=lnL, stats=st,
                chi2_total=float(sum(v["chi2"] for v in st.values())), pred={k: v.tolist() for k, v in pred.items()},

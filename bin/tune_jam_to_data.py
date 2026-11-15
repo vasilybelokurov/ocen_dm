@@ -101,12 +101,14 @@ class Setup:
                 coef = dict(xx=e[0]**2, xy=2*e[0]*e[1], yy=e[1]**2)
             self._ops[p.name] = {k: (Bm.multiply(c[None, :]).tocsr() @ Wp) for k, c in coef.items()}
 
-    def _ring_terms(self, p, mf):
-        """Per-bin mean of the field's component at the bin's sample points, and its mean square.
+    def _ring_terms(self, p, mf, w=None):
+        """Per-bin (weighted) mean of the field's component at the bin's sample points, and its mean square.
 
         PM components in mas/yr (field converted at the measurement distance), LOS in km/s. HST/MUSE: the real star
-        positions (equal weights); Gaia: the complete rings at the bin's radial nodes (equal weights)."""
+        positions (equal weights); Gaia: the complete rings at the bin's radial nodes, weighted by the tracer surface
+        density (w, as in predict)."""
         xp, yp, b, _ = self.pts[p.name]
+        w = np.ones(len(xp)) if w is None else w
         v = mf(xp, yp)
         if p.kind == "los":
             m1 = v[2]
@@ -114,8 +116,8 @@ class Setup:
             R = np.hypot(xp, yp)
             e = (np.array([xp/R, yp/R]) if p.kind == "pmr" else np.array([-yp/R, xp/R]))
             m1 = (e[0]*v[0]+e[1]*v[1])/(4.74047*D_MEAS)
-        return (np.array([np.mean(m1[b == k]) for k in range(p.n)]),
-                np.array([np.mean(m1[b == k]**2) for k in range(p.n)]))
+        return (np.array([np.average(m1[b == k], weights=w[b == k]) for k in range(p.n)]),
+                np.array([np.average(m1[b == k]**2, weights=w[b == k]) for k in range(p.n)]))
 
     def _corrected_data(self, ndraw=40):
         """Real data with every rotation term from ONE rotation field: the fitted field (fit_rotation_field.py,
@@ -126,9 +128,11 @@ class Setup:
           HST R, T (local mean removed): <vbar^2> over the bin's stars;
           MUSE LOS (sinusoid fitted per annulus): <vbar_los^2> over the bin's stars (= v_rot^2/2 for a pure sinusoid);
           Gaia R, T (one mean motion per annulus): <vbar>^2 over the ring.
-        Errors: measurement error (+) |vbar| dv / sigma in quadrature (likelihood.streaming_error_on_sigma), dv = s.d.
-        of the bin's mean field component over `ndraw` draws of the field chain (independent between bins, as in
-        production). Measurement errors: HST-T from the hst_profile product (the snapshot's include the old VB21 term);
+        Errors: measurement error (+) v dv / sigma in quadrature (likelihood.streaming_error_on_sigma), v = sqrt(term),
+        dv = s.d. over `ndraw` draws of the field chain of sqrt(<vbar^2>) (HST, MUSE) or of <vbar> (Gaia), i.e. of the
+        quantity actually subtracted (fixed 2026-11-15: was the bin mean for all); independent between bins, as in
+        production. Gaia ring weights: tracer surface density of the spherical-MAP mass model flattened at the
+        rotation-field q' (fit_rotation_field.QPROJ), as predict weights the rings (2026-11-15; was equal weights). Measurement errors: HST-T from the hst_profile product (the snapshot's include the old VB21 term);
         Gaia from the edr3 profile (raw catalogue errors; the snapshot's include the VB21 term); HST-R, MUSE as given.
         """
         from ocen_dm.kinematics.hst_profile import load_hst_product
@@ -139,11 +143,17 @@ class Setup:
         draws = chain[np.random.default_rng(7).choice(len(chain), ndraw, replace=False)]
         mfs = [J.MeanField(1.0, params=d) for d in draws]
         prod, g = load_hst_product(), load_edr3_profile()
+        import fit_rotation_field as F
+        jeans, D, _ = self.fam.build(dict(zip(self.fam.names, self.x_map)))
+        lum_ref = self.models(jeans, D, F.QPROJ, F.QPROJ)[0]
         out = []
         for p in self.pb0.data.profiles:
-            vbar, m2 = self._ring_terms(p, mf)
-            dv = np.std([self._ring_terms(p, m)[0] for m in mfs], axis=0)
-            if p.instrument == "GaiaEDR3":
+            xp, yp, _, nd = self.pts[p.name]
+            w = J.weights(lum_ref, xp, yp, nd)
+            vbar, m2 = self._ring_terms(p, mf, w)
+            gaia = p.instrument == "GaiaEDR3"
+            dv = np.std([(lambda t: t[0] if gaia else np.sqrt(t[1]))(self._ring_terms(p, m, w)) for m in mfs], axis=0)
+            if gaia:
                 st2 = vbar**2
                 col = "sigma_pmr" if p.kind == "pmr" else "sigma_pmt"
                 assert np.allclose(np.asarray(g["r_median"], float), p.r) and np.allclose(np.asarray(g[col], float), p.value)

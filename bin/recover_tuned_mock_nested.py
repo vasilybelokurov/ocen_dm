@@ -9,8 +9,10 @@ the corrected real errors and streaming terms, built exactly as in recover_tuned
 
 Usage: OMP_NUM_THREADS=1 PYTHONPATH=src:bin python bin/recover_tuned_mock_nested.py \
            --truth q0.90_r0.90_i44_from_q0.85_r0.85_i44_v1 --family K1
-       --truth real fits the real data with the corrected HST rotation terms (same data as the JAM tuning).
-Output: results/fits/recover_<truth>_<family>/ (summary.json, posterior.ecsv, ...)
+       --truth real fits the real data with the corrected rotation terms (same data as the JAM fits).
+       --per-bin N: stars per HST/MUSE bin used for the rotation terms (default 10, as the 2026-11-13 runs; 0 = all
+       stars, as the JAM fits since 2026-11-15). --label L: output suffix.
+Output: results/fits/recover_<truth>_<family>[_<label>]/ (summary.json, posterior.ecsv, ...)
 """
 from __future__ import annotations
 
@@ -38,13 +40,15 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--truth", required=True, help="jam_tuned tag, or 'real' for the corrected real data")
     ap.add_argument("--family", choices=sorted(FAMILIES), required=True)
+    ap.add_argument("--per-bin", type=int, default=10, help="stars per HST/MUSE bin for the rotation terms; 0 = all")
+    ap.add_argument("--label", default="")
     args = ap.parse_args()
-    S = Setup(per_bin=10)                     # corrected real errors and streaming terms; values replaced below
+    S = Setup(per_bin=None if args.per_bin == 0 else args.per_bin)   # corrected errors and streaming terms
     if args.truth == "real":                  # the real data with the corrected HST rotation terms (no mock)
         mdata = S.data
-        prov = {"kind": "real", "hst_rotation": "results/rotation/rotation_field_cylindrical_20261113.json (MAP), "
-                "ring <m^2>; HST-T errors with the field-chain spread (tune_jam_to_data.Setup._corrected_data)",
-                "script": "bin/recover_tuned_mock_nested.py --truth real"}
+        prov = {"kind": "real", "rotation": "results/rotation/rotation_field_cylindrical_20261113.json (MAP) for HST, "
+                "MUSE and Gaia, errors with the field-chain spread (tune_jam_to_data.Setup._corrected_data)",
+                "per_bin": args.per_bin, "script": "bin/recover_tuned_mock_nested.py --truth real"}
     else:
         T = json.loads((ROOT/f"results/rotation/jam_tuned_{args.truth}.json").read_text())
         mdata = KinematicData(tuple(replace(p, value=np.array(T["pred"][p.name])) for p in S.data.profiles))
@@ -53,7 +57,9 @@ def main():
     prod = ROOT/"results/fits"/FAMILIES[args.family]
     fam = family_from_config(family_config(problem_for(load_run_metadata(prod)).family))
     smp = yaml.safe_load((prod/"run.yaml").read_text())["sampler"]
-    out = ROOT/f"results/fits/recover_{args.truth}_{args.family}"
+    out = ROOT/f"results/fits/recover_{args.truth}_{args.family}"+(f"_{args.label}" if args.label else "")
+    if out.exists():
+        sys.exit(f"{out} exists; use --label")
     s = run_nested(FitProblem(fam, mdata), out, n_live=smp["n_live"], dlogz=smp["dlogz"], seed=smp["seed"],
                    step_sampler=smp["step_sampler"], slice_nsteps=smp["slice_nsteps"],
                    data_provenance=prov)
