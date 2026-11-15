@@ -19,11 +19,12 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 VDV_S = np.array([0.153, 1.477, 2.525, 3.691, 5.219, 7.534, 11.069, 17.547])*60      # major-axis sigma' (arcsec)
 VDV_Q = np.array([1.000, 0.934, 0.877, 0.848, 0.850, 0.836, 0.866, 0.926])
-LABEL = {"pafree_h19_g17members_r2400": "fit: PA free, HST<19, Gaia G<17 PM members",
+LABEL = {"pafree_h19_g17members_r2400": "fit: PA free, HST<19, Gaia G<17 PM members (main)",
          "pafixed_h19_g17members_r2400": "fit: PA fixed 104.2",
          "pafree_h18_g16members_r2400": "fit: bright (HST<18, G<16 members)",
-         "pafree_h19_g17all_r2400": "fit: Gaia all stars (field term)",
-         "pafree_h19_g17all_r2400_quad": "fit: Gaia all stars, curved field"}
+         "pafree_h19_g17all_r2400": "fit: Gaia all stars (measured field)",
+         "pafree_h19_g17members_r2400_fx0": "fit: members, no field",
+         "pafree_h19_g17members_r2400_fx2": "fit: members, field x2"}
 
 
 def main():
@@ -38,7 +39,7 @@ def main():
         ax[0].plot(R, q, "-", lw=2 if j == 0 else 1, label=lab, c=f"C{j}")
         if j == 0:
             ax[0].fill_between(R, q-e, q+e, color="C0", alpha=.2)
-        if d.get("pa_err", 0) > 0:                              # global PA of the fit, drawn as a band (free-PA fits)
+        if d.get("pa_err", 0) > 0 and j < 4:                              # global PA of the fit, drawn as a band (free-PA fits)
             ax[1].axhspan(d["pa"]-d["pa_err"], d["pa"]+d["pa_err"], color=f"C{j}", alpha=.15, label=f"{lab}: global PA")
         rows.append((lab, d))
     tab = json.loads((ROOT/"results/shape/ring_table_20261115.json").read_text())
@@ -60,7 +61,7 @@ def main():
     for lab, d in rows:
         qi = np.interp(VDV_S[1:], d["R_iso"], d["q_iso"])
         print(f"{lab}: PA {d['pa']:.1f}+-{d.get('pa_err', 0):.1f}; q_iso at vdV radii {np.round(qi, 3).tolist()}; "
-              f"field lnF {d['x'][d['names'].index('lnF')]:.2f}")
+              f"field lnF {d['field']['lnF_gx_gy'][0]:.2f}")
     print("van de Ven+06:", VDV_Q[1:].tolist(), "at", np.round(VDV_S[1:]).tolist())
 
 
