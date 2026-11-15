@@ -17,27 +17,25 @@ test; the two outermost Gaia radial bins (field fractions 0.85, 0.95) drive the 
 3. Base fits on identical data, one global q' (no shape constraint): JAM K1, JAM NFW, spherical K1, spherical NFW
    (all stars per bin for the rotation terms); plus JAM K1/NFW fitted to R <= 1100" only (like-for-like base for the
    shape-constrained fits). Report: data/model/residual plots, per-bin halo gain radial vs tangential per dataset.
-4. In parallel: shape measurement from star counts (method agreed with the user 2026-11-15).
-   Known first pass (2026-11-13): eps 0.12-0.15 at 114-250", 0.15-0.17 at 300-850", 0.10 at 850-1100", 0.03-0.06
-   beyond (uncertain: tides, field, crowding). Method:
-   - unbinned Poisson likelihood of the star positions over each survey's footprint; count-MGE Gaussian widths fixed,
-     one q'_k per Gaussian free (q'_k > cos i = 0.72 for i = 44 deg); no mge_fit_sectors (fails on count images);
-   - PA: both variants -- fixed at the kinematic 104.2 deg, and free;
-   - data: HST F625W < 19 at 60-250", Gaia G < 17 from 300" out to the edge of the member sample (catalogue reaches
-     ~2400"), no quality-flag or membership cuts; Gaia field = uniform + linear gradient. Beyond ~2400": Gaia DR3 from
-     WSDB in a wider field (PM + CMD selected, selection must not depend on position angle) and/or the Kuzma et al.
-     2025 Pristine periphery members (data/processed/tails/kuzma2025_periphery.ecsv, to 5.1 deg; check that its
-     membership has no circular spatial prior). Measure as far out as the
-     members go; decide AFTER seeing the results (null/recovery mocks, bright cuts, field-model variants, PA(R))
-     out to which radius the shape is reliable and equilibrium-like (tides) (user, 2026-11-15);
-   - centre (< ~60"): excluded, no shape constraint (no m=2 information there; centroid/crowding problems) -- the
-     inner Gaussians' q' is left free in the JAM fit (one shared value), not measured;
-   - outer Gaussians: beyond the radius judged reliable (to be set from the measurement; first-pass guess ~1100") --
-     bracketed: last reliable value vs round;
-   - crowding check: bright cuts (F625W < 18, G < 16) must give the same q'; else adopt the bright cuts;
-   - tests: round mocks through the real footprints/field/completeness return round; flattened mocks recover q' to
-     0.01-0.02; literature cross-check (van de Ven et al. 2006, https://ui.adsabs.harvard.edu/abs/2006A&A...445..513V;
-     values read from the paper).
+4. Shape measurement from star counts (method agreed 2026-11-15, revised after Codex + Fable reviews):
+   a. Refit the circular count MGE with a denser outer sigma grid (ratio ~1.4 beyond ~300", >= 1 Gaussian beyond
+      772"); Gaia beyond ~850" from PM + parallax members (position-independent cut); check the outer slope
+      (members ~ -5.6 at 1550-2200" vs current MGE -6.7).
+   b. Ring table: m=1, m=2 (eps, PA), m=3 for HST (F625W < 19, < 18) and Gaia (all, PM members), with plots.
+   c. Unbinned Poisson point-process fit of the star positions: q' a smooth function of log sigma (3-5 nodes), NOT
+      limited to q' > cos i (consistency with i = 44 checked afterwards); Gaussian amplitudes refitted (flattening at
+      fixed sigma changes the ring average, +7.4% at R = 3 sigma for q' 0.85); PA fixed (104.2) and free; centre and
+      m=1 nuisance per dataset; Gaia field uniform + gradient (variant: quadratic). HST 60-250"; Gaia 300-2400".
+      Beyond 2400" (Kuzma 2025 members: 12-55 per ring): PA / tail direction only.
+   d. Mocks (>= 20 each; pass = within 1 sigma, mean bias < 0.01): round; flattened; a step in q'(R); wrong outer
+      slope; 5" centre offset; magnitude-dependent m=1; curved field; PM-selection injection (rotation, perspective).
+      Completeness maps from artificial stars only if bright cuts or mocks show a problem.
+   e. Plot eps(R), PA(R) with literature (van de Ven et al. 2006 Table 2, verified from the paper: q' 1.000, 0.934,
+      0.877, 0.848, 0.850, 0.836, 0.866, 0.926 at sigma' 0.153, 1.477, 2.525, 3.691, 5.219, 7.534, 11.07, 17.55
+      arcmin; q'_j = observed flattening (Geyer et al. 1983) at R = sigma_j); decide the reliable radius.
+   f. JAM inputs: q'_k per Gaussian; remnants q' from the same q'(log sigma) or round; fitter takes q' arrays.
+   Noted: periphery code angle convention atan2(y,x) is not PA east of north; N-body orbit_today stopped at 1955.6 Myr
+   but is labelled 2000 Myr.
 5. JAM with the measured shape: measured q'_k at 60-1100"; inner q' free; outer Gaussians bracketed (inner value vs
    round); remnants: both variants -- same q' as the stars, and round; PA variant as in step 4 (JAM's axis is the
    kinematic one; a different photometric PA is a consistency check). Fit R <= 1100" (main) and all bins (check only).
