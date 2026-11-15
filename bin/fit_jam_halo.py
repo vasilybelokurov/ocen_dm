@@ -53,6 +53,11 @@ from tune_jam_to_data import Setup
 RUNS = {"K1": "jeans_K1_turnover_counts_c", "NFW": "jeans_K2_nfw_turnover_counts_c"}
 LOGP = {"M_star", "M_rem", "M_bh", "a_rem", "r_beta", "delta_r_beta", "M_dm_100", "r_s"}
 Q_RANGE = (0.75, 1.0)
+TURN = ("beta_0", "beta_mid", "beta_inf", "r_beta", "delta_r_beta")       # turnover anisotropy (family parameters)
+BNODES = (10., 100., 250., 700., 2000.)                                     # --beta spline nodes (arcsec, 3D radius)
+BNAMES = tuple(f"b{int(r)}" for r in BNODES)
+B_BOUNDS = {"b10": (-1., 0.)} | {n: (-1., 0.95) for n in BNAMES[1:]}       # b10 <= 0: central gamma_0 >= 2 beta_0
+B_START = ((-0.05, 0.05, 0.35, 0.45, -0.5), (0.0, 0.05, 0.3, 0.45, 0.5))  # matched-shape-like, global-like (scan)
 
 
 class Problem:
@@ -96,9 +101,15 @@ class Problem:
         free = [n for n in names if not (n == "M_dm_100" and a.fix_mdm is not None)]
         lo = {n: prior[n].transform(1e-6) for n in names}; hi = {n: prior[n].transform(1-1e-6) for n in names}
         lo["qobs"], hi["qobs"] = Q_RANGE
+        self.spline = getattr(a, "beta", "turnover") == "spline"
+        if self.spline:                                       # 5 turnover parameters -> 5 spline nodes (same count)
+            free = [n for n in free if n not in TURN]+list(BNAMES)
+            for n in BNAMES:
+                lo[n], hi[n] = B_BOUNDS[n]
         self.pars = free+(["qobs"] if self.qfree else [])
         self.lo = np.array([lo[n] for n in self.pars]); self.hi = np.array([hi[n] for n in self.pars])
         self.base = dict(zip(names, S.x_map))
+        self.base.update(zip(BNAMES, B_START[0]))
         self.nfail = 0                                            # failed model evaluations (this process)
         rmax = np.inf if getattr(a, "rmax", None) is None else a.rmax
         self.keep = {p.name: np.asarray(p.r) <= rmax for p in S.data.profiles}   # bins entering the fit
@@ -134,11 +145,26 @@ class Problem:
         qq = self.qprof.with_qin(q)
         return d, qq, (qq if self.a.q_rem == "stars" else 1.0)
 
+    def predict(self, th, q, qr):
+        """Setup.predict; with --beta spline the turnover anisotropy is replaced by SplineBeta(nodes) (the turnover
+        parameters, unused, are filled from the spherical MAP so that the family can build)."""
+        if not self.spline:
+            return self.S.predict(th, q, qr, self.a.inc)
+        vals = [th[n] for n in BNAMES]
+        th2 = {k: v for k, v in th.items() if k not in BNAMES} | {k: self.base[k] for k in TURN}
+        S, orig = self.S, self.S.grid_moments
+        S.grid_moments = lambda lum, pot, mbh, D, _a, inc: orig(
+            lum, pot, mbh, D, H.SplineBeta(np.array(BNODES)*D*1e3/H.J.ARCSEC_PER_RAD, vals), inc)
+        try:
+            return S.predict(th2, q, qr, self.a.inc)
+        finally:
+            S.grid_moments = orig
+
     def objective(self, u):
         x = self.from_u(u)
         th, q, qr = self.unpack(x)
         try:
-            pred, D = self.S.predict(th, q, qr, self.a.inc)
+            pred, D = self.predict(th, q, qr)
         except (ValueError, FloatingPointError, ZeroDivisionError, AssertionError):
             self.nfail += 1
             return 1e30
@@ -151,7 +177,7 @@ class Problem:
         (bounded solvers); failed models return large finite residuals."""
         th, q, qr = self.unpack(self.from_u(u))
         try:
-            pred, D = self.S.predict(th, q, qr, self.a.inc)
+            pred, D = self.predict(th, q, qr)
         except (ValueError, FloatingPointError, ZeroDivisionError, AssertionError):
             self.nfail += 1
             return np.full(self.nres, 1e3)
@@ -176,6 +202,8 @@ class Problem:
         ms = (1e5, 1e6) if (self.a.family == "NFW" and self.a.fix_mdm is None) else (None, None)
         for q0, m0 in zip(qs, ms):
             s = dict(self.base, qobs=q0)
+            if self.spline:
+                s.update(zip(BNAMES, B_START[len(out) % 2]))
             if m0 is not None:
                 s["M_dm_100"], s["r_s"] = m0, 300.
             if self.a.family == "NFW" and self.a.fix_mdm is not None:
@@ -366,6 +394,8 @@ def main():
     ap.add_argument("--family", choices=sorted(RUNS), required=True)
     ap.add_argument("--qobs", type=float, default=None, help="fix q' (default: free)")
     ap.add_argument("--inc", type=float, default=44.0)
+    ap.add_argument("--beta", choices=("turnover", "spline"), default="turnover",
+                    help="anisotropy: family turnover profile, or 5-node spline in log r (BNODES; same parameter count)")
     ap.add_argument("--qmatched", default=None, help="q_matched JSON (bin/match_q_isophotes.py): per-Gaussian q'_k, no free q'")
     ap.add_argument("--qprofile", default=None, help="shape-fit JSON: measured q'(R) for the stars (qobs = inner q')")
     ap.add_argument("--q-rin", type=float, default=60.)
@@ -407,7 +437,7 @@ def main():
         + (f"_rmax{a.rmax:g}" if a.rmax is not None else "")+("_lsq" if a.method == "lsq" else "") \
         + (f"_qprof{a.q_outer}_rem{a.q_rem}" + (f"_i{a.inc:g}" if a.inc != 44 else "") if a.qprofile else "") \
         + (f"_qmatch_rem{a.q_rem}" + (f"_i{a.inc:g}" if a.inc != 44 else "") if a.qmatched else "") \
-        + (f"_{a.label}" if a.label else "")
+        + ("_bspline" if a.beta == "spline" else "")+(f"_{a.label}" if a.label else "")
     path = ROOT/f"results/rotation/jamfit_{P.tag}_{a.family}{suffix}.json"
     if path.exists() and not a.overwrite:
         sys.exit(f"{path.name} exists; use --label or --overwrite")
@@ -420,7 +450,7 @@ def main():
             runs = list(ex.map(_run_start, range(2)))           # the two starts run in parallel (2 cores)
     best = min(runs, key=lambda r: r["f"])
     th, q, qr = P.unpack(np.array(best["x"]))
-    pred, D = P.S.predict(th, q, qr, a.inc)
+    pred, D = P.predict(th, q, qr)
     qprof = None
     if P.qprof is not None:
         jeans, D0, _ = P.S.fam.build(th); pcs = D0*1e3/H.J.ARCSEC_PER_RAD
@@ -444,7 +474,7 @@ def main():
                created=time.strftime("%Y-%m-%dT%H:%M:%S"), elapsed_s=round(time.perf_counter()-t0, 1))
     path.write_text(json.dumps(out, indent=1))
     print(f"{path.name}: -lnpost {best['f']:.3f} (starts: {[round(r['f'], 2) for r in runs]}); chi2 "
-          f"{out['chi2_total']:.1f}; q' {q:.3f}; M_dm_100 {th.get('M_dm_100', 0):.3g}; M_bh {th['M_bh']:.0f}; "
+          f"{out['chi2_total']:.1f}; q' {q if q is None else round(q, 3)}; M_dm_100 {th.get('M_dm_100', 0):.3g}; M_bh {th['M_bh']:.0f}; "
           f"D {D:.3f}; ({out['elapsed_s']/60:.0f} min)", flush=True)
 
 

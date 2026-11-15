@@ -111,6 +111,17 @@ class QMatched:
         return dict(src=self.src, matched=True, sigma_arcsec=self.sig.tolist(), q_k=self.q.tolist())
 
 
+class SplineBeta:
+    """Anisotropy beta(r) linear in log r through (nodes [pc], values), constant outside (2026-11-15; fit_jam_halo
+    --beta spline). Same interface as the fitted anisotropy objects for the JAM grid: .beta(r_pc)."""
+
+    def __init__(self, nodes_pc, vals):
+        self.lx, self.v = np.log(np.asarray(nodes_pc, float)), np.asarray(vals, float)
+
+    def beta(self, r):
+        return np.interp(np.log(np.maximum(np.asarray(r, float), 1e-6)), self.lx, self.v)
+
+
 def qvals(q, s_arcsec):
     """q' per Gaussian: q may be a number, an array or a QProfile (callable of the circular width in arcsec)."""
     return q(s_arcsec) if callable(q) else np.broadcast_to(np.asarray(q, float), np.shape(s_arcsec))
