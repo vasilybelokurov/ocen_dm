@@ -53,6 +53,12 @@ SETS = {
                                     "jamfit_real_NFW_rmax1100_lsq_qprofround_remstars_qp.json"),
               "q'(R) i48": ("jamfit_real_K1_rmax1100_lsq_qprofhold_remstars_i48_qp.json",
                             "jamfit_real_NFW_rmax1100_lsq_qprofhold_remstars_i48_qp.json")},
+    "qm": {"global q' turnover i44 (base)": ("jamfit_real_K1_lsq_base.json", None),
+           "global q' spline i44": ("jamfit_real_K1_lsq_bspline_qm.json", None),
+           "matched turnover i44": ("jamfit_real_K1_lsq_qmatch_remstars_qm.json", None),
+           "matched spline i44": ("jamfit_real_K1_lsq_qmatch_remstars_bspline_qm.json", None),
+           "matched spline i50": ("jamfit_real_K1_lsq_qmatch_remstars_i50_bspline_qm.json", None),
+           "matched spline i55": ("jamfit_real_K1_lsq_qmatch_remstars_i55_bspline_qm.json", None)},
 }
 SPH = {"K1": ("jeans_K1_turnover_counts_c", "recover_real_K1_base"), "NFW": ("jeans_K2_nfw_turnover_counts_c", "recover_real_NFW_base")}
 
@@ -71,10 +77,34 @@ def lnl_bins(pred, p):
     return np.asarray(ProfileLikelihood._split_normal_lnlike(np.asarray(pred), p))
 
 
+def k1_only(name, profs):
+    """No-halo (K1) fits only: data/model/residual per dataset, one colour per fit; chi2 table."""
+    fits = {lab: json.loads((R/fk).read_text()) for lab, (fk, _) in SETS[name].items() if (R/fk).exists()}
+    fig, ax = plt.subplots(2, len(profs), figsize=(4.2*len(profs), 7.5), sharex="col", gridspec_kw=dict(height_ratios=(2.2, 1)))
+    for j, p in enumerate(profs):
+        ax[0, j].errorbar(p.r, p.value, yerr=[p.err_lo, p.err_hi], fmt="ko", ms=3, lw=.8)
+        for i, (lab, d) in enumerate(fits.items()):
+            m = np.asarray(d["pred"][p.name]); res = (m-p.value)/np.where(m > p.value, p.err_hi, p.err_lo)
+            ls = "--" if "turnover" in lab and "base" not in lab else "-"
+            ax[0, j].plot(p.r, m, ls, c=f"C{i}", lw=1.3, label=f"{lab}: chi2 {np.sum(res**2):.0f}")
+            ax[1, j].plot(p.r, res, ls, c=f"C{i}", lw=1)
+        ax[0, j].set_title(p.name, fontsize=9); ax[0, j].legend(fontsize=5.5); ax[0, j].set_xscale("log")
+        ax[1, j].axhline(0, c="k", lw=.5); ax[1, j].set_ylim(-6, 6); ax[1, j].set_xlabel("R (arcsec)")
+    ax[0, 0].set_ylabel("dispersion (mas/yr or km/s)"); ax[1, 0].set_ylabel("(model-data)/err")
+    fig.suptitle(f"set '{name}': JAM K1 (no DM) fits, all bins", fontsize=10)
+    plt.tight_layout(rect=(0, 0, 1, .96)); f1 = ROOT/f"plots/jam_{name}_fits_20261116.png"; plt.savefig(f1, dpi=90); plt.close()
+    for lab, d in fits.items():
+        print(f"{lab:32s} lnpost {-d['neg_lnpost']:7.1f} chi2 {d['chi2_total']:6.1f} | "
+              + " ".join(f"{SHORT[k]} {v['chi2']:.0f}" for k, v in d["stats"].items()))
+    print(f1)
+
+
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--set", choices=sorted(SETS), default="base"); a = ap.parse_args()
     S = Setup(run="jeans_K1_turnover_counts_c", models=H.jam_models)
     profs = S.data.profiles
+    if all(fn is None for _, fn in SETS[a.set].values()):
+        return k1_only(a.set, profs)
     pairs = {}
     for lab, (fk, fn) in SETS[a.set].items():
         pk, pn = (R/fk), (R/fn)
