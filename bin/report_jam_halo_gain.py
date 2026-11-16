@@ -59,6 +59,8 @@ SETS = {
            "matched spline i44": ("jamfit_real_K1_lsq_qmatch_remstars_bspline_qm.json", None),
            "matched spline i50": ("jamfit_real_K1_lsq_qmatch_remstars_i50_bspline_qm.json", None),
            "matched spline i55": ("jamfit_real_K1_lsq_qmatch_remstars_i55_bspline_qm.json", None)},
+    "basepair": {"no halo (K1), global q' i44": ("jamfit_real_K1_lsq_base.json", None),
+                 "NFW halo, global q' i44": ("jamfit_real_NFW_lsq_base.json", None)},
 }
 SPH = {"K1": ("jeans_K1_turnover_counts_c", "recover_real_K1_base"), "NFW": ("jeans_K2_nfw_turnover_counts_c", "recover_real_NFW_base")}
 
@@ -91,7 +93,7 @@ def k1_only(name, profs):
         ax[0, j].set_title(p.name, fontsize=9); ax[0, j].legend(fontsize=5.5); ax[0, j].set_xscale("log")
         ax[1, j].axhline(0, c="k", lw=.5); ax[1, j].set_ylim(-6, 6); ax[1, j].set_xlabel("R (arcsec)")
     ax[0, 0].set_ylabel("dispersion (mas/yr or km/s)"); ax[1, 0].set_ylabel("(model-data)/err")
-    fig.suptitle(f"set '{name}': JAM K1 (no DM) fits, all bins", fontsize=10)
+    fig.suptitle(f"set '{name}': JAM fits, all bins" + ("" if name == "basepair" else " (K1, no DM)"), fontsize=10)
     plt.tight_layout(rect=(0, 0, 1, .96)); f1 = ROOT/f"plots/jam_{name}_fits_20261116.png"; plt.savefig(f1, dpi=90); plt.close()
     for lab, d in fits.items():
         print(f"{lab:32s} lnpost {-d['neg_lnpost']:7.1f} chi2 {d['chi2_total']:6.1f} | "
