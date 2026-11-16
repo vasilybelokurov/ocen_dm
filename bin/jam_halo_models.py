@@ -111,6 +111,26 @@ class QMatched:
         return dict(src=self.src, matched=True, sigma_arcsec=self.sig.tolist(), q_k=self.q.tolist())
 
 
+class QHybrid:
+    """Shape option C (2026-11-16): every Gaussian narrower than s_round (arcsec, circular width) takes one shared q'
+    (qin, free in the fit); wider ones are round (q' = 1), as the star counts are beyond ~1500". Default s_round 600"
+    makes the 772" and 1500" stellar Gaussians round and keeps <= 397" flattened (no inner dip: see
+    plots/q_profiles_ABC_20261116.png). Remnant Gaussians (all << 600") take qin."""
+
+    def __init__(self, s_round=600., qin=None):
+        self.s_round, self.qin = float(s_round), qin
+
+    def with_qin(self, qin):
+        return QHybrid(self.s_round, qin)
+
+    def __call__(self, s_arcsec):
+        s = np.asarray(s_arcsec, float)
+        return np.where(s < self.s_round, self.qin, 1.0)
+
+    def describe(self):
+        return dict(src="hybrid", hybrid=True, s_round_arcsec=self.s_round, qin=self.qin)
+
+
 class SplineBeta:
     """Anisotropy beta(r) linear in log r through (nodes [pc], values), constant outside (2026-11-15; fit_jam_halo
     --beta spline). Same interface as the fitted anisotropy objects for the JAM grid: .beta(r_pc)."""

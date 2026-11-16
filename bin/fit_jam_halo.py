@@ -97,6 +97,8 @@ class Problem:
         if getattr(a, "qmatched", None):                     # matched per-Gaussian q'_k: no free q' (2026-11-15)
             self.qprof = H.QMatched.from_json(a.qmatched)
             a.qobs = 1.0                                      # placeholder; unused (QMatched.with_qin ignores it)
+        if getattr(a, "qhybrid", None) is not None:          # option C: inner shared free q', >= s_round round (2026-11-16)
+            self.qprof = H.QHybrid(a.qhybrid)
         self.qfree = a.qobs is None
         free = [n for n in names if not (n == "M_dm_100" and a.fix_mdm is not None)]
         lo = {n: prior[n].transform(1e-6) for n in names}; hi = {n: prior[n].transform(1-1e-6) for n in names}
@@ -396,6 +398,8 @@ def main():
     ap.add_argument("--inc", type=float, default=44.0)
     ap.add_argument("--beta", choices=("turnover", "spline"), default="turnover",
                     help="anisotropy: family turnover profile, or 5-node spline in log r (BNODES; same parameter count)")
+    ap.add_argument("--qhybrid", type=float, default=None, metavar="S_ROUND",
+                    help="shape C: Gaussians narrower than S_ROUND arcsec share the free q', wider ones round (e.g. 600)")
     ap.add_argument("--qmatched", default=None, help="q_matched JSON (bin/match_q_isophotes.py): per-Gaussian q'_k, no free q'")
     ap.add_argument("--qprofile", default=None, help="shape-fit JSON: measured q'(R) for the stars (qobs = inner q')")
     ap.add_argument("--q-rin", type=float, default=60.)
@@ -437,6 +441,7 @@ def main():
         + (f"_rmax{a.rmax:g}" if a.rmax is not None else "")+("_lsq" if a.method == "lsq" else "") \
         + (f"_qprof{a.q_outer}_rem{a.q_rem}" + (f"_i{a.inc:g}" if a.inc != 44 else "") if a.qprofile else "") \
         + (f"_qmatch_rem{a.q_rem}" + (f"_i{a.inc:g}" if a.inc != 44 else "") if a.qmatched else "") \
+        + (f"_qhyb{a.qhybrid:g}_rem{a.q_rem}" + (f"_i{a.inc:g}" if a.inc != 44 else "") if a.qhybrid is not None else "") \
         + ("_bspline" if a.beta == "spline" else "")+(f"_{a.label}" if a.label else "")
     path = ROOT/f"results/rotation/jamfit_{P.tag}_{a.family}{suffix}.json"
     if path.exists() and not a.overwrite:
