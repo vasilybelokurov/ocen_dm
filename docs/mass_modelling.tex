@@ -164,7 +164,8 @@ Three things happen between the model and the datum.
 
 \paragraph{Radial averaging.} For the datasets we measured ourselves --- the four HST and
 \emph{Gaia} profiles --- the model is averaged over the radii of the stars actually measured
-in each bin, eight equal-count quantiles stored with the data, rather than over a complete
+in each bin, eight equal-count quantiles stored with the data (for \emph{Gaia} weighted by
+each star's membership probability, since 2026-11-16), rather than over a complete
 annulus with $\Sigma(R)R$ weighting. Where the selection's coverage changes inside a bin the
 two differ: HST's $300$--$340''$ sample has a star-weighted mean radius of $313.2''$ against
 the annulus midpoint of $320''$, worth up to $1.17\sigma$. The 29 \textbf{MUSE} bins are

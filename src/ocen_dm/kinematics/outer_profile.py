@@ -500,7 +500,8 @@ def dispersion_2d(sample: MemberSample, mask: np.ndarray, field_density, depth_v
     frame where they are defined, star by star.
 
     Returns ``sigma_r``, ``sigma_t``, their 1-sigma profile-likelihood intervals, the mean
-    radial and tangential motions, the field fraction ``f`` and the cluster count.
+    radial and tangential motions, the field fraction ``f``, the cluster count and
+    ``p_member``: each selected star's posterior cluster probability at the best fit.
     """
     s = sample.select(mask)
     a, d = np.asarray(s.mu_a, float), np.asarray(s.mu_d, float)
@@ -521,7 +522,7 @@ def dispersion_2d(sample: MemberSample, mask: np.ndarray, field_density, depth_v
     mu_hat = np.asarray(sample.mu_sys, float)
     mu_hat = mu_hat / max(float(np.hypot(*mu_hat)), 1e-12)
 
-    def loglike(sr2: float, st2: float) -> tuple[float, float, float, float]:
+    def loglike(sr2: float, st2: float) -> tuple[float, float, float, float, np.ndarray]:
         """Maximised log-likelihood at fixed (sigma_R^2, sigma_T^2); means and f by EM."""
         # cluster covariance per star, in the equatorial frame
         caa = sr2 * cos_p**2 + st2 * sin_p**2 + ea**2 + dv * mu_hat[0] ** 2
@@ -560,7 +561,7 @@ def dispersion_2d(sample: MemberSample, mask: np.ndarray, field_density, depth_v
                 ll = new_ll
                 break
             ll = new_ll
-        return ll, mr, mt, f
+        return ll, mr, mt, f, r
 
     # maximise over (sigma_R, sigma_T) with a simplex on the log variances -- a grid over both
     # would cost thousands of EM solves on 3 x 10^4 stars -- then scan each axis for the interval
@@ -584,7 +585,7 @@ def dispersion_2d(sample: MemberSample, mask: np.ndarray, field_density, depth_v
             if -res.fun > best[0] and max(sr, st) < 0.98 * sigma_max:
                 best = (-res.fun, sr, st)
         sr_hat, st_hat = best[1], best[2]
-    ll_max, mr, mt, f = loglike(sr_hat**2, st_hat**2)
+    ll_max, mr, mt, f, p_member = loglike(sr_hat**2, st_hat**2)
 
     def interval(which: str) -> tuple[float, float]:
         """1-sigma profile-likelihood interval on one dispersion, the other re-maximised.
@@ -646,4 +647,5 @@ def dispersion_2d(sample: MemberSample, mask: np.ndarray, field_density, depth_v
             "sigma_t_err": 0.5 * (hi_t - lo_t), "sigma": sigma,
             "sigma_err": float(0.5 * np.hypot(0.5 * (hi_r - lo_r), 0.5 * (hi_t - lo_t))),
             "mean_r": mr, "mean_t": mt, "f": f, "n_cluster": float((1 - f) * len(a)), "lnl": ll_max,
-            "n_stars": int(len(a)), "at_bound": bool(max(sr_hat, st_hat) > 0.9 * sigma_max)}
+            "n_stars": int(len(a)), "at_bound": bool(max(sr_hat, st_hat) > 0.9 * sigma_max),
+            "p_member": p_member}

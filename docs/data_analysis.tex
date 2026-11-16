@@ -145,7 +145,10 @@ equal-count quantiles of the radii of the stars actually measured in each bin, n
 complete annulus with $\Sigma(R)R$ weighting. The two differ where the selection's coverage
 changes inside a bin: HST's $300$--$340''$ sample has a star-weighted mean radius of
 $313.2''$ against the annulus midpoint of $320''$, worth up to $1.17\sigma$ in the predicted
-dispersion.
+dispersion. For \emph{Gaia} each star enters the quantiles with its cluster membership
+probability from the mixture fit (since 2026-11-16). Before, field stars (59--96 per cent of
+the three outer rings, spread evenly over the area) counted fully and moved the outer nodes
+outward by 21--40$''$, so the model was averaged too far out and its dispersion was too low.
 
 \paragraph{Error deconvolution.} Adding $\mathsf{E}_i$ to the intrinsic covariance
 \emph{is} the convolution; the fit is unbinned in velocity and predicts the observed

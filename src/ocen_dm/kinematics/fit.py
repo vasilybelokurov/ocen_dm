@@ -31,7 +31,7 @@ from scipy.special import erfinv
 from ..cluster import OCEN_DISTANCE_ERR_KPC, OCEN_DISTANCE_KPC  # Baumgardt & Vasiliev 2021
 from ..light_model import MGEFit, build_stellar_mge, fit_mge_projected, load_tracer_profile
 from ..mass_models import CompositeMassModel, PointMass, RemnantPlummer, TruncatedGNFW
-from .anisotropy import Anisotropy, TurnoverAnisotropy
+from .anisotropy import SPLINE_NODES_ARCSEC, Anisotropy, SplineAnisotropy, TurnoverAnisotropy
 from .jeans import SphericalJeans
 from .likelihood import KinematicData, ProfileLikelihood
 
@@ -170,6 +170,10 @@ class NoDarkMatterModel:
             ``monotonic`` preserves the legacy single transition. ``turnover``
             uses three beta levels and two ordered transition radii, with
             either sign of curvature; available only for the Jeans backend.
+            ``spline`` (2026-11-16): beta linear in ln r through the JAM spline nodes
+            :data:`SPLINE_NODES_ARCSEC` (parameters ``b10`` ... ``b2000``; the first is
+            the central value, prior [-1, beta0_max]; the others uniform [-1, 0.95], as
+            JAM). Jeans backend only.
         centre_sigma_arcsec : float, optional
             Sample the model centre: two parameters ``centre_x`` (dRA*) and ``centre_y``
             (dDec) [arcsec] about AvdM10, each with a normal(0, sigma) prior. The data stay
@@ -192,10 +196,10 @@ class NoDarkMatterModel:
             if centre_sigma_arcsec is not None else None
         if backend not in ("jeans", "jam", "agama"):
             raise ValueError("backend must be 'jeans', 'jam' or 'agama'")
-        if anisotropy_profile not in ("monotonic", "turnover"):
-            raise ValueError("anisotropy_profile must be 'monotonic' or 'turnover'")
-        if anisotropy_profile == "turnover" and (constant_beta or backend != "jeans"):
-            raise ValueError("turnover anisotropy requires varying beta and the jeans backend")
+        if anisotropy_profile not in ("monotonic", "turnover", "spline"):
+            raise ValueError("anisotropy_profile must be 'monotonic', 'turnover' or 'spline'")
+        if anisotropy_profile in ("turnover", "spline") and (constant_beta or backend != "jeans"):
+            raise ValueError(f"{anisotropy_profile} anisotropy requires varying beta and the jeans backend")
         self.anisotropy_profile = anisotropy_profile
         self.backend = backend
         self.tracer = tracer
@@ -253,6 +257,10 @@ class NoDarkMatterModel:
                        Parameter("beta_inf", Prior("uniform", -1.0, 1.0), "", r"\beta_\infty"),
                        Parameter("r_beta", Prior("loguniform", 0.05, 30.0), "pc", r"r_1"),
                        Parameter("delta_r_beta", Prior("loguniform", 0.5, 150.0), "pc", r"r_2-r_1")]
+        elif self.anisotropy_profile == "spline":
+            for k, r in enumerate(SPLINE_NODES_ARCSEC):
+                hi = b0max if k == 0 else 0.95
+                params.append(Parameter(f"b{int(r)}", Prior("uniform", -1.0, hi), "", rf"\beta({int(r)}'')"))
         else:
             params += [Parameter("beta_0", Prior("uniform", -1.0, b0max), "", r"\beta_0"),      # cored tracer plus central point mass: beta_0 <= -0.5
                        Parameter("beta_inf", Prior("uniform", -1.0, 1.0), "", r"\beta_\infty"),
@@ -313,7 +321,11 @@ class NoDarkMatterModel:
         if self.backend == "agama":
             from .backends import AgamaDFBackend
             return AgamaDFBackend(mass, stars, beta0=theta["beta_0"], r_a=theta["r_a"], distance_kpc=D), D, self.scales(theta)
-        if self.anisotropy_profile == "turnover":
+        if self.anisotropy_profile == "spline":
+            pc = D * 1e3 / 206264.806
+            anis = SplineAnisotropy(tuple(r * pc for r in SPLINE_NODES_ARCSEC),
+                                    tuple(float(theta[f"b{int(r)}"]) for r in SPLINE_NODES_ARCSEC))
+        elif self.anisotropy_profile == "turnover":
             anis = TurnoverAnisotropy(theta["beta_0"], theta["beta_mid"], theta["beta_inf"],
                                       theta["r_beta"], theta["delta_r_beta"])
         else:

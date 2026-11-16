@@ -8,6 +8,7 @@ representations and numerical projections still differ. The
 Jeans equation needs ``exp(2 * int beta(t)/t dt)``, which this form gives in
 closed form.
 TurnoverAnisotropy adds a second ordered transition for the adopted rung 2.
+SplineAnisotropy is beta linear in ln r through fixed nodes (the JAM spline, 2026-11-16).
 """
 
 from __future__ import annotations
@@ -17,7 +18,7 @@ from typing import Any
 
 import numpy as np
 
-__all__ = ["Anisotropy", "TurnoverAnisotropy"]
+__all__ = ["Anisotropy", "TurnoverAnisotropy", "SplineAnisotropy", "SPLINE_NODES_ARCSEC"]
 
 
 @dataclass(frozen=True)
@@ -115,3 +116,54 @@ class TurnoverAnisotropy:
             return (2*self.beta_0*np.log(r)
                     +(self.beta_mid-self.beta_0)*np.log(r*r+self.r_beta**2)
                     +(self.beta_inf-self.beta_mid)*np.log(r*r+self.r_beta_outer**2))
+
+
+#: spline nodes (arcsec, 3-D radius), as the JAM fits (bin/fit_jam_halo.py --bnodes 10 100 250 700 1200 2000)
+SPLINE_NODES_ARCSEC = (10.0, 100.0, 250.0, 700.0, 1200.0, 2000.0)
+
+
+@dataclass(frozen=True)
+class SplineAnisotropy:
+    """beta linear in ln r through ``(nodes_pc, values)``, constant inside the first and beyond the last node.
+
+    Same form as the JAM spline (bin/jam_halo_models.SplineBeta), so the two engines share one anisotropy
+    parametrisation. ``beta_0`` and ``beta_inf`` are the end values (the Jeans solver's tail uses beta_inf).
+    With x = ln r, ln g = 2 int beta dx is piecewise quadratic in x and is evaluated exactly.
+    """
+
+    nodes_pc: tuple
+    values: tuple
+
+    def __post_init__(self) -> None:
+        r, v = np.asarray(self.nodes_pc, float), np.asarray(self.values, float)
+        if r.ndim != 1 or r.size < 2 or r.shape != v.shape or np.any(np.diff(r) <= 0) or np.any(r <= 0):
+            raise ValueError("nodes_pc must be positive, increasing, and match values")
+        if not np.all(np.isfinite(v)) or np.any(v >= 1):
+            raise ValueError("spline beta values must be finite and < 1")
+
+    @property
+    def beta_0(self) -> float:
+        return float(self.values[0])
+
+    @property
+    def beta_inf(self) -> float:
+        return float(self.values[-1])
+
+    def beta(self, r: Any) -> np.ndarray:
+        x = np.log(np.maximum(np.asarray(r, float), 1e-300))
+        return np.interp(x, np.log(np.asarray(self.nodes_pc, float)), np.asarray(self.values, float))
+
+    def log_integrating_factor(self, r: Any) -> np.ndarray:
+        """``ln g = 2 int_{x_0}^{x} beta dx`` (x = ln r), zero at the first node; exact for the piecewise-linear beta."""
+        xk, vk = np.log(np.asarray(self.nodes_pc, float)), np.asarray(self.values, float)
+        cum = np.concatenate([[0.0], np.cumsum(0.5 * (vk[1:] + vk[:-1]) * np.diff(xk))])   # int beta dx at the nodes
+        with np.errstate(divide="ignore"):
+            x = np.log(np.asarray(r, float))
+        i = np.clip(np.searchsorted(xk, x, side="right") - 1, 0, len(xk) - 1)
+        b_i = vk[i]
+        b_x = self.beta(np.exp(x))
+        inner = x < xk[0]
+        # inside a segment (and beyond the last node, where beta is constant): trapezoid from node i to x
+        val = cum[i] + 0.5 * (b_i + b_x) * (x - xk[i])
+        val = np.where(inner, vk[0] * (x - xk[0]), val)
+        return 2.0 * val

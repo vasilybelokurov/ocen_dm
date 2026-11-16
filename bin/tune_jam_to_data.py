@@ -64,6 +64,26 @@ def _bilinear(xp, yp):
     return csr_matrix((vals, (rows, cols)), shape=(len(xp), len(lg)*npad))
 
 
+def _current_gaia_nodes(data):
+    """The production run's data snapshot with the Gaia ring nodes (r_node*) of the CURRENT edr3 product.
+
+    The snapshot froze the nodes when every selected star (members and field) counted equally; since 2026-11-16 the
+    product weights each star by its cluster membership probability (outer_gaia._radial_nodes). The dispersions and
+    radii must be unchanged: asserted here."""
+    from ocen_dm.kinematics.outer_gaia import load_edr3_profile
+    g = load_edr3_profile()
+    cols = sorted((c for c in g.colnames if c.startswith("r_node")), key=lambda c: int(c[6:]))
+    nodes = np.column_stack([np.asarray(g[c], float) for c in cols])
+    out = []
+    for p in data.profiles:
+        if p.instrument == "GaiaEDR3":
+            col = "sigma_pmr" if p.kind == "pmr" else "sigma_pmt"
+            assert np.allclose(np.asarray(g["r_median"], float), p.r) and np.allclose(np.asarray(g[col], float), p.value)
+            p = replace(p, r_nodes=nodes)
+        out.append(p)
+    return KinematicData(tuple(out))
+
+
 class Setup:
     def __init__(self, nang=31, nlos=150, per_bin=None, run="jeans_K1_turnover_counts_c", models=None):
         """per_bin: max stars per HST/MUSE bin (None = all stars; 2026-11-13 redo uses all).
@@ -71,6 +91,7 @@ class Setup:
         models: (jeans, D, qobs, qrem) -> (lum, pot, mbh); default jam_mock_rotation_test.jam_models."""
         per_bin = 10**9 if per_bin is None else per_bin
         self.pb0 = problem_for(load_run_metadata(ROOT/"results/fits"/run))
+        self.pb0.data = _current_gaia_nodes(self.pb0.data)
         self.fam = self.pb0.family
         self.x_map, _, _ = map_point(run, self.fam)
         self.models = J.jam_models if models is None else models

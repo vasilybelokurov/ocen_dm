@@ -39,11 +39,21 @@ __all__ = ["PRODUCT", "R_MIN_ARCSEC", "DEFAULT_EDGES", "build_edr3_profile", "lo
 R_NODES = 8
 
 
-def _radial_nodes(r: "np.ndarray") -> "np.ndarray":
-    """Equal-count quantile midpoints of the selected radii: an unweighted average over
-    these reproduces an average over the stars themselves."""
+def _radial_nodes(r: "np.ndarray", w: "np.ndarray | None" = None) -> "np.ndarray":
+    """Equal-weight quantile midpoints of the selected radii, each star weighted by ``w``
+    (its cluster membership probability): an unweighted average over these reproduces an
+    average over the cluster MEMBERS. Until 2026-11-16 every selected star counted equally;
+    field stars (85-95 per cent of the outer rings, spread evenly over the area) then
+    pushed the nodes outward and the model was averaged too far out (adversarial review
+    2026-11-16)."""
+    r = np.asarray(r, float)
     q = (np.arange(R_NODES) + 0.5) / R_NODES
-    return np.quantile(np.asarray(r, float), q)
+    if w is None:
+        return np.quantile(r, q)
+    o = np.argsort(r)
+    c = np.cumsum(np.asarray(w, float)[o])
+    c = (c - 0.5 * np.asarray(w, float)[o]) / c[-1]       # midpoint cumulative weight
+    return np.interp(q, c, r[o])
 
 PRODUCT = "ocen_pm_dispersion_edr3_ours"
 #: inside this radius the quality flag passes 5 stars in total: nothing to measure
@@ -109,7 +119,7 @@ def build_edr3_profile(edges: np.ndarray | None = None, err_max_frac: float = 0.
         for c in ("r", "t"):
             comp[c] = (out["raw"][f"sigma_{c}"], out["raw"][f"sigma_{c}_err"],
                        out["eta"][f"sigma_{c}"], out["eta"][f"sigma_{c}_err"])
-        nodes = _radial_nodes(base.r_arcsec[m])
+        nodes = _radial_nodes(base.r_arcsec[m], out["raw"]["p_member"])
         rows.append((lo, float(np.median(base.r_arcsec[m])), hi, int(m.sum()), value, stat, sys_err,
                      stat, sig["raw"], sig["eta"],
                      comp["r"][0], comp["r"][1], comp["t"][0], comp["t"][1],

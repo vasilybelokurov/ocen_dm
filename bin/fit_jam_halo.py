@@ -58,6 +58,18 @@ BNODES = (10., 100., 250., 700., 2000.)                                     # --
 BNAMES = tuple(f"b{int(r)}" for r in BNODES)
 B_BOUNDS = {"b10": (-1., 0.)} | {n: (-1., 0.95) for n in BNAMES[1:]}       # b10 <= 0: central gamma_0 >= 2 beta_0
 B_START = ((-0.05, 0.05, 0.35, 0.45, -0.5), (0.0, 0.05, 0.3, 0.45, 0.5))  # matched-shape-like, global-like (scan)
+_B5 = (BNODES, B_START)
+
+
+def set_bnodes(nodes):
+    """--bnodes: replace the spline nodes (arcsec). Bounds as for the 5 nodes (first node in [-1, 0], others
+    [-1, 0.95]); the two standard starts are the 5-node ones interpolated in log r. Called in Problem.__init__, so
+    spawned workers get the same nodes. Added 2026-11-16 (6th node at 1200" from the adversarial review)."""
+    global BNODES, BNAMES, B_BOUNDS, B_START
+    BNODES = tuple(float(r) for r in nodes)
+    BNAMES = tuple(f"b{int(r)}" for r in BNODES)
+    B_BOUNDS = {BNAMES[0]: (-1., 0.)} | {n: (-1., 0.95) for n in BNAMES[1:]}
+    B_START = tuple(tuple(float(v) for v in np.interp(np.log(BNODES), np.log(_B5[0]), st)) for st in _B5[1])
 
 
 class Problem:
@@ -65,6 +77,8 @@ class Problem:
 
     def __init__(self, a):
         self.a = a
+        if getattr(a, "bnodes", None):
+            set_bnodes(a.bnodes)
         self.S = S = Setup(run=RUNS[a.family], models=H.jam_models)
         names = list(S.fam.names)
         prior = {p.name: p.prior for p in S.fam.parameters}
@@ -398,6 +412,8 @@ def main():
     ap.add_argument("--inc", type=float, default=44.0)
     ap.add_argument("--beta", choices=("turnover", "spline"), default="turnover",
                     help="anisotropy: family turnover profile, or 5-node spline in log r (BNODES; same parameter count)")
+    ap.add_argument("--bnodes", type=float, nargs="+", default=None,
+                    help="spline beta nodes in arcsec (default 10 100 250 700 2000); e.g. add 1200")
     ap.add_argument("--qhybrid", type=float, default=None, metavar="S_ROUND",
                     help="shape C: Gaussians narrower than S_ROUND arcsec share the free q', wider ones round (e.g. 600)")
     ap.add_argument("--qmatched", default=None, help="q_matched JSON (bin/match_q_isophotes.py): per-Gaussian q'_k, no free q'")
@@ -442,7 +458,7 @@ def main():
         + (f"_qprof{a.q_outer}_rem{a.q_rem}" + (f"_i{a.inc:g}" if a.inc != 44 else "") if a.qprofile else "") \
         + (f"_qmatch_rem{a.q_rem}" + (f"_i{a.inc:g}" if a.inc != 44 else "") if a.qmatched else "") \
         + (f"_qhyb{a.qhybrid:g}_rem{a.q_rem}" + (f"_i{a.inc:g}" if a.inc != 44 else "") if a.qhybrid is not None else "") \
-        + ("_bspline" if a.beta == "spline" else "")+(f"_{a.label}" if a.label else "")
+        + (("_bspline" + (f"{len(a.bnodes)}" if a.bnodes else "")) if a.beta == "spline" else "")+(f"_{a.label}" if a.label else "")
     path = ROOT/f"results/rotation/jamfit_{P.tag}_{a.family}{suffix}.json"
     if path.exists() and not a.overwrite:
         sys.exit(f"{path.name} exists; use --label or --overwrite")
