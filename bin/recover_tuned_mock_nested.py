@@ -92,6 +92,8 @@ def main():
     s = run_nested(FitProblem(fam, mdata), out, n_live=smp["n_live"], dlogz=smp["dlogz"], seed=smp["seed"],
                    step_sampler=smp["step_sampler"], slice_nsteps=smp["slice_nsteps"],
                    data_provenance=prov)
+    if not s:                                  # non-root MPI rank: run_nested returns {}
+        return
     print(f"{args.truth} {args.family}: lnL_max {s['lnL_max']:.2f}  logZ {s['logz']:.2f}+-{s['logzerr']:.2f}  "
           f"chi2 {s['chi2_ml_total']}  ({s['elapsed_s']/60:.0f} min)", flush=True)
 
