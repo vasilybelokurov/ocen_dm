@@ -10,7 +10,7 @@ parallel on --workers processes. Starts: the family's standard starts, any --sta
 Sobol screen of the prior box, picked best-first with a minimum separation (--min-sep, normalised box); every start
 must give a valid model. Each run is restarted from its end point (fresh Jacobian) until the gain is < --lsq-gain
 (at most --lsq-rounds). Other methods: --method de (differential evolution + Powell polish), --method powell.
---fix-mdm M fixes M_dm_100 = M (profile likelihood point; r_s stays free).
+--fix-mdm M fixes M_dm_100 = M (profile likelihood point; r_s stays free). --fix-rs R fixes r_s (2026-11-19).
 --rmax R fits only the bins with radius <= R arcsec (the model is still evaluated on all bins; 2026-11-15).
 --qmatched Q_JSON (2026-11-15, supersedes --qprofile): per-Gaussian q'_k fitted to the measured isophotes
 (bin/match_q_isophotes.py -> results/shape/q_matched_r1300.json); no free q'; remnants --q-rem stars (q' interpolated in
@@ -115,7 +115,8 @@ class Problem:
         if getattr(a, "qhybrid", None) is not None:          # option C: inner shared free q', >= s_round round (2026-11-16)
             self.qprof = H.QHybrid(a.qhybrid)
         self.qfree = a.qobs is None
-        free = [n for n in names if not (n == "M_dm_100" and a.fix_mdm is not None)]
+        free = [n for n in names if not (n == "M_dm_100" and a.fix_mdm is not None)
+                and not (n == "r_s" and getattr(a, "fix_rs", None) is not None)]
         lo = {n: prior[n].transform(1e-6) for n in names}; hi = {n: prior[n].transform(1-1e-6) for n in names}
         lo["qobs"], hi["qobs"] = Q_RANGE
         self.spline = getattr(a, "beta", "turnover") == "spline"
@@ -157,6 +158,8 @@ class Problem:
         q = d.pop("qobs", self.a.qobs)
         if self.a.fix_mdm is not None:
             d["M_dm_100"] = self.a.fix_mdm
+        if getattr(self.a, "fix_rs", None) is not None:
+            d["r_s"] = self.a.fix_rs
         if self.qprof is None:
             return d, q, q
         qq = self.qprof.with_qin(q)
@@ -429,6 +432,7 @@ def main():
     ap.add_argument("--q-rem", choices=("stars", "round"), default="stars")
     ap.add_argument("--mock-qprofile", action="store_true", help="re-predict tuned mock data with the q' profile")
     ap.add_argument("--fix-mdm", type=float, default=None)
+    ap.add_argument("--fix-rs", type=float, default=None, help="fix the NFW r_s (pc; profile grid, 2026-11-19)")
     ap.add_argument("--rmax", type=float, default=None, help="fit only bins with R <= rmax (arcsec)")
     ap.add_argument("--inject-mdm", type=float, default=None)
     ap.add_argument("--inject-rs", type=float, default=300.)
@@ -459,6 +463,7 @@ def main():
     from multiprocessing import get_context
     P = Problem(a)
     suffix = (f"_q{a.qobs:.2f}" if not (P.qfree or a.qmatched) else "")+(f"_mdm{a.fix_mdm:.3g}" if a.fix_mdm is not None else "") \
+        + (f"_rs{a.fix_rs:g}" if a.fix_rs is not None else "") \
         + (f"_rmax{a.rmax:g}" if a.rmax is not None else "")+("_lsq" if a.method == "lsq" else "") \
         + (f"_qprof{a.q_outer}_rem{a.q_rem}" + (f"_i{a.inc:g}" if a.inc != 44 else "") if a.qprofile else "") \
         + (f"_qmatch_rem{a.q_rem}" + (f"_i{a.inc:g}" if a.inc != 44 else "") if a.qmatched else "") \

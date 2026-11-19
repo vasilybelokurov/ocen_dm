@@ -38,7 +38,14 @@ def family(kind: str, inner_node: float | None = 2.0):
 
 
 class Local:
-    def __init__(self, kind: str, inner_node: float | None = 2.0, data=None, prior_overrides: dict | None = None):
+    def __init__(self, kind: str, inner_node: float | None = 2.0, data=None, prior_overrides: dict | None = None,
+                 rotmarg: bool = False, mrem_hn: float | None = None, mrem_cap: float = 0.3):
+        """rotmarg (plan step 5): replace the independent per-bin rotation error by a marginalisation over the
+        rotation-field draws of results/limits/rotation_draws.npz (bin/rotation_draws.py): measurement-only
+        split-normal errors, prediction at draw m = sqrt(pred^2 + st2_0 - st2_m), lnL = ln mean_m L_m.
+        mrem_hn (plan step 6, sensitivity): extra prior term -0.5 (f/mrem_hn)^2 on f = M_rem/M_star, with f <= mrem_cap
+        (added to the reported prior term, so lnpost includes it)."""
+        self.mrem_hn, self.mrem_cap = mrem_hn, mrem_cap
         self.fam = family(kind, inner_node)
         self.P = FitProblem(self.fam, real_data() if data is None else data)
         self.names = list(self.fam.names)
@@ -52,6 +59,11 @@ class Local:
             hi.append(np.log10(b) if p.prior.kind == "loguniform" else b)
         self.lo, self.hi = np.array(lo), np.array(hi)
         self.iD = self.names.index("distance")
+        self.rot = None
+        if rotmarg:
+            z = np.load(ROOT/"results/limits/rotation_draws.npz")
+            self.rot = {p.name: {k: z[f"{p.name}__{k}"] for k in ("st0", "stm", "elo", "ehi")}
+                        for p in self.P.data.profiles}
 
     def z(self, x):
         x = np.asarray(x, float); return np.where(self.log, np.log10(np.maximum(x, 1e-300)), x)
@@ -59,9 +71,27 @@ class Local:
     def x(self, z):
         z = np.asarray(z, float); return np.where(self.log, 10**z, z)
 
+    def lnl_rotmarg(self, x):
+        from scipy.special import logsumexp
+        try:
+            pred = self.P.predict(np.asarray(x, float))
+        except ValueError:
+            return -np.inf
+        tot = 0.0
+        for p in self.P.data.profiles:
+            r = self.rot[p.name]
+            pm = np.sqrt(np.maximum(pred[p.name][None, :]**2 + r["st0"][None, :] - r["stm"], 1e-12))
+            err = np.where(pm > p.value[None, :], r["ehi"][None, :], r["elo"][None, :])
+            tot = tot + np.sum(-0.5*((pm - p.value[None, :])/err)**2
+                               + np.log(np.sqrt(2/np.pi)/(r["elo"] + r["ehi"]))[None, :], axis=1)
+        return float(logsumexp(tot) - np.log(len(tot)))
+
     def terms(self, x):
-        lnl = float(np.sum(self.P.loglike_vector(np.asarray(x, float))))
+        lnl = self.lnl_rotmarg(x) if self.rot is not None else float(np.sum(self.P.loglike_vector(np.asarray(x, float))))
         lpd = -0.5*((x[self.iD]-D0)/SD)**2
+        if self.mrem_hn:
+            f = x[self.names.index("M_rem")]/x[self.names.index("M_star")]
+            lpd = lpd - 0.5*(f/self.mrem_hn)**2 if f <= self.mrem_cap else -np.inf
         return lnl, lpd
 
     def fit(self, x0, fixed: dict | None = None, max_rounds: int = 8, tol: float = 0.01, verbose=False):
@@ -78,7 +108,7 @@ class Local:
                 return 1e10
             zz = zfull.copy(); zz[free] = zf
             lnl, lpd = self.terms(self.x(zz))
-            return -(lnl + lpd) if np.isfinite(lnl) else 1e10
+            return -(lnl + lpd) if np.isfinite(lnl + lpd) else 1e10
 
         zf = np.clip(zfull[free], lo + 1e-9, hi - 1e-9)
         best = f(zf)
