@@ -149,7 +149,8 @@ class NoDarkMatterModel:
                  tracer: str = "trager", backend: str = "jeans", fixed: dict[str, float] | None = None,
                  constant_beta: bool = False, beta0_max: float = BETA0_MAX_CORED_TRACER_WITH_BH,
                  distance_kpc: float | None = None, anisotropy_profile: str = "monotonic",
-                 centre_sigma_arcsec: float | None = None, centre_options: dict | None = None) -> None:
+                 centre_sigma_arcsec: float | None = None, centre_options: dict | None = None,
+                 inner_node_arcsec: float | None = None) -> None:
         """
         Parameters
         ----------
@@ -174,6 +175,10 @@ class NoDarkMatterModel:
             :data:`SPLINE_NODES_ARCSEC` (parameters ``b10`` ... ``b2000``; the first is
             the central value, prior [-1, beta0_max]; the others uniform [-1, 0.95], as
             JAM). Jeans backend only.
+        inner_node_arcsec : float, optional
+            Spline only (2026-11-19): an extra node at this radius with beta fixed at ``beta0_max``
+            (the BH-dominated An & Evans limit), the first free node (b10) then has prior [-1, 0]
+            instead of [-1, beta0_max]. ``None`` keeps the legacy spline.
         centre_sigma_arcsec : float, optional
             Sample the model centre: two parameters ``centre_x`` (dRA*) and ``centre_y``
             (dDec) [arcsec] about AvdM10, each with a normal(0, sigma) prior. The data stay
@@ -201,6 +206,10 @@ class NoDarkMatterModel:
         if anisotropy_profile in ("turnover", "spline") and (constant_beta or backend != "jeans"):
             raise ValueError(f"{anisotropy_profile} anisotropy requires varying beta and the jeans backend")
         self.anisotropy_profile = anisotropy_profile
+        if inner_node_arcsec is not None and (anisotropy_profile != "spline" or not
+                                              0 < inner_node_arcsec < SPLINE_NODES_ARCSEC[0]):
+            raise ValueError("inner_node_arcsec needs the spline anisotropy and 0 < r < the first node")
+        self.inner_node_arcsec = None if inner_node_arcsec is None else float(inner_node_arcsec)
         self.backend = backend
         self.tracer = tracer
         self.fixed = dict(fixed or {})
@@ -259,7 +268,7 @@ class NoDarkMatterModel:
                        Parameter("delta_r_beta", Prior("loguniform", 0.5, 150.0), "pc", r"r_2-r_1")]
         elif self.anisotropy_profile == "spline":
             for k, r in enumerate(SPLINE_NODES_ARCSEC):
-                hi = b0max if k == 0 else 0.95
+                hi = (0.0 if getattr(self, "inner_node_arcsec", None) else b0max) if k == 0 else 0.95
                 params.append(Parameter(f"b{int(r)}", Prior("uniform", -1.0, hi), "", rf"\beta({int(r)}'')"))
         else:
             params += [Parameter("beta_0", Prior("uniform", -1.0, b0max), "", r"\beta_0"),      # cored tracer plus central point mass: beta_0 <= -0.5
@@ -323,8 +332,11 @@ class NoDarkMatterModel:
             return AgamaDFBackend(mass, stars, beta0=theta["beta_0"], r_a=theta["r_a"], distance_kpc=D), D, self.scales(theta)
         if self.anisotropy_profile == "spline":
             pc = D * 1e3 / 206264.806
-            anis = SplineAnisotropy(tuple(r * pc for r in SPLINE_NODES_ARCSEC),
-                                    tuple(float(theta[f"b{int(r)}"]) for r in SPLINE_NODES_ARCSEC))
+            nodes = tuple(r * pc for r in SPLINE_NODES_ARCSEC)
+            vals = tuple(float(theta[f"b{int(r)}"]) for r in SPLINE_NODES_ARCSEC)
+            if getattr(self, "inner_node_arcsec", None):
+                nodes, vals = (self.inner_node_arcsec * pc,) + nodes, (self.beta0_max,) + vals
+            anis = SplineAnisotropy(nodes, vals)
         elif self.anisotropy_profile == "turnover":
             anis = TurnoverAnisotropy(theta["beta_0"], theta["beta_mid"], theta["beta_inf"],
                                       theta["r_beta"], theta["delta_r_beta"])

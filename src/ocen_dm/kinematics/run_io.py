@@ -115,6 +115,8 @@ def family_config(family) -> dict:
     }
     if isinstance(family, DarkMatterModel):
         config.update(gamma=family.gamma, r_t=family.r_t)
+    if getattr(family, "inner_node_arcsec", None) is not None:      # absent key = legacy spline
+        config.update(inner_node_arcsec=family.inner_node_arcsec)
     if getattr(family, "centre_sigma_arcsec", None) is not None:   # absent key = fixed centre (legacy)
         config.update(centre_sigma_arcsec=family.centre_sigma_arcsec, centre_options=dict(family.centre_options))
     return config
@@ -144,6 +146,8 @@ def family_from_config(config: dict, backend: str | None = None):
               distance_prior=Prior(**config["distance_prior"]) if config["distance_prior"] else None)
     if cls is DarkMatterModel:
         kw.update(gamma=config["gamma"], r_t=config["r_t"])
+    if config.get("inner_node_arcsec") is not None:
+        kw.update(inner_node_arcsec=config["inner_node_arcsec"])
     if config.get("centre_sigma_arcsec") is not None:
         kw.update(centre_sigma_arcsec=config["centre_sigma_arcsec"], centre_options=config["centre_options"])
     family = cls(**kw)

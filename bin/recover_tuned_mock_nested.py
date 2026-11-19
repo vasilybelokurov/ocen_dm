@@ -14,6 +14,7 @@ Usage: OMP_NUM_THREADS=1 PYTHONPATH=src:bin python bin/recover_tuned_mock_nested
        stars, as the JAM fits since 2026-11-15). --label L: output suffix.
        --anisotropy spline (2026-11-16): beta linear in ln r through the JAM spline nodes (anisotropy.SPLINE_NODES_ARCSEC)
        in place of the turnover profile; all other parameters and priors as the production run.
+       --inner-node R (2026-11-19, with --anisotropy spline): fixed beta = beta0_max (-0.5) node at R arcsec; b10 in [-1, 0].
        Under MPI (mpiexec -n N) the output check is made before the slow Setup, so all ranks see the same answer.
 Output: results/fits/recover_<truth>_<family>[_<label>]/ (summary.json, posterior.ecsv, ...)
 """
@@ -42,12 +43,14 @@ FAMILIES = {"K1": "jeans_K1_turnover_counts_c", "NFW": "jeans_K2_nfw_turnover_co
 TURN = ("beta_0", "beta_mid", "beta_inf", "r_beta", "delta_r_beta")
 
 
-def spline_config(cfg):
-    """The production family config with the turnover anisotropy replaced by the spline (priors from fit.py)."""
+def spline_config(cfg, inner_node=None):
+    """The production family config with the turnover anisotropy replaced by the spline (priors from fit.py).
+    inner_node (arcsec, 2026-11-19): extra node with beta fixed at beta0_max; b10 prior then [-1, 0]."""
     from ocen_dm.kinematics.fit import NoDarkMatterModel
     from ocen_dm.kinematics.run_io import _prior_config
     tmp = NoDarkMatterModel(mge_fit=family_from_config(cfg).mge_fit, anisotropy_profile="spline",
-                            beta0_max=cfg["beta0_max"], instruments=cfg["instruments"], fixed=cfg["fixed"])
+                            beta0_max=cfg["beta0_max"], instruments=cfg["instruments"], fixed=cfg["fixed"],
+                            inner_node_arcsec=inner_node)
     spl = [{"name": p.name, "prior": _prior_config(p.prior), "unit": p.unit, "latex": p.latex}
            for p in tmp.parameters if p.name.startswith("b") and p.name[1:].isdigit()]
     params, done = [], False
@@ -57,7 +60,10 @@ def spline_config(cfg):
                 params += spl; done = True
             continue
         params.append(p)
-    return {**cfg, "anisotropy_profile": "spline", "parameters": params}
+    out = {**cfg, "anisotropy_profile": "spline", "parameters": params}
+    if inner_node is not None:
+        out["inner_node_arcsec"] = float(inner_node)
+    return out
 
 
 def main():
@@ -67,6 +73,8 @@ def main():
     ap.add_argument("--per-bin", type=int, default=10, help="stars per HST/MUSE bin for the rotation terms; 0 = all")
     ap.add_argument("--label", default="")
     ap.add_argument("--anisotropy", choices=("turnover", "spline"), default="turnover")
+    ap.add_argument("--inner-node", type=float, default=None,
+                    help="spline only: fixed beta = beta0_max node at this radius (arcsec); b10 prior [-1, 0]")
     args = ap.parse_args()
     out = ROOT/"results/fits"/(f"recover_{args.truth}_{args.family}"+(f"_{args.label}" if args.label else ""))
     if out.exists():
@@ -85,8 +93,9 @@ def main():
     prod = ROOT/"results/fits"/FAMILIES[args.family]
     cfg = family_config(problem_for(load_run_metadata(prod)).family)
     if args.anisotropy == "spline":
-        cfg = spline_config(cfg)
-        prov["anisotropy"] = "spline (anisotropy.SPLINE_NODES_ARCSEC)"
+        cfg = spline_config(cfg, args.inner_node)
+        prov["anisotropy"] = "spline (anisotropy.SPLINE_NODES_ARCSEC)" + (
+            f" + fixed inner node beta({args.inner_node:g}\") = beta0_max" if args.inner_node else "")
     fam = family_from_config(cfg)
     smp = yaml.safe_load((prod/"run.yaml").read_text())["sampler"]
     s = run_nested(FitProblem(fam, mdata), out, n_live=smp["n_live"], dlogz=smp["dlogz"], seed=smp["seed"],

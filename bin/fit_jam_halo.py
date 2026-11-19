@@ -59,6 +59,7 @@ BNAMES = tuple(f"b{int(r)}" for r in BNODES)
 B_BOUNDS = {"b10": (-1., 0.)} | {n: (-1., 0.95) for n in BNAMES[1:]}       # b10 <= 0: central gamma_0 >= 2 beta_0
 B_START = ((-0.05, 0.05, 0.35, 0.45, -0.5), (0.0, 0.05, 0.3, 0.45, 0.5))  # matched-shape-like, global-like (scan)
 _B5 = (BNODES, B_START)
+BETA_INNER = -0.5          # --binner: An & Evans limit gamma >= beta + 1/2 where the BH dominates, cored tracer
 
 
 def set_bnodes(nodes):
@@ -166,11 +167,13 @@ class Problem:
         parameters, unused, are filled from the spherical MAP so that the family can build)."""
         if not self.spline:
             return self.S.predict(th, q, qr, self.a.inc)
-        vals = [th[n] for n in BNAMES]
+        vals, nodes = [th[n] for n in BNAMES], list(BNODES)
+        if getattr(self.a, "binner", None):                   # fixed beta(binner") = BETA_INNER (BH limit; 2026-11-19)
+            vals, nodes = [BETA_INNER]+vals, [self.a.binner]+nodes
         th2 = {k: v for k, v in th.items() if k not in BNAMES} | {k: self.base[k] for k in TURN}
         S, orig = self.S, self.S.grid_moments
         S.grid_moments = lambda lum, pot, mbh, D, _a, inc: orig(
-            lum, pot, mbh, D, H.SplineBeta(np.array(BNODES)*D*1e3/H.J.ARCSEC_PER_RAD, vals), inc)
+            lum, pot, mbh, D, H.SplineBeta(np.array(nodes)*D*1e3/H.J.ARCSEC_PER_RAD, vals), inc)
         try:
             return S.predict(th2, q, qr, self.a.inc)
         finally:
@@ -414,6 +417,8 @@ def main():
                     help="anisotropy: family turnover profile, or 5-node spline in log r (BNODES; same parameter count)")
     ap.add_argument("--bnodes", type=float, nargs="+", default=None,
                     help="spline beta nodes in arcsec (default 10 100 250 700 2000); e.g. add 1200")
+    ap.add_argument("--binner", type=float, default=None,
+                    help="spline only: extra node at this radius (arcsec) with beta fixed at -0.5 (BH limit)")
     ap.add_argument("--qhybrid", type=float, default=None, metavar="S_ROUND",
                     help="shape C: Gaussians narrower than S_ROUND arcsec share the free q', wider ones round (e.g. 600)")
     ap.add_argument("--qmatched", default=None, help="q_matched JSON (bin/match_q_isophotes.py): per-Gaussian q'_k, no free q'")
@@ -458,7 +463,8 @@ def main():
         + (f"_qprof{a.q_outer}_rem{a.q_rem}" + (f"_i{a.inc:g}" if a.inc != 44 else "") if a.qprofile else "") \
         + (f"_qmatch_rem{a.q_rem}" + (f"_i{a.inc:g}" if a.inc != 44 else "") if a.qmatched else "") \
         + (f"_qhyb{a.qhybrid:g}_rem{a.q_rem}" + (f"_i{a.inc:g}" if a.inc != 44 else "") if a.qhybrid is not None else "") \
-        + (("_bspline" + (f"{len(a.bnodes)}" if a.bnodes else "")) if a.beta == "spline" else "")+(f"_{a.label}" if a.label else "")
+        + (("_bspline" + (f"{len(a.bnodes)}" if a.bnodes else "") + (f"_in{a.binner:g}" if a.binner else ""))
+           if a.beta == "spline" else "")+(f"_{a.label}" if a.label else "")
     path = ROOT/f"results/rotation/jamfit_{P.tag}_{a.family}{suffix}.json"
     if path.exists() and not a.overwrite:
         sys.exit(f"{path.name} exists; use --label or --overwrite")
